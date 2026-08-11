@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Detail - Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+        body { }
+        .main-content {
+            margin-left: 290px;
+            width: calc(100% - 290px);
+            padding: 40px;
+            min-height: 100vh;
+        }
+        @media (max-width: 991px) {
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
+        .project-context-card {
+            max-width: 800px;
+            width: 90%;
+            background-color: #fff;
+            color: white;
+            margin: 20px auto -20px auto;
+            padding: 20px 25px 40px 25px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        .ph-badge {
+            background: #FDE047;
+            color: #854D0E;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            position: absolute;
+            left: 30px;
+            top: 40%;
+            transform: translateY(-50%);
+        }
+        .ph-crumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+        }
+        .ph-crumb-link {
+            text-decoration: none;
+            color: #d1d5db;
+            font-weight: 500;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .ph-crumb-link:hover { color: white; }
+        .ph-crumb-active {
+            color: white;
+            font-weight: 700;
+            border-bottom: 2px solid #FDE047;
+        }
+        .ph-sep { font-size: 0.8rem; color: #6b7280; }
+        .main-list-card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 50px auto;
+            padding: 50px 60px;
+            position: relative;
+            z-index: 2;
+            border: 0px;
+        }
+        .rich-editor {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-btn {
+            border: none;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .rich-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .rich-editor-body {
+            min-height: 90px;
+            padding: 10px 12px;
+            background: #ffffff;
+            outline: none;
+        }
+        .rich-editor-body[contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+        .boost-emoji-container {
+            position: relative;
+            display: inline-block;
+        }
+        .boost-emoji-popover {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            border-radius: 999px;
+            padding: 6px 10px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .boost-emoji-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+        }
+        .boost-emoji-option:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+        }
+        .boost-emoji-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-left: 4px;
+            color: #9ca3af;
+        }
+        .boost-emoji-delete:hover {
+            color: #ef4444;
+        }
+        @media (max-width: 768px) {
+            .ph-badge { display: none; }
+            .ph-crumb-container { width: 100%; justify-content: center; padding: 8px 10px; gap: 8px; font-size: 0.85rem;}
+            .main-list-card { padding: 30px 20px; }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body style="background-color: #f1f7fd;">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content">
+            <div class="project-context-card">
+                <div class="ph-badge" id="projectBadge">Loading...</div>
+                <div class="ph-crumb-container">
+                    <a href="../home.html" class="ph-crumb-link" title="Dashboard">
+                        <i class="bi bi-house-fill"></i>
+                    </a>
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadProjectLink" class="ph-crumb-link">...</a>
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadAllListLink" class="ph-crumb-link ph-crumb-active">Messages</a>
+                </div>
+                <div class="position-absolute end-0 me-3">
+                    <button class="btn btn-link text-white text-opacity-50"><i class="bi bi-three-dots"></i></button>
+                </div>
+            </div>
+            <div class="main-list-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm" onclick="history.back()">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to messages
+                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="messageCategoryBadge" class="badge rounded-pill text-bg-light text-uppercase small d-flex align-items-center gap-1">
+                            <i class="bi bi-megaphone-fill"></i>
+                            <span id="messageCategoryBadgeText"></span>
+                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center"
+                                    type="button"
+                                    id="messageDetailMoreDropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style="width:34px; height:34px; padding:0;">
+                                <i class="bi bi-three-dots text-dark"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="messageDetailMoreDropdown">
+                                <li>
+                                    <button class="dropdown-item small d-flex align-items-center gap-2" type="button" onclick="handleMessageEdit()">
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Edit</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item small d-flex align-items-center gap-2" type="button" onclick="handleMessageCopy()">
+                                        <i class="bi bi-copy"></i>
+                                        <span>Copy</span>
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item small text-danger d-flex align-items-center gap-2" type="button" onclick="handleMessageTrash()">
+                                        <i class="bi bi-trash"></i>
+                                        <span>Trash</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mb-4">
+                    <div id="messageCategoryHeading" class="text-muted text-uppercase small fw-semibold mb-1" style="letter-spacing:0.12em;"></div>
+                    <h1 id="messageTitle" class="fw-bold mb-2" style="font-size:2.1rem; color:#111;"></h1>
+                    <div class="d-inline-flex align-items-center gap-2 text-muted small" id="messageMeta">
+                        <div id="messageAvatar" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold overflow-hidden" style="width:28px; height:28px;"></div>
+                        <span id="messageAuthorName"></span>
+                        <span>·</span>
+                        <span id="messageDateText"></span>
+                        <span>·</span>
+                        <span id="messageNotifiedText"></span>
+                    </div>
+                </div>
+                <div id="messageContent" class="mb-4"></div>
+                <div id="messageAttachments" class="small mb-2"></div>
+                <div id="messageError" class="text-danger small mt-2"></div>
+                <div id="messageBoostSection" class="mt-4 pt-2" style="">
+                    <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                        <div class="d-flex align-items-center avatar-pile" id="messageBoostAvatars"></div>
+                        <div class="boost-emoji-container">
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 d-flex align-items-center gap-2" onclick="toggleBoostMessage()" id="messageBoostButton">
+                                <span id="messageBoostEmoji">👏</span>
+                                <span id="messageBoostLabel" class="small fw-semibold">Boost this</span>
+                            </button>
+                            <div id="boostEmojiPopover" class="boost-emoji-popover" style="display:none;">
+                                <button type="button" class="boost-emoji-option" data-emoji="❤️">❤️</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="👏🏻">👏🏻</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="🚀">🚀</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="⭐️">⭐️</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="✍🏻">✍🏻</button>
+                                <button type="button" class="boost-emoji-option" data-emoji="❌">❌</button>
+                            </div>
+                        </div>
+                        <button type="button" class="boost-emoji-delete" onclick="handleBoostDeleteClick()">🚫</button>
+                    </div>
+                </div>
+                <div class="mt-5 pt-5 border-top">
+                <h6 class="fw-bold text-dark">Discuss Section</h6>
+                <p class="small text-muted mb-3">Let's discuss about this message.</p>
+                    <div id="commentsContainer" class="mb-4 d-flex flex-column gap-3"></div>
+                    <div class="d-flex gap-3">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0 overflow-hidden" style="width:40px; height:40px;">
+                            <img id="commentAvatar" src="https://i.pravatar.cc/150" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div class="w-100">
+                            <div id="replyContext" class="small text-muted mb-1" style="display:none;"></div>
+                            <div class="rich-editor mb-2" style="position:relative;">
+                                <div class="rich-toolbar">
+                                    <button type="button" class="rich-btn" onclick="applyFormat('commentInput','bold')"><i class="bi bi-type-bold"></i></button>
+                                    <button type="button" class="rich-btn" onclick="applyFormat('commentInput','italic')"><i class="bi bi-type-italic"></i></button>
+                                    <button type="button" class="rich-btn" onclick="applyFormat('commentInput','insertUnorderedList')"><i class="bi bi-list-ul"></i></button>
+                                    <button type="button" class="rich-btn" onclick="applyFormat('commentInput','insertOrderedList')"><i class="bi bi-list-ol"></i></button>
+                                    <button type="button" class="rich-btn" onclick="applyBlockquote('commentInput')"><i class="bi bi-chat-right-quote"></i></button>
+                                    <button type="button" class="rich-btn ms-auto" onclick="triggerCommentFileInput()"><i class="bi bi-paperclip"></i></button>
+                                </div>
+                                <div id="commentInput" class="rich-editor-body" contenteditable="true" data-placeholder="Add a comment here..."></div>
+                                <div id="mentionDropdown" class="bg-white border rounded shadow-sm small" style="position:absolute; z-index:1050; display:none; max-height:200px; overflow-y:auto; min-width:180px;"></div>
+                            </div>
+                            <div id="commentAttachmentPreview" class="small text-muted mb-2"></div>
+                            <input type="file" id="comment-file-input" multiple style="display:none">
+                            <button class="btn btn-dlg-yellow rounded-pill px-4 btn-sm fw-bold" style="margin-top: 7px;" onclick="postComment()">Post Comment</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 pt-4 border-top">
+                    <h6 class="fw-bold text-dark">Subscribers</h6>
+                    <p class="small text-muted mb-3">People listed below will be notified when comments are posted.</p>
+                    <div class="d-flex align-items-center gap-2 flex-wrap" id="subsContainer"></div>
+                    <div class="mt-3 p-2 bg-light rounded-pill d-inline-block border">
+                        <small id="subscriptionStatusText" class="text-dark fw-bold px-2">You’re subscribed</small>
+                        <button id="subscriptionToggleButton" class="btn btn-sm btn-link text-muted text-decoration-none p-0" style="font-size:0.8rem;" onclick="toggleSubscription()">Unsubscribe me</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal fade" id="manageSubscribersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Manage Subscribers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="input-group mb-3 bg-light rounded-pill px-2">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-transparent border-0 shadow-none" placeholder="Search people..." oninput="renderManageSubscriberList(this.value)">
+                    </div>
+                    <div id="subscriberListScroll" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="commentEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Edit Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <textarea id="commentEditText" class="form-control" rows="4" placeholder="Update your comment..."></textarea>
+                    <input type="hidden" id="commentEditId">
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-3" onclick="confirmEditComment()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="commentDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-danger">Delete Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2">Are you sure you want to delete this comment?</p>
+                    <p id="commentDeletePreview" class="small text-muted mb-0"></p>
+                    <input type="hidden" id="commentDeleteId">
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-3" onclick="confirmDeleteComment()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="commentInfoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-body p-4 text-center">
+                    <p id="commentInfoMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            onSnapshot,
+            query,
+            where,
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+        window.storage = storage;
+        window.ref = storageRef;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get("projectId") || urlParams.get("id");
+        const messageId = urlParams.get("messageId");
+        const badgeEl = document.getElementById("projectBadge");
+        const breadProjectLink = document.getElementById("breadProjectLink");
+        const breadAllListLink = document.getElementById("breadAllListLink");
+        const avatarEl = document.getElementById("messageAvatar");
+        const titleEl = document.getElementById("messageTitle");
+        const metaEl = document.getElementById("messageMeta");
+        const messageCategoryHeadingEl = document.getElementById("messageCategoryHeading");
+        const messageCategoryBadgeTextEl = document.getElementById("messageCategoryBadgeText");
+        const messageAuthorNameEl = document.getElementById("messageAuthorName");
+        const messageDateTextEl = document.getElementById("messageDateText");
+        const messageNotifiedTextEl = document.getElementById("messageNotifiedText");
+        const messageBoostSectionEl = document.getElementById("messageBoostSection");
+        const messageBoostAvatarsEl = document.getElementById("messageBoostAvatars");
+        const messageBoostEmojiEl = document.getElementById("messageBoostEmoji");
+        const messageBoostLabelEl = document.getElementById("messageBoostLabel");
+        const boostEmojiPopoverEl = document.getElementById("boostEmojiPopover");
+        const contentEl = document.getElementById("messageContent");
+        const attachmentsEl = document.getElementById("messageAttachments");
+        const errorEl = document.getElementById("messageError");
+        const categoryBadgeEl = document.getElementById("messageCategoryBadge");
+        const commentsContainer = document.getElementById("commentsContainer");
+        const subsContainer = document.getElementById("subsContainer");
+        const subscriptionStatusText = document.getElementById("subscriptionStatusText");
+        const subscriptionToggleButton = document.getElementById("subscriptionToggleButton");
+        const commentAvatar = document.getElementById("commentAvatar");
+        const manageSubsScroll = document.getElementById("subscriberListScroll");
+        let currentUser = null;
+        let currentComments = [];
+        let currentSubscribers = [];
+        let currentBoosts = [];
+        let currentUserBoosted = false;
+        let currentUserBoostEmoji = "";
+        let projectMembers = [];
+        let membersLoaded = false;
+        let manageSubscriberSearchQuery = "";
+        let pendingCommentFiles = [];
+        let replyTargetCommentId = null;
+        let mentionRange = null;
+        let mentionActive = false;
+        let mentionQuery = "";
+        let mentionDropdownElement = null;
+        function getSubscribersCollectionRef() {
+            if (!projectId || !messageId) return null;
+            return collection(db, "projects", projectId, "messages", messageId, "subscribers");
+        }
+        function getBoostsCollectionRef() {
+            if (!projectId || !messageId) return null;
+            return collection(db, "projects", projectId, "messages", messageId, "boosts");
+        }
+        function getMessagesCollectionRef() {
+            if (!projectId) return null;
+            return collection(db, "projects", projectId, "messages");
+        }
+        function normalizeTimestamp(ts) {
+            if (!ts) return null;
+            if (ts.toDate) return ts.toDate();
+            if (ts.seconds) return new Date(ts.seconds * 1000);
+            if (typeof ts === "number") return new Date(ts);
+            return null;
+        }
+        function getPlainTextFromHtml(html) {
+            if (!html) return "";
+            const div = document.createElement("div");
+            div.innerHTML = html;
+            return (div.textContent || div.innerText || "").trim();
+        }
+        function buildInitials(source) {
+            if (!source) return "US";
+            const parts = String(source).trim().split(/\s+/);
+            const joined = parts.map(p => p[0]).join("").substring(0, 2);
+            return joined ? joined.toUpperCase() : "US";
+        }
+        function formatCategoryLabel(category) {
+            if (!category) return "";
+            const key = String(category).toLowerCase();
+            if (key === "announcement") return "Announcement";
+            if (key === "updates") return "Updates";
+            if (key === "urgent") return "Urgent";
+            if (key === "question") return "Question";
+            return key.charAt(0).toUpperCase() + key.slice(1);
+        }
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return `https://i.pravatar.cc/150?u=${uid || "user"}`;
+            if (url.includes("drive.google.com")) {
+                let id = "";
+                if (url.includes("id=")) {
+                    id = url.split("id=")[1].split("&")[0];
+                } else if (url.includes("/d/")) {
+                    id = url.split("/d/")[1].split("/")[0];
+                }
+                if (id) return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            }
+            return url;
+        }
+        function getCurrentUserUid() {
+            try {
+                if (currentUser && currentUser.uid) return currentUser.uid;
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                if (localData && localData.uid) return localData.uid;
+            } catch (e) {}
+            return "";
+        }
+        function canEditComment(c) {
+            const uid = getCurrentUserUid();
+            if (!uid) return false;
+            const owner = c.user_id || c.userId || "";
+            return uid === owner;
+        }
+        function getPlainCommentText(c) {
+            if (!c) return "";
+            if (typeof c.text_plain === "string") return c.text_plain;
+            if (typeof c.text === "string") return c.text.replace(/<[^>]*>/g, " ");
+            return "";
+        }
+        async function loadProjectHeader() {
+            if (!projectId) return;
+            try {
+                if (breadProjectLink) breadProjectLink.href = `../project/project.html?id=${projectId}`;
+                if (breadAllListLink) {
+                    breadAllListLink.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        window.location.href = `message.html?id=${encodeURIComponent(projectId)}`;
+                    });
+                }
+                const snap = await getDoc(doc(db, "projects", projectId));
+                let members = [];
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (breadProjectLink) breadProjectLink.innerText = data.name || "Untitled Project";
+                    if (badgeEl) badgeEl.innerText = data.department || "Project";
+                    members = Array.isArray(data.members) ? data.members : [];
+                }
+                await loadProjectMembers(members);
+            } catch (e) {
+                console.error("Failed to load project header", e);
+                await loadProjectMembers([]);
+            }
+        }
+        async function loadProjectMembers(memberUids) {
+            console.log("loadProjectMembers called with:", memberUids);
+            projectMembers = [];
+            membersLoaded = false;
+            renderManageSubscriberList(manageSubscriberSearchQuery);
+            try {
+                // FORCE FETCH ALL USERS
+                // User reported "only me" showing up, implying the project.members array is too restrictive.
+                // We will ignore memberUids for fetching and just get everyone in the system.
+                console.log("Fetching ALL users from 'users' collection (ignoring project restriction)...");
+                
+                const snap = await getDocs(collection(db, "users"));
+                console.log("Fetched users collection snapshot size:", snap.size);
+                
+                if (snap.empty) {
+                     console.warn("Users collection is EMPTY!");
+                }
+
+                const allUsers = [];
+                snap.forEach(docSnap => {
+                    const u = docSnap.data() || {};
+                    allUsers.push({
+                        uid: docSnap.id,
+                        name: u.name || u.email || "Unknown",
+                        email: u.email || "",
+                        photo: getDirectPhotoUrl(u.photo || "", docSnap.id),
+                        role: (u.employment && u.employment.position) || "Member"
+                    });
+                });
+
+                // Sort users: Current user first, then alphabetically
+                const currentUid = getCurrentUserUid();
+                allUsers.sort((a, b) => {
+                    if (a.uid === currentUid) return -1;
+                    if (b.uid === currentUid) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+                projectMembers = allUsers;
+                console.log("Final projectMembers count:", projectMembers.length);
+
+            } catch (e) {
+                console.error("Error loading project members:", e);
+                // Emergency fallback (e.g. if listing users fails due to rules, at least try to load the passed UIDs)
+                if (Array.isArray(memberUids) && memberUids.length > 0) {
+                     try {
+                        console.log("Fallback: Fetching individual members from project list...");
+                        const promises = memberUids.map(async (uid) => {
+                            const s = await getDoc(doc(db, "users", uid));
+                            if (s.exists()) {
+                                const u = s.data();
+                                return {
+                                    uid: uid,
+                                    name: u.name || u.email || "Unknown",
+                                    email: u.email || "",
+                                    photo: getDirectPhotoUrl(u.photo || "", uid),
+                                    role: (u.employment && u.employment.position) || "Member"
+                                };
+                            }
+                            return null;
+                        });
+                        const results = await Promise.all(promises);
+                        projectMembers = results.filter(Boolean);
+                     } catch (err2) {
+                         console.error("Fallback failed:", err2);
+                     }
+                }
+            } finally {
+                membersLoaded = true;
+                renderManageSubscriberList(manageSubscriberSearchQuery);
+            }
+        }
+        async function loadMessage() {
+            if (!projectId || !messageId) {
+                if (errorEl) errorEl.innerText = "Parameter URL tidak lengkap.";
+                return;
+            }
+            try {
+                const ref = doc(db, "projects", projectId, "messages", messageId);
+                const snap = await getDoc(ref);
+                if (!snap.exists()) {
+                    if (errorEl) errorEl.innerText = "Message tidak ditemukan.";
+                    return;
+                }
+                const data = snap.data();
+                const userName = data.user_name || data.userName || "User";
+                const category = data.category || "";
+                const title = (data.title || "").trim();
+                const plainText = data.text_plain || getPlainTextFromHtml(data.text || "");
+                if (titleEl) {
+                    if (title) {
+                        titleEl.innerText = title;
+                    } else {
+                        const snippet = plainText.length > 80 ? plainText.substring(0, 77) + "..." : plainText || "Untitled message";
+                        titleEl.innerText = snippet;
+                    }
+                }
+                const createdAt = normalizeTimestamp(data.created_at || data.createdAt);
+                const dateStr = createdAt
+                    ? createdAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                    : "";
+                const initialsSource = data.user_initials || userName;
+                const initials = buildInitials(initialsSource);
+                const rawPhoto = data.user_photo || data.userPhoto || "";
+                const authorUid = data.user_id || data.userId || "";
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", authorUid || "");
+                if (avatarEl) {
+                    avatarEl.innerHTML = "";
+                    if (photoUrl) {
+                        const img = document.createElement("img");
+                        img.src = photoUrl;
+                        img.alt = userName;
+                        img.style.width = "100%";
+                        img.style.height = "100%";
+                        img.style.objectFit = "cover";
+                        avatarEl.appendChild(img);
+                    } else {
+                        const div = document.createElement("div");
+                        div.className = "w-100 h-100 d-flex align-items-center justify-content-center";
+                        div.textContent = initials;
+                        avatarEl.appendChild(div);
+                    }
+                }
+                const displayCategory = formatCategoryLabel(category);
+                if (messageCategoryHeadingEl) {
+                    messageCategoryHeadingEl.innerText = displayCategory || "";
+                }
+                if (messageCategoryBadgeTextEl) {
+                    messageCategoryBadgeTextEl.innerText = displayCategory || "";
+                }
+                if (categoryBadgeEl) {
+                    categoryBadgeEl.style.display = category ? "inline-flex" : "none";
+                }
+                if (messageAuthorNameEl) {
+                    messageAuthorNameEl.innerText = userName;
+                }
+                if (messageDateTextEl) {
+                    messageDateTextEl.innerText = dateStr;
+                }
+                if (messageNotifiedTextEl) {
+                    messageNotifiedTextEl.innerText = "";
+                }
+                if (contentEl) contentEl.innerHTML = data.text || "";
+                if (attachmentsEl) {
+                    const attachments = Array.isArray(data.attachments) ? data.attachments : [];
+                    if (!attachments.length) {
+                        attachmentsEl.innerText = "";
+                    } else {
+                        attachmentsEl.innerHTML = attachments.map(a => {
+                            const name = a.name || "Attachment";
+                            const url = a.url || "#";
+                            return `<a href="${url}" target="_blank" rel="noopener" class="me-2"><i class="bi bi-paperclip me-1"></i>${name}</a>`;
+                        }).join("");
+                    }
+                }
+            } catch (e) {
+                if (errorEl) errorEl.innerText = "Gagal memuat message: " + e.message;
+            }
+        }
+        function updateReplyContextUI() {
+            const ctx = document.getElementById("replyContext");
+            if (!ctx) return;
+            if (!replyTargetCommentId) {
+                ctx.style.display = "none";
+                ctx.innerHTML = "";
+                return;
+            }
+            const comment = currentComments.find(c => c.id === replyTargetCommentId);
+            if (!comment) {
+                replyTargetCommentId = null;
+                ctx.style.display = "none";
+                ctx.innerHTML = "";
+                return;
+            }
+            const userId = comment.user_id || comment.userId || "";
+            const userName = comment.user_name || comment.userName || userId || "User";
+            const text = getPlainCommentText(comment);
+            const truncated = text.length > 80 ? text.substring(0, 77) + "..." : text;
+            ctx.style.display = "block";
+            ctx.innerHTML = `Replying to <strong>${userName}</strong>: "${truncated}" <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="clearReplyTarget()">Cancel reply</button>`;
+        }
+        window.replyToComment = function (commentId) {
+            replyTargetCommentId = commentId;
+            updateReplyContextUI();
+            const input = document.getElementById("commentInput");
+            if (input) {
+                input.focus();
+                const range = document.createRange();
+                range.selectNodeContents(input);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        };
+        window.clearReplyTarget = function () {
+            replyTargetCommentId = null;
+            updateReplyContextUI();
+        };
+        function renderComments(comments) {
+            if (!commentsContainer) return;
+            commentsContainer.innerHTML = "";
+            if (!comments || comments.length === 0) {
+                commentsContainer.innerHTML = '<p class="text-muted small mb-0">No comments yet.</p>';
+                return;
+            }
+            const commentById = {};
+            comments.forEach(c => {
+                commentById[c.id] = c;
+            });
+            const childrenMap = {};
+            comments.forEach(c => {
+                const parentId = c.parent_comment_id || c.parentCommentId || null;
+                if (parentId) {
+                    if (!childrenMap[parentId]) childrenMap[parentId] = [];
+                    childrenMap[parentId].push(c);
+                }
+            });
+            const roots = comments.filter(c => {
+                const parentId = c.parent_comment_id || c.parentCommentId || null;
+                if (!parentId) return true;
+                return !commentById[parentId];
+            });
+            function renderCommentTree(c, depth) {
+                const createdAt = normalizeTimestamp(c.created_at || c.createdAt);
+                const dateStr = createdAt ? createdAt.toLocaleString() : "Just now";
+                const userId = c.user_id || c.userId || "";
+                const userName = c.user_name || c.userName || userId || "User";
+                const initialsSource = c.user_initials || userName || userId || "";
+                const initials = initialsSource
+                    ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                    : "??";
+                const photo = c.user_photo || "";
+                const attachments = Array.isArray(c.attachments) ? c.attachments : [];
+                const attachmentsHtml = attachments.length
+                    ? `<div class="mt-2 small">${attachments.map(a => `<a href="${a.url}" target="_blank" rel="noopener" class="me-2"><i class="bi bi-paperclip me-1"></i>${a.name}</a>`).join("")}</div>`
+                    : "";
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0 overflow-hidden" style="width:40px; height:40px;">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width:40px; height:40px;">
+                           ${initials}
+                       </div>`;
+                const canEdit = canEditComment(c);
+                const actions = [];
+                actions.push(`
+                    <button class="btn btn-sm btn-outline-primary px-2 py-0 small"
+                            style="border-color:#0B2B6A; color:#0B2B6A;"
+                            onclick="replyToComment('${c.id}')">
+                        Reply
+                    </button>
+                `);
+                if (canEdit) {
+                    actions.push(`
+                        <button class="btn btn-sm btn-outline-primary px-2 py-0 small"
+                                style="border-color:#0B2B6A; color:#0B2B6A;"
+                                onclick="editComment('${c.id}')">
+                            Edit
+                        </button>
+                    `);
+                    actions.push(`
+                        <button class="btn btn-sm btn-outline-danger px-2 py-0 small"
+                                style="border-color:#e7181a; color:#e7181a;"
+                                onclick="deleteComment('${c.id}')">
+                            Delete
+                        </button>
+                    `);
+                }
+                const actionsHtml = actions.length
+                    ? `<div class="mt-1 d-flex gap-2">${actions.join("")}</div>`
+                    : "";
+                const parentId = c.parent_comment_id || c.parentCommentId || null;
+                const parent = parentId ? commentById[parentId] : null;
+                const parentName = parent ? (parent.user_name || parent.userName || "") : "";
+                const replyingHtml = parentName
+                    ? `<div class="small text-muted mb-1">Replying to <strong>${parentName}</strong></div>`
+                    : "";
+                const indentClass = depth > 0 ? " ms-5" : "";
+                const marginClass = depth > 0 ? "mb-2" : "mb-3";
+                const html = `
+                    <div class="d-flex gap-3 ${marginClass}${indentClass}">
+                        ${avatar}
+                        <div class="bg-white border rounded p-3 w-100 shadow-sm">
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong class="small text-dark">${userName}</strong>
+                                <small class="text-muted" style="font-size:0.7rem">${dateStr}</small>
+                            </div>
+                            ${replyingHtml}
+                            <div class="text-dark small" id="comment-text-${c.id}">${c.text || ""}</div>
+                            ${attachmentsHtml}
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+                commentsContainer.insertAdjacentHTML("beforeend", html);
+                const children = childrenMap[c.id] || [];
+                children.forEach(child => renderCommentTree(child, depth + 1));
+            }
+            roots.forEach(root => {
+                renderCommentTree(root, 0);
+            });
+        }
+        function renderSubscribers(subs) {
+            subsContainer.innerHTML = "";
+            if (!subs || subs.length === 0) {
+                const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" data-bs-toggle="modal" data-bs-target="#manageSubscribersModal">Add/remove people...</button>`;
+                subsContainer.insertAdjacentHTML("beforeend", btnAddHtml);
+                return;
+            }
+            subs.forEach(s => {
+                const userId = s.user_id || s.userId || "";
+                const userName = s.user_name || s.userName || userId || "User";
+                const initialsSource = s.user_initials || userName || userId || "";
+                const initials = initialsSource
+                    ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                    : "U";
+                const photo = s.user_photo || "";
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold overflow-hidden" style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" 
+                         style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">${initials}</div>`;
+                subsContainer.insertAdjacentHTML("beforeend", avatar);
+            });
+            const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" data-bs-toggle="modal" data-bs-target="#manageSubscribersModal">Add/remove people...</button>`;
+            subsContainer.insertAdjacentHTML("beforeend", btnAddHtml);
+        }
+        function updateNotifiedText() {
+            if (!messageNotifiedTextEl) return;
+            const count = Array.isArray(currentSubscribers) ? currentSubscribers.length : 0;
+            if (count > 0) {
+                messageNotifiedTextEl.innerText = `Notified at ${count} people`;
+            } else {
+                messageNotifiedTextEl.innerText = "";
+            }
+        }
+        function renderBoosts(boosts) {
+            if (!messageBoostSectionEl || !messageBoostAvatarsEl || !messageBoostEmojiEl || !messageBoostLabelEl) return;
+            messageBoostAvatarsEl.innerHTML = "";
+            if (!boosts || boosts.length === 0) {
+                messageBoostSectionEl.style.display = "block";
+                messageBoostEmojiEl.innerText = "👏";
+                messageBoostLabelEl.innerText = "Boost this";
+                currentUserBoosted = false;
+                currentUserBoostEmoji = "";
+                return;
+            }
+            boosts.forEach(b => {
+                const uid = b.user_id || b.userId || "";
+                const name = b.user_name || b.userName || "User";
+                const photo = b.user_photo || "";
+                const src = getDirectPhotoUrl(photo || "", uid || "");
+                const emoji = b.emoji || b.emoticon || "👏";
+                const wrapper = document.createElement("div");
+                wrapper.style.position = "relative";
+                wrapper.style.display = "inline-block";
+                wrapper.style.marginLeft = "-10px";
+                const img = document.createElement("img");
+                img.src = src;
+                img.alt = name;
+                img.title = name;
+                img.style.width = "32px";
+                img.style.height = "32px";
+                img.style.borderRadius = "999px";
+                img.style.border = "2px solid #fff";
+                img.style.objectFit = "cover";
+                img.style.backgroundColor = "#e5e7eb";
+                const emojiBadge = document.createElement("span");
+                emojiBadge.innerText = emoji;
+                emojiBadge.style.position = "absolute";
+                emojiBadge.style.bottom = "-4px";
+                emojiBadge.style.right = "-4px";
+                emojiBadge.style.fontSize = "0.75rem";
+                emojiBadge.style.backgroundColor = "#ffffff";
+                emojiBadge.style.borderRadius = "999px";
+                emojiBadge.style.padding = "0 2px";
+                emojiBadge.style.border = "1px solid #e5e7eb";
+                wrapper.appendChild(img);
+                wrapper.appendChild(emojiBadge);
+                messageBoostAvatarsEl.appendChild(wrapper);
+            });
+            messageBoostSectionEl.style.display = "block";
+            const uid = getCurrentUserUid();
+            const myBoost = uid ? boosts.find(b => (b.user_id || b.userId) === uid) : null;
+            const isBoosted = !!myBoost;
+            currentUserBoosted = isBoosted;
+            const myEmoji = myBoost && (myBoost.emoji || myBoost.emoticon) ? (myBoost.emoji || myBoost.emoticon) : "👏";
+            currentUserBoostEmoji = isBoosted ? myEmoji : "";
+            messageBoostEmojiEl.innerText = myEmoji;
+            messageBoostLabelEl.innerText = isBoosted ? "Boosted" : "Boost this";
+        }
+        function listenComments() {
+            try {
+                if (!projectId || !messageId) return;
+                const ref = collection(db, "projects", projectId, "messages", messageId, "comments");
+                const q = query(ref, orderBy("created_at", "asc"));
+                onSnapshot(q, (snapshot) => {
+                    const comments = [];
+                    snapshot.forEach(docSnap => comments.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentComments = comments;
+                    renderComments(comments);
+                }, (error) => {
+                    console.error("Failed to listen comments", error);
+                });
+            } catch (e) {
+                console.error("Failed to start comments listener", e);
+            }
+        }
+        function listenSubscribers() {
+            try {
+                const ref = getSubscribersCollectionRef();
+                if (!ref) return;
+                onSnapshot(ref, (snapshot) => {
+                    const subs = [];
+                    snapshot.forEach(docSnap => subs.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentSubscribers = subs;
+                    renderSubscribers(subs);
+                    updateSubscriptionUI();
+                    updateNotifiedText();
+                    renderManageSubscriberList(manageSubscriberSearchQuery);
+                }, (error) => {
+                    console.error("Failed to listen subscribers", error);
+                });
+            } catch (e) {
+                console.error("Failed to start subscribers listener", e);
+            }
+        }
+        function listenBoosts() {
+            try {
+                const ref = getBoostsCollectionRef();
+                if (!ref) return;
+                onSnapshot(ref, (snapshot) => {
+                    const boosts = [];
+                    snapshot.forEach(docSnap => boosts.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentBoosts = boosts;
+                    renderBoosts(boosts);
+                }, (error) => {
+                    console.error("Failed to listen boosts", error);
+                });
+            } catch (e) {
+                console.error("Failed to start boosts listener", e);
+            }
+        }
+        async function deleteSubscriberByUid(uid) {
+            const subsRef = getSubscribersCollectionRef();
+            if (!subsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah subscriber.");
+            const existingWithId = currentSubscribers.find(s => (s.user_id || s.userId) === uid && s.id);
+            if (existingWithId) {
+                await deleteDoc(doc(subsRef, existingWithId.id));
+                return;
+            }
+            const q = query(subsRef, where("user_id", "==", uid));
+            const snap = await getDocs(q);
+            const deletions = [];
+            snap.forEach(docSnap => {
+                deletions.push(deleteDoc(doc(subsRef, docSnap.id)));
+            });
+            if (deletions.length > 0) {
+                await Promise.all(deletions);
+            }
+        }
+        async function toggleBoostForCurrentUser(emoji) {
+            const boostsRef = getBoostsCollectionRef();
+            if (!boostsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah boost.");
+            const uid = getCurrentUserUid();
+            if (!uid) throw new Error("User tidak ditemukan.");
+            const q = query(boostsRef, where("user_id", "==", uid));
+            const snap = await getDocs(q);
+            const docs = [];
+            snap.forEach(docSnap => docs.push(docSnap));
+            if (docs.length > 0) {
+                await Promise.all(docs.map(d => deleteDoc(d.ref)));
+                return false;
+            } else {
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                const userName = localData && localData.name ? localData.name : (currentUser && currentUser.email ? currentUser.email : "User");
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || "";
+                const initials = buildInitials(initialsSource);
+                const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "👏";
+                await addDoc(boostsRef, {
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    emoji: usedEmoji,
+                    emoticon: usedEmoji,
+                    created_at: serverTimestamp()
+                });
+                return true;
+            }
+        }
+        async function setBoostEmojiForCurrentUser(emoji) {
+            const boostsRef = getBoostsCollectionRef();
+            if (!boostsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah boost.");
+            const uid = getCurrentUserUid();
+            if (!uid) throw new Error("User tidak ditemukan.");
+            const q = query(boostsRef, where("user_id", "==", uid));
+            const snap = await getDocs(q);
+            const docs = [];
+            snap.forEach(docSnap => docs.push(docSnap));
+            const usedEmoji = emoji && typeof emoji === "string" && emoji.trim() ? emoji.trim() : "👏";
+            if (docs.length === 0) {
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                const userName = localData && localData.name ? localData.name : (currentUser && currentUser.email ? currentUser.email : "User");
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || "";
+                const initials = buildInitials(initialsSource);
+                await addDoc(boostsRef, {
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    emoji: usedEmoji,
+                    emoticon: usedEmoji,
+                    created_at: serverTimestamp()
+                });
+            } else {
+                await Promise.all(docs.map(d => updateDoc(d.ref, {
+                    emoji: usedEmoji,
+                    emoticon: usedEmoji
+                })));
+            }
+        }
+        function updateSubscriptionUI() {
+            if (!subscriptionStatusText || !subscriptionToggleButton) return;
+            if (!currentUser) {
+                subscriptionStatusText.innerText = "You’re not subscribed";
+                subscriptionToggleButton.innerText = "Subscribe me";
+                subscriptionToggleButton.disabled = true;
+                return;
+            }
+            const uid = currentUser.uid;
+            const isSubscribed = currentSubscribers.some(s => (s.user_id || s.userId) === uid);
+            subscriptionStatusText.innerText = isSubscribed ? "You’re subscribed" : "You’re not subscribed";
+            subscriptionToggleButton.innerText = isSubscribed ? "Unsubscribe me" : "Subscribe me";
+            subscriptionToggleButton.disabled = false;
+        }
+        window.postComment = async function () {
+            const input = document.getElementById("commentInput");
+            if (!input || !projectId || !messageId) return;
+            const plainText = input.innerText.replace(/\u200B/g, "").trim();
+            const htmlText = input.innerHTML.trim();
+            if (!plainText) return;
+            const btn = event && event.target ? event.target : null;
+            let originalBtnText = "";
+            if (btn) {
+                originalBtnText = btn.innerText;
+                btn.innerText = "Posting...";
+                btn.disabled = true;
+            }
+            try {
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                const userName = localData && localData.name ? localData.name : (currentUser ? currentUser.email : "User");
+                const uid = currentUser ? currentUser.uid : (localData && localData.uid ? localData.uid : "");
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || "";
+                const initials = initialsSource
+                    ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                    : "US";
+                const attachments = [];
+                if (pendingCommentFiles && pendingCommentFiles.length > 0) {
+                    for (const file of pendingCommentFiles) {
+                        try {
+                            const path = `comments/${projectId}/${messageId}/${Date.now()}_${file.name}`;
+                            const ref = storageRef(storage, path);
+                            await uploadBytes(ref, file);
+                            const url = await getDownloadURL(ref);
+                            attachments.push({ name: file.name, url });
+                        } catch (e) {
+                            console.error("Failed to upload attachment", e);
+                        }
+                    }
+                }
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = htmlText;
+                const mentionNodes = tempDiv.querySelectorAll("[data-mention-uid]");
+                const mentionedIds = Array.from(mentionNodes).map(node => node.getAttribute("data-mention-uid")).filter(Boolean);
+                const mentionedUnique = Array.from(new Set(mentionedIds));
+                await addDoc(collection(db, "projects", projectId, "messages", messageId, "comments"), {
+                    text: htmlText,
+                    text_plain: plainText,
+                    attachments: attachments,
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    created_at: serverTimestamp(),
+                    parent_comment_id: replyTargetCommentId || null,
+                    mentioned_user_ids: mentionedUnique
+                });
+                input.innerHTML = "";
+                pendingCommentFiles = [];
+                const attachmentPreview = document.getElementById("commentAttachmentPreview");
+                if (attachmentPreview) attachmentPreview.innerText = "";
+                replyTargetCommentId = null;
+                updateReplyContextUI();
+            } catch (e) {
+                console.error("Failed to post comment", e);
+                alert("Gagal mengirim komentar: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.innerText = originalBtnText || "Post comment";
+                    btn.disabled = false;
+                }
+            }
+        };
+        function showCommentInfo(message) {
+            const msgEl = document.getElementById("commentInfoMessage");
+            const modalEl = document.getElementById("commentInfoModal");
+            if (!msgEl || !modalEl) return;
+            msgEl.innerText = message || "";
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+        window.editComment = function (commentId) {
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment) return;
+            if (!canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat mengedit komentar ini.");
+                return;
+            }
+            const input = document.getElementById("commentEditText");
+            const idInput = document.getElementById("commentEditId");
+            const modalEl = document.getElementById("commentEditModal");
+            if (!input || !idInput || !modalEl) return;
+            input.value = getPlainCommentText(comment);
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+        window.confirmEditComment = async function () {
+            const idInput = document.getElementById("commentEditId");
+            const input = document.getElementById("commentEditText");
+            const modalEl = document.getElementById("commentEditModal");
+            if (!idInput || !input || !modalEl || !projectId || !messageId) return;
+            const commentId = idInput.value;
+            const newText = input.value || "";
+            const trimmed = newText.trim();
+            if (!trimmed) {
+                showCommentInfo("Komentar tidak boleh kosong.");
+                return;
+            }
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment || !canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat mengedit komentar ini.");
+                return;
+            }
+            try {
+                const html = trimmed.replace(/\n/g, "<br>");
+                await updateDoc(doc(db, "projects", projectId, "messages", messageId, "comments", commentId), {
+                    text: html,
+                    text_plain: trimmed,
+                    updated_at: serverTimestamp()
+                });
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to edit comment", e);
+                showCommentInfo("Gagal mengedit komentar: " + e.message);
+            }
+        };
+        window.deleteComment = function (commentId) {
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment) return;
+            if (!canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat menghapus komentar ini.");
+                return;
+            }
+            const previewEl = document.getElementById("commentDeletePreview");
+            const idInput = document.getElementById("commentDeleteId");
+            const modalEl = document.getElementById("commentDeleteModal");
+            if (!previewEl || !idInput || !modalEl) return;
+            previewEl.innerText = getPlainCommentText(comment);
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+        window.confirmDeleteComment = async function () {
+            const idInput = document.getElementById("commentDeleteId");
+            const modalEl = document.getElementById("commentDeleteModal");
+            if (!idInput || !modalEl || !projectId || !messageId) return;
+            const commentId = idInput.value;
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment || !canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat menghapus komentar ini.");
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "projects", projectId, "messages", messageId, "comments", commentId));
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to delete comment", e);
+                showCommentInfo("Gagal menghapus komentar: " + e.message);
+            }
+        };
+        function stopMention() {
+            mentionActive = false;
+            mentionQuery = "";
+            mentionRange = null;
+            if (mentionDropdownElement) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+            }
+        }
+        function handleCommentKeyDown(e) {
+            if (mentionActive && e.key === "Escape") {
+                e.preventDefault();
+                stopMention();
+            }
+        }
+        function handleCommentKeyUp(e) {
+            const editor = e.currentTarget;
+            const key = e.key;
+            if (key === "@") {
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                if (!editor.contains(range.startContainer)) return;
+                const r = range.cloneRange();
+                const startOffset = Math.max(0, r.startOffset - 1);
+                r.setStart(r.startContainer, startOffset);
+                mentionRange = r;
+                mentionActive = true;
+                mentionQuery = "";
+                updateMentionDropdown(editor);
+                return;
+            }
+            if (!mentionActive) return;
+            if (key === "Escape" || key === " " || key === "Enter" || key === "Tab") {
+                stopMention();
+                return;
+            }
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) {
+                stopMention();
+                return;
+            }
+            const range = sel.getRangeAt(0);
+            if (!editor.contains(range.startContainer) || !mentionRange) {
+                stopMention();
+                return;
+            }
+            if (mentionRange.startContainer !== range.startContainer) {
+                stopMention();
+                return;
+            }
+            mentionRange.setEnd(range.startContainer, range.startOffset);
+            const node = mentionRange.startContainer;
+            const text = node.textContent || "";
+            const start = mentionRange.startOffset;
+            const end = mentionRange.endOffset;
+            if (end <= start || start < 0 || end > text.length) {
+                stopMention();
+                return;
+            }
+            if (text[start] !== "@") {
+                stopMention();
+                return;
+            }
+            mentionQuery = text.substring(start + 1, end);
+            updateMentionDropdown(editor);
+        }
+        function updateMentionDropdown(editor) {
+            if (!mentionDropdownElement) return;
+            if (!mentionActive) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+                return;
+            }
+            const queryText = (mentionQuery || "").toLowerCase();
+            let candidates = Array.isArray(projectMembers) ? projectMembers.slice() : [];
+            if (queryText) {
+                candidates = candidates.filter(m => {
+                    const name = (m.name || "").toLowerCase();
+                    const email = (m.email || "").toLowerCase();
+                    return name.includes(queryText) || email.includes(queryText);
+                });
+            }
+            if (!candidates.length) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+                return;
+            }
+            const itemsHtml = candidates.map(m => {
+                const name = m.name || m.email || m.uid;
+                const email = m.email ? ` <span class="text-muted small">(${m.email})</span>` : "";
+                return `<div class="px-2 py-1 mention-item" style="cursor:pointer;" onclick="selectMention('${m.uid}')">${name}${email}</div>`;
+            }).join("");
+            mentionDropdownElement.innerHTML = itemsHtml;
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) {
+                mentionDropdownElement.style.display = "none";
+                return;
+            }
+            const range = sel.getRangeAt(0).cloneRange();
+            const rect = range.getBoundingClientRect();
+            const container = editor.closest(".rich-editor") || editor.parentElement || editor;
+            const containerRect = container.getBoundingClientRect();
+            const left = rect.left - containerRect.left;
+            const top = rect.bottom - containerRect.top + 4;
+            mentionDropdownElement.style.left = `${left}px`;
+            mentionDropdownElement.style.top = `${top}px`;
+            mentionDropdownElement.style.display = "block";
+        }
+        window.selectMention = function (uid) {
+            const editor = document.getElementById("commentInput");
+            if (!editor || !mentionRange) {
+                stopMention();
+                return;
+            }
+            const member = (projectMembers || []).find(m => m.uid === uid);
+            if (!member) {
+                stopMention();
+                return;
+            }
+            const name = member.name || member.email || uid;
+            const span = document.createElement("span");
+            span.className = "comment-mention";
+            span.setAttribute("data-mention-uid", uid);
+            span.setAttribute("data-mention-name", name);
+            span.textContent = "@" + name;
+            const space = document.createTextNode("\u00A0");
+            const fragment = document.createDocumentFragment();
+            fragment.appendChild(span);
+            fragment.appendChild(space);
+            mentionRange.deleteContents();
+            mentionRange.insertNode(fragment);
+            const sel = window.getSelection();
+            if (sel) {
+                sel.removeAllRanges();
+                const afterRange = document.createRange();
+                afterRange.setStartAfter(space);
+                afterRange.setEndAfter(space);
+                sel.addRange(afterRange);
+            }
+            stopMention();
+        };
+        window.renderManageSubscriberList = function (queryText) {
+            if (!manageSubsScroll) return;
+            manageSubscriberSearchQuery = (queryText || "").trim().toLowerCase();
+            
+            if (!membersLoaded) {
+                manageSubsScroll.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-secondary"></div><div class="small text-muted mt-2">Loading members...</div></div>';
+                return;
+            }
+
+            if (!projectMembers || projectMembers.length === 0) {
+                manageSubsScroll.innerHTML = '<p class="text-center text-muted small py-3">No members found.</p>';
+                return;
+            }
+            const filtered = projectMembers.filter(m => {
+                const name = m.name || "";
+                const email = m.email || "";
+                const haystack = `${name} ${email}`.toLowerCase();
+                return haystack.includes(manageSubscriberSearchQuery);
+            });
+            if (filtered.length === 0) {
+                manageSubsScroll.innerHTML = '<p class="text-center text-muted small py-3">No members found.</p>';
+                return;
+            }
+            manageSubsScroll.innerHTML = filtered.map(m => {
+                const isSubscribed = currentSubscribers.some(s => (s.user_id || s.userId) === m.uid);
+                const btnClass = isSubscribed ? "btn-outline-danger" : "btn-dlg-blue";
+                const btnText = isSubscribed ? "Remove" : "Add";
+                const safeName = m.name || "Unknown";
+                const safeRole = m.role || "Member";
+                const photo = m.photo || "";
+                const fallback = encodeURIComponent(safeName);
+                return `
+                    <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${photo}" class="rounded-circle border" style="width:38px; height:38px; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${fallback}'">
+                            <div>
+                                <div class="fw-bold" style="font-size:0.9rem;">${safeName}</div>
+                                <div class="text-muted" style="font-size:0.75rem;">${safeRole}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm ${btnClass} rounded-pill px-3" type="button" onclick="toggleSubscriberForUser('${m.uid}')">
+                            ${btnText}
+                        </button>
+                    </div>
+                `;
+            }).join("");
+        };
+        window.toggleSubscription = async function () {
+            if (!currentUser) {
+                alert("Harus login terlebih dahulu.");
+                return;
+            }
+            const uid = currentUser.uid;
+            try {
+                const subsRef = getSubscribersCollectionRef();
+                if (!subsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah subscriber.");
+                const existing = currentSubscribers.find(s => (s.user_id || s.userId) === uid);
+                if (existing) {
+                    await deleteSubscriberByUid(uid);
+                } else {
+                    const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                    const userName = localData && localData.name ? localData.name : (currentUser.email || "User");
+                    const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || "";
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                        : "US";
+                    await addDoc(subsRef, {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle subscription", e);
+                alert("Gagal mengubah status subscribe: " + e.message);
+            }
+        };
+        window.toggleSubscriberForUser = async function (uid) {
+            if (!uid) return;
+            try {
+                const subsRef = getSubscribersCollectionRef();
+                if (!subsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah subscriber.");
+                const existing = currentSubscribers.find(s => (s.user_id || s.userId) === uid);
+                if (existing) {
+                    await deleteSubscriberByUid(uid);
+                } else {
+                    const target = projectMembers.find(m => m.uid === uid);
+                    const userName = target && target.name ? target.name : "User";
+                    const rawPhoto = target && target.photo ? target.photo : "";
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || "";
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                        : "US";
+                    await addDoc(subsRef, {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle subscriber for user", e);
+                alert("Gagal mengubah subscriber: " + e.message);
+            }
+        };
+        window.handleMessageEdit = function () {
+            if (!projectId || !messageId) return;
+            const url = `message-craft.html?projectId=${encodeURIComponent(projectId)}&messageId=${encodeURIComponent(messageId)}`;
+            window.location.href = url;
+        };
+        window.handleMessageCopy = async function () {
+            if (!projectId || !messageId) return;
+            try {
+                const messagesRef = getMessagesCollectionRef();
+                if (!messagesRef) throw new Error("Project ID tidak valid.");
+                const srcRef = doc(db, "projects", projectId, "messages", messageId);
+                const snap = await getDoc(srcRef);
+                if (!snap.exists()) {
+                    alert("Message tidak ditemukan.");
+                    return;
+                }
+                const data = snap.data();
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                const userName = localData && localData.name ? localData.name : (currentUser && currentUser.email ? currentUser.email : "User");
+                const uid = currentUser ? currentUser.uid : (localData && localData.uid ? localData.uid : "");
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || "";
+                const initials = buildInitials(initialsSource);
+                const plainText = data.text_plain || getPlainTextFromHtml(data.text || "");
+                const attachments = Array.isArray(data.attachments) ? data.attachments : [];
+                const mentioned = Array.isArray(data.mentioned_user_ids) ? data.mentioned_user_ids : [];
+                const docRef = await addDoc(messagesRef, {
+                    title: data.title || "",
+                    category: data.category || "",
+                    text: data.text || "",
+                    text_plain: plainText,
+                    attachments: attachments,
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    created_at: serverTimestamp(),
+                    parent_comment_id: null,
+                    mentioned_user_ids: mentioned
+                });
+                if (projectId && docRef && docRef.id) {
+                    const targetUrl = `message-detail.html?projectId=${encodeURIComponent(projectId)}&messageId=${encodeURIComponent(docRef.id)}`;
+                    window.location.href = targetUrl;
+                }
+            } catch (e) {
+                console.error("Failed to copy message", e);
+                alert("Gagal meng-copy message: " + e.message);
+            }
+        };
+        window.handleMessageTrash = async function () {
+            if (!projectId || !messageId) return;
+            const ok = window.confirm("Are you sure you want to delete this message?");
+            if (!ok) return;
+            try {
+                const srcRef = doc(db, "projects", projectId, "messages", messageId);
+                await deleteDoc(srcRef);
+                const targetUrl = `message.html?id=${encodeURIComponent(projectId)}`;
+                window.location.href = targetUrl;
+            } catch (e) {
+                console.error("Failed to delete message", e);
+                alert("Gagal menghapus message: " + e.message);
+            }
+        };
+        window.toggleBoostMessage = function () {
+            try {
+                if (!currentUser && !localStorage.getItem("userData")) {
+                    alert("Harus login terlebih dahulu.");
+                    return;
+                }
+                if (!boostEmojiPopoverEl) return;
+                const isVisible = boostEmojiPopoverEl.style.display === "flex";
+                boostEmojiPopoverEl.style.display = isVisible ? "none" : "flex";
+            } catch (e) {
+                console.error("Failed to toggle boost popover", e);
+            }
+        };
+        window.handleBoostEmojiClick = async function (emoji) {
+            try {
+                if (!currentUser && !localStorage.getItem("userData")) {
+                    alert("Harus login terlebih dahulu.");
+                    return;
+                }
+                await setBoostEmojiForCurrentUser(emoji);
+                if (boostEmojiPopoverEl) {
+                    boostEmojiPopoverEl.style.display = "none";
+                }
+            } catch (e) {
+                console.error("Failed to set boost emoji", e);
+                alert("Gagal menyimpan boost: " + e.message);
+            }
+        };
+        window.handleBoostDeleteClick = async function () {
+            try {
+                if (!currentUser && !localStorage.getItem("userData")) {
+                    alert("Harus login terlebih dahulu.");
+                    return;
+                }
+                const boostsRef = getBoostsCollectionRef();
+                if (!boostsRef) throw new Error("Project ID atau Message ID tidak tersedia untuk mengubah boost.");
+                const uid = getCurrentUserUid();
+                if (!uid) throw new Error("User tidak ditemukan.");
+                const q = query(boostsRef, where("user_id", "==", uid));
+                const snap = await getDocs(q);
+                const docs = [];
+                snap.forEach(docSnap => docs.push(docSnap));
+                if (docs.length > 0) {
+                    await Promise.all(docs.map(d => deleteDoc(d.ref)));
+                }
+            } catch (e) {
+                console.error("Failed to delete boost", e);
+                alert("Gagal menghapus boost: " + e.message);
+            }
+        };
+        document.addEventListener("DOMContentLoaded", () => {
+            if (projectId && messageId) {
+                const commentInput = document.getElementById("commentInput");
+                const commentFileInput = document.getElementById("comment-file-input");
+                const attachmentPreview = document.getElementById("commentAttachmentPreview");
+                const mentionDropdown = document.getElementById("mentionDropdown");
+                if (commentFileInput && attachmentPreview) {
+                    commentFileInput.addEventListener("change", () => {
+                        const files = Array.from(commentFileInput.files || []);
+                        pendingCommentFiles = files;
+                        if (!files.length) {
+                            attachmentPreview.innerText = "";
+                            return;
+                        }
+                        const names = files.map(f => f.name).join(", ");
+                        attachmentPreview.innerText = `Attached: ${names}`;
+                    });
+                }
+                if (commentInput && mentionDropdown) {
+                    mentionDropdownElement = mentionDropdown;
+                    commentInput.addEventListener("keydown", handleCommentKeyDown);
+                    commentInput.addEventListener("keyup", handleCommentKeyUp);
+                    commentInput.addEventListener("blur", () => {
+                        setTimeout(() => {
+                            if (!mentionActive && mentionDropdownElement) {
+                                mentionDropdownElement.style.display = "none";
+                                mentionDropdownElement.innerHTML = "";
+                            }
+                        }, 150);
+                    });
+                }
+                const boostContainer = document.querySelector(".boost-emoji-container");
+                const boostButton = document.getElementById("messageBoostButton");
+                const boostEmojiButtons = document.querySelectorAll("#boostEmojiPopover .boost-emoji-option");
+                let boostHideTimeout = null;
+                if (boostContainer && boostEmojiPopoverEl) {
+                    boostContainer.addEventListener("mouseenter", () => {
+                        if (boostHideTimeout) clearTimeout(boostHideTimeout);
+                    });
+                    boostContainer.addEventListener("mouseleave", () => {
+                        boostHideTimeout = setTimeout(() => {
+                            boostEmojiPopoverEl.style.display = "none";
+                        }, 120);
+                    });
+                }
+                if (boostEmojiButtons && boostEmojiButtons.length > 0) {
+                    boostEmojiButtons.forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const emoji = btn.getAttribute("data-emoji") || btn.innerText || "👏";
+                            window.handleBoostEmojiClick(emoji);
+                        });
+                    });
+                }
+                try {
+                    const storedUser = JSON.parse(localStorage.getItem("userData") || "null");
+                    if (storedUser && commentAvatar) {
+                        const photoUrl = getDirectPhotoUrl(storedUser.photo || storedUser.Photo || "", storedUser.uid || storedUser.Uid || "");
+                        commentAvatar.src = photoUrl;
+                    }
+                } catch (e) {}
+                listenComments();
+                listenSubscribers();
+                listenBoosts();
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user || null;
+                    updateSubscriptionUI();
+                    
+                    // Jika user baru login dan data member masih kosong, coba load ulang
+                    // Ini menangani kasus di mana fetch pertama gagal karena permission denied (belum auth)
+                    if (user && (!projectMembers || projectMembers.length === 0)) {
+                        console.log("User authenticated, retrying to load project members...");
+                        loadProjectHeader();
+                    }
+                });
+            }
+            loadProjectHeader();
+            loadMessage();
+        });
+    </script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            sidebar.classList.toggle('sidebar-open');
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const data = localStorage.getItem('userData');
+            if (!data) {
+                window.location.href = "index.html";
+                return;
+            }
+            const user = JSON.parse(data);
+            function getDirectLink(url) {
+                if (!url) return "https://i.pravatar.cc/300";
+                if (url.includes('drive.google.com')) {
+                    let id = "";
+                    if (url.includes('id=')) {
+                        id = url.split('id=')[1].split('&')[0];
+                    } else if (url.includes('/d/')) {
+                        id = url.split('/d/')[1].split('/')[0];
+                    }
+                    return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+                }
+                return url;
+            }
+            const nameEl = document.getElementById('user-name-display');
+            const photoEl = document.getElementById('user-photo-display');
+            const roleEl = document.getElementById('user-role-display');
+            if (nameEl) nameEl.innerText = user.name || 'User';
+            if (photoEl) photoEl.src = getDirectLink(user.photo || "");
+            if (roleEl) roleEl.innerText = "Dialogika Member";
+        });
+        function logout() {
+            localStorage.removeItem('userData');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

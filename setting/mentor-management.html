@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Management - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .badge-status-active { background: #ecfdf3; color: #16a34a; }
+        .badge-status-inactive { background: #fef2f2; color: #b91c1c; }
+        .badge-status-onleave { background: #fefce8; color: #b45309; }
+        .badge-pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .score-pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-tag {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .table-sticky thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8fafc;
+        }
+        .table-sticky tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        .modal-backdrop-custom {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 84px 16px 24px;
+        }
+        .modal-backdrop-custom.open {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-height: calc(100vh - 108px);
+            overflow: hidden;
+        }
+        .modal-body-scroll {
+            max-height: calc(100vh - 260px);
+            overflow-y: auto;
+        }
+        @media (max-width: 768px) {
+            .modal-backdrop-custom {
+                padding-top: 72px;
+                padding-bottom: 16px;
+            }
+            .modal-card {
+                max-height: calc(100vh - 88px);
+            }
+            .modal-body-scroll {
+                max-height: calc(100vh - 220px);
+            }
+        }
+        .tab-pill {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .tab-pill-active {
+            background: #0f172a;
+            color: #f9fafb;
+        }
+        .tab-pill-inactive {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8 bg-slate-50">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="users" class="w-6 h-6 text-emerald-600"></i>
+                        Mentor Management
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Pantau kinerja, ketersediaan, dan status mentor untuk mendukung keputusan operasional dengan cepat.
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="btnAddMentor" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Add New Mentor
+                    </button>
+                    <button id="btnBulkAssign" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        Assign Massal
+                    </button>
+                    <button id="btnBulkStatus" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800">
+                        <i data-lucide="shuffle" class="w-4 h-4"></i>
+                        Ubah Status Massal
+                    </button>
+                    <div class="relative">
+                        <button id="btnExportMenu" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Export
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div id="exportDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-slate-100 text-xs text-slate-700 hidden z-30">
+                            <button id="btnExportCsv" class="w-full text-left px-4 py-2 hover:bg-slate-50">Export CSV</button>
+                            <button id="btnExportExcel" class="w-full text-left px-4 py-2 hover:bg-slate-50">Export Excel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Mentor</span>
+                        <span class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statTotalMentor" class="text-2xl font-extrabold text-slate-900">0</span>
+                        <span class="text-xs text-slate-400">mentor</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Mentor</span>
+                        <span class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statActiveMentor" class="text-2xl font-extrabold text-slate-900">0</span>
+                        <span class="text-xs text-emerald-600 font-semibold" id="statActiveRatio"></span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Avg Rating</span>
+                        <span class="w-8 h-8 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                            <i data-lucide="star" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statAvgRating" class="text-2xl font-extrabold text-slate-900">0.0</span>
+                        <span class="text-xs text-slate-400">/ 5.0</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Online vs Offline</span>
+                        <span class="w-8 h-8 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center">
+                            <i data-lucide="globe-2" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span id="statOnlineMentor" class="text-sm font-semibold text-slate-700">0 Online</span>
+                            <span id="statOfflineMentor" class="text-sm font-semibold text-slate-700">0 Offline</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span><span class="text-[10px] text-slate-400">Online</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Daftar Mentor</h2>
+                            <p class="text-xs text-slate-400">Filter, sortir, dan pilih mentor untuk keputusan cepat.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="relative">
+                                <input id="searchMentor" type="text" placeholder="Cari mentor..." class="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-56 bg-slate-50">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            </div>
+                            <button id="btnToggleFilter" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50">
+                                <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="filterPanel" class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 hidden">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Rating Minimum</label>
+                            <select id="filterRating" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="4.5">≥ 4.5</option>
+                                <option value="4">≥ 4.0</option>
+                                <option value="3.5">≥ 3.5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Location</label>
+                            <select id="filterLocation" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Teaching</label>
+                            <select id="filterTeaching" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="Dewasa">Dewasa</option>
+                                <option value="Anak">Anak</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+                            <select id="filterStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="on_leave">On Leave</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Availability</label>
+                            <select id="filterAvailability" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="available">Available</option>
+                                <option value="busy">Sedikit Slot</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Contract</label>
+                            <select id="filterContract" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="lt30">Habis &lt; 30 hari</option>
+                                <option value="expired">Sudah habis</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs table-sticky">
+                                <thead class="text-slate-500 uppercase tracking-widest text-[10px] border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-3 w-8">
+                                            <input id="checkAllMentor" type="checkbox" class="rounded border-slate-300">
+                                        </th>
+                                        <th data-sort="name" class="px-4 py-3 cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1">Nama Mentor<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3">Nick</th>
+                                        <th class="px-4 py-3 text-center">WhatsApp</th>
+                                        <th data-sort="rating" class="px-4 py-3 cursor-pointer select-none text-center">
+                                            <span class="inline-flex items-center gap-1 justify-center">Rating<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3 text-center">Teaching</th>
+                                        <th class="px-4 py-3 text-center">Type</th>
+                                        <th data-sort="activeClasses" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Active Class<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3 text-center">Total Class</th>
+                                        <th class="px-4 py-3 text-center">Location</th>
+                                        <th data-sort="status" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Status<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="contract" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Contract End<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="score" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Score<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mentorTableBody" class="divide-y divide-slate-50">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 text-[11px] text-slate-500">
+                            <div>
+                                <span id="mentorCountText">0 mentor ditampilkan</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span>Sort:</span>
+                                <span id="sortLabel" class="font-semibold text-slate-700">Name ↑</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white rounded-3xl border border-slate-100 p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Performance Ranking</h3>
+                            <span class="text-[10px] text-slate-400">Auto Scoring 0–10</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Top 5 Mentor</span>
+                                </div>
+                                <div id="topMentorList" class="space-y-2 text-xs"></div>
+                            </div>
+                            <div class="border-t border-slate-100 pt-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Risk Mentor</span>
+                                </div>
+                                <div id="riskMentorList" class="space-y-2 text-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl border border-slate-100 p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Reminder</h3>
+                            <span class="text-[10px] text-slate-400">Kontrak & Aktivitas</span>
+                        </div>
+                        <div id="reminderList" class="space-y-2 text-xs text-slate-600">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="mentorDetailModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm font-bold" id="detailAvatar">
+                        M
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-900" id="detailFullName">Mentor Name</h2>
+                            <span id="detailBadges" class="flex items-center gap-1"></span>
+                        </div>
+                        <p class="text-[11px] text-slate-500" id="detailSubtitle">Nick • Location</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnDetailAssign" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        Assign ke Kelas
+                    </button>
+                    <button id="btnCloseDetail" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 pt-3 pb-1 border-b border-slate-100">
+                <div class="flex flex-wrap gap-2 text-[11px]" id="detailTabList">
+                    <button data-tab="overview" class="tab-pill tab-pill-active">Overview</button>
+                    <button data-tab="performance" class="tab-pill tab-pill-inactive">Performance</button>
+                    <button data-tab="classes" class="tab-pill tab-pill-inactive">Classes History</button>
+                    <button data-tab="finance" class="tab-pill tab-pill-inactive">Finance</button>
+                    <button data-tab="contract" class="tab-pill tab-pill-inactive">Contract</button>
+                </div>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <div data-tab-panel="overview" class="detail-panel">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Profile</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Lengkap</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailFullNameValue"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Panggilan</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailNickName"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">WhatsApp</dt>
+                                    <dd class="font-semibold text-emerald-600" id="detailWhatsapp"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Location</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailLocation"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Status</dt>
+                                    <dd id="detailStatus"></dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Informasi Bank</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Bank</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailBankName"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">No. Rekening</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailAccountNumber"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Atas Nama</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailAccountHolderName"></dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Availability</h3>
+                            <div id="detailAvailability" class="text-xs text-slate-600"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="performance" class="detail-panel hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div class="bg-white rounded-2xl border border-emerald-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Rating</p>
+                            <p class="text-lg font-extrabold text-slate-900 flex items-center gap-1" id="detailRating">
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-sky-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Completion Rate</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailCompletion"></p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-indigo-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attendance</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailAttendance"></p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-rose-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Complaint</p>
+                            <p class="text-lg font-extrabold text-rose-600" id="detailComplaints"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Insight</h3>
+                        <ul id="detailPerformanceInsight" class="list-disc list-inside text-xs text-slate-600 space-y-1"></ul>
+                    </div>
+                </div>
+
+                <div data-tab-panel="classes" class="detail-panel hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Riwayat Kelas</h3>
+                        <span id="detailTotalClasses" class="text-[11px] text-slate-400"></span>
+                    </div>
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+                        <div class="max-h-64 overflow-y-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Kelas</th>
+                                        <th class="px-3 py-2 text-left">Tanggal</th>
+                                        <th class="px-3 py-2 text-center">Murid</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailClassesBody" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="finance" class="detail-panel hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div class="bg-white rounded-2xl border border-emerald-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Earning</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailTotalEarning"></p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-amber-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pending Payment</p>
+                            <p class="text-lg font-extrabold text-amber-600" id="detailPendingPayment"></p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-sky-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Fee Online</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailFeeOnline"></p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-indigo-50 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Fee Offline</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailFeeOffline"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="contract" class="detail-panel hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Kontrak</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">End Date</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailContractEnd"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Duration</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailContractDuration"></dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Status</dt>
+                                    <dd class="font-semibold" id="detailContractStatus"></dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Notes</h3>
+                            <p class="text-xs text-slate-600" id="detailContractNotes"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="assignModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-emerald-600"></i>
+                    Assign Mentor ke Kelas
+                </h3>
+                <button id="btnCloseAssign" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <p class="text-xs text-slate-500 mb-3" id="assignMentorName"></p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Kelas</label>
+                        <select id="assignClassSelect" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Catatan</label>
+                        <textarea id="assignNote" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" rows="3" placeholder="Tambahkan konteks assignment, misal fokus materi, batch, dsb."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button id="btnAssignCancel" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">
+                    Batal
+                </button>
+                <button id="btnAssignConfirm" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700">
+                    Assign
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addMentorModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i>
+                    <span id="addMentorModalTitle">Add New Mentor</span>
+                </h3>
+                <button id="btnCloseAddMentor" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <div id="addMentorError" class="hidden mb-3 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Lengkap *</label>
+                        <input id="addMentorFullName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Annisa Pradana">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Panggilan</label>
+                        <input id="addMentorNickName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Nisa">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">WhatsApp</label>
+                        <input id="addMentorWhatsapp" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="16" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="62812xxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Location</label>
+                        <input id="addMentorLocation" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Jakarta">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Rating</label>
+                        <input id="addMentorRating" type="number" min="0" max="5" step="0.1" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="4.8">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Teaching</label>
+                        <select id="addMentorTeaching" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Dewasa">Dewasa</option>
+                            <option value="Anak">Anak</option>
+                            <option value="Both" selected>Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Type</label>
+                        <select id="addMentorType" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Online" selected>Online</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                        <select id="addMentorStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="active" selected>Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="on_leave">On Leave</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contract End</label>
+                        <input id="addMentorContractEnd" type="date" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Fee Online</label>
+                        <input id="addMentorFeeOnline" type="number" min="0" step="1000" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="50000">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Fee Offline</label>
+                        <input id="addMentorFeeOffline" type="number" min="0" step="1000" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="75000">
+                    </div>
+                    <div class="md:col-span-2 border-t border-slate-200 pt-3 mt-1">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">🏦 Informasi Bank</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Bank</label>
+                        <input id="addMentorBankName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="BCA, BNI, Mandiri, dll.">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">No. Rekening</label>
+                        <input id="addMentorAccountNumber" type="text" inputmode="numeric" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="1234567890">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pemilik Rekening</label>
+                        <input id="addMentorAccountHolderName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Nama sesuai buku rekening">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contract Notes</label>
+                        <textarea id="addMentorContractNotes" rows="3" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Opsional, misal klausul kontrak atau catatan onboarding."></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Availability</label>
+                            <button id="btnAddAvailabilitySlot" type="button" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-2.5 py-1">
+                                + Tambah Slot
+                            </button>
+                        </div>
+                        <div id="addMentorAvailabilitySlots" class="space-y-2"></div>
+                        <p class="mt-2 text-[11px] text-slate-400">Opsional. Anda bisa menambahkan beberapa slot di hari yang sama.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button id="btnAddMentorCancel" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">
+                    Batal
+                </button>
+                <button id="btnAddMentorSave" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700">
+                    Simpan Mentor
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        window.db = db;
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+        const dummyMentors = [];
+
+        const dummyClasses = [
+            { id: "c1", name: "Basic Class Online Batch 20", type: "Online", location: "Zoom", seatsLeft: 3 },
+            { id: "c2", name: "First Class Offline Jakarta Batch 22", type: "Offline", location: "Jakarta", seatsLeft: 1 },
+            { id: "c3", name: "Kids Class Online Batch 10", type: "Online", location: "Zoom", seatsLeft: 5 }
+        ];
+
+        let mentorsState = dummyMentors.slice();
+        let currentSort = { field: "name", dir: "asc" };
+        let currentFilters = {
+            search: "",
+            rating: "",
+            location: "",
+            teaching: "",
+            status: "",
+            availability: "",
+            contract: ""
+        };
+        let selectedMentorIds = new Set();
+        let currentDetailMentorId = null;
+        let currentAssignMentorId = null;
+        let isSavingNewMentor = false;
+        let editingMentorDocId = null;
+        const AVAILABILITY_DAYS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+
+        function parseNumberish(value) {
+            if (typeof value === "number" && Number.isFinite(value)) return value;
+            if (typeof value === "string") {
+                const normalized = value.trim().replace(",", ".");
+                if (!normalized) return null;
+                const n = Number(normalized);
+                if (Number.isFinite(n)) return n;
+            }
+            return null;
+        }
+
+        function parseIntegerish(value) {
+            const n = parseNumberish(value);
+            return n === null ? null : Math.trunc(n);
+        }
+
+        function sanitizePhoneNumber(value) {
+            return String(value || "").replace(/\D/g, "");
+        }
+
+        function buildWhatsappLink(value) {
+            const digits = sanitizePhoneNumber(value);
+            return digits ? ("https://wa.me/" + digits) : "";
+        }
+
+        function formatDateForInput(value) {
+            const raw = String(value || "").trim();
+            if (!raw) return "";
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return "";
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return y + "-" + m + "-" + day;
+        }
+
+        function normalizeAvailabilityDay(value) {
+            const raw = String(value || "").trim();
+            if (!raw) return "";
+
+            const normalized = raw.toLowerCase();
+            const dayAlias = {
+                senin: "Senin",
+                monday: "Senin",
+                selasa: "Selasa",
+                tuesday: "Selasa",
+                rabu: "Rabu",
+                wednesday: "Rabu",
+                kamis: "Kamis",
+                thursday: "Kamis",
+                jumat: "Jumat",
+                friday: "Jumat",
+                sabtu: "Sabtu",
+                saturday: "Sabtu",
+                minggu: "Minggu",
+                sunday: "Minggu"
+            };
+
+            if (dayAlias[normalized]) return dayAlias[normalized];
+            return AVAILABILITY_DAYS.find(day => day.toLowerCase() === normalized) || "";
+        }
+
+        function normalizeClockTime(value) {
+            const raw = String(value || "").trim().replace(".", ":");
+            if (!raw) return "";
+            const match = raw.match(/^(\d{1,2}):(\d{2})$/);
+            if (!match) return "";
+            const hour = Number(match[1]);
+            const minute = Number(match[2]);
+            if (!Number.isInteger(hour) || !Number.isInteger(minute)) return "";
+            if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return "";
+            return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+        }
+
+        function parseAvailabilityTimeRange(value) {
+            const raw = String(value || "").trim();
+            if (!raw) return { start: "", end: "" };
+            const parts = raw.split("-");
+            if (parts.length < 2) return { start: "", end: "" };
+            const start = normalizeClockTime(parts[0]);
+            const end = normalizeClockTime(parts.slice(1).join("-"));
+            return { start: start, end: end };
+        }
+
+        function normalizeAvailabilityItem(item) {
+            if (!item || typeof item !== "object") return null;
+            const day = normalizeAvailabilityDay(item.day || item.hari || "");
+            const timeRaw = item.time || item.jam || "";
+            const parsedTime = parseAvailabilityTimeRange(timeRaw);
+            const start = normalizeClockTime(item.start || item.mulai || parsedTime.start || "");
+            const end = normalizeClockTime(item.end || item.selesai || parsedTime.end || "");
+            if (!day || !start || !end || start >= end) return null;
+            return {
+                day: day,
+                time: start + " - " + end
+            };
+        }
+
+        function normalizeAvailabilityList(value) {
+            if (!Array.isArray(value)) return [];
+            return value
+                .map(normalizeAvailabilityItem)
+                .filter(Boolean);
+        }
+
+        function clearAvailabilitySlots() {
+            const slotsContainer = document.getElementById("addMentorAvailabilitySlots");
+            if (slotsContainer) slotsContainer.innerHTML = "";
+        }
+
+        function addAvailabilitySlot(dayValue, startValue, endValue) {
+            const slotsContainer = document.getElementById("addMentorAvailabilitySlots");
+            if (!slotsContainer) return;
+
+            const row = document.createElement("div");
+            row.className = "grid grid-cols-1 sm:grid-cols-12 gap-2 items-center";
+            row.setAttribute("data-availability-slot", "1");
+
+            const select = document.createElement("select");
+            select.className = "sm:col-span-4 w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500";
+            select.setAttribute("data-role", "day");
+
+            const emptyOption = document.createElement("option");
+            emptyOption.value = "";
+            emptyOption.textContent = "Pilih hari";
+            select.appendChild(emptyOption);
+
+            AVAILABILITY_DAYS.forEach(day => {
+                const option = document.createElement("option");
+                option.value = day;
+                option.textContent = day;
+                select.appendChild(option);
+            });
+
+            const start = document.createElement("input");
+            start.type = "time";
+            start.className = "sm:col-span-3 w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500";
+            start.setAttribute("data-role", "start");
+
+            const end = document.createElement("input");
+            end.type = "time";
+            end.className = "sm:col-span-3 w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500";
+            end.setAttribute("data-role", "end");
+
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "sm:col-span-2 w-full text-[11px] font-semibold rounded-xl px-3 py-2 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100";
+            removeBtn.textContent = "Hapus";
+            removeBtn.addEventListener("click", () => {
+                row.remove();
+            });
+
+            select.value = normalizeAvailabilityDay(dayValue || "");
+            start.value = normalizeClockTime(startValue || "");
+            end.value = normalizeClockTime(endValue || "");
+
+            row.appendChild(select);
+            row.appendChild(start);
+            row.appendChild(end);
+            row.appendChild(removeBtn);
+            slotsContainer.appendChild(row);
+        }
+
+        function renderAvailabilitySlots(availabilityList) {
+            clearAvailabilitySlots();
+            const normalized = normalizeAvailabilityList(availabilityList);
+            if (!normalized.length) {
+                addAvailabilitySlot("", "", "");
+                return;
+            }
+            normalized.forEach(item => {
+                const parsed = parseAvailabilityTimeRange(item.time || "");
+                addAvailabilitySlot(item.day, parsed.start, parsed.end);
+            });
+        }
+
+        function collectAvailabilityFromForm() {
+            const slotsContainer = document.getElementById("addMentorAvailabilitySlots");
+            if (!slotsContainer) {
+                return { list: [], hasPartial: false, hasInvalidRange: false };
+            }
+
+            const rows = slotsContainer.querySelectorAll("[data-availability-slot]");
+            const list = [];
+            let hasPartial = false;
+            let hasInvalidRange = false;
+
+            rows.forEach(row => {
+                const day = normalizeAvailabilityDay((row.querySelector('[data-role="day"]') || {}).value || "");
+                const start = normalizeClockTime((row.querySelector('[data-role="start"]') || {}).value || "");
+                const end = normalizeClockTime((row.querySelector('[data-role="end"]') || {}).value || "");
+
+                if (!day && !start && !end) return;
+                if (!day || !start || !end) {
+                    hasPartial = true;
+                    return;
+                }
+                if (start >= end) {
+                    hasInvalidRange = true;
+                    return;
+                }
+                list.push({
+                    day: day,
+                    time: start + " - " + end
+                });
+            });
+
+            return { list: list, hasPartial: hasPartial, hasInvalidRange: hasInvalidRange };
+        }
+
+        function extractWhatsappNumber(value) {
+            const raw = String(value || "").trim();
+            if (!raw) return "";
+            if (raw.indexOf("wa.me/") !== -1) {
+                const lastPart = raw.split("wa.me/")[1] || "";
+                return sanitizePhoneNumber(lastPart);
+            }
+            return sanitizePhoneNumber(raw);
+        }
+
+        async function loadMentorsFromFirestore() {
+            try {
+                const snap = await getDocs(collection(db, "mentor"));
+                const mentors = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    const ratingValue = parseNumberish(d.rating);
+                    const avgRatingValue = parseNumberish(d.avgRating);
+                    const mentor = {
+                        id: docSnap.id,
+                        fullName: d.fullName || d.nama_lengkap || "",
+                        nickName: d.nickName || d.nama_panggilan || "",
+                        whatsapp: d.whatsapp || d.phone || d.no_wa || "",
+                        whatsappNumber: extractWhatsappNumber(d.whatsapp || d.phone || d.no_wa || ""),
+                        rating: ratingValue !== null ? ratingValue : (avgRatingValue !== null ? avgRatingValue : 0),
+                        teaching: d.teaching || d.teachingType || d.teaching_type || "",
+                        type: d.type || d.deliveryType || d.mode || "",
+                        activeClasses: parseIntegerish(d.activeClasses) !== null ? parseIntegerish(d.activeClasses) : (parseIntegerish(d.active_class) !== null ? parseIntegerish(d.active_class) : 0),
+                        totalClasses: parseIntegerish(d.totalClasses) !== null ? parseIntegerish(d.totalClasses) : (parseIntegerish(d.total_class) !== null ? parseIntegerish(d.total_class) : 0),
+                        location: d.location || d.city || "",
+                        status: (d.status || "active").toLowerCase(),
+                        contractEnd: d.contractEnd || d.contract_end || null,
+                        contractDurationMonths: parseIntegerish(d.contractDurationMonths) !== null ? parseIntegerish(d.contractDurationMonths) : (parseIntegerish(d.contract_duration_months) !== null ? parseIntegerish(d.contract_duration_months) : null),
+                        lastActiveDays: parseIntegerish(d.lastActiveDays) !== null ? parseIntegerish(d.lastActiveDays) : (parseIntegerish(d.last_active_days) !== null ? parseIntegerish(d.last_active_days) : null),
+                        completionRate: parseNumberish(d.completionRate) !== null ? parseNumberish(d.completionRate) : (parseNumberish(d.completion_rate) !== null ? parseNumberish(d.completion_rate) : 0),
+                        attendanceRate: parseNumberish(d.attendanceRate) !== null ? parseNumberish(d.attendanceRate) : (parseNumberish(d.attendance_rate) !== null ? parseNumberish(d.attendance_rate) : 0),
+                        complaintCount: parseIntegerish(d.complaintCount) !== null ? parseIntegerish(d.complaintCount) : (parseIntegerish(d.complaints) !== null ? parseIntegerish(d.complaints) : 0),
+                        avgFeedback: parseNumberish(d.avgFeedback) !== null ? parseNumberish(d.avgFeedback) : (parseNumberish(d.avg_feedback) !== null ? parseNumberish(d.avg_feedback) : (ratingValue !== null ? ratingValue : 0)),
+                        totalEarning: parseNumberish(d.totalEarning) !== null ? parseNumberish(d.totalEarning) : (parseNumberish(d.total_earning) !== null ? parseNumberish(d.total_earning) : 0),
+                        pendingPayment: parseNumberish(d.pendingPayment) !== null ? parseNumberish(d.pendingPayment) : (parseNumberish(d.pending_payment) !== null ? parseNumberish(d.pending_payment) : 0),
+                        feeOnline: parseNumberish(d.feeOnline) !== null ? parseNumberish(d.feeOnline) : (parseNumberish(d.fee_online) !== null ? parseNumberish(d.fee_online) : 0),
+                        feeOffline: parseNumberish(d.feeOffline) !== null ? parseNumberish(d.feeOffline) : (parseNumberish(d.fee_offline) !== null ? parseNumberish(d.fee_offline) : 0),
+                        availability: normalizeAvailabilityList(Array.isArray(d.availability) ? d.availability : (Array.isArray(d.ketersediaan) ? d.ketersediaan : [])),
+                        classHistory: Array.isArray(d.classHistory) ? d.classHistory : [],
+                        contractNotes: d.contractNotes || d.contract_notes || d.catatan_khusus || "",
+                        bankName: d.bankName || d.bank_name || d.namaBank || "",
+                        accountNumber: d.accountNumber || d.account_number || d.noRekening || d.no_rekening || "",
+                        accountHolderName: d.accountHolderName || d.beneficiaryName || d.nama_rekening || d.namaPemilikRekening || ""
+                    };
+                    mentors.push(mentor);
+                });
+                mentorsState = mentors;
+                populateLocationFilter(mentorsState);
+                updateAll();
+            } catch (e) {
+                console.error("Failed to load mentors from Firestore (collection: mentor)", e);
+                mentorsState = [];
+                populateLocationFilter(mentorsState);
+                updateAll();
+            }
+        }
+
+        function formatCurrency(value) {
+            return "Rp " + (value || 0).toLocaleString("id-ID");
+        }
+
+        function getStatusBadge(status) {
+            const span = document.createElement("span");
+            span.className = "badge-pill";
+            const icon = document.createElement("i");
+            icon.className = "w-2 h-2 rounded-full";
+            if (status === "active") {
+                span.classList.add("badge-status-active");
+                icon.style.backgroundColor = "#16a34a";
+                span.appendChild(icon);
+                span.appendChild(document.createTextNode("Active"));
+            } else if (status === "on_leave") {
+                span.classList.add("badge-status-onleave");
+                icon.style.backgroundColor = "#facc15";
+                span.appendChild(icon);
+                span.appendChild(document.createTextNode("On Leave"));
+            } else {
+                span.classList.add("badge-status-inactive");
+                icon.style.backgroundColor = "#ef4444";
+                span.appendChild(icon);
+                span.appendChild(document.createTextNode("Inactive"));
+            }
+            return span;
+        }
+
+        function computeScore(m) {
+            const ratingScore = ((m.rating || 0) / 5) * 4;
+            const completionScore = ((m.completionRate || 0) / 100) * 3;
+            const attendanceScore = ((m.attendanceRate || 0) / 100) * 2;
+            let complaintFactor = 1;
+            if ((m.complaintCount || 0) > 0) {
+                const c = m.complaintCount;
+                complaintFactor = Math.max(0, 1 - (c / 10));
+            }
+            const complaintScore = complaintFactor * 1;
+            let total = ratingScore + completionScore + attendanceScore + complaintScore;
+            if (total < 0) total = 0;
+            if (total > 10) total = 10;
+            return parseFloat(total.toFixed(2));
+        }
+
+        function isTopMentor(m) {
+            return m.rating >= 4.7 && m.activeClasses >= 2;
+        }
+
+        function isRiskMentor(m) {
+            return m.rating <= 3.8 || (m.complaintCount || 0) >= 3 || (m.lastActiveDays || 0) > 45;
+        }
+
+        function isAvailableMentor(m) {
+            if ((m.lastActiveDays || 0) > 30) return false;
+            if ((m.activeClasses || 0) === 0) return true;
+            return (m.activeClasses || 0) <= 2;
+        }
+
+        function getContractMeta(m) {
+            if (!m.contractEnd) return { daysLeft: null, status: "unknown" };
+            const today = new Date();
+            const end = new Date(m.contractEnd);
+            const diffMs = end.getTime() - today.getTime();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            let status = "active";
+            if (diffDays < 0) status = "expired";
+            else if (diffDays <= 30) status = "warning";
+            return { daysLeft: diffDays, status: status };
+        }
+
+        function applyFilters() {
+            let list = mentorsState.map(m => Object.assign({}, m, { score: computeScore(m) }));
+            if (currentFilters.search) {
+                const q = currentFilters.search.toLowerCase();
+                list = list.filter(m => (m.fullName || "").toLowerCase().includes(q) || (m.nickName || "").toLowerCase().includes(q));
+            }
+            if (currentFilters.rating) {
+                const r = parseFloat(currentFilters.rating);
+                list = list.filter(m => (m.rating || 0) >= r);
+            }
+            if (currentFilters.location) {
+                list = list.filter(m => (m.location || "") === currentFilters.location);
+            }
+            if (currentFilters.teaching) {
+                list = list.filter(m => (m.teaching || "") === currentFilters.teaching);
+            }
+            if (currentFilters.status) {
+                list = list.filter(m => (m.status || "") === currentFilters.status);
+            }
+            if (currentFilters.availability === "available") {
+                list = list.filter(m => isAvailableMentor(m));
+            } else if (currentFilters.availability === "busy") {
+                list = list.filter(m => !isAvailableMentor(m));
+            }
+            if (currentFilters.contract === "lt30") {
+                list = list.filter(m => {
+                    const meta = getContractMeta(m);
+                    return meta.daysLeft !== null && meta.daysLeft >= 0 && meta.daysLeft <= 30;
+                });
+            } else if (currentFilters.contract === "expired") {
+                list = list.filter(m => {
+                    const meta = getContractMeta(m);
+                    return meta.daysLeft !== null && meta.daysLeft < 0;
+                });
+            }
+
+            list.sort((a, b) => {
+                const dir = currentSort.dir === "asc" ? 1 : -1;
+                if (currentSort.field === "name") {
+                    return dir * String(a.fullName || "").localeCompare(String(b.fullName || ""));
+                }
+                if (currentSort.field === "rating") {
+                    return dir * ((a.rating || 0) - (b.rating || 0));
+                }
+                if (currentSort.field === "activeClasses") {
+                    return dir * ((a.activeClasses || 0) - (b.activeClasses || 0));
+                }
+                if (currentSort.field === "status") {
+                    return dir * String(a.status || "").localeCompare(String(b.status || ""));
+                }
+                if (currentSort.field === "contract") {
+                    const da = a.contractEnd ? new Date(a.contractEnd).getTime() : 0;
+                    const db = b.contractEnd ? new Date(b.contractEnd).getTime() : 0;
+                    return dir * (da - db);
+                }
+                if (currentSort.field === "score") {
+                    return dir * ((a.score || 0) - (b.score || 0));
+                }
+                return dir * String(a.fullName || "").localeCompare(String(b.fullName || ""));
+            });
+
+            return list;
+        }
+
+        function renderSummary(list) {
+            const total = list.length;
+            const active = list.filter(m => m.status === "active").length;
+            const avgRating = list.length ? (list.reduce((acc, m) => acc + (m.rating || 0), 0) / list.length) : 0;
+            const online = list.filter(m => m.type === "Online" || m.type === "Both").length;
+            const offline = list.filter(m => m.type === "Offline" || m.type === "Both").length;
+
+            const totalEl = document.getElementById("statTotalMentor");
+            const activeEl = document.getElementById("statActiveMentor");
+            const activeRatioEl = document.getElementById("statActiveRatio");
+            const avgRatingEl = document.getElementById("statAvgRating");
+            const onlineEl = document.getElementById("statOnlineMentor");
+            const offlineEl = document.getElementById("statOfflineMentor");
+
+            if (totalEl) totalEl.textContent = String(total);
+            if (activeEl) activeEl.textContent = String(active);
+            if (activeRatioEl) {
+                const pct = total ? Math.round((active / total) * 100) : 0;
+                activeRatioEl.textContent = total ? pct + "% aktif" : "";
+            }
+            if (avgRatingEl) avgRatingEl.textContent = avgRating.toFixed(2);
+            if (onlineEl) onlineEl.textContent = online + " Online";
+            if (offlineEl) offlineEl.textContent = offline + " Offline";
+        }
+
+        function renderMentorTable(list) {
+            const tbody = document.getElementById("mentorTableBody");
+            const countText = document.getElementById("mentorCountText");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            list.forEach(m => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition";
+
+                const tdCheck = document.createElement("td");
+                tdCheck.className = "px-4 py-3";
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.className = "rounded border-slate-300";
+                cb.checked = selectedMentorIds.has(m.id);
+                cb.addEventListener("change", () => {
+                    if (cb.checked) selectedMentorIds.add(m.id);
+                    else selectedMentorIds.delete(m.id);
+                });
+                tdCheck.appendChild(cb);
+
+                const tdName = document.createElement("td");
+                tdName.className = "px-4 py-3";
+                const nameRow = document.createElement("div");
+                nameRow.className = "flex items-center gap-3";
+                const avatar = document.createElement("div");
+                avatar.className = "w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] font-bold";
+                avatar.textContent = (m.fullName || "M").split(" ").map(p => p.charAt(0)).join("").slice(0, 2).toUpperCase();
+                const nameCol = document.createElement("div");
+                const nameEl = document.createElement("div");
+                nameEl.className = "text-xs font-semibold text-slate-900";
+                nameEl.textContent = m.fullName || "-";
+                const badgeRow = document.createElement("div");
+                badgeRow.className = "flex items-center gap-1 mt-0.5";
+                if (isTopMentor(m)) {
+                    const b = document.createElement("span");
+                    b.className = "badge-tag bg-emerald-50 text-emerald-700";
+                    b.textContent = "Top Mentor";
+                    badgeRow.appendChild(b);
+                }
+                if (isRiskMentor(m)) {
+                    const b = document.createElement("span");
+                    b.className = "badge-tag bg-rose-50 text-rose-600";
+                    b.textContent = "Risk";
+                    badgeRow.appendChild(b);
+                }
+                nameCol.appendChild(nameEl);
+                if (badgeRow.children.length > 0) nameCol.appendChild(badgeRow);
+                nameRow.appendChild(avatar);
+                nameRow.appendChild(nameCol);
+                tdName.appendChild(nameRow);
+
+                const tdNick = document.createElement("td");
+                tdNick.className = "px-4 py-3 text-xs text-slate-500";
+                tdNick.textContent = m.nickName || "-";
+
+                const tdWhatsapp = document.createElement("td");
+                tdWhatsapp.className = "px-4 py-3 text-center text-xs";
+                const waRaw = m.whatsapp || "";
+                const waNumber = m.whatsappNumber || extractWhatsappNumber(waRaw);
+                const waLink = waRaw.indexOf("http") === 0 ? waRaw : buildWhatsappLink(waRaw);
+                if (waLink) {
+                    const a = document.createElement("a");
+                    a.href = waLink;
+                    a.target = "_blank";
+                    a.className = "text-emerald-600 hover:text-emerald-700 underline decoration-dotted";
+                    a.textContent = waNumber || waLink;
+                    tdWhatsapp.appendChild(a);
+                } else {
+                    tdWhatsapp.classList.add("text-slate-400");
+                    tdWhatsapp.textContent = "-";
+                }
+
+                const tdRating = document.createElement("td");
+                tdRating.className = "px-4 py-3 text-center";
+                const ratingRow = document.createElement("div");
+                ratingRow.className = "inline-flex items-center gap-1 justify-center";
+                const starIcon = document.createElement("i");
+                starIcon.className = "bi bi-star-fill text-amber-400 text-[11px]";
+                const ratingText = document.createElement("span");
+                ratingText.className = "text-xs font-semibold text-slate-800";
+                ratingText.textContent = (m.rating || 0).toFixed(1);
+                ratingRow.appendChild(starIcon);
+                ratingRow.appendChild(ratingText);
+                tdRating.appendChild(ratingRow);
+
+                const tdTeaching = document.createElement("td");
+                tdTeaching.className = "px-4 py-3 text-center";
+                tdTeaching.innerHTML = '<span class="badge-tag bg-slate-100 text-slate-600">' + (m.teaching || "-") + "</span>";
+
+                const tdType = document.createElement("td");
+                tdType.className = "px-4 py-3 text-center";
+                tdType.innerHTML = '<span class="badge-tag bg-slate-100 text-slate-600">' + (m.type || "-") + "</span>";
+
+                const tdActive = document.createElement("td");
+                tdActive.className = "px-4 py-3 text-center text-xs text-slate-700 font-semibold";
+                tdActive.textContent = String(m.activeClasses || 0);
+
+                const tdTotal = document.createElement("td");
+                tdTotal.className = "px-4 py-3 text-center text-xs text-slate-500";
+                tdTotal.textContent = String(m.totalClasses || 0);
+
+                const tdLocation = document.createElement("td");
+                tdLocation.className = "px-4 py-3 text-center text-xs text-slate-500";
+                tdLocation.textContent = m.location || "-";
+
+                const tdStatus = document.createElement("td");
+                tdStatus.className = "px-4 py-3 text-center";
+                tdStatus.appendChild(getStatusBadge(m.status || ""));
+
+                const tdContract = document.createElement("td");
+                tdContract.className = "px-4 py-3 text-center text-xs";
+                const meta = getContractMeta(m);
+                const text = document.createElement("div");
+                text.className = "font-semibold";
+                text.textContent = m.contractEnd || "-";
+                const sub = document.createElement("div");
+                sub.className = "text-[10px]";
+                if (meta.daysLeft != null) {
+                    if (meta.daysLeft < 0) {
+                        sub.classList.add("text-rose-600");
+                        sub.textContent = "Expired " + Math.abs(meta.daysLeft) + " hari";
+                    } else if (meta.daysLeft <= 30) {
+                        sub.classList.add("text-amber-600");
+                        sub.textContent = "Habis " + meta.daysLeft + " hari lagi";
+                    } else {
+                        sub.classList.add("text-slate-400");
+                        sub.textContent = meta.daysLeft + " hari lagi";
+                    }
+                }
+                tdContract.appendChild(text);
+                tdContract.appendChild(sub);
+
+                const tdScore = document.createElement("td");
+                tdScore.className = "px-4 py-3 text-center";
+                const score = computeScore(m);
+                const scoreEl = document.createElement("span");
+                scoreEl.className = "score-pill";
+                scoreEl.textContent = score.toFixed(2);
+                if (score >= 8) {
+                    scoreEl.classList.add("bg-emerald-50", "text-emerald-700");
+                } else if (score >= 6) {
+                    scoreEl.classList.add("bg-amber-50", "text-amber-700");
+                } else {
+                    scoreEl.classList.add("bg-rose-50", "text-rose-600");
+                }
+                tdScore.appendChild(scoreEl);
+
+                const tdAction = document.createElement("td");
+                tdAction.className = "px-4 py-3 text-right";
+                const actionWrap = document.createElement("div");
+                actionWrap.className = "inline-flex items-center gap-2";
+                const detailBtn = document.createElement("button");
+                detailBtn.className = "px-3 py-1 rounded-xl text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200";
+                detailBtn.textContent = "Detail";
+                detailBtn.addEventListener("click", () => openDetailModal(m.id));
+                const editBtn = document.createElement("button");
+                editBtn.className = "px-3 py-1 rounded-xl text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100";
+                editBtn.textContent = "Edit";
+                editBtn.addEventListener("click", () => openEditMentorModal(m.id));
+                const assignBtn = document.createElement("button");
+                assignBtn.className = "px-3 py-1 rounded-xl text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700";
+                assignBtn.textContent = "Assign";
+                assignBtn.addEventListener("click", () => openAssignModal(m.id));
+                actionWrap.appendChild(detailBtn);
+                actionWrap.appendChild(editBtn);
+                actionWrap.appendChild(assignBtn);
+                tdAction.appendChild(actionWrap);
+
+                tr.appendChild(tdCheck);
+                tr.appendChild(tdName);
+                tr.appendChild(tdNick);
+                tr.appendChild(tdWhatsapp);
+                tr.appendChild(tdRating);
+                tr.appendChild(tdTeaching);
+                tr.appendChild(tdType);
+                tr.appendChild(tdActive);
+                tr.appendChild(tdTotal);
+                tr.appendChild(tdLocation);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdContract);
+                tr.appendChild(tdScore);
+                tr.appendChild(tdAction);
+
+                tbody.appendChild(tr);
+            });
+
+            if (countText) {
+                countText.textContent = list.length + " mentor ditampilkan";
+            }
+        }
+
+        function renderRanking(list) {
+            const topContainer = document.getElementById("topMentorList");
+            const riskContainer = document.getElementById("riskMentorList");
+            if (!topContainer || !riskContainer) return;
+            topContainer.innerHTML = "";
+            riskContainer.innerHTML = "";
+
+            const scored = list.map(m => Object.assign({}, m, { score: computeScore(m) }));
+            const sortedDesc = scored.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+            const sortedAsc = scored.slice().sort((a, b) => (a.score || 0) - (b.score || 0));
+
+            sortedDesc.slice(0, 5).forEach((m, idx) => {
+                const row = document.createElement("div");
+                row.className = "flex items-center justify-between";
+                const left = document.createElement("div");
+                left.className = "flex items-center gap-2";
+                const badge = document.createElement("div");
+                badge.className = "w-6 h-6 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-[11px] font-bold";
+                badge.textContent = String(idx + 1);
+                const textWrap = document.createElement("div");
+                const name = document.createElement("div");
+                name.className = "text-[11px] font-semibold text-slate-800";
+                name.textContent = m.nickName || m.fullName || "-";
+                const sub = document.createElement("div");
+                sub.className = "text-[10px] text-slate-400";
+                sub.textContent = "Score " + m.score.toFixed(2) + " • Rating " + (m.rating || 0).toFixed(1);
+                textWrap.appendChild(name);
+                textWrap.appendChild(sub);
+                left.appendChild(badge);
+                left.appendChild(textWrap);
+                const right = document.createElement("div");
+                right.className = "text-[10px] text-emerald-600 font-semibold";
+                right.textContent = m.activeClasses + " kelas aktif";
+                row.appendChild(left);
+                row.appendChild(right);
+                topContainer.appendChild(row);
+            });
+
+            sortedAsc.filter(m => isRiskMentor(m)).slice(0, 5).forEach(m => {
+                const row = document.createElement("div");
+                row.className = "flex items-center justify-between";
+                const left = document.createElement("div");
+                left.className = "flex items-center gap-2";
+                const dot = document.createElement("span");
+                dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                const name = document.createElement("span");
+                name.className = "text-[11px] font-semibold text-slate-800";
+                name.textContent = m.nickName || m.fullName || "-";
+                left.appendChild(dot);
+                left.appendChild(name);
+                const right = document.createElement("div");
+                right.className = "text-[10px] text-rose-600";
+                right.textContent = "Complaints " + (m.complaintCount || 0) + " • Score " + computeScore(m).toFixed(2);
+                row.appendChild(left);
+                row.appendChild(right);
+                riskContainer.appendChild(row);
+            });
+        }
+
+        function renderReminders(list) {
+            const container = document.getElementById("reminderList");
+            if (!container) return;
+            container.innerHTML = "";
+            const today = new Date();
+            const reminders = [];
+
+            list.forEach(m => {
+                const meta = getContractMeta(m);
+                if (meta.daysLeft != null && meta.daysLeft <= 30) {
+                    const type = meta.daysLeft < 0 ? "danger" : "warning";
+                    const text = meta.daysLeft < 0
+                        ? "Kontrak " + (m.nickName || m.fullName) + " sudah habis " + Math.abs(meta.daysLeft) + " hari."
+                        : "Kontrak " + (m.nickName || m.fullName) + " habis " + meta.daysLeft + " hari lagi.";
+                    reminders.push({ type: type, text: text });
+                }
+                if ((m.lastActiveDays || 0) >= 30) {
+                    reminders.push({
+                        type: "warning",
+                        text: "Mentor " + (m.nickName || m.fullName) + " tidak aktif " + (m.lastActiveDays || 0) + " hari."
+                    });
+                }
+                if (isRiskMentor(m)) {
+                    reminders.push({
+                        type: "danger",
+                        text: "Mentor " + (m.nickName || m.fullName) + " termasuk kategori Risk, perlu review."
+                    });
+                }
+            });
+
+            if (!reminders.length) {
+                const empty = document.createElement("p");
+                empty.className = "text-xs text-slate-400";
+                empty.textContent = "Tidak ada reminder kritikal saat ini.";
+                container.appendChild(empty);
+                return;
+            }
+
+            reminders.slice(0, 6).forEach(r => {
+                const row = document.createElement("div");
+                row.className = "flex items-start gap-2";
+                const icon = document.createElement("div");
+                icon.className = "mt-0.5";
+                const dot = document.createElement("span");
+                dot.className = "w-2 h-2 rounded-full inline-block";
+                if (r.type === "danger") dot.classList.add("bg-rose-500");
+                else if (r.type === "warning") dot.classList.add("bg-amber-400");
+                else dot.classList.add("bg-slate-300");
+                icon.appendChild(dot);
+                const text = document.createElement("p");
+                text.className = "text-[11px] text-slate-600";
+                text.textContent = r.text;
+                row.appendChild(icon);
+                row.appendChild(text);
+                container.appendChild(row);
+            });
+        }
+
+        function populateLocationFilter(list) {
+            const select = document.getElementById("filterLocation");
+            if (!select) return;
+            const unique = Array.from(new Set(list.map(m => m.location || "").filter(Boolean))).sort();
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            unique.forEach(loc => {
+                const opt = document.createElement("option");
+                opt.value = loc;
+                opt.textContent = loc;
+                select.appendChild(opt);
+            });
+        }
+
+        function openDetailModal(id) {
+            const mentor = mentorsState.find(m => m.id === id);
+            if (!mentor) return;
+            currentDetailMentorId = id;
+            const modal = document.getElementById("mentorDetailModal");
+            if (!modal) return;
+
+            const avatar = document.getElementById("detailAvatar");
+            const fullName = document.getElementById("detailFullName");
+            const subtitle = document.getElementById("detailSubtitle");
+            const badges = document.getElementById("detailBadges");
+            const fullNameValue = document.getElementById("detailFullNameValue");
+            const nickName = document.getElementById("detailNickName");
+            const whatsapp = document.getElementById("detailWhatsapp");
+            const location = document.getElementById("detailLocation");
+            const status = document.getElementById("detailStatus");
+            const availability = document.getElementById("detailAvailability");
+            const ratingEl = document.getElementById("detailRating");
+            const completionEl = document.getElementById("detailCompletion");
+            const attendanceEl = document.getElementById("detailAttendance");
+            const complaintsEl = document.getElementById("detailComplaints");
+            const perfInsight = document.getElementById("detailPerformanceInsight");
+            const totalClasses = document.getElementById("detailTotalClasses");
+            const classesBody = document.getElementById("detailClassesBody");
+            const totalEarning = document.getElementById("detailTotalEarning");
+            const pendingPayment = document.getElementById("detailPendingPayment");
+            const feeOnline = document.getElementById("detailFeeOnline");
+            const feeOffline = document.getElementById("detailFeeOffline");
+            const contractEnd = document.getElementById("detailContractEnd");
+            const contractDuration = document.getElementById("detailContractDuration");
+            const contractStatus = document.getElementById("detailContractStatus");
+            const contractNotes = document.getElementById("detailContractNotes");
+
+            if (avatar) {
+                avatar.textContent = (mentor.fullName || "M").split(" ").map(p => p.charAt(0)).join("").slice(0, 2).toUpperCase();
+            }
+            if (fullName) fullName.textContent = mentor.fullName || "-";
+            if (subtitle) subtitle.textContent = (mentor.nickName || "-") + " • " + (mentor.location || "-");
+            if (badges) {
+                badges.innerHTML = "";
+                if (isTopMentor(mentor)) {
+                    const b = document.createElement("span");
+                    b.className = "badge-tag bg-emerald-50 text-emerald-700";
+                    b.textContent = "Top Mentor";
+                    badges.appendChild(b);
+                }
+                if (isRiskMentor(mentor)) {
+                    const b = document.createElement("span");
+                    b.className = "badge-tag bg-rose-50 text-rose-600";
+                    b.textContent = "Risk";
+                    badges.appendChild(b);
+                }
+            }
+
+            if (fullNameValue) fullNameValue.textContent = mentor.fullName || "-";
+            if (nickName) nickName.textContent = mentor.nickName || "-";
+            if (whatsapp) {
+                const waRaw = mentor.whatsapp || "";
+                const waNumber = mentor.whatsappNumber || extractWhatsappNumber(waRaw);
+                const waLink = waRaw.indexOf("http") === 0 ? waRaw : buildWhatsappLink(waRaw);
+                if (waLink) {
+                    whatsapp.innerHTML = "";
+                    const a = document.createElement("a");
+                    a.href = waLink;
+                    a.target = "_blank";
+                    a.className = "underline decoration-dotted";
+                    a.textContent = waNumber || waLink;
+                    whatsapp.appendChild(a);
+                } else {
+                    whatsapp.textContent = "-";
+                }
+            }
+            if (location) location.textContent = mentor.location || "-";
+            if (status) {
+                status.innerHTML = "";
+                status.appendChild(getStatusBadge(mentor.status || ""));
+            }
+            const detailBankName = document.getElementById("detailBankName");
+            const detailAccountNumber = document.getElementById("detailAccountNumber");
+            const detailAccountHolderName = document.getElementById("detailAccountHolderName");
+            if (detailBankName) detailBankName.textContent = mentor.bankName || "-";
+            if (detailAccountNumber) detailAccountNumber.textContent = mentor.accountNumber || "-";
+            if (detailAccountHolderName) detailAccountHolderName.textContent = mentor.accountHolderName || mentor.fullName || "-";
+            if (availability) {
+                const availabilityItems = normalizeAvailabilityList(mentor.availability);
+                if (availabilityItems.length) {
+                    availability.innerHTML = availabilityItems.map(a => "<div>" + a.day + " • " + a.time + "</div>").join("");
+                } else {
+                    availability.textContent = "Belum ada jadwal availability tersimpan.";
+                }
+            }
+
+            if (ratingEl) {
+                ratingEl.innerHTML = "";
+                const star = document.createElement("i");
+                star.className = "bi bi-star-fill text-amber-400 text-sm";
+                const text = document.createElement("span");
+                text.textContent = " " + (mentor.rating || 0).toFixed(1) + " / 5.0";
+                ratingEl.appendChild(star);
+                ratingEl.appendChild(text);
+            }
+            if (completionEl) completionEl.textContent = (mentor.completionRate || 0) + "%";
+            if (attendanceEl) attendanceEl.textContent = (mentor.attendanceRate || 0) + "%";
+            if (complaintsEl) complaintsEl.textContent = String(mentor.complaintCount || 0);
+
+            if (perfInsight) {
+                perfInsight.innerHTML = "";
+                const score = computeScore(mentor);
+                const liScore = document.createElement("li");
+                liScore.textContent = "Auto score: " + score.toFixed(2) + " (0–10).";
+                perfInsight.appendChild(liScore);
+                const li1 = document.createElement("li");
+                li1.textContent = "Rating menyumbang 40%, completion 30%, attendance 20%, complaint 10%.";
+                perfInsight.appendChild(li1);
+                if (isTopMentor(mentor)) {
+                    const li = document.createElement("li");
+                    li.textContent = "Masuk kategori Top Mentor, direkomendasikan untuk batch prioritas.";
+                    perfInsight.appendChild(li);
+                }
+                if (isRiskMentor(mentor)) {
+                    const li = document.createElement("li");
+                    li.textContent = "Kategori Risk, perlu review materi, komunikasi, atau matching kelas.";
+                    perfInsight.appendChild(li);
+                }
+                if ((mentor.lastActiveDays || 0) > 30) {
+                    const li = document.createElement("li");
+                    li.textContent = "Tidak ada kelas baru dalam " + (mentor.lastActiveDays || 0) + " hari.";
+                    perfInsight.appendChild(li);
+                }
+            }
+
+            if (totalClasses) {
+                const total = Array.isArray(mentor.classHistory) ? mentor.classHistory.length : 0;
+                totalClasses.textContent = total + " kelas tercatat";
+            }
+            if (classesBody) {
+                classesBody.innerHTML = "";
+                (mentor.classHistory || []).forEach(ch => {
+                    const tr = document.createElement("tr");
+                    const tdName = document.createElement("td");
+                    tdName.className = "px-3 py-2 text-xs text-slate-700";
+                    tdName.textContent = ch.name || "-";
+                    const tdDate = document.createElement("td");
+                    tdDate.className = "px-3 py-2 text-xs text-slate-500";
+                    tdDate.textContent = ch.date || "-";
+                    const tdStudents = document.createElement("td");
+                    tdStudents.className = "px-3 py-2 text-xs text-center text-slate-700";
+                    tdStudents.textContent = String(ch.students || 0);
+                    tr.appendChild(tdName);
+                    tr.appendChild(tdDate);
+                    tr.appendChild(tdStudents);
+                    classesBody.appendChild(tr);
+                });
+            }
+
+            if (totalEarning) totalEarning.textContent = formatCurrency(mentor.totalEarning || 0);
+            if (pendingPayment) pendingPayment.textContent = formatCurrency(mentor.pendingPayment || 0);
+            if (feeOnline) feeOnline.textContent = formatCurrency(mentor.feeOnline || 0) + "/ sesi";
+            if (feeOffline) feeOffline.textContent = formatCurrency(mentor.feeOffline || 0) + "/ sesi";
+
+            const meta = getContractMeta(mentor);
+            if (contractEnd) contractEnd.textContent = mentor.contractEnd || "-";
+            if (contractDuration) contractDuration.textContent = (mentor.contractDurationMonths || 0) + " bulan";
+            if (contractStatus) {
+                const span = document.createElement("span");
+                span.className = "badge-pill";
+                if (meta.status === "expired") {
+                    span.classList.add("badge-status-inactive");
+                    span.textContent = "Expired";
+                } else if (meta.status === "warning") {
+                    span.classList.add("badge-status-onleave");
+                    span.textContent = "Hampir Habis";
+                } else {
+                    span.classList.add("badge-status-active");
+                    span.textContent = "Active";
+                }
+                contractStatus.innerHTML = "";
+                contractStatus.appendChild(span);
+            }
+            if (contractNotes) contractNotes.textContent = mentor.contractNotes || "Belum ada catatan kontrak.";
+
+            modal.classList.add("open");
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById("mentorDetailModal");
+            if (modal) modal.classList.remove("open");
+        }
+
+        function openAssignModal(mentorId) {
+            const mentor = mentorsState.find(m => m.id === mentorId);
+            if (!mentor) return;
+            currentAssignMentorId = mentorId;
+            const modal = document.getElementById("assignModal");
+            const nameEl = document.getElementById("assignMentorName");
+            const select = document.getElementById("assignClassSelect");
+            if (nameEl) {
+                nameEl.textContent = "Assign " + (mentor.fullName || mentor.nickName || "Mentor") + " ke kelas";
+            }
+            if (select) {
+                select.innerHTML = "";
+                dummyClasses.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.id;
+                    opt.textContent = c.name + " • " + c.type + " • " + c.location + " • Sisa " + c.seatsLeft + " seat";
+                    select.appendChild(opt);
+                });
+            }
+            if (modal) modal.classList.add("open");
+        }
+
+        function closeAssignModal() {
+            const modal = document.getElementById("assignModal");
+            if (modal) modal.classList.remove("open");
+        }
+
+        function parseNumberInput(value, fallback) {
+            const parsed = parseNumberish(value);
+            return parsed === null ? fallback : parsed;
+        }
+
+        function setAddMentorError(message) {
+            const err = document.getElementById("addMentorError");
+            if (!err) return;
+            if (!message) {
+                err.textContent = "";
+                err.classList.add("hidden");
+                return;
+            }
+            err.textContent = message;
+            err.classList.remove("hidden");
+        }
+
+        function updateMentorModalMode(isEditMode) {
+            const title = document.getElementById("addMentorModalTitle");
+            const saveBtn = document.getElementById("btnAddMentorSave");
+            if (title) title.textContent = isEditMode ? "Edit Mentor" : "Add New Mentor";
+            if (saveBtn) saveBtn.textContent = isEditMode ? "Simpan Perubahan" : "Simpan Mentor";
+        }
+
+        function resetAddMentorForm() {
+            const fullNameInput = document.getElementById("addMentorFullName");
+            const nickNameInput = document.getElementById("addMentorNickName");
+            const whatsappInput = document.getElementById("addMentorWhatsapp");
+            const locationInput = document.getElementById("addMentorLocation");
+            const ratingInput = document.getElementById("addMentorRating");
+            const teachingSelect = document.getElementById("addMentorTeaching");
+            const typeSelect = document.getElementById("addMentorType");
+            const statusSelect = document.getElementById("addMentorStatus");
+            const contractEndInput = document.getElementById("addMentorContractEnd");
+            const feeOnlineInput = document.getElementById("addMentorFeeOnline");
+            const feeOfflineInput = document.getElementById("addMentorFeeOffline");
+            const notesInput = document.getElementById("addMentorContractNotes");
+            const saveBtn = document.getElementById("btnAddMentorSave");
+
+            editingMentorDocId = null;
+
+            if (fullNameInput) fullNameInput.value = "";
+            if (nickNameInput) nickNameInput.value = "";
+            if (whatsappInput) whatsappInput.value = "";
+            if (locationInput) locationInput.value = "";
+            if (ratingInput) ratingInput.value = "";
+            if (teachingSelect) teachingSelect.value = "Both";
+            if (typeSelect) typeSelect.value = "Online";
+            if (statusSelect) statusSelect.value = "active";
+            if (contractEndInput) contractEndInput.value = "";
+            if (feeOnlineInput) feeOnlineInput.value = "";
+            if (feeOfflineInput) feeOfflineInput.value = "";
+            if (notesInput) notesInput.value = "";
+            const bankNameInput = document.getElementById("addMentorBankName");
+            const accountNumberInput = document.getElementById("addMentorAccountNumber");
+            const accountHolderNameInput = document.getElementById("addMentorAccountHolderName");
+            if (bankNameInput) bankNameInput.value = "";
+            if (accountNumberInput) accountNumberInput.value = "";
+            if (accountHolderNameInput) accountHolderNameInput.value = "";
+            renderAvailabilitySlots([]);
+            if (saveBtn) {
+                saveBtn.disabled = false;
+            }
+            updateMentorModalMode(false);
+            setAddMentorError("");
+        }
+
+        function openAddMentorModal() {
+            const modal = document.getElementById("addMentorModal");
+            if (!modal) return;
+            resetAddMentorForm();
+            updateMentorModalMode(false);
+            modal.classList.add("open");
+            const fullNameInput = document.getElementById("addMentorFullName");
+            if (fullNameInput) fullNameInput.focus();
+        }
+
+        function openEditMentorModal(mentorId) {
+            const mentor = mentorsState.find(m => m.id === mentorId);
+            const modal = document.getElementById("addMentorModal");
+            if (!mentor || !modal) return;
+
+            const fullNameInput = document.getElementById("addMentorFullName");
+            const nickNameInput = document.getElementById("addMentorNickName");
+            const whatsappInput = document.getElementById("addMentorWhatsapp");
+            const locationInput = document.getElementById("addMentorLocation");
+            const ratingInput = document.getElementById("addMentorRating");
+            const teachingSelect = document.getElementById("addMentorTeaching");
+            const typeSelect = document.getElementById("addMentorType");
+            const statusSelect = document.getElementById("addMentorStatus");
+            const contractEndInput = document.getElementById("addMentorContractEnd");
+            const feeOnlineInput = document.getElementById("addMentorFeeOnline");
+            const feeOfflineInput = document.getElementById("addMentorFeeOffline");
+            const notesInput = document.getElementById("addMentorContractNotes");
+
+            editingMentorDocId = mentor.id;
+
+            if (fullNameInput) fullNameInput.value = mentor.fullName || "";
+            if (nickNameInput) nickNameInput.value = mentor.nickName || "";
+            if (whatsappInput) whatsappInput.value = mentor.whatsappNumber || extractWhatsappNumber(mentor.whatsapp || "");
+            if (locationInput) locationInput.value = mentor.location || "";
+            if (ratingInput) ratingInput.value = (mentor.rating || 0).toFixed(1);
+            if (teachingSelect) teachingSelect.value = mentor.teaching || "Both";
+            if (typeSelect) typeSelect.value = mentor.type || "Online";
+            if (statusSelect) statusSelect.value = mentor.status || "active";
+            if (contractEndInput) contractEndInput.value = formatDateForInput(mentor.contractEnd);
+            if (feeOnlineInput) feeOnlineInput.value = String(mentor.feeOnline || 0);
+            if (feeOfflineInput) feeOfflineInput.value = String(mentor.feeOffline || 0);
+            if (notesInput) notesInput.value = mentor.contractNotes || "";
+            const bankNameInput2 = document.getElementById("addMentorBankName");
+            const accountNumberInput2 = document.getElementById("addMentorAccountNumber");
+            const accountHolderNameInput2 = document.getElementById("addMentorAccountHolderName");
+            if (bankNameInput2) bankNameInput2.value = mentor.bankName || "";
+            if (accountNumberInput2) accountNumberInput2.value = mentor.accountNumber || "";
+            if (accountHolderNameInput2) accountHolderNameInput2.value = mentor.accountHolderName || mentor.fullName || "";
+            renderAvailabilitySlots(Array.isArray(mentor.availability) ? mentor.availability : []);
+
+            updateMentorModalMode(true);
+            setAddMentorError("");
+            modal.classList.add("open");
+            if (fullNameInput) fullNameInput.focus();
+        }
+
+        function closeAddMentorModal() {
+            const modal = document.getElementById("addMentorModal");
+            if (modal) modal.classList.remove("open");
+            editingMentorDocId = null;
+            updateMentorModalMode(false);
+        }
+
+        async function saveNewMentor() {
+            if (isSavingNewMentor) return;
+
+            const isEditMode = Boolean(editingMentorDocId);
+
+            const fullNameInput = document.getElementById("addMentorFullName");
+            const nickNameInput = document.getElementById("addMentorNickName");
+            const whatsappInput = document.getElementById("addMentorWhatsapp");
+            const locationInput = document.getElementById("addMentorLocation");
+            const ratingInput = document.getElementById("addMentorRating");
+            const teachingSelect = document.getElementById("addMentorTeaching");
+            const typeSelect = document.getElementById("addMentorType");
+            const statusSelect = document.getElementById("addMentorStatus");
+            const contractEndInput = document.getElementById("addMentorContractEnd");
+            const feeOnlineInput = document.getElementById("addMentorFeeOnline");
+            const feeOfflineInput = document.getElementById("addMentorFeeOffline");
+            const notesInput = document.getElementById("addMentorContractNotes");
+            const saveBtn = document.getElementById("btnAddMentorSave");
+
+            if (!fullNameInput || !saveBtn) return;
+
+            const fullName = fullNameInput.value.trim();
+            if (!fullName) {
+                setAddMentorError("Nama lengkap wajib diisi.");
+                fullNameInput.focus();
+                return;
+            }
+            if (fullName.indexOf("/") !== -1) {
+                setAddMentorError("Nama lengkap tidak boleh mengandung karakter '/'.");
+                fullNameInput.focus();
+                return;
+            }
+
+            const mentorDocId = fullName.replace(/\s+/g, " ").trim();
+
+            const nickName = nickNameInput ? nickNameInput.value.trim() : "";
+            const whatsappRaw = whatsappInput ? whatsappInput.value.trim() : "";
+            const whatsappNumber = sanitizePhoneNumber(whatsappRaw);
+            const location = locationInput ? locationInput.value.trim() : "";
+            const ratingRaw = ratingInput ? parseNumberInput(ratingInput.value, 0) : 0;
+            const rating = Math.min(5, Math.max(0, ratingRaw));
+            const teaching = teachingSelect ? teachingSelect.value : "Both";
+            const type = typeSelect ? typeSelect.value : "Online";
+            const status = statusSelect ? statusSelect.value : "active";
+            const contractEnd = contractEndInput ? contractEndInput.value : "";
+            const feeOnline = feeOnlineInput ? Math.max(0, parseNumberInput(feeOnlineInput.value, 0)) : 0;
+            const feeOffline = feeOfflineInput ? Math.max(0, parseNumberInput(feeOfflineInput.value, 0)) : 0;
+            const contractNotes = notesInput ? notesInput.value.trim() : "";
+            const bankNameVal = (document.getElementById("addMentorBankName")?.value || "").trim();
+            const accountNumberVal = (document.getElementById("addMentorAccountNumber")?.value || "").trim();
+            const accountHolderNameVal = (document.getElementById("addMentorAccountHolderName")?.value || "").trim();
+            const ratingString = rating.toFixed(1);
+            const existingMentor = isEditMode ? mentorsState.find(m => m.id === editingMentorDocId) : null;
+
+            if (whatsappRaw && !whatsappNumber) {
+                setAddMentorError("WhatsApp hanya boleh berisi angka.");
+                if (whatsappInput) whatsappInput.focus();
+                return;
+            }
+            if (whatsappInput) whatsappInput.value = whatsappNumber;
+
+            const whatsappLink = buildWhatsappLink(whatsappNumber);
+            const availabilityResult = collectAvailabilityFromForm();
+            if (availabilityResult.hasPartial) {
+                setAddMentorError("Setiap slot availability harus berisi hari, jam mulai, dan jam selesai.");
+                return;
+            }
+            if (availabilityResult.hasInvalidRange) {
+                setAddMentorError("Jam selesai harus lebih besar dari jam mulai pada availability.");
+                return;
+            }
+
+            const payload = {
+                fullName: fullName,
+                nickName: nickName || fullName.split(" ")[0] || "",
+                whatsapp: whatsappLink,
+                location: location,
+                rating: Number(ratingString),
+                teaching: teaching,
+                type: type,
+                activeClasses: existingMentor ? (existingMentor.activeClasses || 0) : 0,
+                totalClasses: existingMentor ? (existingMentor.totalClasses || 0) : 0,
+                status: status,
+                contractEnd: contractEnd || null,
+                contractDurationMonths: existingMentor && existingMentor.contractDurationMonths !== null ? existingMentor.contractDurationMonths : null,
+                lastActiveDays: existingMentor ? (existingMentor.lastActiveDays || 0) : 0,
+                completionRate: existingMentor ? (existingMentor.completionRate || 0) : 0,
+                attendanceRate: existingMentor ? (existingMentor.attendanceRate || 0) : 0,
+                complaintCount: existingMentor ? (existingMentor.complaintCount || 0) : 0,
+                avgFeedback: existingMentor ? (existingMentor.avgFeedback || Number(ratingString)) : Number(ratingString),
+                totalEarning: existingMentor ? (existingMentor.totalEarning || 0) : 0,
+                pendingPayment: existingMentor ? (existingMentor.pendingPayment || 0) : 0,
+                feeOnline: feeOnline,
+                feeOffline: feeOffline,
+                availability: availabilityResult.list,
+                classHistory: existingMentor && Array.isArray(existingMentor.classHistory) ? existingMentor.classHistory : [],
+                contractNotes: contractNotes,
+                bankName: bankNameVal,
+                accountNumber: accountNumberVal,
+                accountHolderName: accountHolderNameVal || fullName
+            };
+
+            try {
+                isSavingNewMentor = true;
+                saveBtn.disabled = true;
+                saveBtn.textContent = "Menyimpan...";
+                setAddMentorError("");
+
+                const mentorRef = doc(db, "mentor", mentorDocId);
+                const existingMentorDoc = await getDoc(mentorRef);
+                if (isEditMode) {
+                    const isChangingDocId = editingMentorDocId !== mentorDocId;
+                    const sourceMentorDoc = await getDoc(doc(db, "mentor", editingMentorDocId));
+                    const sourceCreatedAt = sourceMentorDoc.exists() ? sourceMentorDoc.data().createdAt : null;
+                    if (isChangingDocId && existingMentorDoc.exists()) {
+                        const shouldOverwrite = confirm("Nama mentor ini sudah dipakai dokumen lain. Lanjutkan untuk overwrite data dokumen tersebut?");
+                        if (!shouldOverwrite) {
+                            return;
+                        }
+                    }
+
+                    await setDoc(mentorRef, Object.assign({}, payload, {
+                        createdAt: sourceCreatedAt || serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    }));
+                    if (isChangingDocId) {
+                        await deleteDoc(doc(db, "mentor", editingMentorDocId));
+                    }
+                    closeAddMentorModal();
+                    resetAddMentorForm();
+                    await loadMentorsFromFirestore();
+                    alert("Data mentor berhasil diperbarui.");
+                } else {
+                    if (existingMentorDoc.exists()) {
+                        const shouldOverwrite = confirm("Data mentor dengan nama ini sudah ada. Lanjutkan untuk overwrite data?");
+                        if (!shouldOverwrite) {
+                            return;
+                        }
+                    }
+
+                    await setDoc(mentorRef, Object.assign({}, payload, { createdAt: serverTimestamp() }));
+                    closeAddMentorModal();
+                    resetAddMentorForm();
+                    await loadMentorsFromFirestore();
+                    alert("Mentor baru berhasil ditambahkan.");
+                }
+            } catch (e) {
+                console.error("Failed to add mentor to Firestore (collection: mentor)", e);
+                setAddMentorError("Gagal menyimpan mentor. Cek koneksi atau izin Firestore, lalu coba lagi.");
+            } finally {
+                isSavingNewMentor = false;
+                saveBtn.disabled = false;
+                updateMentorModalMode(Boolean(editingMentorDocId));
+            }
+        }
+
+        function handleAssignConfirm() {
+            const select = document.getElementById("assignClassSelect");
+            const note = document.getElementById("assignNote");
+            const mentor = mentorsState.find(m => m.id === currentAssignMentorId);
+            if (!mentor || !select || !select.value) return;
+            const cls = dummyClasses.find(c => c.id === select.value);
+            alert("Mentor " + (mentor.fullName || mentor.nickName) + " di-assign ke " + (cls ? cls.name : "kelas") + ".");
+            if (note && note.value) {
+                console.log("Assign note:", note.value);
+            }
+            closeAssignModal();
+        }
+
+        function setActiveTab(tabId) {
+            const tabs = document.querySelectorAll("#detailTabList button[data-tab]");
+            const panels = document.querySelectorAll("[data-tab-panel]");
+            tabs.forEach(btn => {
+                const id = btn.getAttribute("data-tab");
+                if (id === tabId) {
+                    btn.classList.remove("tab-pill-inactive");
+                    btn.classList.add("tab-pill-active");
+                } else {
+                    btn.classList.remove("tab-pill-active");
+                    btn.classList.add("tab-pill-inactive");
+                }
+            });
+            panels.forEach(p => {
+                const id = p.getAttribute("data-tab-panel");
+                if (id === tabId) {
+                    p.classList.remove("hidden");
+                } else {
+                    p.classList.add("hidden");
+                }
+            });
+        }
+
+        function exportToCsv(list) {
+            if (!list.length) return;
+            const headers = [
+                "Full Name",
+                "Nick Name",
+                "Rating",
+                "Teaching",
+                "Type",
+                "Active Classes",
+                "Total Classes",
+                "Location",
+                "Status",
+                "Contract End",
+                "Score"
+            ];
+            const rows = list.map(m => [
+                '"' + (m.fullName || "") + '"',
+                '"' + (m.nickName || "") + '"',
+                (m.rating || 0).toFixed(1),
+                '"' + (m.teaching || "") + '"',
+                '"' + (m.type || "") + '"',
+                String(m.activeClasses || 0),
+                String(m.totalClasses || 0),
+                '"' + (m.location || "") + '"',
+                '"' + (m.status || "") + '"',
+                '"' + (m.contractEnd || "") + '"',
+                computeScore(m).toFixed(2)
+            ]);
+            const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "mentor-management.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function updateAll() {
+            const list = applyFilters();
+            renderSummary(list);
+            renderMentorTable(list);
+            renderRanking(list);
+            renderReminders(list);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            populateLocationFilter(mentorsState);
+            const searchInput = document.getElementById("searchMentor");
+            const filterRating = document.getElementById("filterRating");
+            const filterLocation = document.getElementById("filterLocation");
+            const filterTeaching = document.getElementById("filterTeaching");
+            const filterStatus = document.getElementById("filterStatus");
+            const filterAvailability = document.getElementById("filterAvailability");
+            const filterContract = document.getElementById("filterContract");
+            const toggleFilter = document.getElementById("btnToggleFilter");
+            const filterPanel = document.getElementById("filterPanel");
+            const sortLabel = document.getElementById("sortLabel");
+            const checkAll = document.getElementById("checkAllMentor");
+            const btnAddMentor = document.getElementById("btnAddMentor");
+            const btnBulkAssign = document.getElementById("btnBulkAssign");
+            const btnBulkStatus = document.getElementById("btnBulkStatus");
+            const btnExportMenu = document.getElementById("btnExportMenu");
+            const exportDropdown = document.getElementById("exportDropdown");
+            const btnExportCsv = document.getElementById("btnExportCsv");
+            const btnExportExcel = document.getElementById("btnExportExcel");
+            const btnCloseDetail = document.getElementById("btnCloseDetail");
+            const btnDetailAssign = document.getElementById("btnDetailAssign");
+            const btnCloseAssign = document.getElementById("btnCloseAssign");
+            const btnAssignCancel = document.getElementById("btnAssignCancel");
+            const btnAssignConfirm = document.getElementById("btnAssignConfirm");
+            const btnCloseAddMentor = document.getElementById("btnCloseAddMentor");
+            const btnAddMentorCancel = document.getElementById("btnAddMentorCancel");
+            const btnAddMentorSave = document.getElementById("btnAddMentorSave");
+            const btnAddAvailabilitySlot = document.getElementById("btnAddAvailabilitySlot");
+            const addMentorWhatsapp = document.getElementById("addMentorWhatsapp");
+            const detailTabs = document.querySelectorAll("#detailTabList button[data-tab]");
+
+            if (addMentorWhatsapp) {
+                addMentorWhatsapp.addEventListener("input", () => {
+                    const cleaned = sanitizePhoneNumber(addMentorWhatsapp.value);
+                    if (addMentorWhatsapp.value !== cleaned) {
+                        addMentorWhatsapp.value = cleaned;
+                    }
+                });
+            }
+
+            if (btnAddAvailabilitySlot) {
+                btnAddAvailabilitySlot.addEventListener("click", () => {
+                    addAvailabilitySlot("", "", "");
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    currentFilters.search = searchInput.value.trim();
+                    updateAll();
+                });
+            }
+            if (filterRating) {
+                filterRating.addEventListener("change", () => {
+                    currentFilters.rating = filterRating.value;
+                    updateAll();
+                });
+            }
+            if (filterLocation) {
+                filterLocation.addEventListener("change", () => {
+                    currentFilters.location = filterLocation.value;
+                    updateAll();
+                });
+            }
+            if (filterTeaching) {
+                filterTeaching.addEventListener("change", () => {
+                    currentFilters.teaching = filterTeaching.value;
+                    updateAll();
+                });
+            }
+            if (filterStatus) {
+                filterStatus.addEventListener("change", () => {
+                    currentFilters.status = filterStatus.value;
+                    updateAll();
+                });
+            }
+            if (filterAvailability) {
+                filterAvailability.addEventListener("change", () => {
+                    currentFilters.availability = filterAvailability.value;
+                    updateAll();
+                });
+            }
+            if (filterContract) {
+                filterContract.addEventListener("change", () => {
+                    currentFilters.contract = filterContract.value;
+                    updateAll();
+                });
+            }
+            if (toggleFilter && filterPanel) {
+                toggleFilter.addEventListener("click", () => {
+                    if (filterPanel.classList.contains("hidden")) filterPanel.classList.remove("hidden");
+                    else filterPanel.classList.add("hidden");
+                });
+            }
+
+            document.querySelectorAll("th[data-sort]").forEach(th => {
+                th.addEventListener("click", () => {
+                    const field = th.getAttribute("data-sort");
+                    if (!field) return;
+                    if (currentSort.field === field) {
+                        currentSort.dir = currentSort.dir === "asc" ? "desc" : "asc";
+                    } else {
+                        currentSort.field = field;
+                        currentSort.dir = "asc";
+                    }
+                    if (sortLabel) {
+                        const arrow = currentSort.dir === "asc" ? "↑" : "↓";
+                        sortLabel.textContent = field.charAt(0).toUpperCase() + field.slice(1) + " " + arrow;
+                    }
+                    updateAll();
+                });
+            });
+
+            if (checkAll) {
+                checkAll.addEventListener("change", () => {
+                    selectedMentorIds.clear();
+                    if (checkAll.checked) {
+                        applyFilters().forEach(m => selectedMentorIds.add(m.id));
+                    }
+                    updateAll();
+                });
+            }
+
+            if (btnBulkAssign) {
+                btnBulkAssign.addEventListener("click", () => {
+                    if (!selectedMentorIds.size) {
+                        alert("Pilih minimal satu mentor terlebih dahulu.");
+                        return;
+                    }
+                    const firstId = Array.from(selectedMentorIds)[0];
+                    openAssignModal(firstId);
+                });
+            }
+
+            if (btnBulkStatus) {
+                btnBulkStatus.addEventListener("click", () => {
+                    if (!selectedMentorIds.size) {
+                        alert("Pilih minimal satu mentor terlebih dahulu.");
+                        return;
+                    }
+                    const status = prompt("Masukkan status baru (active / inactive / on_leave):");
+                    if (!status) return;
+                    const normalized = status.toLowerCase();
+                    if (["active", "inactive", "on_leave"].indexOf(normalized) === -1) {
+                        alert("Status tidak valid.");
+                        return;
+                    }
+                    mentorsState = mentorsState.map(m => selectedMentorIds.has(m.id) ? Object.assign({}, m, { status: normalized }) : m);
+                    updateAll();
+                });
+            }
+
+            if (btnAddMentor) {
+                btnAddMentor.addEventListener("click", () => openAddMentorModal());
+            }
+
+            if (btnExportMenu && exportDropdown) {
+                btnExportMenu.addEventListener("click", () => {
+                    if (exportDropdown.classList.contains("hidden")) exportDropdown.classList.remove("hidden");
+                    else exportDropdown.classList.add("hidden");
+                });
+                document.addEventListener("click", (e) => {
+                    if (!exportDropdown.contains(e.target) && e.target !== btnExportMenu && !btnExportMenu.contains(e.target)) {
+                        exportDropdown.classList.add("hidden");
+                    }
+                });
+            }
+
+            if (btnExportCsv) {
+                btnExportCsv.addEventListener("click", () => {
+                    exportToCsv(applyFilters());
+                });
+            }
+            if (btnExportExcel) {
+                btnExportExcel.addEventListener("click", () => {
+                    exportToCsv(applyFilters());
+                });
+            }
+
+            if (btnCloseDetail) {
+                btnCloseDetail.addEventListener("click", () => closeDetailModal());
+            }
+            if (btnDetailAssign) {
+                btnDetailAssign.addEventListener("click", () => {
+                    if (!currentDetailMentorId) return;
+                    openAssignModal(currentDetailMentorId);
+                });
+            }
+            const detailModal = document.getElementById("mentorDetailModal");
+            if (detailModal) {
+                detailModal.addEventListener("click", (e) => {
+                    if (e.target === detailModal) closeDetailModal();
+                });
+            }
+
+            if (btnCloseAssign) btnCloseAssign.addEventListener("click", () => closeAssignModal());
+            if (btnAssignCancel) btnAssignCancel.addEventListener("click", () => closeAssignModal());
+            const assignModal = document.getElementById("assignModal");
+            if (assignModal) {
+                assignModal.addEventListener("click", (e) => {
+                    if (e.target === assignModal) closeAssignModal();
+                });
+            }
+            if (btnAssignConfirm) {
+                btnAssignConfirm.addEventListener("click", () => handleAssignConfirm());
+            }
+
+            if (btnCloseAddMentor) btnCloseAddMentor.addEventListener("click", () => closeAddMentorModal());
+            if (btnAddMentorCancel) btnAddMentorCancel.addEventListener("click", () => closeAddMentorModal());
+            if (btnAddMentorSave) btnAddMentorSave.addEventListener("click", () => saveNewMentor());
+            const addMentorModal = document.getElementById("addMentorModal");
+            if (addMentorModal) {
+                addMentorModal.addEventListener("click", (e) => {
+                    if (e.target === addMentorModal) closeAddMentorModal();
+                });
+            }
+
+            detailTabs.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const tabId = btn.getAttribute("data-tab");
+                    if (!tabId) return;
+                    setActiveTab(tabId);
+                });
+            });
+
+            loadMentorsFromFirestore();
+        });
+    </script>
+</body>
+</html>
+

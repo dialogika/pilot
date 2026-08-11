@@ -1,0 +1,2801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message - Dialogika</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        /* CSS KHUSUS HALAMAN LIST (STACKED CARD EFFECT) */
+        
+        body { }
+        
+        /* FIX: Main Content Margin */
+        .main-content {
+            margin-left: 290px;
+            width: calc(100% - 290px);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 991px) {
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
+
+        /* --- 1. PROJECT CONTEXT CARD (UPDATED STYLE) --- */
+        .project-context-card {
+            max-width: 800px;
+            width: 90%;
+            background-color: #fff; /* Dark Navy sesuai list.html */
+            color: white;
+            margin: 20px auto -20px auto;
+            padding: 20px 25px 40px 25px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Badge */
+        .ph-badge {
+            background: #FDE047;
+            color: #854D0E;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            position: absolute;
+            left: 30px;
+            top: 40%;
+            transform: translateY(-50%);
+        }
+
+        /* Breadcrumb Navigation Styles */
+        .ph-crumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+        }
+
+        .ph-crumb-link {
+            text-decoration: none;
+            color: #d1d5db; /* Gray Light */
+            font-weight: 500;
+            transition: 0.2s;
+            display: flex; align-items: center;
+        }
+        .ph-crumb-link:hover { color: white; }
+        
+        .ph-crumb-active {
+            color: white;
+            font-weight: 700;
+            border-bottom: 2px solid #FDE047; /* Yellow underline */
+        }
+        
+        .ph-sep { font-size: 0.8rem; color: #6b7280; } /* Separator */
+
+        /* --- 2. MAIN LIST CARD --- */
+        .main-list-card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 50px auto;
+            padding: 50px 60px;
+            position: relative;
+            z-index: 2;
+            border: 0px;
+        }
+
+        .task-create-panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 15px;
+            display: none;
+        }
+        .task-title-large {
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: none;
+            outline: none;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .status-badge-main {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: white;
+        }
+        .status-drag-container {
+            min-height: 50px;
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .meta-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 30px;
+        }
+        .meta-field-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .meta-label-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .meta-label-text {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .meta-value {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            flex: 1;
+        }
+        .ghost-input {
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 5px;
+            width: 100%;
+            border-radius: 4px;
+        }
+        .ghost-input:hover { background: #f1f5f9; }
+
+        .priority-dropdown {
+            position: relative;
+            width: 100%;
+        }
+        .priority-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            background: #f9fafb;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .priority-trigger:hover {
+            background: #eef2ff;
+        }
+        .priority-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(15,23,42,0.15);
+            padding: 6px 0;
+            min-width: 180px;
+            z-index: 1050;
+            display: none;
+        }
+        .priority-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .priority-item:hover {
+            background: #f1f5f9;
+        }
+        .priority-flag {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.75rem;
+        }
+        .priority-flag-urgent { background: #ef4444; }
+        .priority-flag-high { background: #f59e0b; }
+        .priority-flag-normal { background: #3b82f6; }
+        .priority-flag-low { background: #6b7280; }
+
+        .tag-selector {
+            position: relative;
+            width: 100%;
+        }
+        .tag-selector-control {
+            display: flex;
+            align-items: center;
+            min-height: 34px;
+            border-radius: 4px;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: text;
+            width: 100%;
+        }
+        .tag-selector-control:hover {
+            background: #f1f5f9;
+        }
+        .tag-selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+        }
+        .tag-placeholder {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .tag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+            padding: 6px 0 4px 0;
+            z-index: 40;
+            display: none;
+        }
+        .tag-search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 6px 12px 8px 12px;
+            font-size: 0.85rem;
+        }
+        .tag-options {
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 0 4px 4px 4px;
+        }
+        .tag-option {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            gap: 6px;
+        }
+        .tag-option:hover {
+            background: #f3f4f6;
+        }
+        .tag-option-selected .tag-pill {
+            background: #4338ca;
+            color: #eef2ff;
+        }
+        .tag-create {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px 8px 12px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        .tag-create:hover {
+            background: #f3f4f6;
+        }
+        .tag-create-label {
+            margin-left: 4px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+        .tag-remove {
+            margin-left: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+        .tag-remove:hover {
+            color: #111827;
+        }
+
+        .user-select {
+            position: relative;
+            width: 100%;
+        }
+        .user-select-control {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-height: 34px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            background: #f9fafb;
+            cursor: pointer;
+            gap: 8px;
+        }
+        .user-select-control:hover {
+            background: #f3f4ff;
+        }
+        .user-select-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e5e7eb;
+            flex-shrink: 0;
+        }
+        .user-select-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-select-placeholder {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+        .user-select-name {
+            font-size: 0.85rem;
+            color: #111827;
+        }
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 6px;
+            background: #0f172a;
+            color: white;
+            border-radius: 18px;
+            padding: 10px 10px 8px 10px;
+            box-shadow: 0 18px 45px rgba(15,23,42,0.45);
+            width: 280px;
+            z-index: 60;
+            display: none;
+        }
+        .user-search-wrapper {
+            display: flex;
+            align-items: center;
+            background: #020617;
+            border-radius: 999px;
+            padding: 4px 10px;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .user-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #e5e7eb;
+            font-size: 0.85rem;
+        }
+        .user-search-input::placeholder {
+            color: #6b7280;
+        }
+        .user-list-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #9ca3af;
+            margin: 4px 2px 4px 2px;
+        }
+        .user-list {
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .user-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .user-option:hover {
+            background: #111827;
+        }
+        .user-option-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #1f2937;
+        }
+        .user-option-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-option-name {
+            font-size: 0.85rem;
+        }
+
+        .tag-edit-btn {
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin-left: auto;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .tag-edit-btn:hover {
+            color: #4b5563;
+        }
+        .tag-editor-popover {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+            padding: 10px 12px 8px 12px;
+            z-index: 1000;
+            width: 260px;
+            display: none;
+        }
+        .tag-editor-input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .tag-color-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .tag-color-swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .tag-color-swatch-selected {
+            border-color: #111827;
+        }
+        .tag-editor-delete {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ef4444;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding-top: 4px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 4px;
+        }
+
+        /* Description Expand/Collapse */
+        .desc-more-link {
+            color: var(--dlg-blue);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+        .desc-more-link:hover { text-decoration: underline; }
+
+        .rich-editor {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-btn {
+            border: none;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .rich-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .rich-editor-body {
+            min-height: 90px;
+            padding: 10px 12px;
+            background: #ffffff;
+            outline: none;
+        }
+        .rich-editor-body[contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+
+        /* Todo Styling */
+        .todo-group-label {
+            font-size: 1.1rem; font-weight: 800; color: #1f2937;
+            margin-top: 40px; margin-bottom: 15px; border-bottom: 3px solid #1f2937;
+            display: inline-block; padding-bottom: 2px;
+        }
+        
+        .todo-row {
+            display: flex; align-items: flex-start; padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6; transition: 0.2s;
+            font-size: 1.05rem; cursor: pointer;
+        }
+        .todo-row:hover { background-color: #f9fafb; padding-left: 10px; border-radius: 5px; margin-left: -10px; }
+        
+        .todo-check {
+            width: 24px; height: 24px; margin-right: 15px; margin-top: 3px; cursor: pointer;
+            border: 2px solid #cbd5e1; border-radius: 6px;
+        }
+        .todo-text { color: #374151; font-weight: 500; }
+        .todo-row.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
+        .drag-handle-task { color: #cbd5e1; margin-left: 8px; cursor: grab; }
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .btn.btn-sm.btn-outline-primary.px-2.py-0.small:hover {
+            color: #fff; border: none; transition: 0.3s;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            -webkit-box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+        }
+        .btn.btn-sm.btn-outline-danger.px-2.py-0.small:hover {
+            color: #fff; border: none; transition: 0.3s;
+            background: linear-gradient(to bottom, #e7181b 5%, #a31818 100%);
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            -webkit-box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+        }
+
+        @media (max-width: 768px) {
+            .ph-badge { display: none; }
+            .ph-crumb-container { width: 100%; justify-content: center; padding: 8px 10px; gap: 8px; font-size: 0.85rem;}
+            .main-list-card { padding: 30px 20px; }
+        }
+        
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body style="background-color: #f1f7fd;">
+
+    <!-- 1. TOP BAR FIXED -->
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <!-- 3. MAIN CONTENT -->
+        <main class="main-content">
+            <div class="project-context-card">
+                <div class="ph-badge" id="projectBadge">Loading...</div>
+
+                <div class="ph-crumb-container">
+                    <a href="../home.html" class="ph-crumb-link" title="Dashboard">
+                        <i class="bi bi-house-fill"></i>
+                    </a>
+                    
+                    <i class="bi bi-chevron-right ph-sep"></i>
+
+                    <a href="#" id="breadProjectLink" class="ph-crumb-link">...</a>
+
+                    <i class="bi bi-chevron-right ph-sep"></i>
+
+                    <a href="#" id="breadAllListLink" class="ph-crumb-link">Messages</a>
+                </div>
+
+                <div class="position-absolute end-0 me-3">
+                    <button class="btn btn-link text-white text-opacity-50"><i class="bi bi-three-dots"></i></button>
+                </div>
+            </div>
+            
+            <div class="main-list-card">
+                <div class="mb-5">
+                    <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                        <button type="button" class="btn btn-dlg-blue rounded-pill px-4 btn-sm fw-bold" id="craftMessageButton" onclick="goToCraftMessage()">
+                            Craft Message
+                        </button>
+                        <div>
+                            <h1 class="fw-bold display-5 mb-0 text-center flex-grow-1" id="listTitleDisplay" style="color:#111; cursor:text;">Loading List...</h1>
+                            <p class="text-muted mb-1" style="font-size:0.8rem;margin-top: 7px;">Annoucement, Updates, and All Things Matter.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="dropdown">
+                                <button class="btn btn-light border rounded-pill px-3 py-1 d-flex align-items-center gap-2 btn-sm" type="button" id="messageCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span id="messageCategoryLabel" class="small fw-semibold text-dark">All messages</span>
+                                    <span class="d-inline-flex flex-column" style="line-height:0;">
+                                        <i class="bi bi-caret-up-fill" style="font-size:0.55rem;"></i>
+                                        <i class="bi bi-caret-down-fill" style="font-size:0.55rem; margin-top:-2px;"></i>
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="messageCategoryDropdown">
+                                    <li><button class="dropdown-item small" type="button" data-category="all">All messages</button></li>
+                                    <li><button class="dropdown-item small" type="button" data-category="urgent">Urgent</button></li>
+                                    <li><button class="dropdown-item small" type="button" data-category="updates">Updates</button></li>
+                                    <li><button class="dropdown-item small" type="button" data-category="question">Question</button></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center"
+                                        type="button"
+                                        id="messageMoreDropdown"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        style="width:34px; height:34px; padding:0;">
+                                    <i class="bi bi-three-dots text-dark"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="messageMoreDropdown">
+                                    <li><button class="dropdown-item small" type="button" id="sortMessagesMenuItem">Sort messages by</button></li>
+                                    <li><button class="dropdown-item small" type="button" id="editCategoriesMenuItem">Edit category</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge text-bg-success mb-2" id="listAllDoneBadge" style="display:none">All Done!</span>
+                    <div id="listDescWrapper" class="text-muted mx-auto" style="max-width: 700px; line-height: 1.6; cursor:text;">
+                        <span id="descShort"></span>
+                        <span id="descFull" style="display:none;"></span>
+                        <a href="javascript:void(0)" class="desc-more-link" id="readMoreBtn" style="display:none;" onclick="toggleDesc()">Read more...</a>
+                    </div>
+                    <div id="listDescEditorWrapper" class="mt-3 mx-auto" style="max-width:700px; display:none; text-align:left;">
+                        <div class="rich-editor">
+                            <div class="rich-toolbar">
+                                <button type="button" class="rich-btn" onclick="applyFormat('listDescEditor','bold')"><i class="bi bi-type-bold"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('listDescEditor','italic')"><i class="bi bi-type-italic"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('listDescEditor','underline')"><i class="bi bi-type-underline"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('listDescEditor','insertUnorderedList')"><i class="bi bi-list-ul"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('listDescEditor','insertOrderedList')"><i class="bi bi-list-ol"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyBlockquote('listDescEditor')"><i class="bi bi-chat-right-quote"></i></button>
+                                <button type="button" class="rich-btn ms-auto" onclick="triggerDescFileInput('list-detail')"><i class="bi bi-paperclip"></i></button>
+                            </div>
+                            <div id="listDescEditor" class="rich-editor-body" contenteditable="true" data-placeholder="Edit list description..."></div>
+                            <input type="file" id="list-desc-file-input-detail" multiple style="display:none" onchange="handleDescFiles('list-detail','listDescEditor',this)">
+                        </div>
+                        <div class="mt-2 text-end">
+                            <button type="button" class="btn btn-light rounded-pill px-3 btn-sm" onclick="cancelEditListDescription()">Cancel</button>
+                            <button type="button" class="btn btn-dlg-blue rounded-pill px-3 btn-sm" onclick="saveListDescription()">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-2">
+                    <a href="#" id="continueDraftsLink" class="small fw-semibold" style="display:none; color:#2563eb; text-decoration:none;">
+                        Continue writing drafts...
+                    </a>
+                </div>
+
+                <div id="commentsContainer" class="mb-4 d-flex flex-column"></div>
+
+                <div class="todo-list-wrapper d-none"></div>
+
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="manageSubscribersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Manage Subscribers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="input-group mb-3 bg-light rounded-pill px-2">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-transparent border-0 shadow-none" placeholder="Search people..." oninput="renderManageSubscriberList(this.value)">
+                    </div>
+                    <div id="subscriberListScroll" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="commentEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Edit Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <textarea id="commentEditText" class="form-control" rows="4" placeholder="Update your comment..."></textarea>
+                    <input type="hidden" id="commentEditId">
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-3" onclick="confirmEditComment()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="commentDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-danger">Delete Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2">Are you sure you want to delete this comment?</p>
+                    <p id="commentDeletePreview" class="small text-muted mb-0"></p>
+                    <input type="hidden" id="commentDeleteId">
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-3" onclick="confirmDeleteComment()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="commentInfoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-body p-4 text-center">
+                    <p id="commentInfoMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer border-0 p-3 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            onSnapshot,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+        window.storage = storage;
+        window.ref = storageRef;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const DEFAULT_LIST_STATUSES = [
+            { name: "Initiate", color: "#0B2B6A", type: "not_started", position: 0 },
+            { name: "Complete", color: "#006a4e", type: "done", position: 1 }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId') || urlParams.get('id');
+        const listId = urlParams.get('listId');
+
+        const tasksWrapper = document.querySelector('.todo-list-wrapper');
+        const titleEl = document.getElementById('listTitleDisplay');
+        const badgeEl = document.getElementById('projectBadge');
+        const commentsContainer = document.getElementById('commentsContainer');
+        const subsContainer = document.getElementById('subsContainer');
+        const breadProjectLink = document.getElementById('breadProjectLink');
+        const breadAllListLink = document.getElementById('breadAllListLink');
+        const subscriptionStatusText = document.getElementById('subscriptionStatusText');
+        const subscriptionToggleButton = document.getElementById('subscriptionToggleButton');
+        const commentAvatar = document.getElementById('commentAvatar');
+        const manageSubsScroll = document.getElementById('subscriberListScroll');
+        const listDescWrapper = document.getElementById('listDescWrapper');
+        const listDescEditorWrapper = document.getElementById('listDescEditorWrapper');
+        const listDescEditor = document.getElementById('listDescEditor');
+
+        let currentUser = null;
+        let listTasks = [];
+        let currentListData = null;
+        let currentSubscribers = [];
+        let projectMembers = [];
+        let manageSubscriberSearchQuery = "";
+        let currentComments = [];
+        let pendingCommentFiles = [];
+        let isEditingTitle = false;
+        let isEditingDescription = false;
+        let replyTargetCommentId = null;
+        let mentionRange = null;
+        let mentionActive = false;
+        let mentionQuery = "";
+        let mentionDropdownElement = null;
+        let currentMessageCategory = "all";
+
+        function getCommentsCollectionRef() {
+            if (!projectId) return null;
+            if (listId) {
+                return collection(db, "projects", projectId, "lists", listId, "comments");
+            }
+            return collection(db, "projects", projectId, "messages");
+        }
+
+        function getMessageDraftsCollectionRef() {
+            if (!projectId) return null;
+            return collection(db, "projects", projectId, "message_drafts");
+        }
+
+        function getSubscribersCollectionRef() {
+            if (!projectId) return null;
+            if (listId) {
+                return collection(db, "projects", projectId, "lists", listId, "subscribers");
+            }
+            return collection(db, "projects", projectId, "message_subscribers");
+        }
+
+        function getCommentAttachmentPath(fileName) {
+            const base = listId || "project";
+            return `comments/${projectId}/${base}/${Date.now()}_${fileName}`;
+        }
+
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return `https://i.pravatar.cc/150?u=${uid || "user"}`;
+            if (url.includes('drive.google.com')) {
+                let id = "";
+                if (url.includes('id=')) {
+                    id = url.split('id=')[1].split('&')[0];
+                } else if (url.includes('/d/')) {
+                    id = url.split('/d/')[1].split('/')[0];
+                }
+                if (id) return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            }
+            return url;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!projectId) {
+                alert("Error: Project ID tidak ditemukan.");
+                return;
+            }
+
+            breadProjectLink.href = `../project/project.html?id=${projectId}`;
+            breadAllListLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (document.referrer) {
+                    window.history.back();
+                } else {
+                    window.location.href = `message.html?id=${projectId}`;
+                }
+            });
+
+            const commentInput = document.getElementById('commentInput');
+            const commentFileInput = document.getElementById('comment-file-input');
+            const attachmentPreview = document.getElementById('commentAttachmentPreview');
+            const mentionDropdown = document.getElementById('mentionDropdown');
+            if (commentFileInput && attachmentPreview) {
+                commentFileInput.addEventListener('change', () => {
+                    const files = Array.from(commentFileInput.files || []);
+                    pendingCommentFiles = files;
+                    if (!files.length) {
+                        attachmentPreview.innerText = "";
+                        return;
+                    }
+                    const names = files.map(f => f.name).join(', ');
+                    attachmentPreview.innerText = `Attached: ${names}`;
+                });
+            }
+            if (commentInput && mentionDropdown) {
+                mentionDropdownElement = mentionDropdown;
+                commentInput.addEventListener('keydown', handleCommentKeyDown);
+                commentInput.addEventListener('keyup', handleCommentKeyUp);
+                commentInput.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        if (!mentionActive && mentionDropdownElement) {
+                            mentionDropdownElement.style.display = "none";
+                            mentionDropdownElement.innerHTML = "";
+                        }
+                    }, 150);
+                });
+            }
+
+            if (titleEl && listId) {
+                titleEl.addEventListener('click', startEditListTitle);
+            }
+            if (listDescWrapper && listId) {
+                listDescWrapper.addEventListener('click', startEditListDescription);
+            }
+
+            try {
+                const storedUser = JSON.parse(localStorage.getItem('userData') || 'null');
+                if (storedUser && commentAvatar) {
+                    const photoUrl = getDirectPhotoUrl(storedUser.photo || storedUser.Photo || "", storedUser.uid || storedUser.Uid || "");
+                    commentAvatar.src = photoUrl;
+                }
+            } catch (e) {}
+
+            loadProjectHeader();
+            if (listId) {
+                loadListDetail();
+            } else if (titleEl) {
+                titleEl.innerText = "Messages";
+            }
+            listenComments();
+            listenSubscribers();
+
+            initMessageHeaderControls();
+            loadDraftSummary();
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user || null;
+                updateSubscriptionUI();
+            });
+        });
+
+        function initMessageHeaderControls() {
+            const categoryItems = document.querySelectorAll('.dropdown-menu [data-category]');
+            const categoryLabel = document.getElementById('messageCategoryLabel');
+            categoryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const cat = item.getAttribute('data-category') || 'all';
+                    const text = item.innerText || 'All messages';
+                    currentMessageCategory = cat;
+                    if (categoryLabel) categoryLabel.innerText = text;
+                    renderComments(currentComments);
+                });
+            });
+            const sortItem = document.getElementById('sortMessagesMenuItem');
+            const editItem = document.getElementById('editCategoriesMenuItem');
+            if (sortItem) {
+                sortItem.addEventListener('click', () => {
+                    console.log('Sort messages by clicked');
+                });
+            }
+            if (editItem) {
+                editItem.addEventListener('click', () => {
+                    console.log('Edit category clicked');
+                });
+            }
+        }
+
+        async function loadDraftSummary() {
+            const link = document.getElementById('continueDraftsLink');
+            if (!link) return;
+            if (!projectId) {
+                link.style.display = "none";
+                return;
+            }
+            try {
+                const draftsRef = getMessageDraftsCollectionRef();
+                if (!draftsRef) {
+                    link.style.display = "none";
+                    return;
+                }
+                const uid = getCurrentUserUid();
+                let snap;
+                if (uid) {
+                    const q = query(draftsRef, where("user_id", "==", uid));
+                    snap = await getDocs(q);
+                } else {
+                    snap = await getDocs(draftsRef);
+                }
+                const count = snap.size;
+                if (!count) {
+                    link.style.display = "none";
+                    return;
+                }
+                const text = count === 1
+                    ? "Continue writing 1 draft..."
+                    : `Continue writing ${count} drafts...`;
+                link.innerText = text;
+                link.style.display = "inline";
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    const url = `message-draft.html?projectId=${encodeURIComponent(projectId)}`;
+                    window.location.href = url;
+                };
+            } catch (e) {
+                console.error("Failed to load draft summary", e);
+                const link = document.getElementById('continueDraftsLink');
+                if (link) link.style.display = "none";
+            }
+        }
+
+        window.goToCraftMessage = function () {
+            if (!projectId) {
+                alert("Project ID tidak ditemukan.");
+                return;
+            }
+            let url = `message-craft.html?projectId=${encodeURIComponent(projectId)}`;
+            if (listId) {
+                url += `&listId=${encodeURIComponent(listId)}`;
+            }
+            window.location.href = url;
+        };
+
+        window.openMessageDetail = function (messageId) {
+            if (!messageId || !projectId) return;
+            const url = `message-detail.html?projectId=${encodeURIComponent(projectId)}&messageId=${encodeURIComponent(messageId)}`;
+            window.location.href = url;
+        };
+
+        async function loadProjectHeader() {
+            try {
+                const snap = await getDoc(doc(db, "projects", projectId));
+                if (!snap.exists()) return;
+                const data = snap.data();
+                if (breadProjectLink) breadProjectLink.innerText = data.name || "Untitled Project";
+                if (badgeEl) badgeEl.innerText = data.department || "Project";
+                await loadProjectMembers(data.members || []);
+                renderManageSubscriberList(manageSubscriberSearchQuery);
+            } catch (e) {
+                console.error("Failed to load project header", e);
+            }
+        }
+
+        async function loadProjectMembers(memberUids) {
+            projectMembers = [];
+            try {
+                if (Array.isArray(memberUids) && memberUids.length > 0) {
+                    const promises = memberUids.map(async (uid) => {
+                        try {
+                            const snap = await getDoc(doc(db, "users", uid));
+                            if (snap.exists()) {
+                                const u = snap.data();
+                                return {
+                                    uid,
+                                    name: u.name || u.email || uid,
+                                    email: u.email || "",
+                                    photo: getDirectPhotoUrl(u.photo || "", uid)
+                                };
+                            }
+                        } catch (e) {
+                            console.error("Failed to load member", uid, e);
+                        }
+                        return null;
+                    });
+                    const results = await Promise.all(promises);
+                    projectMembers = results.filter(Boolean);
+                }
+            } catch (e) {
+                console.error("Failed to load project members", e);
+                projectMembers = [];
+            }
+            populateDetailUserOptions();
+        }
+
+        async function loadListDetail() {
+            if (!tasksWrapper || !titleEl) return;
+            tasksWrapper.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+            try {
+                const listRef = doc(db, "projects", projectId, "lists", listId);
+                const snap = await getDoc(listRef);
+                if (!snap.exists()) {
+                    titleEl.innerText = "List Not Found";
+                    tasksWrapper.innerHTML = '<div class="alert alert-warning text-center">List ID tidak ditemukan.</div>';
+                    return;
+                }
+                const listData = { id: snap.id, ...snap.data() };
+                currentListData = listData;
+                renderListHeader(listData);
+                await loadTasks();
+            } catch (e) {
+                console.error("Failed to load list detail", e);
+                tasksWrapper.innerHTML = '<div class="alert alert-danger text-center">Gagal mengambil data list.</div>';
+            }
+        }
+
+        const TAG_COLORS = [
+            "#bfdbfe", "#e0f2fe", "#a5f3fc", "#bbf7d0", "#dcfce7", "#fef9c3", "#fee2e2", "#fecaca",
+            "#ddd6fe", "#e9d5ff", "#f5d0fe", "#fce7f3", "#fee2e2", "#ffedd5", "#d1fae5", "#bae6fd",
+            "#e5e7eb", "#d1d5db", "#f9a8d4", "#fda4af", "#fdba74", "#bef264", "#a7f3d0", "#67e8f9"
+        ];
+
+        function getDefaultTagColor(name) {
+            if (!name) return "#e5e7eb";
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                hash |= 0;
+            }
+            const index = Math.abs(hash) % TAG_COLORS.length;
+            return TAG_COLORS[index];
+        }
+
+        function getTagColorOverrides() {
+            const key = `tagColors:${projectId}`;
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return {};
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === "object") return parsed;
+                return {};
+            } catch {
+                return {};
+            }
+        }
+
+        function getTagColor(name) {
+            const overrides = getTagColorOverrides();
+            if (overrides && overrides[name]) return overrides[name];
+            return getDefaultTagColor(name);
+        }
+
+        function updateAllDoneBadge() {
+            const allDoneBadge = document.getElementById('listAllDoneBadge');
+            if (!allDoneBadge) return;
+            const tasks = listTasks || [];
+            const hasTasks = tasks.length > 0;
+            const allComplete = hasTasks && tasks.every(t => String(t.status || '').toLowerCase() === 'complete');
+            allDoneBadge.style.display = allComplete ? 'inline-block' : 'none';
+        }
+
+        function initTaskSortableDetail() {
+            if (!tasksWrapper || !window.Sortable) return;
+            new Sortable(tasksWrapper, {
+                handle: '.drag-handle-task',
+                animation: 150,
+                onEnd: async function () {
+                    const rows = tasksWrapper.querySelectorAll('.todo-row');
+                    rows.forEach(async (row, index) => {
+                        const taskId = row.id.replace('task-', '');
+                        if (!taskId) return;
+                        try {
+                            await updateDoc(doc(db, "tasks", taskId), { position: index });
+                        } catch (e) {
+                            console.error("Failed to update task position", e);
+                        }
+                    });
+                }
+            });
+        }
+
+        async function loadTasks() {
+            try {
+                const q = query(
+                    collection(db, "tasks"),
+                    where("project_id", "==", projectId)
+                );
+                const snap = await getDocs(q);
+                const tasks = [];
+                const tagSet = new Set();
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (Array.isArray(data.tags)) {
+                        data.tags.forEach(tag => {
+                            if (tag && typeof tag === "string") tagSet.add(tag);
+                        });
+                    }
+                    if (data.list_id === listId) {
+                        tasks.push({ id: docSnap.id, ...data });
+                    }
+                });
+                tasks.sort((a, b) => {
+                    const pa = typeof a.position === "number" ? a.position : 0;
+                    const pb = typeof b.position === "number" ? b.position : 0;
+                    return pa - pb;
+                });
+                listTasks = tasks;
+                renderTasks(listTasks);
+                updateAllDoneBadge();
+                populateDetailTagOptionsFromTasks(Array.from(tagSet));
+                updateSelectedTagUIDetail();
+                initTaskSortableDetail();
+            } catch (e) {
+                console.error("Failed to load tasks", e);
+                if (tasksWrapper) {
+                    tasksWrapper.innerHTML = '<div class="alert alert-danger text-center">Gagal mengambil data tasks.</div>';
+                }
+            }
+        }
+
+        function ensureDetailStatusOptions(list) {
+            const select = document.getElementById('status-detail');
+            if (!select) return;
+            select.innerHTML = '';
+            let statuses = [];
+            if (list && Array.isArray(list.statuses) && list.statuses.length > 0) {
+                statuses = list.statuses.slice().sort((a, b) => {
+                    const pa = typeof a.position === "number" ? a.position : 0;
+                    const pb = typeof b.position === "number" ? b.position : 0;
+                    return pa - pb;
+                });
+            } else {
+                statuses = DEFAULT_LIST_STATUSES.slice();
+            }
+            statuses.forEach(s => {
+                const name = s.name || "";
+                if (!name) return;
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderListHeader(list) {
+            if (titleEl && !isEditingTitle) {
+                titleEl.innerText = list.name || "Untitled List";
+            }
+            const fullDesc = list.description || list.desc || "No description provided.";
+            const words = fullDesc.split(' ');
+            
+            const shortSpan = document.getElementById('descShort');
+            const fullSpan = document.getElementById('descFull');
+            const btn = document.getElementById('readMoreBtn');
+
+            if (words.length > 8) {
+                shortSpan.innerText = words.slice(0, 8).join(' ') + '...';
+                shortSpan.style.display = 'inline';
+                fullSpan.innerText = fullDesc;
+                fullSpan.style.display = 'none';
+                btn.style.display = 'inline';
+            } else {
+                shortSpan.innerText = fullDesc;
+                fullSpan.style.display = 'none';
+                btn.style.display = 'none';
+            }
+
+            ensureDetailStatusOptions(list);
+        }
+
+        window.toggleDesc = function () {
+            const shortSpan = document.getElementById('descShort');
+            const fullSpan = document.getElementById('descFull');
+            const btn = document.getElementById('readMoreBtn');
+            const isShort = shortSpan.style.display !== 'none';
+            
+            shortSpan.style.display = isShort ? 'none' : 'inline';
+            fullSpan.style.display = isShort ? 'inline' : 'none';
+            btn.innerText = isShort ? 'Show less' : 'Read more';
+        };
+
+        function renderTasks(tasks) {
+            tasksWrapper.innerHTML = '';
+            if (!tasks || tasks.length === 0) {
+                tasksWrapper.innerHTML = '<div class="text-muted fst-italic text-center py-3">No tasks yet.</div>';
+                return;
+            }
+
+            tasks.forEach(task => {
+                const isDone = ['done', 'completed', 'complete', 'true'].includes(String(task.status).toLowerCase());
+                const statusText = task.status || '';
+                const tags = Array.isArray(task.tags) ? task.tags.filter(t => !!t) : [];
+                let statusColor = '#0B2B6A';
+                if (currentListData) {
+                    const rawStatuses = Array.isArray(currentListData.statuses) && currentListData.statuses.length > 0
+                        ? currentListData.statuses
+                        : DEFAULT_LIST_STATUSES;
+                    const currentStatusName = String(task.status || '').toLowerCase();
+                    const found = rawStatuses.find(s => String(s.name || '').toLowerCase() === currentStatusName);
+                    if (found && found.color) statusColor = found.color;
+                }
+                const tagsHtml = tags.map(tag => {
+                    const color = getTagColor(tag);
+                    return `<span class="badge border small me-1" style="background:${color}; color:#111827;">
+                                <i class="bi bi-tag text-muted me-1"></i>${tag}
+                            </span>`;
+                }).join('');
+                
+                const itemHtml = `
+                    <div class="todo-row ${isDone ? 'completed' : ''} d-flex align-items-start" 
+                         id="task-${task.id}"
+                         onclick="handleTaskRowClickDetail(event, '${task.id}')">
+                        
+                        <input type="checkbox" class="todo-check" ${isDone ? 'checked' : ''} 
+                               onclick="event.stopPropagation()" 
+                               onchange="handleStatusChange('${task.id}', this)">
+                        
+                        <div class="w-100">
+                            <div class="todo-text">
+                                ${task.title}
+                                ${task.description ? `<i class="bi bi-filter-left ms-2 text-muted"></i>` : ''}
+                            </div>
+                            <small class="text-muted" style="font-size:0.75rem">Click to see details</small>
+                            <div class="mt-1" style="font-size:0.7rem">
+                                ${statusText ? `<span class="badge border small me-2" style="background:${statusColor}; color:#ffffff;">
+                                                    <i class="bi bi-record-circle text-white me-1"></i>${statusText}
+                                                </span>` : ''}
+                                ${tagsHtml}
+                            </div>
+                        </div>
+                        <i class="bi bi-list drag-handle-task"></i>
+                    </div>
+                `;
+                tasksWrapper.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        function normalizeTimestamp(value) {
+            if (!value) return null;
+            if (value.toDate) return value.toDate();
+            if (value instanceof Date) return value;
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function getCurrentUserUid() {
+            try {
+                if (currentUser && currentUser.uid) return currentUser.uid;
+                const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                if (localData && localData.uid) return localData.uid;
+            } catch (e) {}
+            return "";
+        }
+
+        function canEditComment(c) {
+            const uid = getCurrentUserUid();
+            if (!uid) return false;
+            const owner = c.user_id || c.userId || "";
+            return uid === owner;
+        }
+
+        function getPlainCommentText(c) {
+            if (!c) return "";
+            if (typeof c.text_plain === 'string') return c.text_plain;
+            if (typeof c.text === 'string') return c.text.replace(/<[^>]*>/g, ' ');
+            return "";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function placeCaretAtEnd(el) {
+            if (!el) return;
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        function startEditListTitle() {
+            if (!titleEl || isEditingTitle) return;
+            isEditingTitle = true;
+            titleEl.setAttribute('contenteditable', 'true');
+            titleEl.dataset.editing = '1';
+            placeCaretAtEnd(titleEl);
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    finishEditListTitle(true);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    finishEditListTitle(false);
+                }
+            };
+            const handleBlur = () => {
+                finishEditListTitle(true);
+            };
+            titleEl.addEventListener('keydown', handleKeyDown);
+            titleEl.addEventListener('blur', handleBlur, { once: true });
+            titleEl.dataset.keyHandler = '1';
+        }
+
+        async function finishEditListTitle(save) {
+            if (!titleEl) {
+                isEditingTitle = false;
+                return;
+            }
+            const newTitle = (titleEl.innerText || '').trim();
+            const original = currentListData && currentListData.name ? currentListData.name : "";
+            let finalTitle = original || "Untitled List";
+            if (save && newTitle && newTitle !== original && currentListData) {
+                try {
+                    const listRef = doc(db, "projects", projectId, "lists", listId);
+                    await updateDoc(listRef, { name: newTitle });
+                    currentListData.name = newTitle;
+                    finalTitle = newTitle;
+                } catch (e) {
+                    console.error("Failed to update list title", e);
+                }
+            }
+            titleEl.innerText = finalTitle;
+            titleEl.removeAttribute('contenteditable');
+            delete titleEl.dataset.editing;
+            isEditingTitle = false;
+        }
+
+        function startEditListDescription() {
+            if (!listDescWrapper || !listDescEditorWrapper || !listDescEditor || isEditingDescription) return;
+            isEditingDescription = true;
+            const fullDesc = currentListData && (currentListData.description || currentListData.desc)
+                ? currentListData.description || currentListData.desc
+                : (document.getElementById('descFull').innerText || document.getElementById('descShort').innerText || "");
+            listDescWrapper.style.display = 'none';
+            listDescEditorWrapper.style.display = 'block';
+            listDescEditor.innerText = fullDesc;
+            placeCaretAtEnd(listDescEditor);
+        }
+
+        function cancelEditListDescription() {
+            if (!isEditingDescription) return;
+            isEditingDescription = false;
+            if (listDescEditorWrapper) listDescEditorWrapper.style.display = 'none';
+            if (listDescWrapper) listDescWrapper.style.display = 'block';
+        }
+
+        async function saveListDescription() {
+            if (!listDescEditor || !currentListData) {
+                cancelEditListDescription();
+                return;
+            }
+            const plain = listDescEditor.innerText.replace(/\u200B/g, '').trim();
+            const html = listDescEditor.innerHTML.trim();
+            try {
+                const listRef = doc(db, "projects", projectId, "lists", listId);
+                await updateDoc(listRef, {
+                    description: plain,
+                    description_html: html
+                });
+                currentListData.description = plain;
+                currentListData.description_html = html;
+                renderListHeader(currentListData);
+            } catch (e) {
+                console.error("Failed to update list description", e);
+            } finally {
+                isEditingDescription = false;
+                if (listDescEditorWrapper) listDescEditorWrapper.style.display = 'none';
+                if (listDescWrapper) listDescWrapper.style.display = 'block';
+            }
+        }
+
+        function updateReplyContextUI() {
+            const ctx = document.getElementById('replyContext');
+            if (!ctx) return;
+            if (!replyTargetCommentId) {
+                ctx.style.display = "none";
+                ctx.innerHTML = "";
+                return;
+            }
+            const comment = currentComments.find(c => c.id === replyTargetCommentId);
+            if (!comment) {
+                replyTargetCommentId = null;
+                ctx.style.display = "none";
+                ctx.innerHTML = "";
+                return;
+            }
+            const userId = comment.user_id || comment.userId || "";
+            const userName = comment.user_name || comment.userName || userId || "User";
+            const text = getPlainCommentText(comment);
+            const truncated = text.length > 80 ? text.substring(0, 77) + "..." : text;
+            ctx.style.display = "block";
+            ctx.innerHTML = `Replying to <strong>${userName}</strong>: "${truncated}" <button type="button" class="btn btn-link btn-sm p-0 ms-2" onclick="clearReplyTarget()">Cancel reply</button>`;
+        }
+
+        window.replyToComment = function (commentId) {
+            replyTargetCommentId = commentId;
+            updateReplyContextUI();
+            const input = document.getElementById('commentInput');
+            if (input) {
+                input.focus();
+                placeCaretAtEnd(input);
+            }
+        };
+
+        window.clearReplyTarget = function () {
+            replyTargetCommentId = null;
+            updateReplyContextUI();
+        };
+
+        function renderComments(comments) {
+            if (!commentsContainer) return;
+            commentsContainer.innerHTML = '';
+            if (!comments || comments.length === 0) {
+                commentsContainer.innerHTML = '<p class="text-muted small">no message/announcement</p>';
+                return;
+            }
+
+            let roots = comments.filter(c => {
+                const parentId = c.parent_comment_id || c.parentCommentId || null;
+                return !parentId;
+            });
+
+            if (currentMessageCategory && currentMessageCategory !== 'all') {
+                const selected = String(currentMessageCategory || '').toLowerCase();
+                roots = roots.filter(c => {
+                    const cat = String(c.category || '').toLowerCase();
+                    return cat === selected;
+                });
+            }
+
+            roots.sort((a, b) => {
+                const ad = normalizeTimestamp(a.created_at || a.createdAt);
+                const bd = normalizeTimestamp(b.created_at || b.createdAt);
+                if (!ad && !bd) return 0;
+                if (!ad) return 1;
+                if (!bd) return -1;
+                return bd.getTime() - ad.getTime();
+            });
+
+            if (roots.length === 0) {
+                commentsContainer.innerHTML = '<p class="text-muted small">no message/announcement</p>';
+                return;
+            }
+
+            roots.forEach(c => {
+                const createdAt = normalizeTimestamp(c.created_at || c.createdAt);
+                const dateStr = createdAt ? createdAt.toLocaleString() : '';
+                const userId = c.user_id || c.userId || '';
+                const userName = c.user_name || c.userName || userId || 'User';
+                const initialsSource = c.user_initials || userName || userId || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : '??';
+                const photo = c.user_photo || "";
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0 overflow-hidden" style="width:36px; height:36px;">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width:36px; height:36px;">
+                           ${initials}
+                       </div>`;
+
+                const plain = getPlainCommentText(c);
+                let title = (c.title || '').trim();
+                if (!title) {
+                    title = plain.split('\n')[0] || '';
+                }
+                title = title || 'Untitled message';
+
+                let snippet = plain;
+                if (snippet.length > 200) {
+                    snippet = snippet.substring(0, 197) + '...';
+                }
+
+                const catKey = String(c.category || '').toLowerCase();
+                let categoryLabel = "";
+                if (catKey === 'urgent') categoryLabel = 'Urgent';
+                else if (catKey === 'updates') categoryLabel = 'Updates';
+                else if (catKey === 'question') categoryLabel = 'Question';
+
+                const metaParts = [];
+                if (userName) metaParts.push(userName);
+                if (dateStr) metaParts.push(dateStr);
+                if (categoryLabel) metaParts.push(categoryLabel);
+                const metaText = metaParts.join(' • ');
+
+                const html = `
+                    <div class="d-flex align-items-start gap-3 py-3 border-top message-board-row" style="cursor:pointer;" data-message-id="${c.id}" onclick="openMessageDetail('${c.id}')">
+                        ${avatar}
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                <div class="fw-semibold" style="font-size:1rem;">${escapeHtml(title)}</div>
+                                
+                            </div>
+                            <div class="small text-muted mb-1">${escapeHtml(metaText)}</div>
+                            <div class="small text-dark" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                ${escapeHtml(snippet)}
+                            </div>
+                        </div>
+                        <div class="ms-3 d-flex align-items-center">
+                            <span class="badge rounded-pill text-white fw-semibold message-comment-count" style="min-width:24px; background-color:var(--dlg-green); display:none; justify-content:center; font-size:0.8rem;">0</span>
+                        </div>
+                    </div>
+                `;
+                commentsContainer.insertAdjacentHTML('beforeend', html);
+            });
+
+            if (!listId) {
+                loadCommentCountsForMessages(roots);
+            }
+        }
+
+        async function loadCommentCountsForMessages(messages) {
+            if (!projectId) return;
+            if (!Array.isArray(messages) || messages.length === 0) return;
+            const tasks = messages.map(async (m) => {
+                const messageId = m && m.id ? m.id : "";
+                if (!messageId) return;
+                try {
+                    const ref = collection(db, "projects", projectId, "messages", messageId, "comments");
+                    const snap = await getDocs(ref);
+                    const count = snap.size;
+                    const row = commentsContainer
+                        ? commentsContainer.querySelector(`.message-board-row[data-message-id="${messageId}"]`)
+                        : null;
+                    if (!row) return;
+                    const badge = row.querySelector('.message-comment-count');
+                    if (!badge) return;
+                    if (count > 0) {
+                        badge.innerText = String(count);
+                        badge.style.display = "flex";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                } catch (e) {
+                    console.error("Failed to load comment count for message", messageId, e);
+                }
+            });
+            try {
+                await Promise.all(tasks);
+            } catch (e) {
+                console.error("Failed to load some comment counts", e);
+            }
+        }
+
+        function renderSubscribers(subs) {
+            subsContainer.innerHTML = '';
+            if (!subs || subs.length === 0) {
+                const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" data-bs-toggle="modal" data-bs-target="#manageSubscribersModal">Add/remove people...</button>`;
+                subsContainer.insertAdjacentHTML('beforeend', btnAddHtml);
+                return;
+            }
+            
+            subs.forEach(s => {
+                const userId = s.user_id || s.userId || '';
+                const userName = s.user_name || s.userName || userId || 'User';
+                const initialsSource = s.user_initials || userName || userId || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'U';
+                const photo = s.user_photo || "";
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold overflow-hidden" style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" 
+                         style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">${initials}</div>`;
+                const html = avatar;
+                subsContainer.insertAdjacentHTML('beforeend', html);
+            });
+            
+            const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" data-bs-toggle="modal" data-bs-target="#manageSubscribersModal">Add/remove people...</button>`;
+            subsContainer.insertAdjacentHTML('beforeend', btnAddHtml);
+        }
+
+        function listenComments() {
+            try {
+                const ref = getCommentsCollectionRef();
+                if (!ref) return;
+                const q = query(ref, orderBy("created_at", "asc"));
+                onSnapshot(q, (snapshot) => {
+                    const comments = [];
+                    snapshot.forEach(docSnap => comments.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentComments = comments;
+                    renderComments(comments);
+                }, (error) => {
+                    console.error("Failed to listen comments", error);
+                });
+            } catch (e) {
+                console.error("Failed to start comments listener", e);
+            }
+        }
+
+        function listenSubscribers() {
+            try {
+                const ref = getSubscribersCollectionRef();
+                if (!ref) return;
+                onSnapshot(ref, (snapshot) => {
+                    const subs = [];
+                    snapshot.forEach(docSnap => subs.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentSubscribers = subs;
+                    renderSubscribers(subs);
+                    updateSubscriptionUI();
+                }, (error) => {
+                    console.error("Failed to listen subscribers", error);
+                });
+            } catch (e) {
+                console.error("Failed to start subscribers listener", e);
+            }
+        }
+
+        function updateSubscriptionUI() {
+            if (!subscriptionStatusText || !subscriptionToggleButton) return;
+            if (!currentUser) {
+                subscriptionStatusText.innerText = "You’re not subscribed";
+                subscriptionToggleButton.innerText = "Subscribe me";
+                subscriptionToggleButton.disabled = true;
+                return;
+            }
+            const uid = currentUser.uid;
+            const isSubscribed = currentSubscribers.some(s => (s.user_id || s.userId) === uid);
+            subscriptionStatusText.innerText = isSubscribed ? "You’re subscribed" : "You’re not subscribed";
+            subscriptionToggleButton.innerText = isSubscribed ? "Unsubscribe me" : "Subscribe me";
+            subscriptionToggleButton.disabled = false;
+        }
+
+        window.postComment = async function () {
+            const input = document.getElementById('commentInput');
+            if (!input) return;
+            const plainText = input.innerText.replace(/\u200B/g, '').trim();
+            const htmlText = input.innerHTML.trim();
+            if (!plainText) return;
+            
+            const btn = event && event.target ? event.target : null;
+            let originalBtnText = '';
+            if (btn) {
+                originalBtnText = btn.innerText;
+                btn.innerText = 'Posting...';
+                btn.disabled = true;
+            }
+
+            try {
+                const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                const userName = localData && localData.name ? localData.name : (currentUser ? currentUser.email : 'User');
+                const uid = currentUser ? currentUser.uid : (localData && localData.uid ? localData.uid : '');
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'US';
+                const attachments = [];
+                if (pendingCommentFiles && pendingCommentFiles.length > 0) {
+                    for (const file of pendingCommentFiles) {
+                        try {
+                            const path = getCommentAttachmentPath(file.name);
+                            const ref = storageRef(storage, path);
+                            await uploadBytes(ref, file);
+                            const url = await getDownloadURL(ref);
+                            attachments.push({ name: file.name, url });
+                        } catch (e) {
+                            console.error("Failed to upload attachment", e);
+                        }
+                    }
+                }
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlText;
+                const mentionNodes = tempDiv.querySelectorAll('[data-mention-uid]');
+                const mentionedIds = Array.from(mentionNodes).map(node => node.getAttribute('data-mention-uid')).filter(Boolean);
+                const mentionedUnique = Array.from(new Set(mentionedIds));
+                const commentsRef = getCommentsCollectionRef();
+                if (!commentsRef) throw new Error("Project ID tidak tersedia untuk menyimpan komentar.");
+                await addDoc(commentsRef, {
+                    text: htmlText,
+                    text_plain: plainText,
+                    attachments: attachments,
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    created_at: serverTimestamp(),
+                    parent_comment_id: replyTargetCommentId || null,
+                    mentioned_user_ids: mentionedUnique
+                });
+
+                input.innerHTML = '';
+                pendingCommentFiles = [];
+                const attachmentPreview = document.getElementById('commentAttachmentPreview');
+                if (attachmentPreview) attachmentPreview.innerText = "";
+                replyTargetCommentId = null;
+                updateReplyContextUI();
+            } catch (e) {
+                console.error("Failed to post comment", e);
+                alert("Gagal mengirim komentar: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.innerText = originalBtnText || 'Post comment';
+                    btn.disabled = false;
+                }
+            }
+        };
+
+        function showCommentInfo(message) {
+            const msgEl = document.getElementById('commentInfoMessage');
+            const modalEl = document.getElementById('commentInfoModal');
+            if (!msgEl || !modalEl) return;
+            msgEl.innerText = message || '';
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        window.editComment = function (commentId) {
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment) return;
+            if (!canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat mengedit komentar ini.");
+                return;
+            }
+            const input = document.getElementById('commentEditText');
+            const idInput = document.getElementById('commentEditId');
+            const modalEl = document.getElementById('commentEditModal');
+            if (!input || !idInput || !modalEl) return;
+            input.value = getPlainCommentText(comment);
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+
+        window.confirmEditComment = async function () {
+            const idInput = document.getElementById('commentEditId');
+            const input = document.getElementById('commentEditText');
+            const modalEl = document.getElementById('commentEditModal');
+            if (!idInput || !input || !modalEl) return;
+            const commentId = idInput.value;
+            const newText = input.value || "";
+            const trimmed = newText.trim();
+            if (!trimmed) {
+                showCommentInfo("Komentar tidak boleh kosong.");
+                return;
+            }
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment || !canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat mengedit komentar ini.");
+                return;
+            }
+            try {
+                const html = trimmed.replace(/\n/g, '<br>');
+                const ref = getCommentsCollectionRef();
+                if (!ref) throw new Error("Project ID tidak tersedia untuk menyimpan komentar.");
+                await updateDoc(doc(ref, commentId), {
+                    text: html,
+                    text_plain: trimmed,
+                    updated_at: serverTimestamp()
+                });
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to edit comment", e);
+                showCommentInfo("Gagal mengedit komentar: " + e.message);
+            }
+        };
+
+        window.deleteComment = function (commentId) {
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment) return;
+            if (!canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat menghapus komentar ini.");
+                return;
+            }
+            const previewEl = document.getElementById('commentDeletePreview');
+            const idInput = document.getElementById('commentDeleteId');
+            const modalEl = document.getElementById('commentDeleteModal');
+            if (!previewEl || !idInput || !modalEl) return;
+            previewEl.innerText = getPlainCommentText(comment);
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+
+        window.confirmDeleteComment = async function () {
+            const idInput = document.getElementById('commentDeleteId');
+            const modalEl = document.getElementById('commentDeleteModal');
+            if (!idInput || !modalEl) return;
+            const commentId = idInput.value;
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment || !canEditComment(comment)) {
+                showCommentInfo("Anda tidak dapat menghapus komentar ini.");
+                return;
+            }
+            try {
+                const ref = getCommentsCollectionRef();
+                if (!ref) throw new Error("Project ID tidak tersedia untuk menghapus komentar.");
+                await deleteDoc(doc(ref, commentId));
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to delete comment", e);
+                showCommentInfo("Gagal menghapus komentar: " + e.message);
+            }
+        };
+
+        function stopMention() {
+            mentionActive = false;
+            mentionQuery = "";
+            mentionRange = null;
+            if (mentionDropdownElement) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+            }
+        }
+
+        function handleCommentKeyDown(e) {
+            if (mentionActive && e.key === "Escape") {
+                e.preventDefault();
+                stopMention();
+            }
+        }
+
+        function handleCommentKeyUp(e) {
+            const editor = e.currentTarget;
+            const key = e.key;
+            if (key === "@") {
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                const range = sel.getRangeAt(0);
+                if (!editor.contains(range.startContainer)) return;
+                const r = range.cloneRange();
+                const startOffset = Math.max(0, r.startOffset - 1);
+                r.setStart(r.startContainer, startOffset);
+                mentionRange = r;
+                mentionActive = true;
+                mentionQuery = "";
+                updateMentionDropdown(editor);
+                return;
+            }
+
+            if (!mentionActive) return;
+
+            if (key === "Escape" || key === " " || key === "Enter" || key === "Tab") {
+                stopMention();
+                return;
+            }
+
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) {
+                stopMention();
+                return;
+            }
+            const range = sel.getRangeAt(0);
+            if (!editor.contains(range.startContainer) || !mentionRange) {
+                stopMention();
+                return;
+            }
+            if (mentionRange.startContainer !== range.startContainer) {
+                stopMention();
+                return;
+            }
+            mentionRange.setEnd(range.startContainer, range.startOffset);
+            const node = mentionRange.startContainer;
+            const text = node.textContent || "";
+            const start = mentionRange.startOffset;
+            const end = mentionRange.endOffset;
+            if (end <= start || start < 0 || end > text.length) {
+                stopMention();
+                return;
+            }
+            if (text[start] !== "@") {
+                stopMention();
+                return;
+            }
+            mentionQuery = text.substring(start + 1, end);
+            updateMentionDropdown(editor);
+        }
+
+        function updateMentionDropdown(editor) {
+            if (!mentionDropdownElement) return;
+            if (!mentionActive) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+                return;
+            }
+            const query = (mentionQuery || "").toLowerCase();
+            let candidates = Array.isArray(projectMembers) ? projectMembers.slice() : [];
+            if (query) {
+                candidates = candidates.filter(m => {
+                    const name = (m.name || "").toLowerCase();
+                    const email = (m.email || "").toLowerCase();
+                    return name.includes(query) || email.includes(query);
+                });
+            }
+            if (!candidates.length) {
+                mentionDropdownElement.style.display = "none";
+                mentionDropdownElement.innerHTML = "";
+                return;
+            }
+            const itemsHtml = candidates.map(m => {
+                const name = m.name || m.email || m.uid;
+                const email = m.email ? ` <span class="text-muted small">(${m.email})</span>` : "";
+                return `<div class="px-2 py-1 mention-item" style="cursor:pointer;" onclick="selectMention('${m.uid}')">${name}${email}</div>`;
+            }).join("");
+            mentionDropdownElement.innerHTML = itemsHtml;
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) {
+                mentionDropdownElement.style.display = "none";
+                return;
+            }
+            const range = sel.getRangeAt(0).cloneRange();
+            const rect = range.getBoundingClientRect();
+            const container = editor.closest('.rich-editor') || editor.parentElement || editor;
+            const containerRect = container.getBoundingClientRect();
+            const left = rect.left - containerRect.left;
+            const top = rect.bottom - containerRect.top + 4;
+            mentionDropdownElement.style.left = `${left}px`;
+            mentionDropdownElement.style.top = `${top}px`;
+            mentionDropdownElement.style.display = "block";
+        }
+
+        window.selectMention = function (uid) {
+            const editor = document.getElementById('commentInput');
+            if (!editor || !mentionRange) {
+                stopMention();
+                return;
+            }
+            const member = (projectMembers || []).find(m => m.uid === uid);
+            if (!member) {
+                stopMention();
+                return;
+            }
+            const name = member.name || member.email || uid;
+            const span = document.createElement('span');
+            span.className = 'comment-mention';
+            span.setAttribute('data-mention-uid', uid);
+            span.setAttribute('data-mention-name', name);
+            span.textContent = '@' + name;
+            const space = document.createTextNode('\u00A0');
+            const fragment = document.createDocumentFragment();
+            fragment.appendChild(span);
+            fragment.appendChild(space);
+            mentionRange.deleteContents();
+            mentionRange.insertNode(fragment);
+            const sel = window.getSelection();
+            if (sel) {
+                sel.removeAllRanges();
+                const afterRange = document.createRange();
+                afterRange.setStartAfter(space);
+                afterRange.setEndAfter(space);
+                sel.addRange(afterRange);
+            }
+            stopMention();
+        };
+
+        window.togglePriorityMenu = (lid) => {
+            const menu = document.getElementById(`priority-menu-${lid}`);
+            if (!menu) return;
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        };
+
+        window.selectPriority = (lid, value) => {
+            const hidden = document.getElementById(`priority-${lid}`);
+            const label = document.getElementById(`priority-label-${lid}`);
+            const flag = document.querySelector(`#priority-wrap-${lid} .priority-flag`);
+            if (!hidden || !label || !flag) return;
+
+            hidden.value = value;
+
+            let text = "Normal";
+            let className = "priority-flag-normal";
+            if (value === "urgent") {
+                text = "Urgent";
+                className = "priority-flag-urgent";
+            } else if (value === "high") {
+                text = "High";
+                className = "priority-flag-high";
+            } else if (value === "low") {
+                text = "Low";
+                className = "priority-flag-low";
+            }
+
+            label.innerText = text;
+
+            flag.classList.remove("priority-flag-urgent", "priority-flag-high", "priority-flag-normal", "priority-flag-low");
+            flag.classList.add(className);
+
+            const menu = document.getElementById(`priority-menu-${lid}`);
+            if (menu) menu.style.display = "none";
+        };
+
+        function getTagsValueDetail() {
+            const hidden = document.getElementById('tags-detail');
+            if (!hidden || !hidden.value) return [];
+            return hidden.value.split(",").map(t => t.trim()).filter(Boolean);
+        }
+
+        function setTagsValueDetail(tags) {
+            const hidden = document.getElementById('tags-detail');
+            if (!hidden) return;
+            const clean = Array.from(new Set(tags.map(t => t.trim()).filter(Boolean)));
+            hidden.value = clean.join(",");
+            updateSelectedTagUIDetail();
+            const optionsContainer = document.getElementById('tag-options-detail');
+            if (!optionsContainer) return;
+            Array.from(optionsContainer.children).forEach(opt => {
+                const tag = opt.dataset.tag;
+                if (!tag) return;
+                if (clean.includes(tag)) {
+                    opt.classList.add("tag-option-selected");
+                } else {
+                    opt.classList.remove("tag-option-selected");
+                }
+            });
+        }
+
+        function updateSelectedTagUIDetail() {
+            const selectedContainer = document.getElementById('tag-selected-detail');
+            if (!selectedContainer) return;
+            const tags = getTagsValueDetail();
+            selectedContainer.innerHTML = "";
+            if (tags.length === 0) {
+                const span = document.createElement("span");
+                span.className = "tag-placeholder";
+                span.innerText = "Search or add tags...";
+                selectedContainer.appendChild(span);
+                return;
+            }
+            tags.forEach(tag => {
+                const pill = document.createElement("span");
+                pill.className = "tag-pill";
+                pill.innerText = tag;
+                const remove = document.createElement("span");
+                remove.className = "tag-remove";
+                remove.innerText = "×";
+                remove.onclick = function (event) {
+                    event.stopPropagation();
+                    removeTagFromSelectionDetail(tag);
+                };
+                pill.appendChild(remove);
+                selectedContainer.appendChild(pill);
+            });
+        }
+
+        window.toggleTagDropdown = (lid) => {
+            if (lid !== 'detail') return;
+            const dropdown = document.getElementById('tag-dropdown-detail');
+            if (!dropdown) return;
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            const input = document.getElementById('tag-input-detail');
+            if (dropdown.style.display === "block" && input) {
+                input.focus();
+                input.select();
+                filterTagOptions('detail');
+            }
+        };
+
+        window.filterTagOptions = (lid) => {
+            if (lid !== 'detail') return;
+            const input = document.getElementById('tag-input-detail');
+            const optionsContainer = document.getElementById('tag-options-detail');
+            const createRow = document.getElementById('tag-create-detail');
+            const createLabel = document.getElementById('tag-create-label-detail');
+            if (!input || !optionsContainer || !createRow || !createLabel) return;
+
+            const query = input.value.trim().toLowerCase();
+            let hasVisible = false;
+            let hasExact = false;
+
+            Array.from(optionsContainer.children).forEach(opt => {
+                const tag = (opt.dataset.tag || "").toLowerCase();
+                const visible = !query || tag.indexOf(query) !== -1;
+                opt.style.display = visible ? "flex" : "none";
+                if (visible) {
+                    hasVisible = true;
+                    if (tag === query) hasExact = true;
+                }
+            });
+
+            if (query && (!hasVisible || !hasExact)) {
+                createRow.style.display = "flex";
+                createLabel.innerText = query;
+            } else {
+                createRow.style.display = "none";
+                createLabel.innerText = "";
+            }
+        };
+
+        window.toggleTagFromOption = (lid, tag) => {
+            if (lid !== 'detail') return;
+            const current = getTagsValueDetail();
+            const index = current.indexOf(tag);
+            if (index >= 0) {
+                current.splice(index, 1);
+            } else {
+                current.push(tag);
+            }
+            setTagsValueDetail(current);
+        };
+
+        window.createTagFromInput = (lid) => {
+            if (lid !== 'detail') return;
+            const input = document.getElementById('tag-input-detail');
+            if (!input) return;
+            const value = input.value.trim();
+            if (!value) return;
+            const current = getTagsValueDetail();
+            if (!current.includes(value)) {
+                current.push(value);
+            }
+            const optionsContainer = document.getElementById('tag-options-detail');
+            if (optionsContainer && !Array.from(optionsContainer.children).some(opt => opt.dataset.tag === value)) {
+                const opt = document.createElement("div");
+                opt.className = "tag-option";
+                opt.dataset.tag = value;
+                opt.onclick = function () {
+                    window.toggleTagFromOption('detail', value);
+                };
+                const pill = document.createElement("span");
+                pill.className = "tag-pill";
+                pill.innerText = value;
+                opt.appendChild(pill);
+                optionsContainer.insertBefore(opt, optionsContainer.firstChild || null);
+            }
+            setTagsValueDetail(current);
+            input.value = "";
+            filterTagOptions('detail');
+        };
+
+        function removeTagFromSelectionDetail(tag) {
+            const current = getTagsValueDetail();
+            const index = current.indexOf(tag);
+            if (index >= 0) {
+                current.splice(index, 1);
+                setTagsValueDetail(current);
+            }
+        }
+
+        window.toggleUserDropdown = (lid, field) => {
+            if (lid !== 'detail') return;
+            const dropdown = document.getElementById(`${field}-dropdown-detail`);
+            if (!dropdown) return;
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            const search = document.getElementById(`${field}-search-detail`);
+            if (dropdown.style.display === "block" && search) {
+                search.focus();
+                search.select();
+                filterUserOptions('detail', field);
+            }
+        };
+
+        window.filterUserOptions = (lid, field) => {
+            if (lid !== 'detail') return;
+            const search = document.getElementById(`${field}-search-detail`);
+            const list = document.getElementById(`${field}-options-detail`);
+            if (!search || !list) return;
+            const q = search.value.trim().toLowerCase();
+            Array.from(list.children).forEach(opt => {
+                const nameEl = opt.querySelector(".user-option-name");
+                const text = nameEl ? nameEl.innerText.toLowerCase() : "";
+                const visible = !q || text.indexOf(q) !== -1;
+                opt.style.display = visible ? "flex" : "none";
+            });
+        };
+
+        window.selectUser = (lid, field, uid) => {
+            if (lid !== 'detail') return;
+            const hidden = document.getElementById(`${field}-detail`);
+            const label = document.getElementById(`${field}-label-detail`);
+            const avatarWrap = document.getElementById(`${field}-avatar-detail`);
+            if (!hidden || !label || !avatarWrap) return;
+
+            const user = projectMembers.find(m => m.uid === uid);
+            if (!user) return;
+
+            hidden.value = uid;
+            label.className = "user-select-name";
+            label.innerText = user.name || "User";
+
+            avatarWrap.innerHTML = "";
+            const img = document.createElement("img");
+            img.src = user.photo;
+            img.alt = user.name || "User";
+            avatarWrap.appendChild(img);
+
+            const dropdown = document.getElementById(`${field}-dropdown-detail`);
+            if (dropdown) dropdown.style.display = "none";
+        };
+
+        function populateDetailUserOptions() {
+            const assignList = document.getElementById('assign-options-detail');
+            const notifyList = document.getElementById('notify-options-detail');
+            if (assignList) assignList.innerHTML = '';
+            if (notifyList) notifyList.innerHTML = '';
+            if (!projectMembers || projectMembers.length === 0) return;
+
+            const buildRow = (m, field, targetList) => {
+                if (!targetList) return;
+                const row = document.createElement("div");
+                row.className = "user-option";
+                row.dataset.userUid = m.uid;
+                row.onclick = function () {
+                    window.selectUser('detail', field, m.uid);
+                };
+                const avatar = document.createElement("div");
+                avatar.className = "user-option-avatar";
+                const img = document.createElement("img");
+                img.src = m.photo;
+                img.alt = m.name;
+                avatar.appendChild(img);
+                const nameDiv = document.createElement("div");
+                nameDiv.className = "user-option-name";
+                nameDiv.innerText = m.name;
+                row.appendChild(avatar);
+                row.appendChild(nameDiv);
+                targetList.appendChild(row);
+            };
+
+            projectMembers.forEach(m => {
+                buildRow(m, "assign", assignList);
+                buildRow(m, "notify", notifyList);
+            });
+        }
+
+        function populateDetailTagOptionsFromTasks(source) {
+            const optionsContainer = document.getElementById('tag-options-detail');
+            if (!optionsContainer) return;
+            optionsContainer.innerHTML = '';
+            const tagSet = new Set();
+            (source || []).forEach(item => {
+                if (!item) return;
+                if (Array.isArray(item.tags)) {
+                    item.tags.forEach(tag => {
+                        if (tag && typeof tag === "string") tagSet.add(tag);
+                    });
+                } else if (typeof item === "string") {
+                    tagSet.add(item);
+                }
+            });
+            const tags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+            tags.forEach(tag => {
+                const opt = document.createElement("div");
+                opt.className = "tag-option";
+                opt.dataset.tag = tag;
+                opt.onclick = function () {
+                    window.toggleTagFromOption('detail', tag);
+                };
+                const pill = document.createElement("span");
+                pill.className = "tag-pill";
+                pill.innerText = tag;
+                opt.appendChild(pill);
+                optionsContainer.appendChild(opt);
+            });
+        }
+
+        window.renderManageSubscriberList = function (queryText) {
+            if (!manageSubsScroll) return;
+            manageSubscriberSearchQuery = (queryText || "").trim().toLowerCase();
+            manageSubsScroll.innerHTML = '';
+
+            if (!projectMembers || projectMembers.length === 0) {
+                manageSubsScroll.innerHTML = '<p class="text-muted small mb-0">No project members available.</p>';
+                return;
+            }
+
+            const filtered = projectMembers.filter(m => {
+                if (!manageSubscriberSearchQuery) return true;
+                const haystack = `${m.name || ""} ${m.email || ""}`.toLowerCase();
+                return haystack.includes(manageSubscriberSearchQuery);
+            });
+
+            if (filtered.length === 0) {
+                manageSubsScroll.innerHTML = '<p class="text-muted small mb-0">No people match your search.</p>';
+                return;
+            }
+
+            filtered.forEach(m => {
+                const isSubscribed = currentSubscribers.some(s => (s.user_id || s.userId) === m.uid);
+                const btnClass = isSubscribed ? 'btn-outline-danger' : 'btn-outline-primary';
+                const btnText = isSubscribed ? 'Unsubscribe' : 'Subscribe';
+                const rowHtml = `
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle overflow-hidden" style="width:32px; height:32px;">
+                                <img src="${m.photo}" alt="${m.name}" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <div>
+                                <div class="small fw-semibold">${m.name}</div>
+                                <div class="small text-muted">${m.email || ''}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm ${btnClass} rounded-pill px-3" type="button" onclick="toggleSubscriberForUser('${m.uid}')">
+                            ${btnText}
+                        </button>
+                    </div>
+                `;
+                manageSubsScroll.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        };
+
+        window.showDetailForm = function () {
+            const form = document.getElementById('form-add-detail');
+            const btn = document.getElementById('btn-add-detail');
+            if (form) form.style.display = 'block';
+            if (btn) btn.style.display = 'none';
+        };
+
+        window.hideDetailForm = function () {
+            const form = document.getElementById('form-add-detail');
+            const btn = document.getElementById('btn-add-detail');
+            if (form) form.style.display = 'none';
+            if (btn) btn.style.display = 'inline-block';
+        };
+
+        window.saveTaskDetail = async function () {
+            const titleInput = document.getElementById('title-detail');
+            if (!titleInput) return;
+            const title = titleInput.value.trim();
+            if (!title) return;
+
+            try {
+                const existingForList = listTasks || [];
+                const payload = {
+                    project_id: projectId,
+                    list_id: listId,
+                    title: title,
+                    description: document.getElementById('desc-detail') ? document.getElementById('desc-detail').innerHTML : "",
+                    status: document.getElementById('status-detail') ? (document.getElementById('status-detail').value || "Initiate") : "Initiate",
+                    priority: document.getElementById('priority-detail') ? (document.getElementById('priority-detail').value || "normal") : "normal",
+                    start_date: document.getElementById('start-detail') ? (document.getElementById('start-detail').value || "") : "",
+                    due_date: document.getElementById('due-detail') ? (document.getElementById('due-detail').value || "") : "",
+                    points: document.getElementById('points-detail') && document.getElementById('points-detail').value ? Number(document.getElementById('points-detail').value) || 0 : 0,
+                    assign_to: document.getElementById('assign-detail') ? (document.getElementById('assign-detail').value || "") : "",
+                    notify_to: document.getElementById('notify-detail') ? (document.getElementById('notify-detail').value || "") : "",
+                    tags: document.getElementById('tags-detail') && document.getElementById('tags-detail').value
+                        ? document.getElementById('tags-detail').value.split(",").map(t => t.trim()).filter(Boolean)
+                        : [],
+                    position: existingForList.length,
+                    created_at: serverTimestamp(),
+                    created_by: currentUser ? currentUser.uid : ""
+                };
+                await addDoc(collection(db, "tasks"), payload);
+                titleInput.value = '';
+                if (document.getElementById('desc-detail')) document.getElementById('desc-detail').innerHTML = "";
+                if (document.getElementById('start-detail')) document.getElementById('start-detail').value = "";
+                if (document.getElementById('due-detail')) document.getElementById('due-detail').value = "";
+                if (document.getElementById('points-detail')) document.getElementById('points-detail').value = "";
+                if (document.getElementById('assign-detail')) document.getElementById('assign-detail').value = "";
+                if (document.getElementById('notify-detail')) document.getElementById('notify-detail').value = "";
+                if (document.getElementById('tags-detail')) document.getElementById('tags-detail').value = "";
+                await loadTasks();
+                window.hideDetailForm();
+            } catch (e) {
+                console.error("Failed to save task", e);
+                alert("Gagal menyimpan task: " + e.message);
+            }
+        };
+
+        window.handleStatusChange = async function (taskId, checkbox) {
+            if (!taskId || !checkbox) return;
+            const isChecked = checkbox.checked;
+            const newStatus = isChecked ? 'Complete' : 'Initiate';
+            const rowElement = checkbox.closest('.todo-row');
+
+            if (rowElement) {
+                if (isChecked) rowElement.classList.add('completed');
+                else rowElement.classList.remove('completed');
+            }
+
+            try {
+                await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
+            } catch (e) {
+                console.error("Failed to update task status", e);
+                checkbox.checked = !isChecked;
+                if (rowElement) rowElement.classList.toggle('completed');
+                return;
+            }
+            if (rowElement) {
+                if (isChecked) rowElement.classList.add('completed');
+                else rowElement.classList.remove('completed');
+            }
+            const task = (listTasks || []).find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                let statusColor = '#0B2B6A';
+                if (currentListData) {
+                    const rawStatuses = Array.isArray(currentListData.statuses) && currentListData.statuses.length > 0
+                        ? currentListData.statuses
+                        : DEFAULT_LIST_STATUSES;
+                    const currentStatusName = String(newStatus || '').toLowerCase();
+                    const found = rawStatuses.find(s => String(s.name || '').toLowerCase() === currentStatusName);
+                    if (found && found.color) statusColor = found.color;
+                }
+                if (rowElement) {
+                    const badge = rowElement.querySelector('.badge.border.small');
+                    if (badge) {
+                        badge.style.background = statusColor;
+                        badge.style.color = '#ffffff';
+                        badge.innerHTML = `<i class="bi bi-record-circle text-white me-1"></i>${newStatus}`;
+                    }
+                }
+            }
+            updateAllDoneBadge();
+        };
+
+        window.goToTaskDetail = function (taskId) {
+            if (!taskId) return;
+            try {
+                const task = (listTasks || []).find(t => t.id === taskId) || null;
+                const projectInfo = {
+                    id: projectId,
+                    name: breadProjectLink ? breadProjectLink.innerText : "",
+                    department: badgeEl ? badgeEl.innerText : ""
+                };
+                const listInfo = currentListData
+                    ? { id: currentListData.id, name: currentListData.name || "" }
+                    : null;
+                const payload = {
+                    source: "list-detail",
+                    projectId: projectId,
+                    taskId: taskId,
+                    task: task,
+                    list: listInfo,
+                    project: projectInfo
+                };
+                localStorage.setItem('currentTaskDetail', JSON.stringify(payload));
+            } catch (e) {
+                console.error("Failed to store currentTaskDetail", e);
+            }
+            window.location.href = `item-details.html?taskId=${taskId}&projectId=${projectId}`;
+        };
+
+        window.handleTaskRowClickDetail = function (event, taskId) {
+            const target = event.target;
+            if (target.closest('input') || target.closest('.drag-handle-task')) {
+                return;
+            }
+            window.goToTaskDetail(taskId);
+        };
+
+        window.toggleSubscription = async function () {
+            if (!currentUser) {
+                alert("Harus login terlebih dahulu.");
+                return;
+            }
+            const uid = currentUser.uid;
+            const existing = currentSubscribers.find(s => (s.user_id || s.userId) === uid);
+
+            try {
+                if (existing && existing.id) {
+                    const subsRef = getSubscribersCollectionRef();
+                    if (!subsRef) throw new Error("Project ID tidak tersedia untuk mengubah subscriber.");
+                    await deleteDoc(doc(subsRef, existing.id));
+                } else {
+                    const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                    const userName = localData && localData.name ? localData.name : (currentUser.email || 'User');
+                    const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || '';
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                        : 'US';
+                    const subsRef = getSubscribersCollectionRef();
+                    if (!subsRef) throw new Error("Project ID tidak tersedia untuk menambah subscriber.");
+                    await addDoc(subsRef, {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle subscription", e);
+                alert("Gagal mengubah status subscribe: " + e.message);
+            }
+        };
+
+        window.toggleSubscriberForUser = async function (uid) {
+            if (!uid) return;
+            const existing = currentSubscribers.find(s => (s.user_id || s.userId) === uid);
+
+            try {
+                if (existing && existing.id) {
+                    const subsRef = getSubscribersCollectionRef();
+                    if (!subsRef) throw new Error("Project ID tidak tersedia untuk mengubah subscriber.");
+                    await deleteDoc(doc(subsRef, existing.id));
+                } else {
+                    const target = projectMembers.find(m => m.uid === uid);
+                    const userName = target && target.name ? target.name : 'User';
+                    const rawPhoto = target && target.photo ? target.photo : "";
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || '';
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                        : 'US';
+                    const subsRef = getSubscribersCollectionRef();
+                    if (!subsRef) throw new Error("Project ID tidak tersedia untuk menambah subscriber.");
+                    await addDoc(subsRef, {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle subscriber for user", e);
+                alert("Gagal mengubah subscriber: " + e.message);
+            }
+        };
+
+        window.toggleSidebar = function () {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        window.applyFormat = (editorId, command) => {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            editor.focus();
+            document.execCommand(command, false, null);
+        };
+
+        window.triggerDescFileInput = (scope) => {
+            if (scope === 'task-detail') {
+                const input = document.getElementById('task-desc-file-input-detail');
+                if (input) input.click();
+                return;
+            }
+            if (scope === 'list-detail') {
+                const input = document.getElementById('list-desc-file-input-detail');
+                if (input) input.click();
+                return;
+            }
+        };
+
+        async function uploadDescriptionFiles(context, editorId, files) {
+            if (!files || files.length === 0) return;
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            for (const file of files) {
+                try {
+                    const path = `projects/${projectId || 'no-project'}/${context}/${Date.now()}_${file.name}`;
+                    const ref = storageRef(storage, path);
+                    await uploadBytes(ref, file);
+                    const url = await getDownloadURL(ref);
+                    const isImage = file.type && file.type.startsWith("image/");
+                    const html = isImage
+                        ? `<div><img src="${url}" alt="${file.name}" style="max-width:100%; border-radius:8px;"></div>`
+                        : `<div><a href="${url}" target="_blank" rel="noopener">${file.name}</a></div>`;
+                    editor.focus();
+                    document.execCommand('insertHTML', false, html);
+                } catch (e) {
+                    console.error("Failed to upload description file", e);
+                }
+            }
+        }
+
+        window.handleDescFiles = async (context, editorId, inputEl) => {
+            if (!inputEl) return;
+            const files = inputEl.files;
+            await uploadDescriptionFiles(context, editorId, files);
+            inputEl.value = "";
+        };
+
+        window.applyBlockquote = (editorId) => {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            editor.focus();
+            document.execCommand('formatBlock', false, 'blockquote');
+        };
+
+        window.triggerCommentFileInput = () => {
+            const input = document.getElementById('comment-file-input');
+            if (input) input.click();
+        };
+    </script>
+     <script>
+         document.addEventListener("DOMContentLoaded", function() {
+             // 1. Ambil data dari localStorage
+             const data = localStorage.getItem('userData');
+             
+             if (!data) {
+                 // Jika tidak ada data login, tendang balik ke login page
+                 window.location.href = "index.html";
+                 return;
+             }
+
+             const user = JSON.parse(data);
+
+             // 2. Fungsi untuk konversi link Google Drive ke Direct Image Link
+             function getDirectLink(url) {
+                 if (!url) return "https://i.pravatar.cc/300";
+                 if (url.includes('drive.google.com')) {
+                     let id = "";
+                     if (url.includes('id=')) {
+                         id = url.split('id=')[1].split('&')[0];
+                     } else {
+                         id = url.split('/d/')[1].split('/')[0];
+                     }
+                     return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+                 }
+                 return url;
+             }
+
+             // 3. Update Tampilan Navbar
+             document.getElementById('user-name-display').innerText = user.name;
+             document.getElementById('user-photo-display').src = getDirectLink(user.photo);
+             // Posisi bisa disesuaikan jika ada di spreadsheet
+             document.getElementById('user-role-display').innerText = "Dialogika Member";
+             
+             // Update juga pesan selamat datang jika perlu
+             const welcomeMsg = document.querySelector('h4.fw-bold');
+             if(welcomeMsg) welcomeMsg.innerText = `Good Morning, ${user.name.split(' ')[0]}!`;
+         });
+
+         // Fungsi Logout
+         function logout() {
+             localStorage.removeItem('userData');
+             window.location.href = "index.html";
+         }
+     </script>
+</body>
+</html>

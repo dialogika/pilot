@@ -1,0 +1,2573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Detail - Dialogika</title>
+    
+    <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body { background-color: #f1f7fd; }
+
+        /* FIX: Main Content Margin */
+        .main-content {
+            margin-left: 290px; width: calc(100% - 290px); padding: 40px; min-height: 100vh;
+        }
+        @media (max-width: 991px) {
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
+
+        /* --- 1. PROJECT CONTEXT CARD (DARK NAVY) --- */
+        .project-context-card {
+            max-width: 800px; width: 90%; margin: 20px auto -20px auto;
+            background-color: #fff; color: white;
+            padding: 20px 25px 40px 25px; border-radius: 16px 16px 0 0;
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Badge */
+        .ph-badge {
+            background: #FDE047; color: #854D0E; font-size: 0.7rem; font-weight: 800;
+            padding: 4px 8px; border-radius: 4px; text-transform: uppercase;
+            position: absolute; left: 30px; top: 40%; transform: translateY(-50%);
+        }
+
+        /* Breadcrumb Styles */
+        .ph-crumb-container {
+            display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%); padding: 8px 20px;
+            border-radius: 50px; font-size: 0.9rem;
+        }
+        .ph-crumb-link {
+            text-decoration: none; color: #d1d5db; font-weight: 500; transition: 0.2s;
+            display: flex; align-items: center;
+        }
+        .ph-crumb-link:hover { color: white; }
+        .ph-crumb-active {
+            color: white; font-weight: 700; border-bottom: 2px solid #FDE047;
+            max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ph-sep { font-size: 0.7rem; color: #6b7280; }
+
+        /* --- 2. MAIN LIST CARD (WHITE) --- */
+        .main-list-card {
+            max-width: 1000px; width: 100%; margin: 0 auto 50px auto;
+            background: white; border-radius: 16px;
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.1);
+            padding: 50px 60px; position: relative; z-index: 2;
+            border: 1px solid #d1d5db;
+        }
+
+        /* --- TASK SPECIFIC STYLES --- */
+        .task-checkbox-lg {
+            width: 45px; height: 45px; border: 3px solid #d1d5db; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; background: white;
+        }
+        .task-checkbox-lg:hover { border-color: var(--dlg-blue); }
+        .task-checkbox-lg.checked {
+            background-color: #10b981; border-color: #10b981; color: white;
+        }
+
+        /* Metadata Grid Basecamp Style */
+        .meta-label { font-weight: 700; color: #6b7280; text-align: right; padding-top: 2px;}
+        .meta-value {
+            border-bottom: 1px dashed #d1d5db; color: #374151; padding-bottom: 4px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .meta-value:hover { border-bottom-color: var(--dlg-blue); color: var(--dlg-blue); }
+
+        .priority-dropdown {
+            position: relative;
+            width: 100%;
+        }
+        .priority-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            background: #f9fafb;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .priority-trigger:hover {
+            background: #eef2ff;
+        }
+        .priority-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(15,23,42,0.15);
+            padding: 6px 0;
+            min-width: 180px;
+            z-index: 1050;
+            display: none;
+        }
+        .priority-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .priority-item:hover {
+            background: #f1f5f9;
+        }
+        .priority-flag {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.75rem;
+        }
+        .priority-flag-urgent { background: #ef4444; }
+        .priority-flag-high { background: #f59e0b; }
+        .priority-flag-normal { background: #3b82f6; }
+        .priority-flag-low { background: #6b7280; }
+
+        .rich-editor {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-btn {
+            border: none;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .rich-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .rich-editor-body {
+            min-height: 90px;
+            padding: 10px 12px;
+            background: #ffffff;
+            outline: none;
+        }
+        .rich-editor-body[contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+
+        .tag-selector {
+            position: relative;
+            width: 100%;
+        }
+        .tag-selector-control {
+            display: flex;
+            align-items: center;
+            min-height: 34px;
+            border-radius: 4px;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: text;
+            width: 100%;
+        }
+        .tag-selector-control:hover {
+            background: #f1f5f9;
+        }
+        .tag-selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+        }
+        .tag-placeholder {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .tag-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+            padding: 6px 0 4px 0;
+            z-index: 40;
+            display: none;
+        }
+        .tag-search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 6px 12px 8px 12px;
+            font-size: 0.85rem;
+        }
+        .tag-options {
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 0 4px 4px 4px;
+        }
+        .tag-option {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            gap: 6px;
+        }
+        .tag-option:hover {
+            background: #f3f4f6;
+        }
+        .tag-option-selected .tag-pill {
+            background: #4338ca;
+            color: #eef2ff;
+        }
+        .tag-create {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px 8px 12px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        .tag-create:hover {
+            background: #f3f4f6;
+        }
+        .tag-create-label {
+            margin-left: 4px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+        .tag-remove {
+            margin-left: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+        .tag-remove:hover {
+            color: #111827;
+        }
+
+        .notes-editor-wrapper {
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+        }
+        .notes-editor-toolbar {
+            padding: 8px 16px 4px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .notes-toolbar-btn {
+            color: #6b7280;
+            border-radius: 999px;
+        }
+        .notes-toolbar-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .notes-editor-area {
+            min-height: 150px;
+            padding: 12px 16px 16px 16px;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .notes-editor-area:focus {
+            background: #ffffff;
+        }
+        .notes-editor-area.empty-placeholder {
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .ph-badge { display: none; }
+            .main-list-card { padding: 30px 20px; }
+            .ph-crumb-container { width: 100%; justify-content: center; font-size: 0.8rem; padding: 8px; }
+            .meta-label { text-align: left; margin-bottom: 5px; }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <!-- 1. TOP BAR FIXED -->
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <!-- 3. MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- A. KARTU BELAKANG (BREADCRUMB NAV) -->
+            <div class="project-context-card">
+                <!-- Badge -->
+                <div class="ph-badge" id="projectBadge">Loading...</div>
+
+                <!-- Breadcrumb Navigation -->
+                <div class="ph-crumb-container">
+                    <a href="../home.html" class="ph-crumb-link" title="Dashboard">
+                        <i class="bi bi-house-door-fill"></i>
+                    </a>
+                    
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadProjectLink" class="ph-crumb-link">...</a>
+
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadAllListLink" class="ph-crumb-link">List</a>
+
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadListLink" class="ph-crumb-link">...</a>
+
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <span class="ph-crumb-active" id="breadTaskTitle">Loading...</span>
+                </div>
+
+                <!-- Right Option -->
+                <div class="position-absolute end-0 me-3">
+                    <button class="btn btn-link text-white text-opacity-50"><i class="bi bi-three-dots"></i></button>
+                </div>
+            </div>
+
+            <!-- B. KARTU DEPAN (TASK DETAIL) -->
+            <div class="main-list-card">
+                
+                <!-- TASK HEADER -->
+                <div class="d-flex align-items-start gap-4 mb-5">
+                    <!-- Big Checkbox -->
+                    <div id="bigCheckbox" class="task-checkbox-lg flex-shrink-0" onclick="toggleTaskStatus()">
+                        <i class="bi bi-check-lg fs-3 d-none" id="checkIcon"></i>
+                    </div>
+                    <div>
+                        <h1 class="fw-bold mb-1 display-6" id="taskTitleDisplay" style="color:#111;">Loading Task...</h1>
+                        <p class="text-muted small d-flex align-items-center gap-2">
+                            <span>Added by</span>
+                            <b><span id="metaCreatedByValue" class="d-inline-flex align-items-center gap-2">
+                                Unknown user
+                            </span></b>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- METADATA FORM (Grid System) -->
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">Task Priority</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaPriority">
+                            <div class="priority-dropdown w-100" id="task-priority-wrap" >
+                                <button type="button" class="priority-trigger" onclick="toggleTaskPriorityMenuDetail()">
+                                    <span class="priority-flag priority-flag-normal" id="task-priority-flag">
+                                        <i class="bi bi-flag-fill"></i>
+                                    </span>
+                                    <span id="task-priority-label">Set priority...</span>
+                                    <i class="bi bi-chevron-down ms-auto text-muted small"></i>
+                                </button>
+                                <div class="priority-menu" id="task-priority-menu">
+                                    <div class="priority-item" data-value="urgent" onclick="selectTaskPriorityDetail('urgent')">
+                                        <span class="priority-flag priority-flag-urgent"><i class="bi bi-flag-fill"></i></span>
+                                        <span>Urgent</span>
+                                    </div>
+                                    <div class="priority-item" data-value="high" onclick="selectTaskPriorityDetail('high')">
+                                        <span class="priority-flag priority-flag-high"><i class="bi bi-flag-fill"></i></span>
+                                        <span>High</span>
+                                    </div>
+                                    <div class="priority-item" data-value="normal" onclick="selectTaskPriorityDetail('normal')">
+                                        <span class="priority-flag priority-flag-normal"><i class="bi bi-flag-fill"></i></span>
+                                        <span>Normal</span>
+                                    </div>
+                                    <div class="priority-item" data-value="low" onclick="selectTaskPriorityDetail('low')">
+                                        <span class="priority-flag priority-flag-low"><i class="bi bi-flag-fill"></i></span>
+                                        <span>Low</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">Status task</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaStatus" role="button">
+                            <div class="priority-dropdown w-100"  id="task-status-wrap">
+                                <button type="button" class="priority-trigger" onclick="openStatusDropdownDetail()">
+                                    <span id="task-status-label">No status yet</span>
+                                    <i class="bi bi-chevron-down ms-auto text-muted small"></i>
+                                </button>
+                                <div class="priority-menu" id="task-status-menu">
+                                    <!-- status options injected via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">Assigned to</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaAssignedTo" role="button">Type names to assign...</div>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">Due on</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaDueOn" role="button">Select a date...</div>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">When done, notify</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaNotify" role="button">Type names to notify...</div>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-3 meta-label">This task has point</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaPoints" role="button">No points</div>
+                    </div>
+                </div>
+                <div class="row mb-5 align-items-center">
+                    <div class="col-md-3 meta-label">Tag</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaTags">
+                            <div class="tag-selector w-100" id="tag-selector-detail">
+                                <div class="tag-selector-control">
+                                    <div class="tag-selected-list" id="tag-selected-detail">
+                                        <span class="tag-placeholder">Search or add tags...</span>
+                                    </div>
+                                    <i class="bi bi-chevron-down ms-auto text-muted small"></i>
+                                </div>
+                                <div class="tag-dropdown" id="tag-dropdown-detail">
+                                    <input type="text" id="tag-input-detail" class="tag-search-input" placeholder="Search or add tags..." oninput="filterTagOptionsDetail()">
+                                    <div class="tag-options" id="tag-options-detail"></div>
+                                    <div class="tag-create" id="tag-create-detail" style="display:none;" onclick="createTagFromInputDetail()">
+                                        <span>Create</span>
+                                        <span class="tag-create-label" id="tag-create-label-detail"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="tags-detail" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-5 align-items-start">
+                    <div class="col-md-3 meta-label pt-1">Notes</div>
+                    <div class="col-md-9">
+                        <div class="meta-value" id="metaNotes" contenteditable="true">Add extra details or attach a file...</div>
+                    </div>
+                </div>
+
+                <hr class="opacity-10 my-5">
+                <h6 class="fw-bold text-dark">Comment Section</h6>
+                <p class="small text-muted mb-3">Put your <strong>report</strong> here or <u>discuss</u> about this task.</p>
+                <!-- COMMENT SECTION -->
+                <div id="commentsWrapper" class="d-flex flex-column gap-4 mb-5">
+                    <!-- Comments injected via JS -->
+                </div>
+
+                <!-- COMMENT EDITOR -->
+                <div class="d-flex gap-3">
+                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0 overflow-hidden" style="width:45px; height:45px;">
+                        <img id="taskCommentAvatar" src="https://i.pravatar.cc/150" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div class="w-100">
+                        <div class="rich-editor mb-2" style="position:relative;">
+                            <div class="rich-toolbar">
+                                <button type="button" class="rich-btn" onclick="applyFormat('taskCommentInput','bold')"><i class="bi bi-type-bold"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('taskCommentInput','italic')"><i class="bi bi-type-italic"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('taskCommentInput','insertUnorderedList')"><i class="bi bi-list-ul"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyFormat('taskCommentInput','insertOrderedList')"><i class="bi bi-list-ol"></i></button>
+                                <button type="button" class="rich-btn" onclick="applyBlockquote('taskCommentInput')"><i class="bi bi-chat-right-quote"></i></button>
+                                <button type="button" class="rich-btn ms-auto" onclick="triggerTaskCommentFileInput()"><i class="bi bi-paperclip"></i></button>
+                            </div>
+                            <div id="taskCommentInput" class="rich-editor-body" contenteditable="true" data-placeholder="Add a comment here..."></div>
+                        </div>
+                        <div id="taskCommentAttachmentPreview" class="small text-muted mb-2"></div>
+                        <input type="file" id="task-comment-file-input" multiple style="display:none" onchange="handleTaskCommentFiles(this)">
+                        <button class="btn btn-dlg-yellow rounded-pill px-4 btn-sm fw-bold" style="margin-top: 7px;" onclick="postTaskComment()">Comment</button>
+                    </div>
+                </div>
+
+                <!-- SUBSCRIBERS -->
+                <div class="mt-5 pt-4 border-top">
+                    <h6 class="fw-bold text-dark">Subscribers</h6>
+                    <p class="small text-muted mb-3">People listed below will be notified.</p>
+                    
+                        <div class="d-flex align-items-center gap-2 flex-wrap" id="subsContainer"></div>
+                        
+                        <div class="mt-3 p-2 bg-light rounded-pill d-inline-block border">
+                            <button id="taskSubscriptionStatus" class="btn btn-sm text-dark fw-bold px-2 border-0 bg-transparent p-0">You’re subscribed</button>
+                            <button id="taskSubscriptionToggle" class="btn btn-sm btn-link text-muted text-decoration-none p-0" style="font-size:0.8rem;">Unsubscribe me</button>
+                        </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="peopleSelectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 id="peopleSelectTitle" class="modal-title">Select people</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control form-control-sm mb-3" id="peopleSelectSearch" placeholder="Search name or email">
+                    <div class="d-flex flex-column gap-2" id="peopleSelectList" style="max-height:260px; overflow:auto;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill w-100" id="peopleSelectSaveBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dueDateModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Set dates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small">Start date</label>
+                        <input type="date" class="form-control" id="startDateInput">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Due date</label>
+                        <input type="date" class="form-control" id="dueDateInput">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill w-100" onclick="handleDueDateSave()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="pointsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">This task has point</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="number" class="form-control" id="pointsInput" min="0" step="1" placeholder="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill w-100" onclick="handlePointsSave()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="notesModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="notes-editor-wrapper">
+                        <div class="d-flex align-items-center justify-content-between notes-editor-toolbar">
+                            <div class="d-flex align-items-center gap-1">
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesBoldBtn"><strong>B</strong></button>
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesItalicBtn"><em>I</em></button>
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesUnderlineBtn"><span style="text-decoration:underline;">U</span></button>
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesBulletedBtn"><i class="bi bi-list-ul"></i></button>
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesNumberedBtn"><i class="bi bi-list-ol"></i></button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-link btn-sm px-2 notes-toolbar-btn" id="notesAttachBtn">
+                                    <i class="bi bi-paperclip"></i>
+                                </button>
+                                <input type="file" id="notesFileInput" multiple class="d-none">
+                            </div>
+                        </div>
+                        <div id="notesEditor" class="notes-editor-area" contenteditable="true">
+                            Task description or notes...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="handleNotesSave()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="taskSubscribersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Manage Subscribers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="input-group mb-3 bg-light rounded-pill px-2">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-transparent border-0 shadow-none" placeholder="Search people..." oninput="renderTaskSubscriberList(this.value)">
+                    </div>
+                    <div id="taskSubscriberListScroll" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="taskCommentEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Edit Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <textarea id="taskCommentEditText" class="form-control" rows="4" placeholder="Update your comment..."></textarea>
+                    <input type="hidden" id="taskCommentEditId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="confirmTaskCommentEdit()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="taskCommentReplyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Reply Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="taskCommentReplyTarget" class="mb-3 p-3 bg-light rounded small"></div>
+                    <textarea id="taskCommentReplyText" class="form-control" rows="4" placeholder="Write your reply..."></textarea>
+                    <input type="hidden" id="taskCommentReplyParentId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-dlg-blue rounded-pill px-4" onclick="confirmTaskCommentReply()">Post reply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="taskCommentDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Delete Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-0">Are you sure you want to delete this comment?</p>
+                    <input type="hidden" id="taskCommentDeleteId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmTaskCommentDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            onSnapshot,
+            query,
+            where,
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+        window.storage = storage;
+        window.ref = storageRef;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('taskId') || urlParams.get('id');
+        let projectId = urlParams.get('projectId') || urlParams.get('pid') || "";
+        
+        const taskTitleEl = document.getElementById('taskTitleDisplay');
+        const badgeEl = document.getElementById('projectBadge');
+        const breadProject = document.getElementById('breadProjectLink');
+        const breadList = document.getElementById('breadListLink');
+        const breadTask = document.getElementById('breadTaskTitle');
+        const breadAllList = document.getElementById('breadAllListLink');
+        const checkbox = document.getElementById('bigCheckbox');
+        const checkIcon = document.getElementById('checkIcon');
+        const metaCreatedByValue = document.getElementById('metaCreatedByValue');
+        const metaPriority = document.getElementById('metaPriority');
+        const metaStatus = document.getElementById('metaStatus');
+        const metaAssignedTo = document.getElementById('metaAssignedTo');
+        const metaDueOn = document.getElementById('metaDueOn');
+        const metaNotify = document.getElementById('metaNotify');
+        const metaPoints = document.getElementById('metaPoints');
+        const metaTags = document.getElementById('metaTags');
+        const metaNotes = document.getElementById('metaNotes');
+        const commentsContainer = document.getElementById('commentsWrapper');
+        const taskCommentAvatar = document.getElementById('taskCommentAvatar');
+        const subsContainer = document.getElementById('subsContainer');
+        const taskSubscriptionStatus = document.getElementById('taskSubscriptionStatus');
+        const taskSubscriptionToggle = document.getElementById('taskSubscriptionToggle');
+
+        let currentUser = null;
+        let currentTask = null;
+        let currentComments = [];
+        let currentProjectHeader = null;
+        let currentListHeader = null;
+        let projectMembers = [];
+        let peopleSelectMode = null;
+        let peopleSelectSelected = [];
+        let detailTagOptions = [];
+        let taskSubscribers = [];
+        let manageTaskSubscriberSearchQuery = "";
+        const userCache = {};
+
+        function normalizeTimestamp(value) {
+            if (!value) return null;
+            if (value.toDate) return value.toDate();
+            if (value instanceof Date) return value;
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function truncateText(str, maxLength) {
+            if (!str) return "";
+            if (str.length <= maxLength) return str;
+            return str.substring(0, maxLength) + "...";
+        }
+
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return `https://i.pravatar.cc/150?u=${uid || "user"}`;
+            if (url.includes('drive.google.com')) {
+                let id = "";
+                if (url.includes('id=')) {
+                    id = url.split('id=')[1].split('&')[0];
+                } else if (url.includes('/d/')) {
+                    id = url.split('/d/')[1].split('/')[0];
+                }
+                if (id) return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            }
+            return url;
+        }
+
+        async function loadUserBasic(uid) {
+            if (!uid) return null;
+            if (userCache[uid]) return userCache[uid];
+            try {
+                const snap = await getDoc(doc(db, "users", uid));
+                if (!snap.exists()) return null;
+                const d = snap.data();
+                const user = {
+                    uid,
+                    name: d.name || d.email || uid,
+                    email: d.email || "",
+                    photo: getDirectPhotoUrl(d.photo || "", uid)
+                };
+                userCache[uid] = user;
+                return user;
+            } catch (e) {
+                console.error("Failed to load user", uid, e);
+                return null;
+            }
+        }
+
+        async function loadProjectMembersForDetail(memberUids) {
+            projectMembers = [];
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                const allUsers = [];
+                snap.forEach(docSnap => {
+                    const u = docSnap.data() || {};
+                    allUsers.push({
+                        uid: docSnap.id,
+                        name: u.name || u.email || "Unknown",
+                        email: u.email || "",
+                        photo: getDirectPhotoUrl(u.photo || "", docSnap.id),
+                        role: (u.employment && u.employment.position) || "Member"
+                    });
+                });
+                let currentUid = "";
+                try {
+                    const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                    if (localData && (localData.uid || localData.id)) {
+                        currentUid = localData.uid || localData.id;
+                    }
+                } catch (e2) {}
+                allUsers.sort((a, b) => {
+                    if (a.uid === currentUid) return -1;
+                    if (b.uid === currentUid) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                projectMembers = allUsers;
+            } catch (e) {
+                console.error("Failed to load project members for detail", e);
+                const ids = Array.isArray(memberUids) ? memberUids : [];
+                if (ids.length) {
+                    try {
+                        const promises = ids.map(uid => loadUserBasic(uid));
+                        const users = await Promise.all(promises);
+                        projectMembers = users.filter(Boolean);
+                    } catch (e2) {
+                        console.error("Fallback failed", e2);
+                    }
+                }
+            }
+            renderPeopleSelectList('');
+            renderTaskSubscriberList(manageTaskSubscriberSearchQuery);
+        }
+
+        function renderUserInline(user) {
+            if (!user) return '';
+            const baseName = user.name || user.email || user.uid || 'User';
+            const initialsSource = baseName;
+            const initials = initialsSource
+                ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                : 'U';
+            const hasPhoto = !!user.photo;
+            const avatarHtml = hasPhoto
+                ? `<span class="rounded-circle overflow-hidden d-inline-flex align-items-center justify-content-center me-2" style="width:24px; height:24px;">
+                        <img src="${user.photo}" alt="${baseName}" style="width:100%; height:100%; object-fit:cover;">
+                   </span>`
+                : `<span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center me-2" style="width:24px; height:24px; font-size:0.7rem;">
+                        ${initials}
+                   </span>`;
+            return `<span class="d-inline-flex align-items-center gap-2">${avatarHtml}<span>${baseName}</span></span>`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!taskId) {
+                alert("Error: Parameter URL tidak lengkap.");
+                return;
+            }
+
+            const input = document.getElementById('taskCommentInput');
+
+            const metaStatusEl = document.getElementById('metaStatus');
+            const metaAssignedToEl = document.getElementById('metaAssignedTo');
+            const metaDueOnEl = document.getElementById('metaDueOn');
+            const metaNotifyEl = document.getElementById('metaNotify');
+            const metaPointsEl = document.getElementById('metaPoints');
+            const metaTagsEl = document.getElementById('metaTags');
+            const metaNotesEl = document.getElementById('metaNotes');
+            const peopleSearchInput = document.getElementById('peopleSelectSearch');
+            const peopleListEl = document.getElementById('peopleSelectList');
+            const peopleSaveBtn = document.getElementById('peopleSelectSaveBtn');
+            const notesEditor = document.getElementById('notesEditor');
+            const notesBoldBtn = document.getElementById('notesBoldBtn');
+            const notesItalicBtn = document.getElementById('notesItalicBtn');
+            const notesUnderlineBtn = document.getElementById('notesUnderlineBtn');
+            const notesBulletedBtn = document.getElementById('notesBulletedBtn');
+            const notesNumberedBtn = document.getElementById('notesNumberedBtn');
+            const notesAttachBtn = document.getElementById('notesAttachBtn');
+            const notesFileInput = document.getElementById('notesFileInput');
+
+            try {
+                const storedUser = JSON.parse(localStorage.getItem('userData') || 'null');
+                if (storedUser && taskCommentAvatar) {
+                    const photoUrl = getDirectPhotoUrl(storedUser.photo || storedUser.Photo || "", storedUser.uid || storedUser.Uid || "");
+                    taskCommentAvatar.src = photoUrl;
+                }
+            } catch (e) {}
+
+            if (metaStatusEl) {
+                metaStatusEl.addEventListener('click', () => {
+                    openStatusDropdownDetail();
+                });
+            }
+            if (metaAssignedToEl) {
+                metaAssignedToEl.addEventListener('click', () => {
+                    openPeopleSelectModal('assign_to');
+                });
+            }
+            if (metaDueOnEl) {
+                metaDueOnEl.addEventListener('click', () => {
+                    openDueDateModal();
+                });
+            }
+            if (metaNotifyEl) {
+                metaNotifyEl.addEventListener('click', () => {
+                    openPeopleSelectModal('notify_to');
+                });
+            }
+            if (metaPointsEl) {
+                metaPointsEl.addEventListener('click', () => {
+                    openPointsModal();
+                });
+            }
+            if (metaTagsEl) {
+                metaTagsEl.addEventListener('click', (e) => {
+                    const dropdown = document.getElementById('tag-dropdown-detail');
+                    if (!dropdown) return;
+                    const target = e.target;
+                    if (dropdown.contains(target)) return;
+                    toggleTagDropdownDetail();
+                });
+            }
+            if (metaNotesEl) {
+                metaNotesEl.addEventListener('click', () => {
+                    openNotesModal();
+                });
+            }
+
+            if (peopleSearchInput) {
+                peopleSearchInput.addEventListener('input', () => {
+                    renderPeopleSelectList(peopleSearchInput.value);
+                });
+            }
+            if (peopleListEl) {
+                peopleListEl.addEventListener('change', (e) => {
+                    const target = e.target;
+                    if (!target || target.type !== 'checkbox') return;
+                    const uid = target.getAttribute('data-user-uid');
+                    if (!uid) return;
+                    if (target.checked) {
+                        if (!peopleSelectSelected.includes(uid)) peopleSelectSelected.push(uid);
+                    } else {
+                        peopleSelectSelected = peopleSelectSelected.filter(x => x !== uid);
+                    }
+                });
+            }
+            if (peopleSaveBtn) {
+                peopleSaveBtn.addEventListener('click', handlePeopleSelectSave);
+            }
+
+            if (notesEditor) {
+                notesEditor.addEventListener('focus', () => {
+                    if (notesEditor.classList.contains('empty-placeholder')) {
+                        notesEditor.innerText = '';
+                        notesEditor.classList.remove('empty-placeholder');
+                    }
+                });
+                notesEditor.addEventListener('blur', () => {
+                    const text = notesEditor.innerText.replace(/\u200B/g, '').trim();
+                    if (!text && !notesEditor.querySelector('a')) {
+                        notesEditor.innerText = 'Task description or notes...';
+                        notesEditor.classList.add('empty-placeholder');
+                    }
+                });
+            }
+            if (breadAllList && projectId) {
+                breadAllList.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (document.referrer) {
+                        window.history.back();
+                    } else {
+                        window.location.href = `list.html?id=${projectId}`;
+                    }
+                });
+            }
+            if (taskSubscriptionToggle) {
+                taskSubscriptionToggle.addEventListener('click', () => {
+                    toggleTaskSubscription();
+                });
+            }
+            if (taskSubscriptionStatus) {
+                taskSubscriptionStatus.addEventListener('click', () => {
+                    toggleTaskSubscription();
+                });
+            }
+            if (notesBoldBtn) {
+                notesBoldBtn.addEventListener('click', () => {
+                    applyNotesCommand('bold');
+                });
+            }
+            if (notesItalicBtn) {
+                notesItalicBtn.addEventListener('click', () => {
+                    applyNotesCommand('italic');
+                });
+            }
+            if (notesUnderlineBtn) {
+                notesUnderlineBtn.addEventListener('click', () => {
+                    applyNotesCommand('underline');
+                });
+            }
+            if (notesBulletedBtn) {
+                notesBulletedBtn.addEventListener('click', () => {
+                    applyNotesCommand('insertUnorderedList');
+                });
+            }
+            if (notesNumberedBtn) {
+                notesNumberedBtn.addEventListener('click', () => {
+                    applyNotesCommand('insertOrderedList');
+                });
+            }
+            if (notesAttachBtn && notesFileInput) {
+                notesAttachBtn.addEventListener('click', () => {
+                    notesFileInput.click();
+                });
+            }
+            if (notesFileInput) {
+                notesFileInput.addEventListener('change', async () => {
+                    if (!notesFileInput.files || !notesFileInput.files.length) return;
+                    await handleNotesFilesUpload(notesFileInput.files);
+                    notesFileInput.value = '';
+                });
+            }
+
+            const cached = getTaskFromLocalStorage();
+            if (cached && cached.task) {
+                if (!projectId && cached.projectId) {
+                    projectId = cached.projectId;
+                }
+                renderTaskFromPayload(cached.task, cached.list || null, cached.project || null);
+            }
+
+            loadTaskFromFirestore();
+            listenComments();
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user || null;
+        });
+
+        function getTaskFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem('currentTaskDetail');
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                if (!parsed || !parsed.task) return null;
+                if (parsed.taskId && parsed.taskId !== taskId) return null;
+                if (projectId && parsed.projectId && parsed.projectId !== projectId) return null;
+                return parsed;
+            } catch (e) {
+                console.error("Failed to parse currentTaskDetail", e);
+                return null;
+            }
+        }
+
+        async function loadTaskFromFirestore() {
+            try {
+                const taskRef = doc(db, "tasks", taskId);
+                const snap = await getDoc(taskRef);
+                if (!snap.exists()) {
+                    if (taskTitleEl) taskTitleEl.innerText = "Task Not Found";
+                    if (breadTask) breadTask.innerText = "Task Not Found";
+                    return;
+                }
+                const data = { id: snap.id, ...snap.data() };
+                currentTask = data;
+                if (!projectId) {
+                    projectId = data.project_id || data.projectId || "";
+                }
+                const listId = data.list_id || data.listId || "";
+                let project = null;
+                let list = null;
+                if (projectId) {
+                    project = await loadProjectHeader(projectId);
+                    currentProjectHeader = project;
+                    if (listId) {
+                        list = await loadListHeader(projectId, listId);
+                    }
+                    await loadTagOptionsForDetail(projectId);
+                    listenTaskSubscribers(projectId, taskId);
+                }
+                currentListHeader = list;
+                renderTaskFromPayload(data, list, project);
+            } catch (e) {
+                console.error("Failed to load task from Firestore", e);
+            }
+        }
+
+        async function loadTagOptionsForDetail(pid) {
+            if (!pid) return;
+            try {
+                const q = query(
+                    collection(db, "tasks"),
+                    where("project_id", "==", pid)
+                );
+                const snap = await getDocs(q);
+                const tagSet = new Set();
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (Array.isArray(data.tags)) {
+                        data.tags.forEach(tag => {
+                            if (tag && typeof tag === "string") tagSet.add(tag);
+                        });
+                    }
+                });
+                detailTagOptions = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+                renderTagOptionsDetail();
+                const taskTags = Array.isArray(currentTask && currentTask.tags)
+                    ? currentTask.tags.filter(Boolean)
+                    : [];
+                setTagsValueDetail(taskTags);
+            } catch (e) {
+                console.error("Failed to load tag options for detail", e);
+            }
+        }
+
+        function renderTaskSubscribers(subs) {
+            if (!subsContainer) return;
+            subsContainer.innerHTML = '';
+            if (!subs || subs.length === 0) {
+                const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" onclick="openTaskSubscribersModal()">Add/remove people...</button>`;
+                subsContainer.insertAdjacentHTML('beforeend', btnAddHtml);
+                return;
+            }
+            subs.forEach(s => {
+                const userId = s.user_id || s.userId || '';
+                const userName = s.user_name || s.userName || userId || 'User';
+                const initialsSource = s.user_initials || userName || userId || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'U';
+                const photo = s.user_photo || "";
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold overflow-hidden" style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" 
+                         style="width:30px; height:30px; font-size:0.7rem;" title="${userName}">${initials}</div>`;
+                subsContainer.insertAdjacentHTML('beforeend', avatar);
+            });
+            const btnAddHtml = `<button class="btn btn-light border rounded-pill px-3 py-1 btn-sm text-muted small" type="button" onclick="openTaskSubscribersModal()">Add/remove people...</button>`;
+            subsContainer.insertAdjacentHTML('beforeend', btnAddHtml);
+        }
+
+        function updateTaskSubscriptionUI() {
+            if (!taskSubscriptionStatus || !taskSubscriptionToggle) return;
+            if (!currentUser) {
+                taskSubscriptionStatus.innerText = "You’re not subscribed";
+                taskSubscriptionToggle.innerText = "Subscribe me";
+                taskSubscriptionToggle.disabled = true;
+                return;
+            }
+            const uid = currentUser.uid;
+            const isSubscribed = taskSubscribers.some(s => (s.user_id || s.userId) === uid);
+            taskSubscriptionStatus.innerText = isSubscribed ? "You’re subscribed" : "You’re not subscribed";
+            taskSubscriptionToggle.innerText = isSubscribed ? "Unsubscribe me" : "Subscribe me";
+            taskSubscriptionToggle.disabled = false;
+        }
+
+        let taskSubscribersUnsubscribe = null;
+        let taskCommentsUnsubscribe = null;
+
+        function cleanupItemDetailsListeners() {
+            if (taskSubscribersUnsubscribe) {
+                taskSubscribersUnsubscribe();
+                taskSubscribersUnsubscribe = null;
+            }
+            if (taskCommentsUnsubscribe) {
+                taskCommentsUnsubscribe();
+                taskCommentsUnsubscribe = null;
+            }
+        }
+
+        window.addEventListener('beforeunload', cleanupItemDetailsListeners);
+        window.addEventListener('unload', cleanupItemDetailsListeners);
+
+        function listenTaskSubscribers(pid, tid) {
+            if (!pid || !tid) return;
+            if (taskSubscribersUnsubscribe) {
+                taskSubscribersUnsubscribe();
+                taskSubscribersUnsubscribe = null;
+            }
+            try {
+                const ref = collection(db, "projects", pid, "tasks", tid, "subscribers");
+                taskSubscribersUnsubscribe = onSnapshot(ref, (snapshot) => {
+                    const subs = [];
+                    snapshot.forEach(docSnap => subs.push({ id: docSnap.id, ...docSnap.data() }));
+                    taskSubscribers = subs;
+                    renderTaskSubscribers(subs);
+                    updateTaskSubscriptionUI();
+                }, (error) => {
+                    console.error("Failed to listen task subscribers", error);
+                });
+            } catch (e) {
+                console.error("Failed to start task subscribers listener", e);
+            }
+        }
+
+        window.openTaskSubscribersModal = function () {
+            const modalEl = document.getElementById('taskSubscribersModal');
+            if (!modalEl || typeof bootstrap === 'undefined') return;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+            renderTaskSubscriberList(manageTaskSubscriberSearchQuery);
+        };
+
+        window.renderTaskSubscriberList = function (queryText) {
+            const scrollEl = document.getElementById('taskSubscriberListScroll');
+            if (!scrollEl) return;
+            manageTaskSubscriberSearchQuery = (queryText || "").trim().toLowerCase();
+            scrollEl.innerHTML = '';
+
+            if (!projectMembers || projectMembers.length === 0) {
+                scrollEl.innerHTML = '<p class="text-muted small mb-0">No project members available.</p>';
+                return;
+            }
+
+            const filtered = projectMembers.filter(m => {
+                if (!manageTaskSubscriberSearchQuery) return true;
+                const haystack = `${m.name || ""} ${m.email || ""}`.toLowerCase();
+                return haystack.includes(manageTaskSubscriberSearchQuery);
+            });
+
+            if (filtered.length === 0) {
+                scrollEl.innerHTML = '<p class="text-muted small mb-0">No people match your search.</p>';
+                return;
+            }
+
+            filtered.forEach(m => {
+                const isSubscribed = taskSubscribers.some(s => (s.user_id || s.userId) === m.uid);
+                const btnClass = isSubscribed ? 'btn-dlg-red' : 'btn-dlg-blue';
+                const btnText = isSubscribed ? 'Unsubscribe' : 'Subscribe';
+                const rowHtml = `
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle overflow-hidden" style="width:32px; height:32px;">
+                                <img src="${m.photo}" alt="${m.name}" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <div>
+                                <div class="small fw-semibold">${m.name}</div>
+                                <div class="small text-muted">${m.email || ''}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm ${btnClass} rounded-pill px-3" type="button" onclick="toggleTaskSubscriberForUser('${m.uid}')">
+                            ${btnText}
+                        </button>
+                    </div>
+                `;
+                scrollEl.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        };
+
+        window.toggleTaskSubscription = async function () {
+            if (!currentUser) {
+                alert("Harus login terlebih dahulu.");
+                return;
+            }
+            if (!projectId || !taskId) return;
+            const uid = currentUser.uid;
+            const existing = taskSubscribers.find(s => (s.user_id || s.userId) === uid);
+
+            try {
+                if (existing && existing.id) {
+                    await deleteDoc(doc(db, "projects", projectId, "tasks", taskId, "subscribers", existing.id));
+                } else {
+                    const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                    const userName = localData && localData.name ? localData.name : (currentUser.email || 'User');
+                    const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || '';
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                        : 'US';
+                    await addDoc(collection(db, "projects", projectId, "tasks", taskId, "subscribers"), {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle task subscription", e);
+                alert("Gagal mengubah status subscribe: " + e.message);
+            }
+        };
+
+        window.toggleTaskSubscriberForUser = async function (uid) {
+            if (!uid || !projectId || !taskId) return;
+            const existing = taskSubscribers.find(s => (s.user_id || s.userId) === uid);
+
+            try {
+                if (existing && existing.id) {
+                    await deleteDoc(doc(db, "projects", projectId, "tasks", taskId, "subscribers", existing.id));
+                } else {
+                    const target = projectMembers.find(m => m.uid === uid);
+                    const userName = target && target.name ? target.name : 'User';
+                    const rawPhoto = target && target.photo ? target.photo : "";
+                    const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                    const initialsSource = userName || uid || '';
+                    const initials = initialsSource
+                        ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                        : 'US';
+                    await addDoc(collection(db, "projects", projectId, "tasks", taskId, "subscribers"), {
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        created_at: serverTimestamp()
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to toggle task subscriber", e);
+                alert("Gagal mengubah subscriber: " + e.message);
+            }
+        };
+
+        async function editTaskFieldWithPrompt(field, label) {
+            if (!currentTask || !taskId) return;
+            let currentValue = currentTask[field];
+            if (field === 'tags') {
+                if (Array.isArray(currentValue)) {
+                    currentValue = currentValue.join(', ');
+                }
+            }
+            if (field === 'points') {
+                if (typeof currentValue === 'number') {
+                    currentValue = String(currentValue);
+                }
+            }
+            if (currentValue === undefined || currentValue === null) {
+                currentValue = '';
+            }
+            const next = prompt('Ubah ' + label, String(currentValue));
+            if (next === null) return;
+            const trimmed = next.trim();
+            const update = {};
+            if (field === 'points') {
+                update[field] = trimmed ? Number(trimmed) || 0 : 0;
+            } else if (field === 'tags') {
+                update[field] = trimmed
+                    ? trimmed.split(',').map(t => t.trim()).filter(Boolean)
+                    : [];
+            } else {
+                update[field] = trimmed;
+            }
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+            } catch (e) {
+                console.error('Failed to update task field', field, e);
+                alert('Gagal mengupdate ' + label + ': ' + e.message);
+            }
+        }
+
+        function applyNotesCommand(command) {
+            const editor = document.getElementById('notesEditor');
+            if (!editor) return;
+            if (editor.classList.contains('empty-placeholder')) {
+                editor.innerText = '';
+                editor.classList.remove('empty-placeholder');
+            }
+            editor.focus();
+            try {
+                document.execCommand(command, false, null);
+            } catch (e) {
+                console.error('Failed to execute command', command, e);
+            }
+        }
+
+        async function handleNotesFilesUpload(files) {
+            if (!taskId || !storage || !files || !files.length) return;
+            const editor = document.getElementById('notesEditor');
+            if (!editor) return;
+            if (editor.classList.contains('empty-placeholder')) {
+                editor.innerText = '';
+                editor.classList.remove('empty-placeholder');
+            }
+            const list = Array.from(files);
+            for (const file of list) {
+                try {
+                    const path = `notes/${taskId}/${Date.now()}_${file.name}`;
+                    const ref = storageRef(storage, path);
+                    await uploadBytes(ref, file);
+                    const url = await getDownloadURL(ref);
+                    const p = document.createElement('p');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.innerText = file.name;
+                    p.appendChild(a);
+                    editor.appendChild(p);
+                } catch (e) {
+                    console.error('Failed to upload note file', e);
+                    alert('Gagal mengupload file: ' + e.message);
+                }
+            }
+        }
+
+        window.openPointsModal = function () {
+            if (!currentTask) currentTask = {};
+            const input = document.getElementById('pointsInput');
+            if (input) {
+                const pts = typeof currentTask.points === 'number' ? currentTask.points : '';
+                input.value = pts === 0 ? '' : String(pts);
+            }
+            const modalEl = document.getElementById('pointsModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        };
+
+        window.handlePointsSave = async function () {
+            if (!taskId) return;
+            const input = document.getElementById('pointsInput');
+            if (!input) return;
+            const raw = input.value.trim();
+            const value = raw ? Number(raw) || 0 : 0;
+            const update = { points: value };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+                const modalEl = document.getElementById('pointsModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error('Failed to update points', e);
+                alert('Gagal mengupdate points: ' + e.message);
+            }
+        };
+
+        window.openNotesModal = function () {
+            if (!currentTask) currentTask = {};
+            const editor = document.getElementById('notesEditor');
+            if (editor) {
+                const rawHtml = currentTask.description || '';
+                if (rawHtml) {
+                    editor.innerHTML = rawHtml;
+                    editor.classList.remove('empty-placeholder');
+                } else {
+                    editor.innerText = 'Task description or notes...';
+                    editor.classList.add('empty-placeholder');
+                }
+            }
+            const modalEl = document.getElementById('notesModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        };
+
+        window.applyFormat = (editorId, command) => {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            editor.focus();
+            document.execCommand(command, false, null);
+        };
+
+        window.applyBlockquote = (editorId) => {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            editor.focus();
+            document.execCommand('formatBlock', false, 'blockquote');
+        };
+
+        window.handleNotesSave = async function () {
+            if (!taskId) return;
+            const editor = document.getElementById('notesEditor');
+            if (!editor) return;
+            let html = editor.innerHTML || '';
+            if (editor.classList.contains('empty-placeholder')) {
+                html = '';
+            }
+            const update = {
+                description: html
+            };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+                const modalEl = document.getElementById('notesModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error('Failed to save notes', e);
+                alert('Gagal menyimpan catatan: ' + e.message);
+            }
+        };
+
+        window.toggleTagDropdownDetail = function () {
+            const dropdown = document.getElementById('tag-dropdown-detail');
+            const input = document.getElementById('tag-input-detail');
+            if (!dropdown) return;
+            const isOpen = dropdown.style.display === "block";
+            dropdown.style.display = isOpen ? "none" : "block";
+            if (!isOpen && input) {
+                input.focus();
+                input.select();
+                filterTagOptionsDetail();
+            }
+        };
+
+        window.filterTagOptionsDetail = function () {
+            const input = document.getElementById('tag-input-detail');
+            const optionsContainer = document.getElementById('tag-options-detail');
+            const createRow = document.getElementById('tag-create-detail');
+            const createLabel = document.getElementById('tag-create-label-detail');
+            if (!input || !optionsContainer || !createRow || !createLabel) return;
+
+            const query = input.value.trim().toLowerCase();
+            let hasVisible = false;
+            let hasExact = false;
+
+            Array.from(optionsContainer.children).forEach(opt => {
+                const tag = (opt.dataset.tag || "").toLowerCase();
+                const visible = !query || tag.indexOf(query) !== -1;
+                opt.style.display = visible ? "flex" : "none";
+                if (visible) {
+                    hasVisible = true;
+                    if (tag === query) hasExact = true;
+                }
+            });
+
+            if (query && (!hasVisible || !hasExact)) {
+                createRow.style.display = "flex";
+                createLabel.innerText = query;
+            } else {
+                createRow.style.display = "none";
+                createLabel.innerText = "";
+            }
+        };
+
+        async function saveTagsDetail() {
+            if (!taskId) return;
+            const tags = getTagsValueDetail();
+            const update = { tags };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+            } catch (e) {
+                console.error('Failed to update tags', e);
+                alert('Gagal mengupdate tags: ' + e.message);
+            }
+        }
+
+        window.toggleTagFromOptionDetail = function (tag) {
+            const current = getTagsValueDetail();
+            const index = current.indexOf(tag);
+            if (index >= 0) {
+                current.splice(index, 1);
+            } else {
+                current.push(tag);
+            }
+            setTagsValueDetail(current);
+            saveTagsDetail();
+        };
+
+        window.createTagFromInputDetail = function () {
+            const input = document.getElementById('tag-input-detail');
+            if (!input) return;
+            const value = input.value.trim();
+            if (!value) return;
+            const current = getTagsValueDetail();
+            if (!current.includes(value)) {
+                current.push(value);
+            }
+            if (!detailTagOptions.includes(value)) {
+                detailTagOptions.push(value);
+                detailTagOptions.sort((a, b) => a.localeCompare(b));
+            }
+            renderTagOptionsDetail();
+            setTagsValueDetail(current);
+            saveTagsDetail();
+            input.value = "";
+            filterTagOptionsDetail();
+        };
+
+        function removeTagFromSelectionDetail(tag) {
+            const current = getTagsValueDetail();
+            const index = current.indexOf(tag);
+            if (index >= 0) {
+                current.splice(index, 1);
+                setTagsValueDetail(current);
+                saveTagsDetail();
+            }
+        }
+
+        window.openDueDateModal = function () {
+            if (!currentTask) currentTask = {};
+            const startInput = document.getElementById('startDateInput');
+            const dueInput = document.getElementById('dueDateInput');
+            const rawStart = currentTask.start_date || currentTask.startDate || "";
+            const rawDue = currentTask.due_date || currentTask.dueDate || "";
+            if (startInput) {
+                startInput.value = rawStart ? String(rawStart).substring(0, 10) : "";
+            }
+            if (dueInput) {
+                dueInput.value = rawDue ? String(rawDue).substring(0, 10) : "";
+            }
+            const modalEl = document.getElementById('dueDateModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        };
+
+        window.handleDueDateSave = async function () {
+            if (!taskId) return;
+            const startInput = document.getElementById('startDateInput');
+            const dueInput = document.getElementById('dueDateInput');
+            if (!startInput || !dueInput) return;
+            const startVal = startInput.value || "";
+            const dueVal = dueInput.value || "";
+            const update = {
+                start_date: startVal,
+                due_date: dueVal
+            };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+                const modalEl = document.getElementById('dueDateModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error('Failed to update dates', e);
+                alert('Gagal mengupdate tanggal: ' + e.message);
+            }
+        };
+
+        window.toggleTaskPriorityMenuDetail = function () {
+            const menu = document.getElementById('task-priority-menu');
+            if (!menu) return;
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        };
+
+        window.selectTaskPriorityDetail = async function (value) {
+            if (!taskId) return;
+            const update = { priority: value };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+            } catch (e) {
+                console.error('Failed to update priority', e);
+                alert('Gagal mengupdate priority: ' + e.message);
+            } finally {
+                const menu = document.getElementById('task-priority-menu');
+                if (menu) menu.style.display = 'none';
+            }
+        };
+
+        function openPeopleSelectModal(field) {
+            if (!currentTask) currentTask = {};
+            peopleSelectMode = field;
+            const searchInput = document.getElementById('peopleSelectSearch');
+            const titleEl = document.getElementById('peopleSelectTitle');
+            const currentRaw = currentTask[field];
+            let ids = [];
+            if (Array.isArray(currentRaw)) {
+                ids = currentRaw.filter(Boolean);
+            } else if (typeof currentRaw === 'string' && currentRaw) {
+                ids = [currentRaw];
+            }
+            peopleSelectSelected = ids.slice();
+            if (titleEl) {
+                titleEl.innerText = field === 'assign_to' ? 'Assign to' : 'When done, notify';
+            }
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            renderPeopleSelectList('');
+            const modalEl = document.getElementById('peopleSelectModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        }
+
+        function renderPeopleSelectList(query) {
+            const listEl = document.getElementById('peopleSelectList');
+            if (!listEl) return;
+            const q = String(query || '').toLowerCase();
+            let members = Array.isArray(projectMembers) ? projectMembers.slice() : [];
+            if (q) {
+                members = members.filter(m => {
+                    const name = String(m.name || '').toLowerCase();
+                    const email = String(m.email || '').toLowerCase();
+                    return name.includes(q) || email.includes(q);
+                });
+            }
+            if (!members.length) {
+                listEl.innerHTML = '<div class="text-muted small">No people found.</div>';
+                return;
+            }
+            listEl.innerHTML = members.map(m => {
+                const checked = peopleSelectSelected.includes(m.uid) ? 'checked' : '';
+                const emailLine = m.email ? `<div class="text-muted" style="font-size:0.7rem;">${m.email}</div>` : '';
+                return `
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" class="form-check-input flex-shrink-0" data-user-uid="${m.uid}" ${checked}>
+                        <span class="rounded-circle overflow-hidden d-inline-flex align-items-center justify-content-center" style="width:28px;height:28px;">
+                            <img src="${m.photo}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;">
+                        </span>
+                        <span class="flex-grow-1">
+                            <div class="fw-semibold small">${m.name}</div>
+                            ${emailLine}
+                        </span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        async function handlePeopleSelectSave() {
+            if (!taskId || !peopleSelectMode) return;
+            const field = peopleSelectMode;
+            const ids = peopleSelectSelected.slice();
+            const update = {};
+            update[field] = ids;
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+                const modalEl = document.getElementById('peopleSelectModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error('Failed to update people', field, e);
+                alert('Gagal mengupdate orang: ' + e.message);
+            }
+        }
+
+        window.openStatusDropdownDetail = function () {
+            const menu = document.getElementById('task-status-menu');
+            if (!menu) return;
+            const statuses = getAvailableStatusesForCurrentList();
+            menu.innerHTML = statuses.map(s => {
+                const name = s.name || "";
+                const color = s.color || "";
+                const dot = color ? `<span class="rounded-circle me-2" style="width:10px; height:10px; display:inline-block; background:${color};"></span>` : '';
+                return `<div class="priority-item" onclick="selectTaskStatusDetail('${name}')">${dot}<span>${name}</span></div>`;
+            }).join('');
+            menu.style.display = 'block';
+        };
+
+        window.selectTaskStatusDetail = async function (value) {
+            if (!taskId) return;
+            const update = { status: value };
+            try {
+                await updateDoc(doc(db, 'tasks', taskId), update);
+                if (!currentTask) currentTask = {};
+                Object.assign(currentTask, update);
+                renderTaskFromPayload(currentTask, currentListHeader, currentProjectHeader);
+            } catch (e) {
+                console.error('Failed to update status', e);
+                alert('Gagal mengupdate status: ' + e.message);
+            } finally {
+                const menu = document.getElementById('task-status-menu');
+                if (menu) menu.style.display = 'none';
+            }
+        };
+
+        async function loadProjectHeader(pid) {
+            try {
+                const ref = doc(db, "projects", pid);
+                const snap = await getDoc(ref);
+                if (!snap.exists()) return null;
+                const d = snap.data();
+                const project = {
+                    id: snap.id,
+                    name: d.name || "",
+                    department: d.department || ""
+                };
+                if (badgeEl && project.department) {
+                    badgeEl.innerText = project.department;
+                }
+                if (breadProject) {
+                    breadProject.innerText = truncateText(project.name || "...", 10);
+                    breadProject.href = `../project/project.html?id=${project.id}`;
+                }
+                await loadProjectMembersForDetail(Array.isArray(d.members) ? d.members : []);
+                return project;
+            } catch (e) {
+                console.error("Failed to load project header", e);
+                return null;
+            }
+        }
+
+        async function loadListHeader(pid, listId) {
+            if (!pid || !listId) return null;
+            try {
+                const ref = doc(db, "projects", pid, "lists", listId);
+                const snap = await getDoc(ref);
+                if (!snap.exists()) return null;
+                const d = snap.data();
+                const list = {
+                    id: snap.id,
+                    name: d.name || "",
+                    statuses: Array.isArray(d.statuses) ? d.statuses : []
+                };
+                if (breadList) {
+                    breadList.innerText = truncateText(list.name || "...", 10);
+                    breadList.href = `list-detail.html?listId=${list.id}&projectId=${pid}`;
+                }
+                return list;
+            } catch (e) {
+                console.error("Failed to load list header", e);
+                return null;
+            }
+        }
+
+        function updatePriorityUI(value) {
+            const labelEl = document.getElementById('task-priority-label');
+            const flagEl = document.getElementById('task-priority-flag');
+            if (!labelEl || !flagEl) return;
+
+            let text = "Set priority...";
+            let className = "priority-flag-normal";
+            const v = String(value || "").toLowerCase();
+
+            if (v === "urgent") {
+                text = "Urgent";
+                className = "priority-flag-urgent";
+            } else if (v === "high") {
+                text = "High";
+                className = "priority-flag-high";
+            } else if (v === "normal" || v === "") {
+                text = v ? "Normal" : "Set priority...";
+                className = "priority-flag-normal";
+            } else if (v === "low") {
+                text = "Low";
+                className = "priority-flag-low";
+            } else if (v) {
+                text = value;
+            }
+
+            labelEl.innerText = text;
+
+            flagEl.classList.remove(
+                "priority-flag-urgent",
+                "priority-flag-high",
+                "priority-flag-normal",
+                "priority-flag-low"
+            );
+            flagEl.classList.add("priority-flag", className);
+        }
+
+        function getAvailableStatusesForCurrentList() {
+            const defaults = [
+                { name: "Initiate" },
+                { name: "Complete" }
+            ];
+            if (!currentListHeader || !Array.isArray(currentListHeader.statuses) || !currentListHeader.statuses.length) {
+                return defaults;
+            }
+            const arr = currentListHeader.statuses.slice().filter(s => s && s.name);
+            if (!arr.length) return defaults;
+            arr.sort((a, b) => {
+                const pa = typeof a.position === "number" ? a.position : 0;
+                const pb = typeof b.position === "number" ? b.position : 0;
+                return pa - pb;
+            });
+            return arr;
+        }
+
+        function updateStatusUI(value) {
+            const labelEl = document.getElementById('task-status-label');
+            if (!labelEl) return;
+            const v = String(value || "").trim();
+            labelEl.innerText = v || "No status yet";
+        }
+
+        function renderUserIdsInto(container, ids, emptyText) {
+            if (!container) return;
+            const cleanIds = Array.isArray(ids) ? ids.filter(Boolean) : [];
+            if (!cleanIds.length) {
+                container.innerText = emptyText;
+                return;
+            }
+            container.innerText = "Loading...";
+            Promise.all(cleanIds.map(uid => loadUserBasic(uid))).then(users => {
+                if (!container) return;
+                const valid = users.filter(Boolean);
+                if (!valid.length) {
+                    container.innerText = emptyText;
+                    return;
+                }
+                container.innerHTML = valid.map(renderUserInline).join("");
+            }).catch(() => {
+                if (container) container.innerText = emptyText;
+            });
+        }
+
+        function getTagsValueDetail() {
+            const hidden = document.getElementById('tags-detail');
+            if (!hidden || !hidden.value) return [];
+            return hidden.value.split(",").map(t => t.trim()).filter(Boolean);
+        }
+
+        function setTagsValueDetail(tags) {
+            const hidden = document.getElementById('tags-detail');
+            if (!hidden) return;
+            const clean = Array.from(new Set(tags.map(t => t.trim()).filter(Boolean)));
+            hidden.value = clean.join(",");
+            updateSelectedTagUIDetail();
+            const optionsContainer = document.getElementById('tag-options-detail');
+            if (!optionsContainer) return;
+            Array.from(optionsContainer.children).forEach(opt => {
+                const tag = opt.dataset.tag;
+                if (!tag) return;
+                if (clean.includes(tag)) {
+                    opt.classList.add("tag-option-selected");
+                } else {
+                    opt.classList.remove("tag-option-selected");
+                }
+            });
+        }
+
+        function updateSelectedTagUIDetail() {
+            const selectedContainer = document.getElementById('tag-selected-detail');
+            if (!selectedContainer) return;
+            const tags = getTagsValueDetail();
+            selectedContainer.innerHTML = "";
+            if (tags.length === 0) {
+                const span = document.createElement("span");
+                span.className = "tag-placeholder";
+                span.innerText = "Search or add tags...";
+                selectedContainer.appendChild(span);
+                return;
+            }
+            tags.forEach(tag => {
+                const pill = document.createElement("span");
+                pill.className = "tag-pill";
+                pill.innerText = tag;
+                const remove = document.createElement("span");
+                remove.className = "tag-remove";
+                remove.innerText = "×";
+                remove.onclick = function (event) {
+                    event.stopPropagation();
+                    removeTagFromSelectionDetail(tag);
+                };
+                pill.appendChild(remove);
+                selectedContainer.appendChild(pill);
+            });
+        }
+
+        function renderTagOptionsDetail() {
+            const optionsContainer = document.getElementById('tag-options-detail');
+            if (!optionsContainer) return;
+            optionsContainer.innerHTML = "";
+            const tags = Array.isArray(detailTagOptions) ? detailTagOptions : [];
+            tags.forEach(tag => {
+                if (!tag) return;
+                const opt = document.createElement("div");
+                opt.className = "tag-option";
+                opt.dataset.tag = tag;
+                opt.onclick = function () {
+                    window.toggleTagFromOptionDetail(tag);
+                };
+                const pill = document.createElement("span");
+                pill.className = "tag-pill";
+                pill.innerText = tag;
+                opt.appendChild(pill);
+                optionsContainer.appendChild(opt);
+            });
+        }
+
+        function renderTaskFromPayload(task, list, project) {
+            if (!task) task = {};
+
+            if (taskTitleEl) {
+                taskTitleEl.innerText = task.title || "Untitled Task";
+            }
+            if (breadTask) {
+                breadTask.innerText = truncateText(task.title || "Task", 10);
+            }
+
+            if (project) {
+                if (badgeEl && project.department) {
+                    badgeEl.innerText = project.department;
+                }
+                if (breadProject) {
+                    breadProject.innerText = truncateText(project.name || "...", 10);
+                    if (project.id) breadProject.href = `../project/project.html?id=${project.id}`;
+                }
+            }
+
+            if (list && breadList) {
+                breadList.innerText = truncateText(list.name || "...", 10);
+                if (list.id && projectId) {
+                    breadList.href = `list-detail.html?listId=${list.id}&projectId=${projectId}`;
+                }
+            }
+
+            const isDone = ['done', 'true', 'completed', 'complete'].includes(String(task.status || '').toLowerCase());
+            if (isDone) {
+                checkbox.classList.add('checked');
+                checkIcon.classList.remove('d-none');
+            } else {
+                checkbox.classList.remove('checked');
+                checkIcon.classList.add('d-none');
+            }
+
+            if (metaCreatedByValue) {
+                const creatorUid = task.created_by || task.createdBy || "";
+                if (!creatorUid) {
+                    metaCreatedByValue.innerText = 'Unknown user';
+                } else {
+                    metaCreatedByValue.innerText = 'Loading...';
+                    loadUserBasic(creatorUid).then(user => {
+                        if (!metaCreatedByValue) return;
+                        if (user) {
+                            metaCreatedByValue.innerHTML = renderUserInline(user);
+                        } else {
+                            metaCreatedByValue.innerText = creatorUid;
+                        }
+                    });
+                }
+            }
+
+            if (metaPriority) {
+                const rawPriority = task.priority || "";
+                updatePriorityUI(rawPriority);
+            }
+            if (metaStatus) {
+                let statusText = task.status || "";
+                if (!statusText) {
+                    statusText = isDone ? 'Complete' : 'Initiate';
+                }
+                updateStatusUI(statusText);
+            }
+            if (metaAssignedTo) {
+                const rawAssign = task.assign_to || task.assignTo || [];
+                let ids = [];
+                if (Array.isArray(rawAssign)) {
+                    ids = rawAssign;
+                } else if (typeof rawAssign === "string" && rawAssign) {
+                    ids = [rawAssign];
+                }
+                renderUserIdsInto(metaAssignedTo, ids, 'Not assigned');
+            }
+            if (metaDueOn) {
+                const due = task.due_date || "";
+                if (due) {
+                    const parsed = new Date(due);
+                    metaDueOn.innerText = isNaN(parsed.getTime()) ? due : parsed.toLocaleDateString();
+                } else {
+                    metaDueOn.innerText = 'No due date';
+                }
+            }
+            if (metaNotify) {
+                const rawNotify = task.notify_to || task.notifyTo || [];
+                let idsN = [];
+                if (Array.isArray(rawNotify)) {
+                    idsN = rawNotify;
+                } else if (typeof rawNotify === "string" && rawNotify) {
+                    idsN = [rawNotify];
+                }
+                renderUserIdsInto(metaNotify, idsN, 'No one selected');
+            }
+            if (metaPoints) {
+                const pts = task.points;
+                if (typeof pts === 'number') {
+                    metaPoints.innerText = String(pts);
+                } else {
+                    metaPoints.innerText = 'No points';
+                }
+            }
+            if (metaTags) {
+                const tags = Array.isArray(task.tags) ? task.tags.filter(Boolean) : [];
+                const set = new Set(tags);
+                detailTagOptions = Array.from(set).sort((a, b) => a.localeCompare(b));
+                renderTagOptionsDetail();
+                setTagsValueDetail(tags);
+            }
+            if (metaNotes) {
+                const descHtml = task.description || "";
+                if (descHtml) {
+                    metaNotes.innerHTML = descHtml;
+                } else {
+                    metaNotes.innerText = 'No notes yet.';
+                }
+            }
+        }
+
+        function renderComments(comments) {
+            if (!commentsContainer) return;
+            commentsContainer.innerHTML = '';
+            if (!comments || comments.length === 0) return;
+
+            const byParent = {};
+            const roots = [];
+
+            comments.forEach(c => {
+                const parentId = c.parent_comment_id || c.parentCommentId || null;
+                if (parentId) {
+                    if (!byParent[parentId]) byParent[parentId] = [];
+                    byParent[parentId].push(c);
+                } else {
+                    roots.push(c);
+                }
+            });
+
+            function renderOne(c, isReply) {
+                const createdAt = normalizeTimestamp(c.created_at || c.createdAt);
+                const dateStr = createdAt ? createdAt.toLocaleString() : 'Just now';
+                const userName = c.user_name || c.userName || 'User';
+                const photo = c.user_photo || "";
+                const uid = c.user_id || c.userId || "";
+                const initialsSource = c.user_initials || userName || uid || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'U';
+                const avatar = photo
+                    ? `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0 overflow-hidden" style="width:32px; height:32px;">
+                           <img src="${photo}" alt="${userName}" style="width:100%; height:100%; object-fit:cover;">
+                       </div>`
+                    : `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width:32px; height:32px; font-size:0.7rem;">
+                           ${initials}
+                       </div>`;
+                const text = c.text || c.text_plain || '';
+                const canEdit = currentUser && (c.user_id === currentUser.uid || c.userId === currentUser.uid);
+                const actions = [];
+                if (currentUser) {
+                    actions.push(`<button type="button" class="btn btn-link btn-sm p-0 me-2" onclick="openTaskReplyModal('${c.id}')">Reply</button>`);
+                }
+                if (canEdit) {
+                    actions.push(`<button type="button" class="btn btn-link btn-sm p-0 me-2" onclick="openTaskEditModal('${c.id}')">Edit</button>`);
+                    actions.push(`<button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="openTaskDeleteModal('${c.id}')">Delete</button>`);
+                }
+                const actionsHtml = actions.length ? `<div class="mt-1 d-flex gap-2">${actions.join('')}</div>` : '';
+                const wrapperClass = isReply ? 'd-flex gap-3 ms-5' : 'd-flex gap-3';
+                const html = `
+                    <div class="${wrapperClass}">
+                        ${avatar}
+                        <div class="bg-white border rounded p-3 w-100 shadow-sm">
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong class="small text-dark">${userName}</strong>
+                                <small class="text-muted" style="font-size:0.7rem">${dateStr}</small>
+                            </div>
+                            <div class="text-dark small">${text}</div>
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+                commentsContainer.insertAdjacentHTML('beforeend', html);
+            }
+
+            roots.forEach(c => {
+                renderOne(c, false);
+                const replies = byParent[c.id] || [];
+                replies.forEach(r => {
+                    renderOne(r, true);
+                });
+            });
+        }
+
+        function listenComments() {
+            if (!taskId) return;
+            if (taskCommentsUnsubscribe) {
+                taskCommentsUnsubscribe();
+                taskCommentsUnsubscribe = null;
+            }
+            try {
+                const ref = collection(db, "tasks", taskId, "comments");
+                const q = query(ref, orderBy("created_at", "asc"));
+                taskCommentsUnsubscribe = onSnapshot(q, (snapshot) => {
+                    const comments = [];
+                    snapshot.forEach(docSnap => comments.push({ id: docSnap.id, ...docSnap.data() }));
+                    currentComments = comments;
+                    renderComments(comments);
+                }, (error) => {
+                    console.error("Failed to listen task comments", error);
+                });
+            } catch (e) {
+                console.error("Failed to start comments listener", e);
+            }
+        }
+
+        let pendingTaskCommentFiles = [];
+
+        window.triggerTaskCommentFileInput = () => {
+            const input = document.getElementById('task-comment-file-input');
+            if (input) input.click();
+        };
+
+        window.handleTaskCommentFiles = async function (inputEl) {
+            if (!inputEl) return;
+            const files = inputEl.files;
+            if (!files || !files.length) return;
+            pendingTaskCommentFiles = Array.from(files);
+            const preview = document.getElementById('taskCommentAttachmentPreview');
+            if (preview) {
+                preview.innerText = pendingTaskCommentFiles.map(f => f.name).join(', ');
+            }
+        };
+
+        window.openTaskEditModal = function (commentId) {
+            const comment = currentComments.find(c => c.id === commentId);
+            const input = document.getElementById('taskCommentEditText');
+            const idInput = document.getElementById('taskCommentEditId');
+            const modalEl = document.getElementById('taskCommentEditModal');
+            if (!comment || !input || !idInput || !modalEl || typeof bootstrap === 'undefined') return;
+            input.value = comment.text_plain || comment.text || "";
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+
+        window.confirmTaskCommentEdit = async function () {
+            const idInput = document.getElementById('taskCommentEditId');
+            const input = document.getElementById('taskCommentEditText');
+            const modalEl = document.getElementById('taskCommentEditModal');
+            if (!idInput || !input || !modalEl) return;
+            const commentId = idInput.value;
+            const newText = input.value || "";
+            const trimmed = newText.trim();
+            if (!trimmed) return;
+            const comment = currentComments.find(c => c.id === commentId);
+            if (!comment) return;
+            try {
+                const html = trimmed.replace(/\n/g, '<br>');
+                await updateDoc(doc(db, "tasks", taskId, "comments", commentId), {
+                    text: html,
+                    text_plain: trimmed
+                });
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to edit task comment", e);
+                alert("Gagal mengedit komentar: " + e.message);
+            }
+        };
+
+        window.openTaskReplyModal = function (commentId) {
+            const parentInput = document.getElementById('taskCommentReplyParentId');
+            const textInput = document.getElementById('taskCommentReplyText');
+            const targetBox = document.getElementById('taskCommentReplyTarget');
+            const modalEl = document.getElementById('taskCommentReplyModal');
+            if (!parentInput || !textInput || !modalEl || typeof bootstrap === 'undefined') return;
+            const comment = currentComments.find(c => c.id === commentId);
+            parentInput.value = commentId;
+            textInput.value = "";
+            if (targetBox && comment) {
+                const createdAt = normalizeTimestamp(comment.created_at || comment.createdAt);
+                const dateStr = createdAt ? createdAt.toLocaleString() : 'Just now';
+                const userName = comment.user_name || comment.userName || 'User';
+                const plain = comment.text_plain || (comment.text ? comment.text.replace(/<[^>]+>/g, '') : '');
+                const shortText = plain.length > 200 ? plain.substring(0, 200) + '…' : plain;
+                targetBox.innerHTML = `
+                    <div class="fw-semibold mb-1">${userName}</div>
+                    <div class="text-muted small mb-1">${dateStr}</div>
+                    <div class="small text-dark">${shortText}</div>
+                `;
+            } else if (targetBox) {
+                targetBox.innerHTML = "";
+            }
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+
+        window.confirmTaskCommentReply = async function () {
+            const parentInput = document.getElementById('taskCommentReplyParentId');
+            const textInput = document.getElementById('taskCommentReplyText');
+            const modalEl = document.getElementById('taskCommentReplyModal');
+            if (!parentInput || !textInput || !modalEl) return;
+            const parentId = parentInput.value;
+            const raw = textInput.value || "";
+            const trimmed = raw.trim();
+            if (!trimmed) return;
+
+            try {
+                const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                const userName = localData && localData.name ? localData.name : (currentUser ? currentUser.email : 'User');
+                const uid = currentUser ? currentUser.uid : (localData && (localData.uid || localData.id) ? (localData.uid || localData.id) : '');
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'US';
+                const html = trimmed.replace(/\n/g, '<br>');
+
+                await addDoc(collection(db, "tasks", taskId, "comments"), {
+                    text: html,
+                    text_plain: trimmed,
+                    attachments: [],
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    created_at: serverTimestamp(),
+                    parent_comment_id: parentId || null
+                });
+
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to reply task comment", e);
+                alert("Gagal mengirim balasan: " + e.message);
+            }
+        };
+
+        window.openTaskDeleteModal = function (commentId) {
+            const idInput = document.getElementById('taskCommentDeleteId');
+            const modalEl = document.getElementById('taskCommentDeleteModal');
+            if (!idInput || !modalEl || typeof bootstrap === 'undefined') return;
+            idInput.value = commentId;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        };
+
+        window.confirmTaskCommentDelete = async function () {
+            const idInput = document.getElementById('taskCommentDeleteId');
+            const modalEl = document.getElementById('taskCommentDeleteModal');
+            if (!idInput || !modalEl) return;
+            const commentId = idInput.value;
+            if (!commentId) return;
+            try {
+                await deleteDoc(doc(db, "tasks", taskId, "comments", commentId));
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (e) {
+                console.error("Failed to delete task comment", e);
+                alert("Gagal menghapus komentar: " + e.message);
+            }
+        };
+
+        window.postTaskComment = async function () {
+            const input = document.getElementById('taskCommentInput');
+            if (!input) return;
+            const plainText = input.innerText.replace(/\u200B/g, '').trim();
+            const htmlText = input.innerHTML.trim();
+            if (!plainText) return;
+
+            const btn = event && event.target ? event.target : null;
+            let originalText = '';
+            if (btn) {
+                originalText = btn.innerText;
+                btn.innerText = 'Posting...';
+                btn.disabled = true;
+            }
+
+            try {
+                const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                const userName = localData && localData.name ? localData.name : (currentUser ? currentUser.email : 'User');
+                const uid = currentUser ? currentUser.uid : (localData && (localData.uid || localData.id) ? (localData.uid || localData.id) : '');
+                const rawPhoto = localData && localData.photo ? localData.photo : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+                const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+                const initialsSource = userName || uid || '';
+                const initials = initialsSource
+                    ? initialsSource.trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase()
+                    : 'US';
+                const attachments = [];
+                if (pendingTaskCommentFiles && pendingTaskCommentFiles.length > 0) {
+                    for (const file of pendingTaskCommentFiles) {
+                        try {
+                            const path = `comments/${projectId || 'no-project'}/${taskId}/${Date.now()}_${file.name}`;
+                            const ref = storageRef(storage, path);
+                            await uploadBytes(ref, file);
+                            const url = await getDownloadURL(ref);
+                            attachments.push({ name: file.name, url });
+                        } catch (e) {
+                            console.error("Failed to upload task comment attachment", e);
+                        }
+                    }
+                }
+
+                await addDoc(collection(db, "tasks", taskId, "comments"), {
+                    text: htmlText,
+                    text_plain: plainText,
+                    attachments: attachments,
+                    user_id: uid,
+                    user_name: userName,
+                    user_initials: initials,
+                    user_photo: photoUrl,
+                    created_at: serverTimestamp(),
+                    parent_comment_id: null
+                });
+
+                input.innerHTML = '';
+                pendingTaskCommentFiles = [];
+                const preview = document.getElementById('taskCommentAttachmentPreview');
+                if (preview) preview.innerText = "";
+            } catch (e) {
+                console.error("Failed to post task comment", e);
+                alert("Gagal mengirim komentar: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.innerText = originalText || 'Comment';
+                    btn.disabled = false;
+                }
+            }
+        };
+
+        window.toggleTaskStatus = async function () {
+            const nowChecked = !checkbox.classList.contains('checked');
+            if (nowChecked) {
+                checkbox.classList.add('checked');
+                checkIcon.classList.remove('d-none');
+            } else {
+                checkbox.classList.remove('checked');
+                checkIcon.classList.add('d-none');
+            }
+            if (!taskId) return;
+            const newStatus = nowChecked ? 'Complete' : 'Initiate';
+            try {
+                await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
+            } catch (e) {
+                console.error("Failed to update task status", e);
+            }
+        };
+
+        window.toggleSidebar = function () {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Ambil data dari localStorage
+            const data = localStorage.getItem('userData');
+            
+            if (!data) {
+                // Jika tidak ada data login, tendang balik ke login page
+                window.location.href = "index.html";
+                return;
+            }
+
+            const user = JSON.parse(data);
+
+            // 2. Fungsi untuk konversi link Google Drive ke Direct Image Link
+            function getDirectLink(url) {
+                if (!url) return "https://i.pravatar.cc/300";
+                if (url.includes('drive.google.com')) {
+                    let id = "";
+                    if (url.includes('id=')) {
+                        id = url.split('id=')[1].split('&')[0];
+                    } else {
+                        id = url.split('/d/')[1].split('/')[0];
+                    }
+                    return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+                }
+                return url;
+            }
+
+            // 3. Update Tampilan Navbar
+            document.getElementById('user-name-display').innerText = user.name;
+            document.getElementById('user-photo-display').src = getDirectLink(user.photo);
+            // Posisi bisa disesuaikan jika ada di spreadsheet
+            document.getElementById('user-role-display').innerText = "Dialogika Member";
+            
+            // Update juga pesan selamat datang jika perlu
+            const welcomeMsg = document.querySelector('h4.fw-bold');
+            if(welcomeMsg) welcomeMsg.innerText = `Good Morning, ${user.name.split(' ')[0]}!`;
+        });
+
+        // Fungsi Logout
+        function logout() {
+             localStorage.removeItem('userData');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

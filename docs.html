@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp">
+    <title>Dokumentasi Kode Dialogika Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Poppins:wght@600&display=swap');
+
+        :root {
+            --bg-dark: #1e1e1e;
+            --code-bg: #f5f5f5;
+            --border-color: #ddd;
+            --header-bg: #0B2B6A;
+            --text-main: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: white;
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            -webkit-print-color-adjust: exact; /* Pastikan warna background tercetak */
+            print-color-adjust: exact;
+        }
+
+        h1 { text-align: center; color: var(--header-bg); margin-bottom: 30px; border-bottom: 2px solid var(--header-bg); padding-bottom: 10px; }
+        
+        /* Layout Grid */
+        .doc-section {
+            page-break-inside: avoid; /* Mencegah potongan halaman di tengah section */
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--header-bg);
+            color: white;
+            padding: 10px 20px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .code-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Kiri HTML, Kanan CSS */
+        }
+
+        .col-header {
+            background: #eee;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+
+        .code-block {
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; /* Ukuran font kecil agar muat di PDF */
+            line-height: 1.4;
+            white-space: pre-wrap;
+            background: #fafafa;
+            border-right: 1px solid #ddd;
+            color: #24292e;
+        }
+
+        .code-block.css-col { background: #fffbeb; color: #b45309; } /* Sedikit kuning untuk pembeda CSS */
+        
+        /* Syntax highlighting simulation */
+        .tag { color: #22863a; font-weight: bold; }
+        .attr { color: #6f42c1; }
+        .val { color: #032f62; }
+        .sel { color: #d73a49; font-weight: bold; }
+        .prop { color: #005cc5; }
+        
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <h1>Dokumentasi Kode: Dialogika Dashboard</h1>
+
+    <!-- 1. GLOBAL & LAYOUT -->
+    <div class="doc-section">
+        <div class="section-header">1. Global Setup & Main Layout</div>
+        <div class="code-grid">
+            <!-- HTML -->
+            <div>
+                <div class="col-header">HTML Structure</div>
+                <pre class="code-block">&lt;body&gt;
+  &lt;div class="dashboard-container"&gt;
+     &lt;!-- Content goes here --&gt;
+  &lt;/div&gt;
+&lt;/body&gt;</pre>
+            </div>
+            <!-- CSS -->
+            <div>
+                <div class="col-header">CSS Styling</div>
+                <pre class="code-block css-col">:root {
+    --dlg-blue: #0B2B6A;
+    --bg-body: #F8FAFC;
+    --sidebar-width: 290px;
+    --topbar-height: 70px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-body);
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    padding-top: var(--topbar-height);
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    flex-grow: 1;
+    padding: 30px;
+    width: calc(100% - var(--sidebar-width));
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. TOP BAR -->
+    <div class="doc-section">
+        <div class="section-header">2. Header / Top Bar</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;nav class="top-bar"&gt;
+    &lt;!-- Mobile Toggle --&gt;
+    &lt;button class="mobile-toggle" onclick="..."&gt;
+        &lt;i class="bi bi-list"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+
+    &lt;!-- Logo --&gt;
+    &lt;div class="logo-center"&gt;
+        &lt;img src="logo.webp" ...&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Profile --&gt;
+    &lt;div class="profile-img-container"&gt;
+        &lt;img src="..." class="profile-img"&gt;
+    &lt;/div&gt;
+&lt;/nav&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--topbar-height);
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 1001;
+}
+
+.logo-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.profile-img-container {
+    width: 40px; height: 40px; 
+    border-radius: 50%;
+    overflow: hidden; 
+    border: 1px solid #e5e7eb;
+}
+.profile-img { 
+    width: 100%; height: 100%; 
+    object-fit: cover; 
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SIDEBAR & SMART FILTERS -->
+    <div class="doc-section">
+        <div class="section-header">3. Sidebar & Smart Filters</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;aside class="sidebar" id="sidebarNav"&gt;
+  &lt;!-- Smart Filters Grid --&gt;
+  &lt;div class="smart-filters-grid"&gt;
+    &lt;a href="#" class="filter-card"&gt;
+       &lt;div class="filter-icon bg-icon-dark"&gt;
+          &lt;i class="bi bi-archive"&gt;&lt;/i&gt;
+       &lt;/div&gt;
+       &lt;div class="filter-count"&gt;429&lt;/div&gt;
+    &lt;/a&gt;
+    &lt;!-- ... other cards --&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Links --&gt;
+  &lt;a href="#" class="sidebar-link active"&gt;
+     &lt;i class="bi bi-columns-gap"&gt;&lt;/i&gt; Dashboard
+  &lt;/a&gt;
+&lt;/aside&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.sidebar {
+    width: var(--sidebar-width);
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    position: fixed; top: var(--topbar-height);
+    bottom: 0; left: 0; z-index: 1000;
+    padding: 20px 15px;
+    overflow-y: auto;
+}
+
+/* Smart Filters Grid */
+.smart-filters-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 25px;
+}
+.filter-card {
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column;
+}
+
+/* Links */
+.sidebar-link {
+    display: flex; align-items: center; 
+    padding: 10px 15px; color: #4b5563;
+    border-radius: 10px; margin-bottom: 2px;
+}
+.sidebar-link.active { 
+    background-color: #eff6ff; 
+    color: var(--dlg-blue); 
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. WHO IS ONLINE -->
+    <div class="doc-section">
+        <div class="section-header">4. Widget: Who Is Online</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;!-- Container for avatars --&gt;
+&lt;div class="online-scroll-container"&gt;
+    &lt;!-- Generated by JS --&gt;
+    &lt;div class="avatar-wrapper"&gt;
+        &lt;div class="avatar-ring"&gt;&lt;/div&gt;
+        &lt;div class="avatar-mask"&gt;
+            &lt;img src="..."&gt;
+        &lt;/div&gt;
+        &lt;div class="online-status-dot"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.online-scroll-container {
+    display: flex; overflow-x: auto; 
+    gap: 15px; padding: 10px 5px;
+    scrollbar-width: none;
+}
+
+.avatar-wrapper {
+    position: relative; width: 65px; height: 65px;
+    flex-shrink: 0; display: flex; 
+    align-items: center; justify-content: center;
+}
+
+.avatar-ring {
+    position: absolute; width: 100%; height: 100%;
+    border-radius: 50%; z-index: 1;
+    /* Gradient set by JS */
+}
+
+.avatar-mask {
+    position: absolute; width: 59px; height: 59px;
+    background: var(--bg-body);
+    border-radius: 50%; z-index: 2;
+    display: flex; align-items: center;
+    justify-content: center;
+}
+
+.online-status-dot {
+    width: 12px; height: 12px; background: #22c55e;
+    border: 2px solid white; border-radius: 50%;
+    position: absolute; bottom: 2px; right: 2px;
+    z-index: 4;
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. OPPORTUNITY CARD -->
+    <div class="doc-section">
+        <div class="section-header">5. Opportunity Card</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;div class="opportunity-card"&gt;
+    &lt;div class="opp-icon-box"&gt;
+        &lt;i class="bi bi-stars"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;div class="flex-grow-1"&gt;
+        &lt;h6&gt;New Opportunity!&lt;/h6&gt;
+        &lt;p&gt;Webinar collaboration...&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;button class="btn-dlg-blue"&gt;Details&lt;/button&gt;
+&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.opportunity-card {
+    background: white; border: 1px solid #f1f5f9;
+    border-left: 5px solid var(--dlg-yellow-end);
+    border-radius: 12px; padding: 1.2rem;
+    box-shadow: 0 4px 10px rgba(114, 4, 207, 0.03);
+    display: flex; align-items: center;
+}
+
+.opp-icon-box {
+    background: linear-gradient(135deg, #fffbeb, #fff);
+    border: 1px solid var(--dlg-yellow);
+    color: var(--dlg-yellow-end);
+    width: 55px; height: 55px; 
+    border-radius: 16px; margin-right: 1rem;
+    display: flex; align-items: center; 
+    justify-content: center;
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. PROJECTS -->
+    <div class="doc-section">
+        <div class="section-header">6. Projects Grid</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;div class="project-card priority"&gt;
+    &lt;div&gt;
+        &lt;span class="badge"&gt;Urgent&lt;/span&gt;
+        &lt;h3&gt;Web Redesign&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;!-- Progress Bar --&gt;
+    &lt;div class="progress"&gt;
+        &lt;div class="progress-bar"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.project-card {
+    background: white; border-radius: 16px;
+    padding: 1.5rem; height: 100%;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s;
+}
+.project-card:hover { 
+    transform: translateY(-5px); 
+}
+
+/* Priority Variant */
+.project-card.priority {
+    background: linear-gradient(135deg, 
+        var(--dlg-blue), var(--dlg-blue-end));
+    color: white; border: none;
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. APPS GRID -->
+    <div class="doc-section">
+        <div class="section-header">7. Apps Grid</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;div class="col"&gt;
+  &lt;a href="#" class="app-box"&gt;
+    &lt;div class="app-icon-wrapper grad-blue"&gt;
+       &lt;i class="bi bi-chat"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;div class="app-title"&gt;Discuss&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.app-box {
+    background: white; border-radius: 12px;
+    padding: 1rem 0.5rem; text-align: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    min-height: 110px; transition: 0.2s;
+}
+.app-box:hover {
+    transform: translateY(-3px);
+}
+
+.app-icon-wrapper {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center;
+    justify-content: center; color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.app-title { font-size: 0.8rem; font-weight: 600; }</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. MOBILE NAV & ELEMENTS -->
+    <div class="doc-section">
+        <div class="section-header">8. Mobile Navigation & Sheet</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;div class="bottom-nav"&gt;
+  &lt;a href="#" class="nav-item-mobile active"&gt;
+     &lt;i class="bi bi-house"&gt;&lt;/i&gt;
+  &lt;/a&gt;
+  
+  &lt;button class="nav-btn-plus" ...&gt;
+     &lt;i class="bi bi-plus-lg"&gt;&lt;/i&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Offcanvas Sheet --&gt;
+&lt;div class="custom-bottom-sheet" ...&gt;
+   &lt;!-- Options --&gt;
+&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">.bottom-nav {
+    position: fixed; bottom: 0; left: 0;
+    width: 100%; height: 70px;
+    background: white;
+    display: flex; justify-content: space-around;
+    align-items: center; z-index: 1000;
+}
+
+.nav-item-mobile {
+    color: #94a3b8; width: 50px;
+    display: flex; flex-direction: column;
+    align-items: center;
+}
+.nav-item-mobile.active { color: var(--dlg-blue-end); }
+
+.nav-btn-plus {
+    width: 55px; height: 55px;
+    background: linear-gradient(135deg, 
+       var(--dlg-yellow-start), var(--dlg-yellow-end));
+    color: white; border-radius: 50%;
+    margin-bottom: 30px; border: none;
+    box-shadow: 0 5px 15px rgba(247, 177, 44, 0.4);
+}
+
+.custom-bottom-sheet { 
+    border-radius: 25px 25px 0 0; 
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. ELEMENTS KECIL (Button, Tags, Utilities) -->
+    <div class="doc-section">
+        <div class="section-header">9. Elemen Kecil & UI Kit</div>
+        <div class="code-grid">
+            <div>
+                <div class="col-header">HTML</div>
+                <pre class="code-block">&lt;!-- Gradient Buttons --&gt;
+&lt;button class="btn-dlg-blue"&gt;Blue Action&lt;/button&gt;
+&lt;button class="btn-dlg-yellow"&gt;Yellow Action&lt;/button&gt;
+
+&lt;!-- Tags / Pills --&gt;
+&lt;a href="#" class="tag-pill tag-blue"&gt;#Tag&lt;/a&gt;
+&lt;a href="#" class="tag-pill tag-red"&gt;#Urgent&lt;/a&gt;
+
+&lt;!-- Gradients --&gt;
+&lt;div class="grad-blue"&gt;&lt;/div&gt;
+&lt;div class="grad-yellow"&gt;&lt;/div&gt;</pre>
+            </div>
+            <div>
+                <div class="col-header">CSS</div>
+                <pre class="code-block css-col">/* Buttons */
+.btn-dlg-blue {
+    background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+    box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+    color: #fff; border: none;
+}
+.btn-dlg-yellow {
+    background: linear-gradient(to top, #f1ac15 22%, #fcf221 100%);
+    box-shadow: 0 4px 10px rgba(241, 172, 21, 0.4);
+    color: black; border: none;
+}
+
+/* Tag Pills */
+.tag-pill {
+    display: inline-block; padding: 0.4rem 1rem;
+    border-radius: 50px; font-size: 0.8rem;
+    font-weight: 500; margin-right: 8px;
+    border: 1px solid transparent;
+}
+.tag-blue { 
+    background: #e0f2fe; color: var(--dlg-blue-end); 
+    border-color: #bae6fd; 
+}
+.tag-red { 
+    background: #fef2f2; color: var(--dlg-red-end); 
+    border-color: #fecaca; 
+}
+
+/* Gradient Utilities */
+.grad-blue { background: linear-gradient(135deg, var(--dlg-blue), var(--dlg-blue-end)); }
+.grad-yellow { background: linear-gradient(135deg, var(--dlg-yellow), var(--dlg-yellow-end)); }</pre>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

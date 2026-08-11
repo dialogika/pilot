@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .text-muted-custom { color: #636e72; font-size: 0.85rem; }
+        .stat-number { font-size: 1.8rem; font-weight: 700; color: #2d3436; }
+        .btn-weekly {
+            background-color: #fff; border: 1px solid #e0e0e0; padding: 10px 20px;
+            border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px;
+        }
+        .btn-filter-action {
+            padding: 10px 18px; border-radius: 12px; font-weight: 500;
+            border: 1px solid #e0e0e0; background-color: #fff; font-size: 0.9rem;
+        }
+        .btn-filter-action.active { background-color: #0B2B6A; color: #fff; border-color: #0B2B6A; }
+        .btn-filter-action:hover:not(.active) { background-color: #f0f0f0; }
+        .recruitment-step-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #f1f1f1;
+        }
+        .recruitment-step-item:last-child { border-bottom: none; }
+        .progress { height: 8px; border-radius: 10px; background-color: #eee; }
+        .candidate-photo {
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #stepScreeningAvatars .candidate-photo,
+        #stepInterviewAvatars .candidate-photo,
+        #stepDecisionAvatars .candidate-photo,
+        #stepAcceptedAvatars .candidate-photo,
+        #stepRejectedAvatars .candidate-photo { width: 26px; height: 26px; border-width: 1px; }
+        .interview-list-item {
+            padding: 15px; border-radius: 12px; background-color: #f9f9f9; margin-bottom: 10px;
+        }
+        .important-note-box {
+            background: linear-gradient(135deg, #0B2B6A, #1c84e3); color: #f9fafb;
+            padding: 24px 28px; border-radius: 18px; box-shadow: 0 18px 35px rgba(15, 23, 42, 0.25);
+        }
+        .important-note-title { font-size: 1.1rem; }
+        .important-note-text { font-size: 0.95rem; line-height: 1.8; opacity: 0.95; }
+        .important-note-box .btn-edit-notes { background-color: #f9fafb; color: #111827; border: none; }
+        .important-note-box .btn-edit-notes:hover { background-color: #e5e7eb; color: #111827; }
+        .card { border: none; border-radius: 18px; }
+        .stats-clickable { cursor: pointer; }
+        .stats-clickable:focus-visible { outline: 3px solid rgba(13, 110, 253, 0.35); outline-offset: 2px; }
+        .stats-modal-photo {
+            width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .sticky-menu-trigger {
+            position: fixed; right: 30px; top: 30%; z-index: 1000; cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%); color: #ffffff;
+            width: 60px; height: 60px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sticky-menu-trigger:hover { transform: scale(1.05) rotate(90deg); }
+        .menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
+            z-index: 999; opacity: 0; visibility: hidden; transition: all 0.4s ease;
+        }
+        .menu-overlay.active { opacity: 1; visibility: visible; }
+        .menu-container {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -60%) scale(0.9); z-index: 1001;
+            width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
+            padding: 32px; border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0; visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .menu-container.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        .menu-header { text-align: center; margin-bottom: 24px; }
+        .menu-header h2 { font-size: 1.4rem; font-weight: 600; color: #334155; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+        .menu-item {
+            background: #ffffff; padding: 24px 16px; border-radius: 16px; text-align: center;
+            text-decoration: none; color: #1f2933; transition: all 0.3s ease;
+            border: 1px solid #e2e8f0; display: flex; flex-direction: column;
+            align-items: center; gap: 12px;
+        }
+        .menu-item:hover {
+            background: #0B2B6A; color: #ffffff; transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35); border-color: #0B2B6A;
+        }
+        .menu-item i { width: 40px; height: 40px; stroke-width: 1.5; }
+        .menu-item span { font-weight: 600; font-size: 0.95rem; }
+        .close-btn { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #64748b; transition: color 0.3s; }
+        .close-btn:hover { color: #ef4444; }
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: repeat(2, 1fr); }
+            .menu-item { padding: 20px 10px; }
+        }
+        .interview-tabs {
+            border-bottom: 2px solid #f1f1f1; margin-bottom: 1rem; display: flex;
+            flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto;
+            scrollbar-width: none; scroll-behavior: smooth;
+        }
+        .interview-tabs::-webkit-scrollbar { display: none; }
+        .interview-tab {
+            padding: 0.5rem 1rem; cursor: pointer; border: none; background: transparent;
+            color: #636e72; font-weight: 500; font-size: 0.9rem;
+            border-bottom: 2px solid transparent; margin-bottom: -2px;
+            transition: all 0.3s ease; white-space: nowrap; flex-shrink: 0;
+        }
+        .interview-tab:hover { color: #0B2B6A; }
+        .interview-tab.active { color: #0B2B6A; border-bottom-color: #0B2B6A; font-weight: 600; }
+        .interview-photo-wrapper { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
+        .interview-actions {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; justify-content: center; gap: 0.25rem;
+            background: white; border-radius: 8px; padding: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            opacity: 0; visibility: hidden; transition: all 0.2s ease;
+            margin-bottom: 0.25rem; z-index: 10;
+        }
+        .interview-list-item:first-child .interview-actions {
+            bottom: auto; top: 100%; margin-bottom: 0; margin-top: 0.25rem;
+        }
+        .interview-photo-wrapper:hover .interview-actions { opacity: 1; visibility: visible; }
+        .interview-action-btn {
+            width: 24px; height: 24px; border-radius: 6px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; transition: all 0.2s ease; padding: 0;
+        }
+        .interview-action-btn.check-btn { background-color: #22c55e; color: white; }
+        .interview-action-btn.check-btn:hover { background-color: #16a34a; transform: scale(1.1); }
+        .interview-action-btn.cross-btn { background-color: #ef4444; color: white; }
+        .interview-action-btn.cross-btn:hover { background-color: #dc2626; transform: scale(1.1); }
+        .hover-shadow:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+            transform: translateY(-1px); transition: all 0.2s ease;
+        }
+        .interview-scroll-wrapper {
+            max-height: 220px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;
+        }
+        .interview-scroll-wrapper::-webkit-scrollbar { width: 4px; display: block; }
+        .interview-scroll-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .interview-scroll-wrapper::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .interview-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .interview-list-item.completed { opacity: 0.6; background-color: #f0fdf4; border-left: 3px solid #22c55e; }
+        .interview-list-item.cancelled { opacity: 0.6; background-color: #fef2f2; border-left: 3px solid #ef4444; }
+        .interview-status-badge {
+            font-size: 0.7rem; padding: 2px 8px; border-radius: 12px;
+            font-weight: 600; margin-left: 0.5rem;
+        }
+        .interview-status-badge.completed { background-color: #dcfce7; color: #166534; }
+        .interview-status-badge.cancelled { background-color: #fee2e2; color: #b91c1c; }
+        .section-switcher, .interview-tabs {
+            display: flex; gap: 8px; overflow-x: auto; padding: 4px;
+            border-radius: 12px; background: #eef2f7;
+        }
+        .section-tab, .interview-tab {
+            border: 0; background: transparent; color: #64748b; font-weight: 700;
+            font-size: 0.82rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap;
+        }
+        .section-tab.active, .interview-tab.active {
+            background: #ffffff; color: #0b2b6a;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+        .metric-card-label { min-height: 34px; }
+        .dashboard-grid-2 {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+            gap: 24px;
+        }
+        @media (max-width: 991px) {
+            .dashboard-grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+
+<body class="p-8">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content">
+            <div class="container-fluid">
+                <section class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <h2 class="fw-bold mb-0" id="greetingText">Good Morning,</h2>
+                        <p class="text-muted-custom mb-0" id="dateText">Today is Monday, 09 January 2026</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="text" id="calendarPicker" class="d-none">
+                        <button class="btn btn-weekly" onclick="document.getElementById('calendarPicker')._flatpickr.open()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span class="calendar-text">Monthly Range</span>
+                        </button>
+                        <button class="btn btn-filter-action" id="btnAllTime">All Time</button>
+                        <button class="btn btn-filter-action btn-outline-secondary" id="btnResetFilter">Reset</button>
+                    </div>
+                </section>
+
+                <section class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card h-100 important-note-box border-0 d-flex flex-column">
+                            <div class="mb-3">
+                                <h5 class="fw-bold mb-2 important-note-title">Important Notes</h5>
+                                <hr />
+                                <p class="important-note-text mb-0" id="recruitmentImportantNotesText">
+                                    Perhatikan per bulan ini kita lebih fokus dengan pencarian role IT Senior dan
+                                    Product Manager. Pastikan screening CV tidak lebih dari 2 hari kerja untuk menjaga
+                                    candidate experience.
+                                </p>
+                            </div>
+                            <div class="mt-auto pt-2">
+                                <button class="btn btn-edit-notes btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2" id="editRecruitmentNotesBtn">
+                                    <i class="fas fa-pen"></i> Edit Notes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                    <div>
+                        <h5 class="fw-bold mb-1" id="activeSectionTitle">Team Recruitment</h5>
+                        <p class="text-muted-custom mb-0">Statistik, interview, kandidat, dan kontrak mengikuti section aktif.</p>
+                    </div>
+                    <div class="section-switcher" id="sectionSwitcher">
+                        <button class="section-tab active" data-section="team">Team</button>
+                        <button class="section-tab" data-section="mentor">Mentor</button>
+                        <button class="section-tab" data-section="internship">Internship</button>
+                    </div>
+                </section>
+
+                <section class="row g-4 mb-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="headCountCard" tabindex="0">
+                            <span class="text-muted-custom metric-card-label">Head Count</span>
+                            <div class="stat-number mt-2">
+                                <span id="currentHeadCount">0</span>
+                                <span id="maxHeadCount" style="font-size: 1rem; color: #b2bec3;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="applicantsCard" tabindex="0">
+                            <span class="text-muted-custom metric-card-label">Applicants</span>
+                            <div class="stat-number mt-2" id="applicantsCount">0</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="onLeaveCard" tabindex="0">
+                            <span class="text-muted-custom metric-card-label">Kontrak Akan Berakhir</span>
+                            <div class="stat-number mt-2 text-warning" id="onLeaveCount">0</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="card p-3 h-100 border-0 shadow-sm stats-clickable" id="offboardingCard" tabindex="0">
+                            <span class="text-muted-custom metric-card-label">Off Boarding</span>
+                            <div class="stat-number mt-2 text-danger" id="offboardingCount">0</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dashboard-grid-2 mb-4">
+                    <div class="card p-4 h-100 shadow-sm">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+                            <h5 class="fw-bold mb-0">Upcoming Interview</h5>
+                            <div class="interview-tabs" id="interviewTabs">
+                                <button class="interview-tab active" data-role="all">Semua</button>
+                                <button class="interview-tab" data-role="team">Team</button>
+                                <button class="interview-tab" data-role="mentor">Mentor</button>
+                                <button class="interview-tab" data-role="internship">Internship</button>
+                            </div>
+                        </div>
+                        <div id="upcomingInterviewList"></div>
+                    </div>
+                    <div class="card p-4 h-100 shadow-sm">
+                        <h5 class="fw-bold mb-2">Platform Job Posting (Internship only)</h5>
+                        <div class="text-muted-custom mb-4">Total Candidate: <span class="text-dark fw-bold" id="platformTotalCandidate">0</span></div>
+                        <div id="platformJobpostingList"></div>
+                    </div>
+                </section>
+
+                <section class="mb-5">
+                    <div class="card p-4 shadow-sm border-danger border-opacity-25" style="background-color: #fff5f5;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0 text-danger">Overdue Interview</h5>
+                            <span class="badge bg-danger rounded-pill" id="overdueCountBadge">0</span>
+                        </div>
+                        <div class="d-flex flex-column gap-2 overflow-auto" style="max-height: 320px;" id="overdueInterviewList"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="statsDetailsModal" tabindex="-1" aria-labelledby="statsDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statsDetailsModalLabel">Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="text-muted small" id="statsDetailsModalSubtitle"></div>
+                        <div class="text-muted small" id="statsDetailsModalCount"></div>
+                    </div>
+                    <div id="statsDetailsModalBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recruitmentNotesModal" tabindex="-1" aria-labelledby="recruitmentNotesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recruitmentNotesModalLabel">Important Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><textarea class="form-control" id="recruitmentNotesInput" rows="8" placeholder="Tulis notes..."></textarea></div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="saveRecruitmentNotesBtn">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore, getDocs, collection, query, where, doc,
+            getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        const recruitmentNotesRef = doc(db, "recruitment_dashboard_notes", "default");
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+        renderRightbarRecruit();
+
+        window.app = app; window.auth = auth; window.db = db;
+        window.collection = collection; window.getDocs = getDocs;
+        window.query = query; window.where = where;
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            if (window.innerWidth <= 991) sidebar.classList.toggle('show');
+            else document.body.classList.toggle('sidebar-collapsed');
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = "../index.html"; return; }
+            currentUser = user;
+            loadRecruitmentNotes();
+            refreshDashboard(rangeStart, rangeEnd);
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            let greeting = "";
+            if (hours < 12) greeting = "Good Morning";
+            else if (hours < 18) greeting = "Good Afternoon";
+            else greeting = "Good Evening";
+            const greetingEl = document.getElementById('greetingText');
+            const dateEl = document.getElementById('dateText');
+            if (greetingEl) greetingEl.innerText = greeting + ",";
+            if (dateEl) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                dateEl.innerText = "Today is " + now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        /* ── date / range helpers ── */
+
+        function normalizeInternshipDate(value) {
+            if (!value) return "";
+            let dateObj = null;
+            if (typeof value.toDate === "function") { dateObj = value.toDate(); }
+            else if (value instanceof Date) { dateObj = value; }
+            else if (typeof value === "string" || typeof value === "number") {
+                let tmp = null;
+                if (typeof value === "string") {
+                    const m = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                    tmp = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(value);
+                } else { tmp = new Date(value); }
+                if (!isNaN(tmp.getTime())) dateObj = tmp;
+            }
+            if (!dateObj || isNaN(dateObj.getTime())) return "";
+            return dateObj;
+        }
+
+        function normalizeRangeDates(startDate, endDate) {
+            if (!startDate || !endDate) return { s: null, e: null };
+            const s = new Date(startDate); const e = new Date(endDate);
+            if (isNaN(s.getTime()) || isNaN(e.getTime())) return { s: null, e: null };
+            s.setHours(0, 0, 0, 0); e.setHours(23, 59, 59, 999);
+            return { s, e };
+        }
+
+        function isDateInRange(dateObj, s, e) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return false;
+            if (!(s instanceof Date) || !(e instanceof Date)) return false;
+            return dateObj >= s && dateObj <= e;
+        }
+
+        function getUserInternshipDates(data) {
+            const employment = (data && data.employment) || {};
+            const startDateRaw = data.internshipStartDate || (data.internship && data.internship.startDate) || employment.startDate || employment.start_date || null;
+            const endDateRaw = data.endDate || data.internshipEndDate || (data.internship && data.internship.endDate) || employment.endDate || employment.end_date || null;
+            return { startDateObj: normalizeInternshipDate(startDateRaw), endDateObj: normalizeInternshipDate(endDateRaw) };
+        }
+
+        function isUserActiveInRange(startDateObj, endDateObj, s, e) {
+            if (!(s instanceof Date) || !(e instanceof Date)) return true;
+            const hasStart = startDateObj instanceof Date && !isNaN(startDateObj.getTime());
+            const hasEnd = endDateObj instanceof Date && !isNaN(endDateObj.getTime());
+            if (!hasStart && !hasEnd) return true;
+            if (hasStart && startDateObj > e) return false;
+            if (hasEnd && endDateObj < s) return false;
+            return true;
+        }
+
+        function getTalentCreatedAtDate(data) {
+            const raw = (data && (data.created_at || data.createdAt || data.created)) ?? null;
+            return normalizeInternshipDate(raw);
+        }
+
+        function normalizeCompact(value) { return (value || "").toString().trim().toLowerCase().replace(/\s/g, ""); }
+
+        function getTalentRolePair(data) {
+            const scouting = (data && data.scouting_info) || {};
+            const internship = (data && (data.internship || data.internship_info)) || {};
+            const basic = (data && data.basic_info) || {};
+            const roleIdRaw = data.role_id || data.roleId || scouting.role_id || internship.role_id || "";
+            const roleNameRaw = data.role_name || data.role || basic.current_role || scouting.role_name || "";
+            return { roleId: normalizeCompact(roleIdRaw), roleName: normalizeCompact(roleNameRaw) };
+        }
+
+        function getUserDisplay(data, id) {
+            const employment = (data && data.employment) || {};
+            const name = data.name || data.fullName || data.username || data.email || "";
+            const role = data.role || "-";
+            let position = data.position_name || data.positionName || employment.position_name || employment.positionName || employment.position || data.position || "-";
+            if (positionsMap && position && positionsMap[position]) position = positionsMap[position];
+            const photo = data.photo || `https://i.pravatar.cc/150?u=${id}`;
+            return { id, photo, name, role, position };
+        }
+
+        function getTalentDisplay(data, id) {
+            const basic = (data && data.basic_info) || {};
+            const scouting = (data && data.scouting_info) || {};
+            const internship = (data && (data.internship || data.internship_info)) || {};
+            const photo = basic.avatar_url || data.photo || "";
+            const name = basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama";
+            const role = data.role_name || data.role || scouting.role_name || data.role_id || scouting.role_id || "-";
+            let position = data.position || scouting.position || internship.position || data.position_name || data.positionName || (data.employment && data.employment.position) || "-";
+            if (positionsMap && position && positionsMap[position]) position = positionsMap[position];
+            return { id, photo, name, role, position };
+        }
+
+        function getAcceptedStatusDate(data) {
+            const recruitment = (data && (data.recruitment_status || data.recruitment_system)) || {};
+            const historyArray = Array.isArray(recruitment.history) ? recruitment.history : [];
+            const acceptedEntries = historyArray.filter(entry => { const st = normalizeStatus(entry && entry.status); return st === "accept" || st === "accepted"; });
+            if (!acceptedEntries.length) return null;
+            let latestDate = null;
+            acceptedEntries.forEach(entry => {
+                const d = normalizeInternshipDate(entry && entry.date);
+                if (d instanceof Date && !isNaN(d.getTime()) && (!latestDate || d > latestDate)) latestDate = d;
+            });
+            return latestDate;
+        }
+
+        function normalizeStatus(value) { if (!value) return ""; return value.toString().trim().toLowerCase(); }
+
+        function normalizeRolePair(roleIdRaw, roleNameRaw) {
+            const idVal = (roleIdRaw || "").toString().trim().toLowerCase();
+            const nameVal = (roleNameRaw || "").toString().trim().toLowerCase();
+            return { normalizedRoleId: idVal.replace(/\s/g, ""), normalizedRoleName: nameVal.replace(/\s/g, "") };
+        }
+
+        /* ── calendar + positions ── */
+
+        const calendarButton = document.querySelector('.btn-weekly');
+        const calendarTextEl = calendarButton ? calendarButton.querySelector('.calendar-text') : null;
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        let rangeStart = startOfMonth;
+        let rangeEnd = today;
+        let positionsMap = null;
+        let usersMap = null;
+
+        async function loadUsersMap() {
+            if (usersMap) return usersMap;
+            usersMap = {};
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                snap.forEach(ds => {
+                    const d = ds.data() || {};
+                    usersMap[ds.id] = (d.full_name || d.displayName || d.name || d.email || "").toString().trim() || "User Tidak Ditemukan";
+                });
+            } catch (e) { console.error("Failed to build users map", e); }
+            return usersMap;
+        }
+        function resolveInterviewerNames(uids) {
+            if (!uids || !uids.length) return "-";
+            const map = usersMap || {};
+            return uids.map(uid => {
+                if (typeof uid !== "string") return uid?.name || uid?.email || "-";
+                return map[uid] || "User Tidak Ditemukan";
+            }).join(", ");
+        }
+
+        async function loadPositionsMapOnce() {
+            if (positionsMap) return positionsMap;
+            positionsMap = {};
+            try {
+                let snap = await getDocs(collection(db, "positions"));
+                if (snap.empty) { try { snap = await getDocs(collection(db, "position")); } catch (e) { console.warn("position fallback not readable", e); } }
+                if (!snap.empty) snap.forEach(docSnap => { const data = docSnap.data() || {}; const name = (data.name || "").toString().trim(); if (name) positionsMap[docSnap.id] = name; });
+            } catch (e) { console.error("Failed to build positions map", e); }
+            return positionsMap;
+        }
+        function resolvePositionName(rawPosition) {
+            if (!rawPosition || rawPosition === "-") return "-";
+            if (positionsMap && positionsMap[rawPosition]) return positionsMap[rawPosition];
+            return rawPosition;
+        }
+
+        function formatDate(date) { return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+        function setModalLoading(title, subtitle) {
+            const modalEl = document.getElementById("statsDetailsModal");
+            const titleEl = document.getElementById("statsDetailsModalLabel");
+            const subtitleEl = document.getElementById("statsDetailsModalSubtitle");
+            const countEl = document.getElementById("statsDetailsModalCount");
+            const bodyEl = document.getElementById("statsDetailsModalBody");
+            if (!modalEl || !titleEl || !subtitleEl || !countEl || !bodyEl) return null;
+            titleEl.textContent = title || "Detail"; subtitleEl.textContent = subtitle || ""; countEl.textContent = "";
+            bodyEl.innerHTML = `<div class="d-flex align-items-center gap-2 text-muted"><div class="spinner-border spinner-border-sm" role="status"></div><div>Loading...</div></div>`;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl); modal.show();
+            return { bodyEl, countEl };
+        }
+
+        function renderModalTable(ctx, columns, rows) {
+            const { bodyEl, countEl } = ctx;
+            countEl.textContent = `${rows.length} data`;
+            if (!rows.length) { bodyEl.innerHTML = `<div class="text-muted">Tidak ada data pada rentang tanggal ini.</div>`; return; }
+            const thead = columns.map(c => `<th>${c.label}</th>`).join("");
+            const tbody = rows.map(r => {
+                const tds = columns.map(c => {
+                    if (c.key === "photo") { const src = r.photo || `https://i.pravatar.cc/150?u=${r.id || r.name || "x"}`; return `<td><img class="stats-modal-photo" src="${src}" alt=""></td>`; }
+                    return `<td>${(r[c.key] ?? "-").toString()}</td>`;
+                }).join("");
+                return `<tr>${tds}</tr>`;
+            }).join("");
+            bodyEl.innerHTML = `<div class="table-responsive"><table class="table align-middle"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div>`;
+        }
+
+        function getFirstName(value) { const full = (value || "").toString().trim(); if (!full) return "Tanpa Nama"; const parts = full.split(/\s+/).filter(Boolean); return parts[0] || full; }
+        function formatLongDate(dateObj) { if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return "-"; return dateObj.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }); }
+        function getPlatformColorClass(platformLabel) {
+            const key = normalizeCompact(platformLabel);
+            if (key.includes("linkedin")) return "bg-primary"; if (key.includes("instagram")) return "bg-info";
+            if (key.includes("msib")) return "bg-secondary"; if (key.includes("website")) return "bg-success";
+            if (key.includes("other")) return "bg-dark"; return "bg-primary";
+        }
+
+        /* ── notes ── */
+
+        async function loadRecruitmentNotes() {
+            try { const textEl = document.getElementById("recruitmentImportantNotesText"); if (!textEl) return;
+                const snap = await getDoc(recruitmentNotesRef); if (!snap.exists()) return;
+                const content = ((snap.data() || {}).content || "").toString().trim(); if (content) textEl.textContent = content;
+            } catch (error) { console.error("Failed to load recruitment notes:", error); }
+        }
+        function openRecruitmentNotesModal() {
+            const modalEl = document.getElementById("recruitmentNotesModal");
+            const inputEl = document.getElementById("recruitmentNotesInput");
+            const textEl = document.getElementById("recruitmentImportantNotesText");
+            if (!modalEl || !inputEl) return;
+            inputEl.value = textEl ? (textEl.textContent || "").trim() : "";
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+        async function saveRecruitmentNotes() {
+            const btn = document.getElementById("saveRecruitmentNotesBtn");
+            const inputEl = document.getElementById("recruitmentNotesInput");
+            const textEl = document.getElementById("recruitmentImportantNotesText");
+            const modalEl = document.getElementById("recruitmentNotesModal");
+            if (!inputEl || !textEl || !modalEl) return;
+            const content = (inputEl.value || "").toString().trim();
+            try { if (btn) btn.disabled = true;
+                await setDoc(recruitmentNotesRef, { content: content || "", updated_at: serverTimestamp(), updated_by: currentUser ? (currentUser.email || currentUser.uid || null) : null }, { merge: true });
+                textEl.textContent = content || ""; const modal = bootstrap.Modal.getInstance(modalEl); if (modal) modal.hide();
+            } catch (error) { console.error("Failed to save recruitment notes:", error); }
+            finally { if (btn) btn.disabled = false; }
+        }
+        function attachRecruitmentNotesHandlers() {
+            const editBtn = document.getElementById("editRecruitmentNotesBtn");
+            const saveBtn = document.getElementById("saveRecruitmentNotesBtn");
+            if (editBtn) editBtn.addEventListener("click", openRecruitmentNotesModal);
+            if (saveBtn) saveBtn.addEventListener("click", saveRecruitmentNotes);
+        }
+        function attachCardOpen(cardId, fn) {
+            const el = document.getElementById(cardId); if (!el) return;
+            el.addEventListener("click", fn);
+            el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } });
+        }
+
+        /* ── section-based dashboard system ── */
+
+        const SECTION_CONFIG = {
+            team: { label: "Team", title: "Team Recruitment", screeningCollection: "team_screening", memberCollection: "team_management" },
+            mentor: { label: "Mentor", title: "Mentor Recruitment", screeningCollection: "mentor_screening", memberCollection: "mentor" },
+            internship: { label: "Internship", title: "Internship Recruitment", screeningCollection: "interns_screening", memberCollection: "users", userRoles: ["Internship", "internship"] }
+        };
+
+        let activeSection = "team";
+        let activeInterviewRole = "all";
+        const dashboardState = {
+            candidatesBySection: { team: [], mentor: [], internship: [] },
+            headCountRows: [], contractEndingRows: [], offboardingRows: []
+        };
+
+        function escapeDashboardHtml(v) { return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+        function getFirstAvailable(data, paths) {
+            for (const path of paths) { const parts = path.split("."); let c = data;
+                for (const p of parts) c = c && c[p] !== undefined ? c[p] : undefined;
+                if (c !== undefined && c !== null && c !== "") return c; } return "";
+        }
+        function getDashboardDate(data, paths) { const r = getFirstAvailable(data, paths); const p = normalizeInternshipDate(r); return p instanceof Date && !isNaN(p.getTime()) ? p : null; }
+        function getCreatedDate(data) { return getDashboardDate(data, ["created_at","createdAt","created","submitted_at","submittedAt","registered_at","date","timestamp"]); }
+        function getMemberStartDate(data) { return getDashboardDate(data, ["startDate","start_date","contractStart","contract_start","employment.startDate","employment.start_date","internshipStartDate","internship.startDate"]); }
+        function getMemberEndDate(data) { return getDashboardDate(data, ["endDate","end_date","contractEnd","contract_end","contract.endDate","employment.endDate","employment.end_date","internshipEndDate","internship.endDate"]); }
+        function getCandidateName(data) { return getFirstAvailable(data, ["fullName","full_name","name","nama","basic_info.full_name","scouting_info.full_name","email"]) || "Tanpa Nama"; }
+        function getCandidatePosition(data, section) { return getFirstAvailable(data, ["position_name","positionName","job_position","scouting_info.position_name","internship.position_name","internship.position","internship.position_id","position_id","position","scouting_info.position_id","scouting_info.position","employment.position","employment.position_name","employment.position_id","division","department","role_name"]) || SECTION_CONFIG[section]?.label || "-"; }
+        function getRecruitmentCurrent(data) { const r = data.recruitment_status || data.recruitment_system || {}; return normalizeStatus(r.current || data.status || data.stage || "screening"); }
+        function getInterviewDateTime(data) {
+            const rs = data.recruitment_status || {};
+            const raw = rs.due_date;
+            if (!raw) return null;
+            const parsed = normalizeInternshipDate(raw);
+            return parsed instanceof Date && !isNaN(parsed.getTime()) ? parsed : null;
+        }
+        function getInterviewerUids(data) {
+            const raw = getFirstAvailable(data, ["interviewers","recruitment_status.interviewers","interviewer","interviewerName","interviewer_name","recruitment_status.interviewer"]);
+            if (Array.isArray(raw)) return raw.filter(Boolean);
+            if (raw && typeof raw === "string") return [raw];
+            return [];
+        }
+        function hasInterviewResult(data) {
+            const r = data.recruitment_status || data.recruitment_system || {};
+            return Boolean(r.interview_completed || r.interview_result || r.interviewResult || r.result || data.interview_completed || data.interview_result || data.interviewResult || data.result_interview);
+        }
+        function getMemberName(data) { return getFirstAvailable(data, ["name","fullName","full_name","displayName","nama_lengkap","nickName","email"]) || "Tanpa Nama"; }
+        function getMemberPosition(data, section) { return getFirstAvailable(data, ["position_name","position","position_id","internship.position","internship.position_name","internship.position_id","employment.position","employment.position_name","employment.position_id","department","division","type","teaching"]) || SECTION_CONFIG[section]?.label || "-"; }
+        function isActiveMember(data) { const s = normalizeStatus(data.status || data.internshipStatus || ""); return !["inactive","resigned","left","graduate","graduated","nonaktif"].includes(s); }
+        function isOffboardedMember(data) { const s = normalizeStatus(data.status || data.internshipStatus || ""); return ["inactive","resigned","left","graduate","graduated","nonaktif"].includes(s); }
+
+        function memberRow(docItem, section) {
+            const d = docItem.data || {};
+            const rawPos = getMemberPosition(d, section);
+            return { id: docItem.id, name: getMemberName(d), role: SECTION_CONFIG[section]?.label || section, position: resolvePositionName(rawPos), photo: d.photo || d.photoURL || d.avatar || "", startDateObj: getMemberStartDate(d), endDateObj: getMemberEndDate(d), data: d };
+        }
+        function candidateRow(docItem, section) {
+            const d = docItem.data || {}; const name = getCandidateName(d);
+            const rawPos = getCandidatePosition(d, section);
+            return { id: docItem.id, section, sectionLabel: SECTION_CONFIG[section]?.label || section, name, firstName: getFirstName(name), position: resolvePositionName(rawPos), interviewerUids: getInterviewerUids(d), status: getRecruitmentCurrent(d), createdAt: getCreatedDate(d), interviewSchedule: getInterviewDateTime(d), hasInterviewResult: hasInterviewResult(d), photo: d.photo || d.avatar || d.basic_info?.avatar_url || "", platform: ((d.internship && d.internship.platform) || d.platform || "").toString().trim(), data: d };
+        }
+
+        async function fetchCollectionItems(col) { const snap = await getDocs(collection(db, col)); const rows = []; snap.forEach(ds => rows.push({ id: ds.id, data: ds.data() || {} })); return rows; }
+        async function fetchSectionMembers(section) {
+            const cfg = SECTION_CONFIG[section]; if (!cfg) return [];
+            if (section === "internship") { const snap = await getDocs(query(collection(db,"users"), where("role","in", cfg.userRoles))); const rows = []; snap.forEach(ds => rows.push({ id: ds.id, data: ds.data() || {} })); return rows; }
+            return fetchCollectionItems(cfg.memberCollection);
+        }
+
+        async function fetchAllScreening() {
+            const entries = await Promise.all(Object.entries(SECTION_CONFIG).map(async ([s, c]) => { const rows = await fetchCollectionItems(c.screeningCollection); return [s, rows.map(i => candidateRow(i, s))]; }));
+            entries.forEach(([s, rows]) => { dashboardState.candidatesBySection[s] = rows; });
+        }
+        function isInSelectedRange(dateObj) { const { s, e } = normalizeRangeDates(rangeStart, rangeEnd); return s && e ? isDateInRange(dateObj, s, e) : true; }
+
+        function renderDashboardAvatars(container, items, maxVisible = 4) {
+            if (!container) return; container.innerHTML = "";
+            const rows = items.slice(0, maxVisible);
+            if (!rows.length) { container.innerHTML = `<span class="text-muted-custom small">0</span>`; return; }
+            rows.forEach(item => { const img = document.createElement("img"); img.className = "candidate-photo"; img.src = item.photo || `https://i.pravatar.cc/150?u=${item.id || item.name}`; img.alt = item.name; img.title = item.name; container.appendChild(img); });
+            if (items.length > rows.length) { const more = document.createElement("div"); more.className = "candidate-photo bg-light d-flex align-items-center justify-content-center text-muted small fw-bold"; more.textContent = `+${items.length - rows.length}`; container.appendChild(more); }
+        }
+
+        function updateSectionTitle() { const el = document.getElementById("activeSectionTitle"); if (el) el.textContent = SECTION_CONFIG[activeSection]?.title || "Recruitment"; }
+
+        async function loadSectionSummary() {
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const members = (await fetchSectionMembers(activeSection)).map(i => memberRow(i, activeSection));
+            const active = members.filter(r => isActiveMember(r.data) && isUserActiveInRange(r.startDateObj, r.endDateObj, s, e));
+            const endingSoon = active.filter(r => r.endDateObj && isDateInRange(r.endDateObj, s, e));
+            const offboarded = members.filter(r => isOffboardedMember(r.data) && r.endDateObj && isDateInRange(r.endDateObj, s, e));
+            const candidates = dashboardState.candidatesBySection[activeSection] || [];
+            const applicants = candidates.filter(r => !r.createdAt || isInSelectedRange(r.createdAt));
+            dashboardState.headCountRows = active; dashboardState.contractEndingRows = endingSoon; dashboardState.offboardingRows = offboarded;
+            document.getElementById("currentHeadCount").textContent = active.length.toString();
+            document.getElementById("applicantsCount").textContent = applicants.length.toString();
+            document.getElementById("onLeaveCount").textContent = endingSoon.length.toString();
+            document.getElementById("offboardingCount").textContent = offboarded.length.toString();
+        }
+
+
+
+        function getInterviewPool(sectionFilter) {
+            const now = new Date();
+            const sections = sectionFilter === "all" ? Object.keys(SECTION_CONFIG) : [sectionFilter];
+            return sections.flatMap(s => dashboardState.candidatesBySection[s] || [])
+                .filter(r => normalizeStatus(r.status) === "interview")
+                .filter(r => r.interviewSchedule instanceof Date && !isNaN(r.interviewSchedule.getTime()))
+                .filter(r => r.interviewSchedule >= now)
+                .sort((a,b) => a.interviewSchedule - b.interviewSchedule);
+        }
+
+        function renderUpcomingInterviewsFromState() {
+            const rows = getInterviewPool(activeInterviewRole);
+            const container = document.getElementById("upcomingInterviewList");
+            if (!container) return;
+            if (!rows.length) { container.innerHTML = `<div class="text-muted-custom small">Belum ada upcoming interview.</div>`; return; }
+            container.innerHTML = rows.slice(0, 10).map(row => `
+                <div class="interview-list-item">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="fw-bold">${escapeDashboardHtml(row.name)}</div>
+                            <div class="text-muted-custom small">${escapeDashboardHtml(row.position)} | ${escapeDashboardHtml(row.sectionLabel)}</div>
+                            <div class="text-muted-custom small">Interviewer: ${escapeDashboardHtml(resolveInterviewerNames(row.interviewerUids))}</div>
+                        </div>
+                        <div class="text-end small">
+                            <div class="fw-bold">${formatLongDate(row.interviewSchedule)}</div>
+                            <div class="text-muted-custom">${row.interviewSchedule.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</div>
+                        </div>
+                    </div>
+                </div>`).join("");
+        }
+
+        function renderOverdueInterviews() {
+            const now = new Date();
+            const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+            const rows = Object.keys(SECTION_CONFIG).flatMap(s => dashboardState.candidatesBySection[s] || [])
+                .filter(r => normalizeStatus(r.status) === "interview")
+                .filter(r => r.interviewSchedule instanceof Date && !isNaN(r.interviewSchedule.getTime()))
+                .filter(r => r.interviewSchedule < now)
+                .map(r => ({ ...r, lateDays: Math.max(1, Math.floor((todayMid - r.interviewSchedule) / 86400000)) }))
+                .sort((a,b) => b.lateDays - a.lateDays);
+            const container = document.getElementById("overdueInterviewList");
+            const badge = document.getElementById("overdueCountBadge");
+            if (badge) badge.textContent = rows.length.toString();
+            if (!container) return;
+            if (!rows.length) { container.innerHTML = `<div class="text-secondary small text-center py-4">Tidak ada overdue interview.</div>`; return; }
+            container.innerHTML = rows.map(row => `
+                <div class="d-flex justify-content-between gap-3 p-3 rounded bg-white border border-danger border-opacity-10">
+                    <div>
+                        <div class="fw-bold text-dark small">${escapeDashboardHtml(row.name)}</div>
+                        <div class="text-muted-custom small">${escapeDashboardHtml(row.position)} | ${escapeDashboardHtml(row.sectionLabel)}</div>
+                        <div class="text-muted-custom small">Interviewer: ${escapeDashboardHtml(resolveInterviewerNames(row.interviewerUids))}</div>
+                        <div class="text-danger small">${formatLongDate(row.interviewSchedule)}</div>
+                    </div>
+                    <div class="text-end text-danger fw-bold small">${row.lateDays} hari</div>
+                </div>`).join("");
+        }
+
+        function mapPlatform(raw) {
+            const p = String(raw || "").trim().toLowerCase();
+            if (p.includes("linkedin")) return "LinkedIn";
+            if (p.includes("instagram")) return "Instagram";
+            if (p.includes("website dialogika") || p.includes("dialogika")) return "Website Dialogika";
+            if (p.includes("website msib") || p.includes("msib")) return "Website MSIB";
+            return "Other";
+        }
+        async function loadPlatformJobposting() {
+            const listEl = document.getElementById("platformJobpostingList");
+            const totalEl = document.getElementById("platformTotalCandidate");
+            if (!listEl || !totalEl) return;
+            const platforms = ["LinkedIn","Instagram","Website Dialogika","Website MSIB","Other"];
+            const counts = Object.fromEntries(platforms.map(l => [l, 0]));
+            const candidates = dashboardState.candidatesBySection.internship || [];
+            console.group("%c[Platform Job Posting] Debug", "color: #6c5ce7; font-weight: bold;");
+            candidates.forEach(r => {
+                if (r.createdAt && !isInSelectedRange(r.createdAt)) return;
+                const raw = r.platform || "";
+                const mapped = mapPlatform(raw);
+                console.log(`${r.name} | raw: "${raw}" → mapped: "${mapped}"`);
+                counts[mapped] += 1;
+            });
+            console.log("Counts:", counts);
+            console.groupEnd();
+            const total = platforms.reduce((s, l) => s + counts[l], 0);
+            totalEl.textContent = total.toString();
+            listEl.innerHTML = platforms.map(l => { const c = counts[l] || 0; const pct = total ? Math.round((c/total)*1000)/10 : 0;
+                return `<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>${l}</span><span>${c} kandidat (${pct}%)</span></div><div class="progress"><div class="progress-bar ${getPlatformColorClass(l)}" style="width: ${pct}%"></div></div></div>`;
+            }).join("");
+        }
+
+        function renderRowsModal(title, rows) {
+            const isAllTime = !rangeStart || !rangeEnd;
+            const { s, e } = normalizeRangeDates(rangeStart, rangeEnd);
+            const subtitle = isAllTime ? "All Time" : (s && e ? `${formatDate(s)} - ${formatDate(e)}` : "");
+            const ctx = setModalLoading(title, subtitle); if (!ctx) return;
+            renderModalTable(ctx, [{ key:"name",label:"Nama" },{ key:"role",label:"Section" },{ key:"position",label:"Posisi" }], rows);
+        }
+        function openHeadCountModal() { renderRowsModal(`Head Count (${SECTION_CONFIG[activeSection].label})`, dashboardState.headCountRows); }
+        function openApplicantsModal() { const rows = (dashboardState.candidatesBySection[activeSection]||[]).filter(r => !r.createdAt || isInSelectedRange(r.createdAt)).map(r => ({ name:r.name, role:r.sectionLabel, position:r.position })); renderRowsModal(`Applicants (${SECTION_CONFIG[activeSection].label})`, rows); }
+        function openOnLeaveModal() { renderRowsModal(`Kontrak Akan Berakhir (${SECTION_CONFIG[activeSection].label})`, dashboardState.contractEndingRows); }
+        function openOffboardingModal() { renderRowsModal(`Off Boarding (${SECTION_CONFIG[activeSection].label})`, dashboardState.offboardingRows); }
+        function attachCardModals() { attachCardOpen("headCountCard", openHeadCountModal); attachCardOpen("applicantsCard", openApplicantsModal); attachCardOpen("onLeaveCard", openOnLeaveModal); attachCardOpen("offboardingCard", openOffboardingModal); }
+
+        function initializeSectionSwitcher() {
+            const sw = document.getElementById("sectionSwitcher");
+            if (!sw || sw.dataset.bound === "true") return; sw.dataset.bound = "true";
+            sw.addEventListener("click", async e => { const btn = e.target.closest(".section-tab[data-section]"); if (!btn) return;
+                activeSection = btn.dataset.section || "team";
+                sw.querySelectorAll(".section-tab").forEach(i => i.classList.toggle("active", i === btn));
+                updateSectionTitle(); await refreshDashboard(rangeStart, rangeEnd); });
+        }
+        function initializeInterviewTabs() {
+            const tabs = document.getElementById("interviewTabs");
+            if (!tabs || tabs.dataset.bound === "true") return; tabs.dataset.bound = "true";
+            tabs.addEventListener("click", e => { const btn = e.target.closest(".interview-tab[data-role]"); if (!btn) return;
+                activeInterviewRole = btn.dataset.role || "all";
+                tabs.querySelectorAll(".interview-tab").forEach(i => i.classList.toggle("active", i === btn));
+                renderUpcomingInterviewsFromState(); });
+        }
+
+        async function refreshDashboard(startDate, endDate) {
+            updateSectionTitle(); await loadUsersMap(); await loadPositionsMapOnce(); await fetchAllScreening(); await loadSectionSummary();
+            renderUpcomingInterviewsFromState();
+            await loadPlatformJobposting(); renderOverdueInterviews();
+            initializeSectionSwitcher(); initializeInterviewTabs();
+            updateFilterButtonStates();
+        }
+
+        function setAllTimeMode() {
+            rangeStart = null; rangeEnd = null;
+            if (calendarTextEl) calendarTextEl.textContent = "All Time";
+            const fp = document.getElementById("calendarPicker")._flatpickr;
+            if (fp) fp.clear();
+            refreshDashboard(null, null);
+        }
+        function resetFilter() {
+            rangeStart = startOfMonth; rangeEnd = today;
+            if (calendarTextEl) calendarTextEl.textContent = `${formatDate(startOfMonth)} - ${formatDate(today)}`;
+            const fp = document.getElementById("calendarPicker")._flatpickr;
+            if (fp) fp.setDate([startOfMonth, today], false);
+            refreshDashboard(rangeStart, rangeEnd);
+        }
+        function updateFilterButtonStates() {
+            const allTimeBtn = document.getElementById("btnAllTime");
+            const isAllTime = !rangeStart || !rangeEnd;
+            if (allTimeBtn) allTimeBtn.classList.toggle("active", isAllTime);
+        }
+        function attachFilterButtons() {
+            const allTimeBtn = document.getElementById("btnAllTime");
+            const resetBtn = document.getElementById("btnResetFilter");
+            if (allTimeBtn) allTimeBtn.addEventListener("click", setAllTimeMode);
+            if (resetBtn) resetBtn.addEventListener("click", resetFilter);
+        }
+
+        flatpickr("#calendarPicker", {
+            mode: "range", dateFormat: "Y-m-d", positionElement: calendarButton || undefined,
+            defaultDate: [startOfMonth, today],
+            onChange: (selectedDates) => { if (selectedDates.length === 2) {
+                rangeStart = selectedDates[0]; rangeEnd = selectedDates[1];
+                if (calendarTextEl) calendarTextEl.textContent = `${formatDate(rangeStart)} - ${formatDate(rangeEnd)}`;
+                refreshDashboard(rangeStart, rangeEnd); } }
+        });
+        if (calendarTextEl) calendarTextEl.textContent = `${formatDate(startOfMonth)} - ${formatDate(today)}`;
+
+        attachCardModals();
+        attachRecruitmentNotesHandlers();
+        attachFilterButtons();
+        updateDateTime();
+    </script>
+</body>
+</html>

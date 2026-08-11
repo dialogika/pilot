@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pendaftaran Peserta | Dialogika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .read-only-card { background-color: #fff; border-left: 4px solid #0b2b6a; }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 antialiased">
+
+    <main class="min-h-screen flex items-center justify-center px-4 py-10">
+        <div class="w-full max-w-xl space-y-6">
+        
+        <!-- HEADER -->
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Lengkapi Data Pendaftaran Kelas</h1>
+            <p class="text-slate-500 mt-2 text-sm">Data ini digunakan untuk keperluan kelas, sertifikat, dan komunikasi selama program berlangsung.</p>
+        </header>
+
+        <!-- PROGRESS INDICATOR -->
+        <div class="bg-white rounded-2xl shadow-md shadow-slate-200/60 border border-slate-200 px-6 py-4 relative overflow-hidden">
+            <div class="absolute left-10 right-10 top-[46%] h-px bg-slate-100 pointer-events-none"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-10 h-10 rounded-2xl bg-[#0b2b6a] text-white flex items-center justify-center text-sm font-bold">1</div>
+                    <div class="text-center">
+                        <p class="text-[11px] font-semibold text-slate-900">Data Diri</p>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100 text-sm font-bold">2</div>
+                    <div class="text-center">
+                        <p class="text-[11px] font-semibold text-slate-900">Profesional</p>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100 text-sm font-bold">3</div>
+                    <div class="text-center">
+                        <p class="text-[11px] font-semibold text-slate-900">Konfirmasi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. DATA DI-LOCK (READ ONLY) -->
+        <div class="read-only-card p-5 rounded-xl mb-8 shadow-md">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Detail Program (System Locked)</h3>
+                <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-bold">PAID</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Nama Program</label>
+                    <p id="enrollProgramName" class="text-sm font-semibold text-slate-700 uppercase">Public Speaking Playbook</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Batch & Jadwal</label>
+                    <p id="enrollBatchSchedule" class="text-sm font-semibold text-slate-700">Batch 42 - Sabtu, 19:00 WIB</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Mode Kelas</label>
+                    <p id="enrollClassMode" class="text-sm font-semibold text-slate-700 uppercase">Online (Zoom Meeting)</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">ID Invoice</label>
+                    <p id="enrollInvoiceId" class="text-sm font-semibold text-slate-700">#INV-20240501-88</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Atas Nama Pembeli</label>
+                    <p id="enrollLeadName" class="text-sm font-semibold text-slate-700">Nama Peserta</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Tipe Pembayaran</label>
+                    <p id="enrollPaymentType" class="text-sm font-semibold text-slate-700">Lunas (Full Payment)</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Metode</label>
+                    <p id="enrollPaymentMethod" class="text-sm font-semibold text-slate-700">Transfer Bank</p>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase">Bank Tujuan</label>
+                    <p id="enrollBankName" class="text-sm font-semibold text-slate-700">-</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-4 italic text-right">*Data ini diambil otomatis dari sistem pembayaran.</p>
+        </div>
+
+        <!-- FORM UTAMA -->
+        <form id="registrationForm" class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-200 p-8">
+            
+            <!-- SECTION 1: DATA DIRI -->
+            <div id="step1" class="form-section active">
+                <h2 class="text-lg font-bold mb-5 text-slate-800 border-b pb-2">A. Data Diri Peserta</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap (Sesuai Sertifikat)*</label>
+                        <input type="text" name="full_name" required placeholder="Contoh: Budi Santoso, S.T." 
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nomor WhatsApp Aktif*</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-sm font-semibold">+62</span>
+                            <input type="tel" name="whatsapp" required placeholder="8123456789" 
+                            class="w-full pl-12 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1 italic">Pastikan nomor aktif untuk koordinasi grup kelas.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email (Optional)</label>
+                        <input type="email" name="email" placeholder="budi@example.com" 
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Gender*</label>
+                        <div class="flex gap-4 text-sm">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="Laki-laki" required class="mr-2 w-4 h-4 text-[#0b2b6a]"> Laki-laki
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="Perempuan" required class="mr-2 w-4 h-4 text-[#0b2b6a]"> Perempuan
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: PROFESIONAL & DOMISILI -->
+            <div id="step2" class="form-section">
+                <h2 class="text-lg font-bold mb-5 text-slate-800 border-b pb-2">B. Informasi Profesional & Lokasi</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Status Pekerjaan Saat Ini*</label>
+                        <select name="job_status" id="jobStatusSelect" required class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white outline-none">
+                            <option value="">-- Pilih Status --</option>
+                            <option>Pelajar</option>
+                            <option>Mahasiswa</option>
+                            <option>Karyawan</option>
+                            <option>Dokter</option>
+                            <option>Guru</option>
+                            <option>Dosen</option>
+                            <option>Sales</option>
+                            <option>MC</option>
+                            <option>Pengusaha</option>
+                            <option>Freelancer</option>
+                            <option>Lainnya</option>
+                        </select>
+                        <input type="text" id="jobStatusOther" name="job_status_other" placeholder="Tulis status pekerjaan kamu..." class="mt-2 w-full px-4 py-2 border border-slate-300 rounded-lg outline-none hidden">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Posisi / Peran Saat Ini</label>
+                        <input type="text" name="job_role" placeholder="Contoh: Staff Marketing, Mahasiswa Semester 5" 
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kota Domisili*</label>
+                        <input type="text" name="city" required placeholder="Ketik nama kota..." 
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none">
+                        <p class="text-[11px] text-slate-500 mt-1 italic italic italic italic">Digunakan untuk analisis distribusi peserta.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: KEBUTUHAN & KONFIRMASI -->
+            <div id="step3" class="form-section">
+                <h2 class="text-lg font-bold mb-5 text-slate-800 border-b pb-2">C. Kebutuhan & Konfirmasi</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Apa tujuan utama kamu ikut kelas ini? (Ceritakan secara singkat)*</label>
+                        <textarea name="goal_detail" id="goalDetail" rows="3" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none resize-y" placeholder="Contoh: Saya sering presentasi di kantor tapi masih gugup, ingin lebih percaya diri dan bisa menyusun materi dengan runtut."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Tahu Dialogika dari mana?*</label>
+                        <select name="source" required class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white outline-none">
+                            <option value="">-- Pilih Sumber --</option>
+                            <option>Instagram</option>
+                            <option>TikTok</option>
+                            <option>Google Search</option>
+                            <option>Facebook</option>
+                            <option>Twitter</option>
+                            <option>LinkedIn</option>
+                            <option>Blog</option>
+                            <option>Email</option>
+                            <option>Rekomendasi Teman</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-4 border-t mt-6">
+                        <label class="flex items-start text-sm cursor-pointer">
+                            <input type="checkbox" required class="mt-1 mr-3 w-4 h-4 text-[#0b2b6a]">
+                            <span class="text-slate-600 font-medium">Saya mengisi data dengan sebenar-benarnya dan memahami bahwa data ini digunakan untuk kepentingan akademik Dialogika.</span>
+                        </label>
+                        <label class="flex items-start text-sm cursor-pointer mt-3">
+                            <input type="checkbox" id="multiEnrollCheckbox" class="mt-1 mr-3 w-4 h-4 text-[#0b2b6a]">
+                            <span class="text-slate-600 font-medium">Jika mendaftar LEBIH DARI satu orang check ini.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAVIGASI TOMBOL -->
+            <div class="mt-10 flex gap-3">
+                <button type="button" id="prevBtn" class="hidden flex-1 px-6 py-3 border border-slate-300 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition">Kembali</button>
+                <button type="button" id="nextBtn" class="flex-[2] px-6 py-3 bg-[linear-gradient(to_bottom,#0f61a8_5%,#0b2b6a_100%)] text-white font-bold rounded-xl hover:bg-[linear-gradient(to_bottom,#0b2b6a_5%,#0f61a8_100%)] shadow-md hover:shadow-sm hover:shadow-purple-700 shadow-purple-700 transition">Lanjut</button>
+                <button type="submit" id="submitBtn" class="hidden flex-[2] px-6 py-3 bg-[linear-gradient(to_bottom,#006a4e_5%,#00c08d_100%)] text-white font-bold rounded-xl hover:bg-[linear-gradient(to_bottom,#00c08d_5%,#006a4e_100%)] shadow-sm shadow-green-700 transition uppercase tracking-wide">Simpan & Selesaikan</button>
+            </div>
+
+        </form>
+
+        <footer class="mt-8 text-center text-slate-400 text-xs">
+            &copy; 2024 Dialogika - Education Platform. All rights reserved.
+        </footer>
+        </div>
+    </main>
+
+    <div id="enrollModalBackdrop" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 p-6 text-center space-y-3">
+            <h3 id="enrollModalTitle" class="text-lg font-bold text-slate-900">Informasi</h3>
+            <p id="enrollModalMessage" class="text-sm text-slate-600">Pesan</p>
+            <button id="enrollModalClose" class="mt-2 px-4 py-2 rounded-xl bg-[linear-gradient(to_bottom,#0f61a8_5%,#0b2b6a_100%)] text-white text-sm font-semibold w-full">
+                Chat Whatsapp Admin
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.dlgInvoiceDb = db;
+        window.dlgInvoiceDoc = doc;
+        window.dlgInvoiceGetDoc = getDoc;
+        window.dlgInvoiceUpdateDoc = updateDoc;
+
+        const params = new URLSearchParams(window.location.search);
+        const invoiceIdFromUrl = params.get("invoiceId") || "";
+
+        async function loadEnrollmentInvoice() {
+            if (!invoiceIdFromUrl) return;
+            try {
+                const ref = doc(db, "invoices", invoiceIdFromUrl);
+                const snap = await getDoc(ref);
+                if (!snap.exists()) return;
+                const d = snap.data() || {};
+
+                const programNameEl = document.getElementById("enrollProgramName");
+                const batchScheduleEl = document.getElementById("enrollBatchSchedule");
+                const classModeEl = document.getElementById("enrollClassMode");
+                const invoiceIdEl = document.getElementById("enrollInvoiceId");
+                const leadNameEl = document.getElementById("enrollLeadName");
+                const paymentTypeEl = document.getElementById("enrollPaymentType");
+                const paymentMethodEl = document.getElementById("enrollPaymentMethod");
+                const bankNameEl = document.getElementById("enrollBankName");
+
+                const programName = (d.className || d.productName || "").trim() || "Program";
+                const batchLabel = (d.batchLabel || "").trim();
+                const location = (d.location || "").trim();
+                const classType = (d.classType || "").trim();
+
+                let batchScheduleText = "";
+                if (batchLabel && (location || classType)) {
+                    batchScheduleText = batchLabel + " • " + (classType || location);
+                } else if (batchLabel) {
+                    batchScheduleText = batchLabel;
+                } else if (d.classMeta) {
+                    batchScheduleText = String(d.classMeta);
+                }
+
+                const typeLower = classType.toLowerCase();
+                let modeText = "";
+                if (typeLower.includes("online")) {
+                    modeText = "Online (Zoom Meeting)";
+                } else if (typeLower.includes("offline")) {
+                    modeText = "Offline";
+                } else if (classType) {
+                    modeText = classType;
+                } else {
+                    modeText = "Online / Offline";
+                }
+
+                const invoiceNumber = (d.invoiceNumber || "").trim() || snap.id;
+
+                const leadName = (d.leadName || "").trim();
+                const paymentTypeRaw = (d.paymentType || "").toLowerCase();
+                const paymentMethod = (d.paymentMethod || "").trim() || "-";
+                const bankName = (d.bankName || "").trim() || "-";
+
+                let paymentTypeLabel = "Lunas (Full Payment)";
+                if (paymentTypeRaw === "dp") {
+                    paymentTypeLabel = "DP (Down Payment)";
+                }
+
+                if (programNameEl) programNameEl.textContent = programName;
+                if (batchScheduleEl && batchScheduleText) batchScheduleEl.textContent = batchScheduleText;
+                if (classModeEl && modeText) classModeEl.textContent = modeText;
+                if (invoiceIdEl && invoiceNumber) invoiceIdEl.textContent = invoiceNumber;
+                if (leadNameEl && leadName) leadNameEl.textContent = leadName;
+                if (paymentTypeEl) paymentTypeEl.textContent = paymentTypeLabel;
+                if (paymentMethodEl) paymentMethodEl.textContent = paymentMethod;
+                if (bankNameEl) bankNameEl.textContent = bankName;
+            } catch (e) {
+            }
+        }
+
+        function setupJobStatusOther() {
+            const select = document.getElementById("jobStatusSelect");
+            const otherInput = document.getElementById("jobStatusOther");
+            if (!select || !otherInput) return;
+            select.addEventListener("change", function () {
+                if (select.value === "Lainnya") {
+                    otherInput.classList.remove("hidden");
+                    otherInput.required = true;
+                } else {
+                    otherInput.classList.add("hidden");
+                    otherInput.required = false;
+                }
+            });
+        }
+
+        function setupMultiEnrollToggle() {
+            const multiCheckbox = document.getElementById("multiEnrollCheckbox");
+            const submitBtn = document.getElementById("submitBtn");
+            if (!multiCheckbox || !submitBtn) return;
+            const defaultLabel = "Simpan & Selesaikan";
+            const multiLabel = "SIMPAN & REFRESH";
+            submitBtn.textContent = defaultLabel;
+            multiCheckbox.addEventListener("change", function () {
+                submitBtn.textContent = multiCheckbox.checked ? multiLabel : defaultLabel;
+            });
+        }
+
+        function showEnrollmentModal(title, message) {
+            const backdrop = document.getElementById("enrollModalBackdrop");
+            const titleEl = document.getElementById("enrollModalTitle");
+            const msgEl = document.getElementById("enrollModalMessage");
+            if (!backdrop || !titleEl || !msgEl) return;
+            titleEl.textContent = title || "Informasi";
+            msgEl.textContent = message || "";
+            backdrop.dataset.enrollModalVariant = title === "Data berhasil disimpan" ? "success" : title === "Data gagal disimpan" ? "error" : "";
+            backdrop.classList.remove("hidden");
+        }
+
+        function setupEnrollmentModal() {
+            const backdrop = document.getElementById("enrollModalBackdrop");
+            const closeBtn = document.getElementById("enrollModalClose");
+            if (!backdrop || !closeBtn) return;
+            function hide() {
+                backdrop.classList.add("hidden");
+            }
+            closeBtn.addEventListener("click", function () {
+                const variant = backdrop.dataset.enrollModalVariant || "";
+                hide();
+                if (variant !== "success") return;
+                const waText = encodeURIComponent(
+                    `Halo Admin, saya sudah mengisi data pendaftaran. Mohon diundang ke grup WhatsApp. Invoice ID: ${invoiceIdFromUrl}`
+                );
+                window.open(`https://wa.me/6285162992597?text=${waText}`, "_blank");
+            });
+            backdrop.addEventListener("click", function (e) {
+                if (e.target === backdrop) {
+                    hide();
+                }
+            });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") {
+                    hide();
+                }
+            });
+        }
+
+        async function saveEnrollmentData(refreshAfter) {
+            const form = document.getElementById("registrationForm");
+            if (!form || !invoiceIdFromUrl) return;
+            if (!form.reportValidity()) return;
+            const formData = new FormData(form);
+
+            let jobStatus = (formData.get("job_status") || "").toString().trim();
+            const jobStatusOther = (formData.get("job_status_other") || "").toString().trim();
+            if (jobStatus === "Lainnya" && jobStatusOther) {
+                jobStatus = jobStatusOther;
+            }
+
+            const goalDetail = (formData.get("goal_detail") || "").toString().trim();
+
+            const payload = {
+                enrollmentFullName: (formData.get("full_name") || "").toString().trim(),
+                enrollmentWhatsapp: (formData.get("whatsapp") || "").toString().trim(),
+                enrollmentEmail: (formData.get("email") || "").toString().trim(),
+                enrollmentGender: (formData.get("gender") || "").toString().trim(),
+                enrollmentJobStatus: jobStatus,
+                enrollmentJobStatusRaw: (formData.get("job_status") || "").toString().trim(),
+                enrollmentJobStatusOther: jobStatusOther,
+                enrollmentJobRole: (formData.get("job_role") || "").toString().trim(),
+                enrollmentCity: (formData.get("city") || "").toString().trim(),
+                enrollmentGoalDetail: goalDetail,
+                enrollmentSource: (formData.get("source") || "").toString().trim(),
+                enrollmentMultiRegistrant: !!document.getElementById("multiEnrollCheckbox") && document.getElementById("multiEnrollCheckbox").checked,
+                enrollmentCompletedAtMs: Date.now()
+            };
+
+            try {
+                const ref = doc(db, "invoices", invoiceIdFromUrl);
+                let invoiceData = null;
+                try {
+                    const snap = await getDoc(ref);
+                    if (snap.exists()) {
+                        invoiceData = snap.data() || {};
+                    }
+                } catch (e) {
+                    invoiceData = null;
+                }
+
+                await updateDoc(ref, payload);
+
+                const enrollmentDoc = Object.assign({}, payload, {
+                    invoiceId: invoiceIdFromUrl,
+                    invoiceNumber: invoiceData && invoiceData.invoiceNumber ? invoiceData.invoiceNumber : "",
+                    invoiceLeadName: invoiceData && invoiceData.leadName ? invoiceData.leadName : "",
+                    className: invoiceData && invoiceData.className ? invoiceData.className : "",
+                    batchLabel: invoiceData && invoiceData.batchLabel ? invoiceData.batchLabel : "",
+                    classType: invoiceData && invoiceData.classType ? invoiceData.classType : "",
+                    location: invoiceData && invoiceData.location ? invoiceData.location : "",
+                    productId: invoiceData && invoiceData.productId ? invoiceData.productId : "",
+                    productName: invoiceData && invoiceData.productName ? invoiceData.productName : "",
+                    createdAtMs: Date.now()
+                });
+
+                await addDoc(collection(db, "enrollments"), enrollmentDoc);
+
+                if (refreshAfter) {
+                    const form = document.getElementById("registrationForm");
+                    if (form) {
+                        form.reset();
+                    }
+                    const sections = document.querySelectorAll(".form-section");
+                    sections.forEach(function (sec, idx) {
+                        if (idx === 0) {
+                            sec.classList.add("active");
+                        } else {
+                            sec.classList.remove("active");
+                        }
+                    });
+                    const prevBtnEl = document.getElementById("prevBtn");
+                    const nextBtnEl = document.getElementById("nextBtn");
+                    const submitBtnEl = document.getElementById("submitBtn");
+                    const multiCheckbox = document.getElementById("multiEnrollCheckbox");
+                    if (prevBtnEl) prevBtnEl.classList.add("hidden");
+                    if (nextBtnEl) nextBtnEl.classList.remove("hidden");
+                    if (submitBtnEl) {
+                        submitBtnEl.classList.add("hidden");
+                        submitBtnEl.disabled = true;
+                        submitBtnEl.classList.add("opacity-60", "cursor-not-allowed");
+                    }
+                    if (multiCheckbox) multiCheckbox.checked = false;
+                }
+                showEnrollmentModal(
+                    "Data berhasil disimpan",
+                    refreshAfter
+                        ? "Data peserta berhasil disimpan. Silakan isi data peserta berikutnya. Jika sudah selesai, hubungi admin untuk diundang ke grup WhatsApp."
+                        : "Data peserta berhasil disimpan. Silakan hubungi admin untuk diundang ke grup WhatsApp."
+                );
+            } catch (e) {
+                console.error("Gagal menyimpan data enrollment", e);
+                showEnrollmentModal(
+                    "Data gagal disimpan",
+                    "Terjadi kendala saat menyimpan data. Silakan cek koneksi internet dan coba lagi."
+                );
+            }
+        }
+
+        function setupEnrollmentFormSubmit() {
+            const form = document.getElementById("registrationForm");
+            const submitBtn = document.getElementById("submitBtn");
+            const multiCheckbox = document.getElementById("multiEnrollCheckbox");
+            if (!form || !submitBtn) return;
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const refreshAfter = !!(multiCheckbox && multiCheckbox.checked);
+                saveEnrollmentData(refreshAfter);
+            });
+        }
+
+        loadEnrollmentInvoice();
+        setupJobStatusOther();
+        setupMultiEnrollToggle();
+        setupEnrollmentFormSubmit();
+        setupEnrollmentModal();
+    </script>
+
+    <!-- LOGIKA SEDERHANA UNTUK STEPPER -->
+    <script>
+        const steps = document.querySelectorAll('.form-section');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        let currentStep = 0;
+        const fullNameInput = document.querySelector('input[name="full_name"]');
+        const whatsappInput = document.querySelector('input[name="whatsapp"]');
+        const goalTextarea = document.querySelector('textarea[name="goal_detail"]');
+
+        nextBtn.addEventListener('click', () => {
+            if (nextBtn.disabled) return;
+            if (!isStepValid(steps[currentStep])) {
+                updateNextButtonState();
+                return;
+            }
+            if (currentStep < steps.length - 1) {
+                steps[currentStep].classList.remove('active');
+                currentStep++;
+                steps[currentStep].classList.add('active');
+                updateButtons();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 0) {
+                steps[currentStep].classList.remove('active');
+                currentStep--;
+                steps[currentStep].classList.add('active');
+                updateButtons();
+                updateSubmitButtonState();
+                updateNextButtonState();
+            }
+        });
+
+        function isStepValid(stepEl) {
+            if (!stepEl) return false;
+            const requiredFields = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
+            const radioGroupChecked = {};
+            for (const field of requiredFields) {
+                if (!field || field.disabled) continue;
+                if (field.classList && field.classList.contains('hidden')) continue;
+                if (field.closest && field.closest('.hidden')) continue;
+
+                const type = (field.getAttribute('type') || '').toLowerCase();
+                if (type === 'radio') {
+                    const name = field.getAttribute('name') || '';
+                    if (!name) continue;
+                    if (radioGroupChecked[name] != null) continue;
+                    const radios = stepEl.querySelectorAll(`input[type="radio"][name="${name}"]`);
+                    let anyChecked = false;
+                    for (const r of radios) {
+                        if (r.checked) {
+                            anyChecked = true;
+                            break;
+                        }
+                    }
+                    radioGroupChecked[name] = anyChecked;
+                    if (!anyChecked) return false;
+                    continue;
+                }
+
+                if (type === 'checkbox') {
+                    if (!field.checked) return false;
+                    continue;
+                }
+
+                if (field.tagName === 'SELECT') {
+                    if (!String(field.value || '').trim()) return false;
+                    continue;
+                }
+
+                if (!String(field.value || '').trim()) return false;
+            }
+            return true;
+        }
+
+        function updateNextButtonState() {
+            if (!nextBtn) return;
+            if (currentStep >= steps.length - 1) return;
+            const enabled = isStepValid(steps[currentStep]);
+            nextBtn.disabled = !enabled;
+            if (enabled) {
+                nextBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+        }
+
+        function updateButtons() {
+            if (currentStep === 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (currentStep === steps.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+                updateSubmitButtonState();
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+                updateNextButtonState();
+            }
+        }
+
+        function updateSubmitButtonState() {
+            if (!submitBtn) return;
+            const enabled = currentStep === steps.length - 1 ? isStepValid(steps[currentStep]) : false;
+            submitBtn.disabled = !enabled;
+            if (enabled) {
+                submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            } else {
+                submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+        }
+
+        if (fullNameInput) {
+            fullNameInput.addEventListener('input', updateSubmitButtonState);
+        }
+        if (whatsappInput) {
+            whatsappInput.addEventListener('input', updateSubmitButtonState);
+        }
+        if (goalTextarea) {
+            goalTextarea.addEventListener('input', updateSubmitButtonState);
+        }
+
+        const registrationForm = document.getElementById('registrationForm');
+        if (registrationForm) {
+            registrationForm.addEventListener('input', function () {
+                updateNextButtonState();
+                updateSubmitButtonState();
+            });
+            registrationForm.addEventListener('change', function () {
+                updateNextButtonState();
+                updateSubmitButtonState();
+            });
+        }
+
+        updateSubmitButtonState();
+        updateNextButtonState();
+    </script>
+</body>
+</html>

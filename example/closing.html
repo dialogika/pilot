@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialogika | Elite Stage Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --dark: #0f172a;
+            --bg-body: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --shadow-elite: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding-top: 40px; }
+
+        /* --- COMPACT DROPDOWN NAV (RIGHT ALIGNED) --- */
+        .stage-switcher-container {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            z-index: 9999;
+        }
+
+        .dropdown-trigger {
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dropdown-trigger:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: var(--shadow-elite);
+            border: 1px solid var(--border);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Tampilkan menu saat container di hover atau fokus */
+        .stage-switcher-container:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover { background: #f8fafc; color: var(--primary); }
+        .dropdown-item.active { background: var(--primary); color: white; }
+
+        .indicator { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* --- CONTENT LAYOUT --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+        header {
+            margin-bottom: 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .title-area h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1.5px; color: var(--dark); }
+        .title-area p { color: var(--text-muted); font-weight: 500; margin-top: 5px; }
+
+        /* --- STATS CARD --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 3.5rem; }
+        
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 28px;
+            box-shadow: var(--shadow-elite);
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+        }
+        
+        .stat-card small { font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-size: 0.7rem; }
+        .stat-card h2 { font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; color: var(--dark); }
+
+        /* --- ELITE TABLE --- */
+        .table-wrapper {
+            background: white;
+            border-radius: 35px;
+            box-shadow: var(--shadow-elite);
+            border: 1px solid var(--white);
+            overflow: hidden;
+            margin-bottom: 50px;
+        }
+
+        .table-toolbar {
+            padding: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-elite {
+            background: #f1f5f9;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 18px;
+            width: 350px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #f8fafc;
+            padding: 1.2rem 2.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        td { padding: 1.8rem 2.5rem; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+        tr:hover td { background: #fbfdff; }
+
+        /* --- BADGES --- */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+        .b-leads { background: #eef2ff; color: #4338ca; }
+        .b-closing { background: #f0fdf4; color: #166534; }
+
+        .btn-wa {
+            background: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .btn-wa:hover { box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); transform: scale(1.03); }
+
+        .client-name { font-weight: 800; font-size: 1.1rem; display: block; }
+        .client-loc { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .urgent { color: #ef4444; font-weight: 800; }
+
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <!-- COMPACT STAGE SWITCHER (TOP RIGHT) -->
+    <div class="stage-switcher-container">
+        <div class="dropdown-trigger">
+            <span class="indicator" style="background: #22c55e;"></span>
+            Current Stage: All Activities
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        
+        <div class="dropdown-menu">
+            <a href="#" class="dropdown-item active">📊 All Activities</a>
+            <a href="#" class="dropdown-item"><span class="indicator" style="background: #3b82f6;"></span> 💎 Leads Stage</a>
+            <a href="#" class="dropdown-item"><span class="indicator" style="background: #f59e0b;"></span> 🔥 Follow Up</a>
+            <a href="#" class="dropdown-item"><span class="indicator" style="background: #a855f7;"></span> 🧾 Invoice Sent</a>
+            <a href="#" class="dropdown-item"><span class="indicator" style="background: #f97316;"></span> 🌱 Nurturing</a>
+            <a href="#" class="dropdown-item"><span class="indicator" style="background: #22c55e;"></span> 🏆 Closed Deals</a>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <a href="#" class="dropdown-item" style="color: #ef4444;">✖ Cancelled</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="title-area">
+                <p>DIALOGIKA MANAGEMENT SYSTEM</p>
+                <h1>Closing Center</h1>
+            </div>
+            <button style="background: var(--dark); color: white; border: none; padding: 16px 32px; border-radius: 20px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">+ Add New Lead</button>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>New Opportunities</small>
+                <h2 style="color: var(--primary)">24</h2>
+            </div>
+            <div class="stat-card">
+                <small>Action Required</small>
+                <h2 style="color: #f59e0b">12</h2>
+            </div>
+            <div class="stat-card">
+                <small>Est. Revenue</small>
+                <h2 style="color: #a855f7">42M</h2>
+            </div>
+            <div class="stat-card">
+                <small>Conversion Rate</small>
+                <h2 style="color: #22c55e">68%</h2>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-toolbar">
+                <h3 style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px;">Live Sales Pipeline</h3>
+                <input type="text" class="search-elite" placeholder="Search by name, city, or program...">
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client Detail</th>
+                        <th>Stage</th>
+                        <th>Interest</th>
+                        <th>Next Action</th>
+                        <th>Contact</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="client-name">Nora Alexandria</span>
+                            <span class="client-loc">Yogyakarta, ID</span>
+                        </td>
+                        <td><span class="badge b-leads">1. LEADS</span></td>
+                        <td><span style="font-weight: 700;">Executive Kids Class</span></td>
+                        <td><span class="urgent">⏰ Today, 15:00</span></td>
+                        <td><a href="#" class="btn-wa">Direct WhatsApp</a></td>
+                        <td><button style="background:none; border:1px solid #ddd; padding:10px 18px; border-radius:12px; font-weight:700; cursor:pointer;">Open</button></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="client-name">Sanny Prayogo</span>
+                            <span class="client-loc">Yogyakarta, ID</span>
+                        </td>
+                        <td><span class="badge b-closing">🏆 CLOSING</span></td>
+                        <td><span style="font-weight: 700;">Intensive Coaching</span></td>
+                        <td><span style="color: #22c55e; font-weight: 800;">✓ Completed</span></td>
+                        <td><a href="#" class="btn-wa" style="background: #f1f5f9; color: #64748b;">Follow Up</a></td>
+                        <td><button style="background:none; border:1px solid #ddd; padding:10px 18px; border-radius:12px; font-weight:700; cursor:pointer;">Open</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

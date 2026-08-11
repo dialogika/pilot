@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Files - Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+    <div id="topbarContainer"></div>
+<div class="d-flex">
+    
+    <div id="sidebarContainer"></div>
+    <main class="main-content w-100" style="margin-left:290px; padding-top:100px">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="dropdown">
+                    <button class="btn btn-dlg-green rounded-pill px-4 fw-semibold dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        + New Files
+                    </button>
+                    <ul class="dropdown-menu shadow border-0" style="min-width:260px; border-radius:16px;">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-3 py-3" href="#" id="startNewDocLink">
+                                <i class="bi bi-file-earmark-text fs-5 text-dark"></i>
+                                <span class="fw-semibold">Start a new doc</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light border rounded-pill px-3 py-2">
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-light border rounded-pill px-3 py-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Unsorted
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Unsorted</a></li>
+                            <li><a class="dropdown-item" href="#">Newest first</a></li>
+                            <li><a class="dropdown-item" href="#">Oldest first</a></li>
+                            <li><a class="dropdown-item" href="#">A → Z</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-light border rounded-pill px-3 py-2" style="border-radius: 100%;">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                </div>
+            </div>
+            <h3 class="fw-bold text-center mb-1" id="folderTitleHeading">Folder</h3>
+            <p class="text-center text-muted mb-4" id="folderSubtitleHeading"></p>
+            <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+                    <div class="input-group bg-white border rounded-pill px-2 shadow-sm" style="overflow:hidden;">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                        <input type="text"
+                               id="fileSearchInput"
+                               class="form-control bg-transparent border-0 shadow-none"
+                               placeholder="Search files in this folder...">
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4" id="filesGrid"></div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { renderTopBar } from "../element/topbar.js";
+    import { renderSidebar } from "../element/sidebar.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import {
+        getFirestore,
+        doc,
+        collection,
+        getDoc,
+        getDocs,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        setDoc,
+        query,
+        where,
+        orderBy,
+        onSnapshot,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    window.db = db;
+    window.auth = auth;
+    window.collection = collection;
+    window.getDoc = getDoc;
+    window.getDocs = getDocs;
+    window.addDoc = addDoc;
+    window.updateDoc = updateDoc;
+    window.deleteDoc = deleteDoc;
+    window.setDoc = setDoc;
+    window.doc = doc;
+    window.serverTimestamp = serverTimestamp;
+
+    const topbarTarget = document.getElementById('topbarContainer');
+    renderTopBar(topbarTarget);
+
+    const sidebarTarget = document.getElementById('sidebarContainer');
+    renderSidebar(sidebarTarget);
+
+    const params = new URLSearchParams(window.location.search);
+    let projectId = params.get("projectId") || params.get("id");
+    const folderId = params.get("folderId");
+    if (!projectId) {
+        try {
+            const cached = localStorage.getItem("currentProjectId");
+            if (cached) projectId = cached;
+        } catch (e) {}
+    }
+
+    const filesGrid = document.getElementById("filesGrid");
+    const fileSearchInput = document.getElementById("fileSearchInput");
+    const startNewDocLink = document.getElementById("startNewDocLink");
+    const folderTitleHeading = document.getElementById("folderTitleHeading");
+    const folderSubtitleHeading = document.getElementById("folderSubtitleHeading");
+    let allFiles = [];
+    let currentSearch = "";
+
+    function getFilesCollectionRef() {
+        if (!projectId) return null;
+        return collection(db, "projects", projectId, "files");
+    }
+
+    async function loadFolderHeader() {
+        if (!projectId || !folderId) return;
+        try {
+            const ref = doc(db, "projects", projectId, "file_folders", folderId);
+            const snap = await getDoc(ref);
+            if (!snap.exists()) return;
+            const data = snap.data();
+            const name = data.name || "Folder";
+            if (folderTitleHeading) folderTitleHeading.innerText = name;
+            if (folderSubtitleHeading) folderSubtitleHeading.innerText = "Files inside this folder";
+        } catch (e) {
+            console.error("Failed to load folder header", e);
+        }
+    }
+
+    function truncateText(text, maxLength) {
+        if (!text) return "";
+        const clean = String(text);
+        if (clean.length <= maxLength) return clean;
+        return clean.substring(0, maxLength - 3) + "...";
+    }
+
+    function renderFiles(docs) {
+        if (!filesGrid) return;
+        filesGrid.innerHTML = "";
+        if (!docs || docs.length === 0) {
+            filesGrid.innerHTML = '<div class="col-12"><p class="text-muted small mb-0 text-center">No docs in this folder yet.</p></div>';
+            return;
+        }
+        docs.forEach(d => {
+            const fileId = d.id;
+            const detailUrl = projectId
+                ? "files-doc.html?projectId=" + encodeURIComponent(projectId) + "&fileId=" + encodeURIComponent(fileId)
+                : "#";
+            const title = d.title || "Untitled doc";
+            const plain = d.text_plain || "";
+            const preview = truncateText(plain, 120);
+            const createdAt = d.created_at && d.created_at.toDate ? d.created_at.toDate() : null;
+            const dateStr = createdAt ? createdAt.toLocaleDateString() : "";
+            const html = `
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <a href="${detailUrl}" class="text-decoration-none text-reset">
+                        <div class="border shadow-purple rounded-3 bg-white p-3 d-flex flex-column justify-content-between" style="min-height:200px;border:0px;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="small text-muted"><i class="bi bi-file-earmark-text"></i></span>
+                                <span class="badge rounded-pill" style="background:#0B2B6A;">${dateStr}</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold mb-1" style="max-height:40px; overflow:hidden;">${title}</div>
+                                <div class="text-muted small" style="font-size:0.8rem; max-height:72px; overflow:hidden;">
+                                    ${preview || ""}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mt-2">
+                                <div class="rounded-circle bg-secondary-subtle" style="width:24px; height:24px;"></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `;
+            filesGrid.insertAdjacentHTML("beforeend", html);
+        });
+    }
+
+    function applyFileFilter() {
+        const term = (currentSearch || "").trim().toLowerCase();
+        if (!term) {
+            renderFiles(allFiles);
+            return;
+        }
+        const filtered = allFiles.filter(d => {
+            const title = (d.title || "").toLowerCase();
+            const plain = (d.text_plain || "").toLowerCase();
+            return title.includes(term) || plain.includes(term);
+        });
+        renderFiles(filtered);
+    }
+
+    function listenFiles() {
+        try {
+            const ref = getFilesCollectionRef();
+            if (!ref || !folderId) {
+                allFiles = [];
+                renderFiles([]);
+                return;
+            }
+            const q = query(ref, where("parent_id", "==", folderId), orderBy("created_at", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const docs = [];
+                snapshot.forEach(docSnap => {
+                    docs.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                allFiles = docs;
+                applyFileFilter();
+            }, (error) => {
+                console.error("Failed to listen files in folder", error);
+            });
+        } catch (e) {
+            console.error("Failed to start folder files listener", e);
+            allFiles = [];
+            renderFiles([]);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (startNewDocLink && projectId) {
+            let url = "files-craft.html?projectId=" + encodeURIComponent(projectId);
+            if (folderId) {
+                url += "&folderId=" + encodeURIComponent(folderId);
+            }
+            startNewDocLink.href = url;
+        }
+        if (fileSearchInput) {
+            fileSearchInput.addEventListener("input", () => {
+                currentSearch = fileSearchInput.value || "";
+                applyFileFilter();
+            });
+        }
+        if (!projectId || !folderId) {
+            renderFiles([]);
+            return;
+        }
+        loadFolderHeader();
+        listenFiles();
+    });
+</script>
+<script>
+    function logout() {
+        localStorage.removeItem('userData');
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>

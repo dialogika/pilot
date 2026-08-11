@@ -1,0 +1,4727 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class Management - Team Dialogika</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .status-pill {
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .status-soon {
+        background: #f5f5f5;
+        color: #4b5563;
+      }
+      .status-running {
+        background: #ecfdf3;
+        color: #15803d;
+      }
+      .status-reminder {
+        background: #fefce8;
+        color: #b45309;
+      }
+      .status-stall {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+      .status-graduate {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+      .status-complete {
+        background: #020617;
+        color: #e5e7eb;
+      }
+      .status-breakdown {
+        font-weight: 800;
+      }
+      .status-breakdown-soon {
+        background: #fca5a5;
+        color: #7f1d1d;
+      }
+      .status-breakdown-running {
+        background: #7dd3fc;
+        color: #0c4a6e;
+      }
+      .status-breakdown-reminder {
+        background: #d8b4fe;
+        color: #581c87;
+      }
+      .status-breakdown-stall {
+        background: #d1d5db;
+        color: #1f2937;
+      }
+      .status-breakdown-graduate {
+        background: #fb923c;
+        color: #7c2d12;
+      }
+      .status-breakdown-complete {
+        background: #4ade80;
+        color: #14532d;
+      }
+      .status-bar-soon {
+        background: #fca5a5;
+      }
+      .status-bar-running {
+        background: #7dd3fc;
+      }
+      .status-bar-reminder {
+        background: #d8b4fe;
+      }
+      .status-bar-stall {
+        background: #d1d5db;
+      }
+      .status-bar-graduate {
+        background: #fb923c;
+      }
+      .status-bar-complete {
+        background: #4ade80;
+      }
+      .table-sticky thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #f8fafc;
+      }
+      .table-sticky tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      .modal-backdrop-custom {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        z-index: 2000;
+        overflow-y: auto;
+        padding: 84px 16px 24px;
+      }
+      .modal-backdrop-custom.open {
+        display: flex;
+      }
+      .modal-card {
+        width: 100%;
+        max-height: calc(100vh - 108px);
+        overflow: hidden;
+      }
+      .modal-body-scroll {
+        max-height: calc(100vh - 260px);
+        overflow-y: auto;
+      }
+      @media (max-width: 768px) {
+        .modal-backdrop-custom {
+          padding-top: 72px;
+          padding-bottom: 16px;
+        }
+        .modal-card {
+          max-height: calc(100vh - 88px);
+        }
+        .modal-body-scroll {
+          max-height: calc(100vh - 220px);
+        }
+      }
+      .tab-pill {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .tab-pill-active {
+        background: #0f172a;
+        color: #f9fafb;
+      }
+      .tab-pill-inactive {
+        background: #e5e7eb;
+        color: #6b7280;
+      }
+      /* === Calendar View === */
+      .cal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .cal-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .cal-nav button {
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #334155;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .cal-nav button:hover {
+        background: #f1f5f9;
+      }
+      .cal-nav .cal-month-label {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f172a;
+        min-width: 140px;
+        text-align: center;
+      }
+      .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .cal-day-header {
+        background: #f8fafc;
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .cal-cell {
+        background: #fff;
+        min-height: 110px;
+        padding: 6px;
+        position: relative;
+        vertical-align: top;
+      }
+      .cal-cell.other-month {
+        background: #f8fafc;
+      }
+      .cal-cell.today {
+        box-shadow: inset 0 0 0 2px #38bdf8;
+      }
+      .cal-date-num {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        margin-bottom: 4px;
+      }
+      .cal-cell.other-month .cal-date-num {
+        color: #cbd5e1;
+      }
+      .cal-card {
+        padding: 5px 7px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+        cursor: pointer;
+        transition:
+          transform 0.12s,
+          box-shadow 0.12s;
+        border-left: 3px solid transparent;
+      }
+      .cal-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .cal-card-soon {
+        background: #f5f5f5;
+        border-left-color: #9ca3af;
+      }
+      .cal-card-running {
+        background: #ecfdf3;
+        border-left-color: #22c55e;
+      }
+      .cal-card-reminder {
+        background: #fefce8;
+        border-left-color: #f59e0b;
+      }
+      .cal-card-stall {
+        background: #fef2f2;
+        border-left-color: #ef4444;
+      }
+      .cal-card-graduate {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+      }
+      .cal-card-complete {
+        background: #1e293b;
+        border-left-color: #475569;
+        color: #e2e8f0;
+      }
+      .cal-card-title {
+        font-size: 10px;
+        font-weight: 700;
+        color: inherit;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cal-card-meta {
+        font-size: 9px;
+        color: #64748b;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .cal-card-complete .cal-card-meta {
+        color: #94a3b8;
+      }
+      .cal-type-badge {
+        font-size: 8px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.06);
+      }
+      .view-toggle {
+        display: inline-flex;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+      }
+      .view-toggle button {
+        padding: 6px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: #fff;
+        color: #64748b;
+      }
+      .view-toggle button.active {
+        background: #0f172a;
+        color: #f9fafb;
+      }
+      @media (max-width: 768px) {
+        .cal-grid {
+          min-width: 700px;
+        }
+        .cal-cell {
+          min-height: 80px;
+        }
+      }
+      .planning-modal-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.7fr);
+        gap: 16px;
+      }
+      .planning-unscheduled {
+        min-height: 220px;
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        padding: 10px;
+        font-size: 11px;
+        overflow-y: auto;
+        max-height: 260px;
+      }
+      .planning-unscheduled-empty {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+      .planning-card {
+        padding: 8px 10px;
+        border-radius: 12px;
+        margin-bottom: 6px;
+        cursor: grab;
+        transition:
+          transform 0.12s,
+          box-shadow 0.12s;
+        border-left: 4px solid #0ea5e9;
+        background: #e0f2fe;
+        font-size: 11px;
+        font-weight: 600;
+        color: #0f172a;
+      }
+      .planning-card:active {
+        cursor: grabbing;
+      }
+      .planning-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .planning-card-meta {
+        font-size: 10px;
+        color: #64748b;
+        margin-top: 2px;
+      }
+      .planning-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        min-width: 720px;
+      }
+      .planning-day-header {
+        background: #f8fafc;
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .planning-day-column {
+        background: #ffffff;
+        max-height: 420px;
+        overflow-y: auto;
+      }
+      .planning-day-column-inner {
+        padding: 4px;
+      }
+      .planning-slot {
+        border-radius: 10px;
+        border: 1px dashed #e5e7eb;
+        margin-bottom: 4px;
+        padding: 4px 6px;
+        font-size: 10px;
+        color: #64748b;
+        background: #ffffff;
+      }
+      .planning-slot-time {
+        font-weight: 700;
+        font-size: 10px;
+        color: #0f172a;
+        margin-bottom: 2px;
+      }
+      .planning-slot-body {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .planning-slot-empty {
+        font-size: 10px;
+        color: #cbd5e1;
+      }
+      .planning-slot-active {
+        border-color: #0ea5e9;
+        background: #f0f9ff;
+      }
+      .planning-toast {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 2100;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .planning-toast-success {
+        background: #22c55e;
+        color: #ecfdf5;
+      }
+      .planning-toast-error {
+        background: #ef4444;
+        color: #fef2f2;
+      }
+      .search-dropdown {
+        position: relative;
+      }
+      .search-dropdown-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 240px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        z-index: 50;
+        margin-top: 0.35rem;
+      }
+      .search-dropdown-item {
+        padding: 0.65rem 0.9rem;
+        cursor: pointer;
+        font-size: 0.75rem;
+        color: #0f172a;
+      }
+      .search-dropdown-item:hover {
+        background: #f8fafc;
+      }
+      .search-dropdown-empty {
+        padding: 0.75rem 0.9rem;
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+      .field-error-text {
+        color: #dc2626;
+        font-size: 0.72rem;
+        margin-top: 0.25rem;
+      }
+      @media (max-width: 1024px) {
+        .planning-modal-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+  <body class="p-8 bg-slate-50">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+      <main class="main-content">
+        <div class="flex justify-between items-start mb-8">
+          <div>
+            <h1
+              class="text-2xl font-bold text-slate-900 flex items-center gap-2"
+            >
+              <i
+                data-lucide="layout-dashboard"
+                class="w-6 h-6 text-sky-600"
+              ></i>
+              Class Management
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+              Kelola data kelas, progres meeting, dan status operasional setiap
+              batch.
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <a
+              href="./class-planning.html"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100"
+            >
+              <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+              Perencanaan Kelas
+            </a>
+            <button
+              id="btnOpenRemedial"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-700"
+            >
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
+              Kelas Remedial
+            </button>
+            <a
+              href="./class-checkup.html"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              <i data-lucide="calendar-check-2" class="w-4 h-4"></i>
+              Check-Up Class
+            </a>
+            <div class="relative">
+              <button
+                id="btnExportMenu"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </button>
+              <div
+                id="exportDropdown"
+                class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-slate-100 text-xs text-slate-700 hidden z-30"
+              >
+                <button
+                  id="btnExportCsv"
+                  class="w-full text-left px-4 py-2 hover:bg-slate-50"
+                >
+                  Export CSV
+                </button>
+                <button
+                  id="btnExportExcel"
+                  class="w-full text-left px-4 py-2 hover:bg-slate-50"
+                >
+                  Export Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div
+            class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                >Total Class</span
+              >
+              <span
+                class="w-8 h-8 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center"
+              >
+                <i data-lucide="layers" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span
+                id="statTotalClass"
+                class="text-2xl font-extrabold text-slate-900"
+                >0</span
+              >
+              <span class="text-xs text-slate-400">kelas</span>
+            </div>
+          </div>
+          <div
+            class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                >Running</span
+              >
+              <span
+                class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center"
+              >
+                <i data-lucide="play-circle" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span
+                id="statRunningClass"
+                class="text-2xl font-extrabold text-slate-900"
+                >0</span
+              >
+              <span
+                class="text-xs text-emerald-600 font-semibold"
+                id="statRunningRatio"
+              ></span>
+            </div>
+          </div>
+          <div
+            class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                >At Risk / Stall</span
+              >
+              <span
+                class="w-8 h-8 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center"
+              >
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span
+                id="statStallClass"
+                class="text-2xl font-extrabold text-slate-900"
+                >0</span
+              >
+              <span
+                class="text-xs text-rose-500 font-semibold"
+                id="statStallRatio"
+              ></span>
+            </div>
+          </div>
+          <div
+            class="bg-white rounded-3xl border border-slate-100 p-4 flex flex-col gap-2"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                >Avg Health Score</span
+              >
+              <span
+                class="w-8 h-8 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center"
+              >
+                <i data-lucide="activity" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span
+                id="statAvgHealth"
+                class="text-2xl font-extrabold text-slate-900"
+                >0.0</span
+              >
+              <span class="text-xs text-slate-400">/ 10</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div
+            class="bg-white rounded-3xl border border-slate-100 p-5 lg:col-span-2"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2
+                  class="text-sm font-black text-slate-800 uppercase tracking-widest"
+                >
+                  Daftar Kelas
+                </h2>
+                <p class="text-xs text-slate-400">
+                  Kelola status kelas, meeting, dan kesehatan kelas.
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <div class="relative">
+                  <input
+                    id="searchClass"
+                    type="text"
+                    placeholder="Cari kelas..."
+                    class="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 w-56 bg-slate-50"
+                  />
+                  <i
+                    data-lucide="search"
+                    class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"
+                  ></i>
+                </div>
+                <button
+                  id="btnToggleFilter"
+                  class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50"
+                >
+                  <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                  Filter
+                </button>
+                <a
+                  href="./class-checkup.html"
+                  class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100"
+                >
+                  <i data-lucide="calendar-check-2" class="w-4 h-4"></i>
+                  Open Check-Up
+                </a>
+              </div>
+            </div>
+
+            <div
+              id="filterPanel"
+              class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 hidden"
+            >
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Status</label
+                >
+                <select
+                  id="filterStatus"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                  <option value="Soon">Soon</option>
+                  <option value="Running">Running</option>
+                  <option value="Reminder">Reminder</option>
+                  <option value="Stall">Stall</option>
+                  <option value="Graduate">Graduate</option>
+                  <option value="Complete">Complete</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Mentor</label
+                >
+                <select
+                  id="filterMentor"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >PIC</label
+                >
+                <select
+                  id="filterPic"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Location</label
+                >
+                <select
+                  id="filterLocation"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Class Type</label
+                >
+                <select
+                  id="filterType"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Aktif / Stall</label
+                >
+                <select
+                  id="filterStall"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua</option>
+                  <option value="active">Aktif</option>
+                  <option value="stall">Stall</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Date Range (Start)</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    id="filterDateFrom"
+                    type="date"
+                    class="flex-1 text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                  <input
+                    id="filterDateTo"
+                    type="date"
+                    class="flex-1 text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="tableView"
+              class="rounded-2xl border border-slate-100 overflow-hidden bg-slate-50"
+            >
+              <div
+                class="flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50"
+              >
+                <span id="classCountText" class="text-[11px] text-slate-500"
+                  >0 kelas</span
+                >
+                <span id="sortLabel" class="text-[11px] text-slate-400"
+                  >Sort: Start Date ↑</span
+                >
+              </div>
+              <div class="overflow-x-auto max-h-[720px] table-sticky">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr
+                      class="text-[11px] uppercase tracking-widest text-slate-400"
+                    >
+                      <th class="px-4 py-3">
+                        <input
+                          id="checkAllClass"
+                          type="checkbox"
+                          class="rounded border-slate-300"
+                        />
+                      </th>
+                      <th
+                        data-sort="name"
+                        class="px-4 py-3 cursor-pointer select-none"
+                      >
+                        <span class="inline-flex items-center gap-1"
+                          >Class Name<i
+                            data-lucide="chevrons-up-down"
+                            class="w-3 h-3"
+                          ></i
+                        ></span>
+                      </th>
+                      <th
+                        data-sort="status"
+                        class="px-4 py-3 cursor-pointer select-none text-center"
+                      >
+                        <span
+                          class="inline-flex items-center gap-1 justify-center"
+                          >Status<i
+                            data-lucide="chevrons-up-down"
+                            class="w-3 h-3"
+                          ></i
+                        ></span>
+                      </th>
+                      <th
+                        data-sort="startDate"
+                        class="px-4 py-3 cursor-pointer select-none text-center"
+                      >
+                        <span
+                          class="inline-flex items-center gap-1 justify-center"
+                          >Start Date<i
+                            data-lucide="chevrons-up-down"
+                            class="w-3 h-3"
+                          ></i
+                        ></span>
+                      </th>
+                      <th class="px-4 py-3 text-center">Meeting</th>
+                      <th class="px-4 py-3 text-center">PIC</th>
+                      <th class="px-4 py-3 text-center">Mentor</th>
+                      <th class="px-4 py-3 text-center">Health</th>
+                      <th class="px-4 py-3 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="classTableBody"
+                    class="bg-white divide-y divide-slate-100"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <div class="bg-white rounded-3xl border border-slate-100 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3
+                  class="text-xs font-black text-slate-800 uppercase tracking-widest"
+                >
+                  Status Breakdown
+                </h3>
+                <span
+                  class="text-[11px] text-slate-400"
+                  id="statusLegend"
+                ></span>
+              </div>
+              <div
+                id="statusBreakdownList"
+                class="flex flex-col gap-2 text-[11px] text-slate-600"
+              ></div>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-100 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3
+                  class="text-xs font-black text-slate-800 uppercase tracking-widest"
+                >
+                  Kelas Perlu Perhatian
+                </h3>
+                <span class="text-[11px] text-rose-500"
+                  >Stall / Health Rendah</span
+                >
+              </div>
+              <div
+                id="atRiskClassList"
+                class="flex flex-col gap-2 text-[11px] text-slate-600"
+              ></div>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-100 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3
+                  class="text-xs font-black text-slate-800 uppercase tracking-widest"
+                >
+                  Meeting Progress
+                </h3>
+                <span
+                  class="text-[11px] text-slate-400"
+                  id="meetingSummary"
+                ></span>
+              </div>
+              <div
+                id="meetingProgressList"
+                class="flex flex-col gap-2 text-[11px] text-slate-600"
+              ></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="classDetailModal" class="modal-backdrop-custom">
+      <div
+        class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-5xl mx-auto"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              id="detailAvatar"
+              class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold"
+            ></div>
+            <div>
+              <div
+                id="detailClassName"
+                class="text-sm font-semibold text-slate-900"
+              ></div>
+              <div id="detailSubtitle" class="text-[11px] text-slate-500"></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div id="detailStatusBadge"></div>
+            <button
+              id="btnDetailDelete"
+              class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100"
+            >
+              Delete
+            </button>
+            <button
+              id="btnCloseDetail"
+              class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 pt-3 pb-0 border-b border-slate-100">
+          <div id="detailTabList" class="flex gap-2 text-[11px]">
+            <button data-tab="overview" class="tab-pill tab-pill-active">
+              Overview
+            </button>
+            <button data-tab="schedule" class="tab-pill tab-pill-inactive">
+              Schedule
+            </button>
+            <button data-tab="attendance" class="tab-pill tab-pill-inactive">
+              Attendance & Health
+            </button>
+            <button data-tab="members" class="tab-pill tab-pill-inactive">
+              Members
+            </button>
+            <button data-tab="files" class="tab-pill tab-pill-inactive">
+              Files & Comment
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4 modal-body-scroll">
+          <div
+            id="tab-overview"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"
+          >
+            <div class="space-y-2">
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase">
+                  Class Name
+                </div>
+                <div
+                  id="detailClassNameValue"
+                  class="text-sm font-semibold text-slate-900"
+                ></div>
+              </div>
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase">
+                  Status
+                </div>
+                <div id="detailStatusText" class="text-xs text-slate-800"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <div class="text-[10px] font-bold text-slate-400 uppercase">
+                    Start Date
+                  </div>
+                  <div
+                    id="detailStartDate"
+                    class="text-xs text-slate-800"
+                  ></div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-slate-400 uppercase">
+                    Location
+                  </div>
+                  <div id="detailLocation" class="text-xs text-slate-800"></div>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <div class="text-[10px] font-bold text-slate-400 uppercase">
+                    PIC
+                  </div>
+                  <div
+                    id="detailPic"
+                    class="flex items-center gap-2 text-xs text-slate-800"
+                  ></div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-slate-400 uppercase">
+                    Notify
+                  </div>
+                  <div
+                    id="detailNotify"
+                    class="flex items-center gap-2 text-xs text-slate-800"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase">
+                  Class Type
+                </div>
+                <div id="detailType" class="text-xs text-slate-800"></div>
+              </div>
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase">
+                  Group Link
+                </div>
+                <a
+                  id="detailGroupLink"
+                  href="#"
+                  target="_blank"
+                  class="inline-flex items-center gap-1 text-xs text-sky-600 hover:underline"
+                ></a>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <div
+                  class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                >
+                  Mentor
+                </div>
+                <div
+                  id="detailMentorList"
+                  class="flex flex-wrap gap-2 text-xs"
+                ></div>
+              </div>
+              <div>
+                <div
+                  class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                >
+                  Meeting Progress
+                </div>
+                <div class="flex items-center justify-between text-[11px] mb-1">
+                  <span id="detailMeetingSummary" class="text-slate-700"></span>
+                  <span id="detailMeetingPercent" class="text-slate-500"></span>
+                </div>
+                <div
+                  class="w-full h-2 rounded-full bg-slate-100 overflow-hidden"
+                >
+                  <div
+                    id="detailMeetingBar"
+                    class="h-2 rounded-full bg-emerald-500"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div
+                  class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                >
+                  Health Score
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="relative">
+                    <div
+                      class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-700"
+                    >
+                      <span id="detailHealthScore">0.0</span>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <div
+                      id="detailHealthLabel"
+                      class="text-[11px] font-semibold text-slate-800 mb-0.5"
+                    ></div>
+                    <div
+                      id="detailHealthMeta"
+                      class="text-[11px] text-slate-500"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-schedule" class="hidden text-xs space-y-3">
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                Dates & Reminder
+              </div>
+              <div id="detailDatesList" class="flex flex-col gap-1"></div>
+            </div>
+          </div>
+
+          <div id="tab-attendance" class="hidden text-xs space-y-3">
+            <div class="grid grid-cols-3 gap-3">
+              <div
+                class="p-3 rounded-2xl bg-emerald-50 border border-emerald-100"
+              >
+                <div
+                  class="text-[10px] font-bold text-emerald-700 uppercase mb-1"
+                >
+                  Attendance
+                </div>
+                <div
+                  id="detailAttendance"
+                  class="text-lg font-extrabold text-emerald-700"
+                >
+                  0%
+                </div>
+              </div>
+              <div class="p-3 rounded-2xl bg-amber-50 border border-amber-100">
+                <div
+                  class="text-[10px] font-bold text-amber-700 uppercase mb-1"
+                >
+                  Delay / Reminder
+                </div>
+                <div
+                  id="detailDelay"
+                  class="text-lg font-extrabold text-amber-700"
+                >
+                  0x
+                </div>
+              </div>
+              <div class="p-3 rounded-2xl bg-rose-50 border border-rose-100">
+                <div class="text-[10px] font-bold text-rose-700 uppercase mb-1">
+                  Reschedule
+                </div>
+                <div
+                  id="detailReschedule"
+                  class="text-lg font-extrabold text-rose-700"
+                >
+                  0x
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                Health Score
+              </div>
+              <div
+                class="w-full h-2 rounded-full bg-slate-100 overflow-hidden mb-1"
+              >
+                <div
+                  id="detailHealthBar"
+                  class="h-2 rounded-full bg-emerald-500"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                id="detailHealthExplanation"
+                class="text-[11px] text-slate-500"
+              ></div>
+            </div>
+          </div>
+
+          <div id="tab-members" class="hidden text-xs space-y-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">
+                Members
+              </div>
+              <div class="text-[10px] text-slate-400">
+                Terhubung dengan leads-management (konsep)
+              </div>
+            </div>
+            <div id="detailMemberList" class="flex flex-col gap-1"></div>
+          </div>
+
+          <div id="tab-files" class="hidden text-xs space-y-3">
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                Files
+              </div>
+              <div id="detailFileList" class="flex flex-col gap-1"></div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                Comment
+              </div>
+              <textarea
+                id="detailComment"
+                class="w-full text-xs rounded-2xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                rows="3"
+                placeholder="Catatan khusus untuk kelas ini..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div
+          class="px-6 py-3 border-t border-slate-100 flex justify-between items-center"
+        >
+          <div class="text-[11px] text-slate-400">
+            Data Class dapat dihubungkan ke halaman class-available dan
+            leads-management.
+          </div>
+          <div class="flex gap-2">
+            <button
+              id="btnDetailSave"
+              class="px-4 py-2 rounded-xl text-[11px] font-semibold text-white bg-sky-600 hover:bg-sky-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="addClassModal" class="modal-backdrop-custom">
+      <div
+        class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-xl mx-auto"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center"
+            >
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">New Class</div>
+              <div class="text-[11px] text-slate-500">
+                Tambahkan kelas baru untuk dimonitor.
+              </div>
+            </div>
+          </div>
+          <button
+            id="btnCloseAddClass"
+            class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="px-6 py-4 modal-body-scroll">
+          <div class="grid grid-cols-1 gap-3 text-xs">
+            <div>
+              <label
+                class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                >Class Name</label
+              >
+              <input
+                id="inputClassName"
+                type="text"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Status</label
+                >
+                <select
+                  id="inputStatus"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="Soon">Soon</option>
+                  <option value="Running">Running</option>
+                  <option value="Reminder">Reminder</option>
+                  <option value="Stall">Stall</option>
+                  <option value="Graduate">Graduate</option>
+                  <option value="Complete">Complete</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Class Type</label
+                >
+                <select
+                  id="inputType"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Start Date</label
+                >
+                <input
+                  id="inputStartDate"
+                  type="date"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Location</label
+                >
+                <input
+                  id="inputLocation"
+                  type="text"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Jakarta / Online / Hybrid"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >PIC</label
+                >
+                <input
+                  id="inputPic"
+                  type="text"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Nama PIC"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Notify</label
+                >
+                <input
+                  id="inputNotify"
+                  type="text"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Ketua tim"
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                >Mentor</label
+              >
+              <input
+                id="inputMentor"
+                type="text"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="Pisahkan dengan koma jika lebih dari satu"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                >Group Link (WhatsApp)</label
+              >
+              <input
+                id="inputGroupLink"
+                type="url"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="https://chat.whatsapp.com/..."
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Total Meeting</label
+                >
+                <input
+                  id="inputMeetingTotal"
+                  type="number"
+                  min="0"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Contoh: 8"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-500 uppercase mb-1"
+                  >Meeting Done</label
+                >
+                <input
+                  id="inputMeetingDone"
+                  type="number"
+                  min="0"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Contoh: 3"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-3 border-t border-slate-100 flex justify-end gap-2">
+          <button
+            id="btnAddClassCancel"
+            class="px-4 py-2 rounded-xl text-[11px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200"
+          >
+            Batal
+          </button>
+          <button
+            id="btnAddClassSave"
+            class="px-5 py-2 rounded-xl text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="planningModal" class="modal-backdrop-custom">
+      <div
+        class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-5xl mx-auto"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center"
+            >
+              <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">
+                Perencanaan Kelas
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Susun jadwal kelas sebelum masuk tahap Check-Up.
+              </div>
+            </div>
+          </div>
+          <button
+            id="btnClosePlanning"
+            class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="px-6 py-4 modal-body-scroll">
+          <div class="planning-modal-grid text-xs">
+            <div class="space-y-4">
+              <div>
+                <div
+                  class="text-[10px] font-bold text-slate-500 uppercase mb-1"
+                >
+                  Input Kelas
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                  <div>
+                    <div
+                      class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >
+                      Nama Kelas
+                    </div>
+                    <input
+                      id="planName"
+                      type="text"
+                      class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    />
+                  </div>
+                  <div>
+                    <div
+                      class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >
+                      Mentor
+                    </div>
+                    <input
+                      id="planMentor"
+                      type="text"
+                      class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                      placeholder="Nama mentor"
+                    />
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <div
+                        class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                      >
+                        Durasi (jam)
+                      </div>
+                      <input
+                        id="planDuration"
+                        type="number"
+                        min="1"
+                        class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                        value="2"
+                      />
+                    </div>
+                    <div>
+                      <div
+                        class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                      >
+                        Tipe
+                      </div>
+                      <select
+                        id="planType"
+                        class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                      >
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Hybrid">Hybrid</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >
+                      Catatan
+                    </div>
+                    <textarea
+                      id="planNote"
+                      rows="2"
+                      class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <button
+                id="btnPlanningAddClass"
+                class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Tambah ke Daftar Rencana
+              </button>
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <div class="text-[10px] font-bold text-slate-500 uppercase">
+                    Kelas Belum Dijadwalkan
+                  </div>
+                  <div
+                    id="planningUnscheduledCount"
+                    class="text-[10px] text-slate-400"
+                  >
+                    0 kelas
+                  </div>
+                </div>
+                <div id="planningUnscheduledList" class="planning-unscheduled">
+                  <div class="planning-unscheduled-empty">
+                    Belum ada kelas pada daftar rencana.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div
+                    class="text-[10px] font-bold text-slate-500 uppercase mb-0.5"
+                  >
+                    Kalender Perencanaan
+                  </div>
+                  <div class="text-[11px] text-slate-500">
+                    Drag kartu kelas ke tanggal dan jam yang diinginkan.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <button
+                    id="planningPrevWeek"
+                    class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  >
+                    ‹
+                  </button>
+                  <div
+                    id="planningWeekLabel"
+                    class="font-semibold text-slate-700"
+                  ></div>
+                  <button
+                    id="planningNextWeek"
+                    class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <div id="planningCalendar" class="planning-calendar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="remedialModal" class="modal-backdrop-custom">
+      <div
+        class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-4xl mx-auto"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center"
+            >
+              <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">
+                Tambah Kelas Remedial
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Isi detail remedial dan simpan ke kelas yang dipilih.
+              </div>
+            </div>
+          </div>
+          <button
+            id="btnCloseRemedial"
+            class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="px-6 py-4 modal-body-scroll text-xs">
+          <div class="grid grid-cols-1 gap-4">
+            <div class="space-y-4">
+              <div>
+                <div
+                  class="text-[10px] font-bold text-slate-400 uppercase mb-1"
+                >
+                  Nama Kelas
+                </div>
+                <input
+                  id="remedialClassName"
+                  type="text"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                  placeholder="Contoh: Speaking Remedial Batch 3"
+                />
+                <p
+                  id="remedialClassNameError"
+                  class="field-error-text hidden"
+                ></p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="search-dropdown">
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Pilih Kelas</label
+                  >
+                  <input
+                    id="remedialClassSearch"
+                    type="text"
+                    autocomplete="off"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    placeholder="Cari kelas..."
+                  />
+                  <div
+                    id="remedialClassList"
+                    class="search-dropdown-list hidden"
+                  ></div>
+                  <p
+                    id="remedialClassError"
+                    class="field-error-text hidden"
+                  ></p>
+                </div>
+                <div class="search-dropdown">
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Pilih Mentor</label
+                  >
+                  <input
+                    id="remedialMentorSearch"
+                    type="text"
+                    autocomplete="off"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    placeholder="Cari mentor..."
+                  />
+                  <div
+                    id="remedialMentorList"
+                    class="search-dropdown-list hidden"
+                  ></div>
+                  <p
+                    id="remedialMentorError"
+                    class="field-error-text hidden"
+                  ></p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Product Name</label
+                  >
+                  <input
+                    id="remedialProductName"
+                    type="text"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-100 text-slate-500"
+                    readonly
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Product ID</label
+                  >
+                  <input
+                    id="remedialProductId"
+                    type="text"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-100 text-slate-500"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Start Date</label
+                  >
+                  <input
+                    id="remedialStartDate"
+                    type="date"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Total Meeting</label
+                  >
+                  <input
+                    id="remedialMeetingTotal"
+                    type="number"
+                    min="0"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    placeholder="Contoh: 4"
+                  />
+                  <p
+                    id="remedialMeetingTotalError"
+                    class="field-error-text hidden"
+                  ></p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Type</label
+                  >
+                  <select
+                    id="remedialType"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                  >
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                    >Location</label
+                  >
+                  <input
+                    id="remedialLocation"
+                    type="text"
+                    class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                    placeholder="Online / Jakarta / Hybrid"
+                  />
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-slate-400 uppercase mb-1"
+                  >Alasan Remedial</label
+                >
+                <textarea
+                  id="remedialReason"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50"
+                  rows="3"
+                  placeholder="Contoh: Peserta perlu mengulang materi final assessment"
+                ></textarea>
+                <p id="remedialReasonError" class="field-error-text hidden"></p>
+              </div>
+            </div>
+            <div
+              class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div
+                id="remedialStatusText"
+                class="text-[10px] text-slate-500"
+              ></div>
+              <button
+                id="btnSaveRemedial"
+                class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-700"
+              >
+                Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="planningToast" class="planning-toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        addDoc,
+        updateDoc,
+        doc,
+        arrayUnion,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const topbarTarget = document.getElementById("topbarContainer");
+      if (topbarTarget) {
+        renderTopBar(topbarTarget);
+      }
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      if (sidebarTarget) {
+        renderSidebar(sidebarTarget);
+      }
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      window.db = db;
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      const dummyClassesState = [
+        {
+          id: "c1",
+          name: "First Class Jakarta April #1",
+          status: "Soon",
+          startDate: "2026-04-20",
+          dates: [
+            { date: "2026-04-20", type: "meeting", label: "Meeting 1" },
+            {
+              date: "2026-04-23",
+              type: "reminder",
+              label: "Reminder pembayaran",
+            },
+          ],
+          location: "Jakarta",
+          type: "Offline",
+          pic: { name: "Faris", initials: "F" },
+          notify: { name: "Rebuy Team", initials: "R" },
+          meeting: { done: 0, total: 8 },
+          mentors: [
+            { name: "Aris", initials: "A" },
+            { name: "Nadia", initials: "N" },
+          ],
+          groupLink: "https://chat.whatsapp.com/example1",
+          membersCount: 18,
+          memberRefs: [],
+          files: [
+            { name: "Silabus.pdf", type: "pdf" },
+            { name: "Poster.png", type: "image" },
+          ],
+          comment: "Kelas baru, fokus corporate working adults.",
+          attendanceRate: 0,
+          delayCount: 0,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c2",
+          name: "Basic Class Online Mei #2",
+          status: "Running",
+          startDate: "2026-04-05",
+          dates: [
+            { date: "2026-04-05", type: "meeting", label: "Meeting 1" },
+            { date: "2026-04-12", type: "meeting", label: "Meeting 2" },
+            {
+              date: "2026-04-19",
+              type: "meeting",
+              label: "Meeting 3 (Reschedule)",
+            },
+          ],
+          location: "Online (Zoom)",
+          type: "Online",
+          pic: { name: "Sarah", initials: "S" },
+          notify: { name: "Operation Team", initials: "O" },
+          meeting: { done: 3, total: 8 },
+          mentors: [{ name: "Bimo", initials: "B" }],
+          groupLink: "https://chat.whatsapp.com/example2",
+          membersCount: 24,
+          memberRefs: [],
+          files: [{ name: "Absensi.xlsx", type: "sheet" }],
+          comment: "Beberapa peserta sering telat; butuh reminder tambahan.",
+          attendanceRate: 82,
+          delayCount: 2,
+          rescheduleCount: 1,
+        },
+        {
+          id: "c3",
+          name: "Kids Class Online Batch 10",
+          status: "Reminder",
+          startDate: "2026-03-25",
+          dates: [
+            { date: "2026-03-25", type: "meeting", label: "Meeting 1" },
+            { date: "2026-04-01", type: "meeting", label: "Meeting 2" },
+            {
+              date: "2026-04-08",
+              type: "reminder",
+              label: "Follow up absensi orang tua",
+            },
+          ],
+          location: "Online (Zoom)",
+          type: "Online",
+          pic: { name: "Nadia", initials: "N" },
+          notify: { name: "Kids Lead", initials: "K" },
+          meeting: { done: 2, total: 6 },
+          mentors: [{ name: "Nadia", initials: "N" }],
+          groupLink: "https://chat.whatsapp.com/example3",
+          membersCount: 12,
+          memberRefs: [],
+          files: [],
+          comment: "Perlu monitoring kehadiran anak-anak.",
+          attendanceRate: 76,
+          delayCount: 3,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c4",
+          name: "First Class Surabaya Maret #3",
+          status: "Stall",
+          startDate: "2026-02-15",
+          dates: [
+            { date: "2026-02-15", type: "meeting", label: "Meeting 1" },
+            { date: "2026-02-22", type: "meeting", label: "Meeting 2" },
+          ],
+          location: "Surabaya",
+          type: "Offline",
+          pic: { name: "Rina", initials: "R" },
+          notify: { name: "Rebuy Team", initials: "R" },
+          meeting: { done: 2, total: 8 },
+          mentors: [{ name: "Aris", initials: "A" }],
+          groupLink: "",
+          membersCount: 10,
+          memberRefs: [],
+          files: [],
+          comment:
+            "Kelas terhenti, banyak reschedule. Perlu keputusan lanjutan.",
+          attendanceRate: 60,
+          delayCount: 4,
+          rescheduleCount: 3,
+        },
+        {
+          id: "c5",
+          name: "First Class Jakarta Januari #1",
+          status: "Graduate",
+          startDate: "2026-01-05",
+          dates: [
+            { date: "2026-01-05", type: "meeting", label: "Kickoff" },
+            { date: "2026-02-10", type: "meeting", label: "Graduation" },
+          ],
+          location: "Jakarta",
+          type: "Offline",
+          pic: { name: "Faris", initials: "F" },
+          notify: { name: "Operation Team", initials: "O" },
+          meeting: { done: 8, total: 8 },
+          mentors: [{ name: "Aris", initials: "A" }],
+          groupLink: "",
+          membersCount: 16,
+          memberRefs: [],
+          files: [],
+          comment: "Kelas berjalan sangat baik, banyak testimoni positif.",
+          attendanceRate: 95,
+          delayCount: 1,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c6",
+          name: "Basic Class Online Desember #5",
+          status: "Complete",
+          startDate: "2025-12-01",
+          dates: [],
+          location: "Online (Zoom)",
+          type: "Online",
+          pic: { name: "Sarah", initials: "S" },
+          notify: { name: "Operation Team", initials: "O" },
+          meeting: { done: 8, total: 8 },
+          mentors: [{ name: "Bimo", initials: "B" }],
+          groupLink: "",
+          membersCount: 20,
+          memberRefs: [],
+          files: [],
+          comment: "Kelas selesai, laporan sudah dikirim.",
+          attendanceRate: 90,
+          delayCount: 1,
+          rescheduleCount: 1,
+        },
+        {
+          id: "c7",
+          name: "First Class Bandung April #2",
+          status: "Running",
+          startDate: "2026-04-08",
+          dates: [{ date: "2026-04-08", type: "meeting", label: "Meeting 1" }],
+          location: "Bandung",
+          type: "Offline",
+          pic: { name: "Rina", initials: "R" },
+          notify: { name: "Rebuy Team", initials: "R" },
+          meeting: { done: 1, total: 8 },
+          mentors: [{ name: "Aris", initials: "A" }],
+          groupLink: "",
+          membersCount: 14,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 88,
+          delayCount: 0,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c8",
+          name: "Kids Class Offline Batch 11",
+          status: "Soon",
+          startDate: "2026-04-15",
+          dates: [{ date: "2026-04-15", type: "meeting", label: "Kickoff" }],
+          location: "Jakarta",
+          type: "Offline",
+          pic: { name: "Nadia", initials: "N" },
+          notify: { name: "Kids Lead", initials: "K" },
+          meeting: { done: 0, total: 6 },
+          mentors: [{ name: "Nadia", initials: "N" }],
+          groupLink: "",
+          membersCount: 10,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 0,
+          delayCount: 0,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c9",
+          name: "Basic Class Hybrid April #3",
+          status: "Running",
+          startDate: "2026-04-10",
+          dates: [{ date: "2026-04-10", type: "meeting", label: "Meeting 1" }],
+          location: "Jakarta + Zoom",
+          type: "Hybrid",
+          pic: { name: "Faris", initials: "F" },
+          notify: { name: "Operation Team", initials: "O" },
+          meeting: { done: 2, total: 8 },
+          mentors: [
+            { name: "Bimo", initials: "B" },
+            { name: "Aris", initials: "A" },
+          ],
+          groupLink: "",
+          membersCount: 22,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 85,
+          delayCount: 1,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c10",
+          name: "First Class Online Express",
+          status: "Reminder",
+          startDate: "2026-04-03",
+          dates: [{ date: "2026-04-03", type: "meeting", label: "Meeting 1" }],
+          location: "Online (Zoom)",
+          type: "Online",
+          pic: { name: "Sarah", initials: "S" },
+          notify: { name: "Operation Team", initials: "O" },
+          meeting: { done: 4, total: 6 },
+          mentors: [{ name: "Bimo", initials: "B" }],
+          groupLink: "",
+          membersCount: 16,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 72,
+          delayCount: 3,
+          rescheduleCount: 1,
+        },
+        {
+          id: "c11",
+          name: "Basic Class Surabaya April",
+          status: "Soon",
+          startDate: "2026-04-25",
+          dates: [{ date: "2026-04-25", type: "meeting", label: "Meeting 1" }],
+          location: "Surabaya",
+          type: "Offline",
+          pic: { name: "Rina", initials: "R" },
+          notify: { name: "Rebuy Team", initials: "R" },
+          meeting: { done: 0, total: 8 },
+          mentors: [{ name: "Aris", initials: "A" }],
+          groupLink: "",
+          membersCount: 0,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 0,
+          delayCount: 0,
+          rescheduleCount: 0,
+        },
+        {
+          id: "c12",
+          name: "Kids Class Online Weekend",
+          status: "Running",
+          startDate: "2026-04-12",
+          dates: [{ date: "2026-04-12", type: "meeting", label: "Meeting 1" }],
+          location: "Online (Zoom)",
+          type: "Online",
+          pic: { name: "Nadia", initials: "N" },
+          notify: { name: "Kids Lead", initials: "K" },
+          meeting: { done: 1, total: 6 },
+          mentors: [{ name: "Nadia", initials: "N" }],
+          groupLink: "",
+          membersCount: 8,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 90,
+          delayCount: 0,
+          rescheduleCount: 0,
+        },
+      ];
+
+      let classesState = dummyClassesState.slice();
+      let currentSort = { field: "startDate", dir: "asc" };
+      let currentFilters = {
+        search: "",
+        status: "",
+        mentor: "",
+        pic: "",
+        location: "",
+        type: "",
+        stall: "",
+        dateFrom: "",
+        dateTo: "",
+      };
+      let selectedClassIds = new Set();
+      let currentDetailClassId = null;
+      const PLANNING_DAY_NAMES = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu",
+      ];
+      let planningWeekStart = getPlanningStartOfWeek(new Date());
+      let planningUnscheduled = [];
+      let planningScheduled = [];
+      let planningTimeSlots = getPlanningTimeSlots();
+      let planningDragState = null;
+
+      function getPlanningStartOfWeek(d) {
+        const date = new Date(d);
+        const day = date.getDay();
+        const diff = date.getDate() - day;
+        return new Date(date.getFullYear(), date.getMonth(), diff);
+      }
+
+      function formatPlanningDateKey(d) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return year + "-" + month + "-" + day;
+      }
+
+      function getPlanningTimeSlots() {
+        const slots = [];
+        for (let h = 7; h <= 21; h++) {
+          const label = (h < 10 ? "0" + h : String(h)) + ":00";
+          slots.push(label);
+        }
+        return slots;
+      }
+
+      function showPlanningToast(message, type) {
+        const el = document.getElementById("planningToast");
+        if (!el) return;
+        el.textContent = message;
+        const base = "planning-toast";
+        const variant =
+          type === "error" ? "planning-toast-error" : "planning-toast-success";
+        el.className = base + " " + variant;
+        el.classList.remove("hidden");
+        setTimeout(() => {
+          el.classList.add("hidden");
+        }, 2200);
+      }
+
+      function renderPlanningUnscheduled() {
+        const listEl = document.getElementById("planningUnscheduledList");
+        const countEl = document.getElementById("planningUnscheduledCount");
+        if (!listEl) return;
+        if (countEl)
+          countEl.textContent = planningUnscheduled.length + " kelas";
+        if (!planningUnscheduled.length) {
+          listEl.innerHTML =
+            '<div class="planning-unscheduled-empty">Belum ada kelas pada daftar rencana.</div>';
+          return;
+        }
+        listEl.innerHTML = "";
+        planningUnscheduled.forEach((plan) => {
+          const card = document.createElement("div");
+          card.className = "planning-card";
+          card.draggable = true;
+          card.innerHTML =
+            "<div>" +
+            (plan.name || "-") +
+            "</div>" +
+            '<div class="planning-card-meta">' +
+            (plan.mentor ? "Mentor: " + plan.mentor + " • " : "") +
+            (plan.duration ? plan.duration + " jam • " : "") +
+            (plan.type || "") +
+            "</div>";
+          card.addEventListener("dragstart", () => {
+            planningDragState = { source: "unscheduled", id: plan.id };
+          });
+          card.addEventListener("dragend", () => {
+            planningDragState = null;
+          });
+          listEl.appendChild(card);
+        });
+      }
+
+      function renderPlanningCalendar() {
+        const grid = document.getElementById("planningCalendar");
+        const label = document.getElementById("planningWeekLabel");
+        if (!grid) return;
+        grid.innerHTML = "";
+        const start = new Date(
+          planningWeekStart.getFullYear(),
+          planningWeekStart.getMonth(),
+          planningWeekStart.getDate(),
+        );
+        const end = new Date(start.getTime());
+        end.setDate(start.getDate() + 6);
+        if (label) {
+          label.textContent =
+            formatPlanningDateKey(start) + " - " + formatPlanningDateKey(end);
+        }
+        for (let i = 0; i < 7; i++) {
+          const dayDate = new Date(start.getTime());
+          dayDate.setDate(start.getDate() + i);
+          const header = document.createElement("div");
+          header.className = "planning-day-header";
+          header.textContent =
+            PLANNING_DAY_NAMES[dayDate.getDay()] + " " + dayDate.getDate();
+          grid.appendChild(header);
+        }
+        for (let i = 0; i < 7; i++) {
+          const dayDate = new Date(start.getTime());
+          dayDate.setDate(start.getDate() + i);
+          const dateKey = formatPlanningDateKey(dayDate);
+          const col = document.createElement("div");
+          col.className = "planning-day-column";
+          const inner = document.createElement("div");
+          inner.className = "planning-day-column-inner";
+          planningTimeSlots.forEach((time) => {
+            const slot = document.createElement("div");
+            slot.className = "planning-slot";
+            slot.dataset.date = dateKey;
+            slot.dataset.time = time;
+            slot.addEventListener("dragover", (e) => {
+              e.preventDefault();
+              slot.classList.add("planning-slot-active");
+            });
+            slot.addEventListener("dragleave", () => {
+              slot.classList.remove("planning-slot-active");
+            });
+            slot.addEventListener("drop", (e) => {
+              e.preventDefault();
+              slot.classList.remove("planning-slot-active");
+              handlePlanningDrop(dateKey, time);
+            });
+            const timeLabel = document.createElement("div");
+            timeLabel.className = "planning-slot-time";
+            timeLabel.textContent = time;
+            slot.appendChild(timeLabel);
+            const body = document.createElement("div");
+            body.className = "planning-slot-body";
+            const items = planningScheduled.filter(
+              (p) => p.date === dateKey && p.time === time,
+            );
+            if (!items.length) {
+              const placeholder = document.createElement("div");
+              placeholder.className = "planning-slot-empty";
+              placeholder.textContent = "Kosong";
+              body.appendChild(placeholder);
+            } else {
+              items.forEach((plan) => {
+                const card = document.createElement("div");
+                card.className = "planning-card";
+                card.draggable = true;
+                card.innerHTML =
+                  "<div>" +
+                  (plan.name || "-") +
+                  "</div>" +
+                  '<div class="planning-card-meta">' +
+                  (plan.mentor ? "Mentor: " + plan.mentor + " • " : "") +
+                  (plan.duration ? plan.duration + " jam" : "") +
+                  "</div>";
+                card.addEventListener("dragstart", () => {
+                  planningDragState = { source: "calendar", id: plan.id };
+                });
+                card.addEventListener("dragend", () => {
+                  planningDragState = null;
+                });
+                body.appendChild(card);
+              });
+            }
+            slot.appendChild(body);
+            inner.appendChild(slot);
+          });
+          col.appendChild(inner);
+          grid.appendChild(col);
+        }
+      }
+
+      async function loadPlanningFromFirestore() {
+        if (!db || !collection || !getDocs) {
+          planningUnscheduled = [];
+          planningScheduled = [];
+          return;
+        }
+        try {
+          const snap = await getDocs(collection(db, "class_planning"));
+          const unscheduled = [];
+          const scheduled = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            const item = {
+              id: docSnap.id,
+              name: d.name || "",
+              mentor: d.mentor || "",
+              duration: typeof d.duration === "number" ? d.duration : 1,
+              type: d.type || "Online",
+              note: d.note || "",
+              date: d.date || "",
+              time: d.time || "",
+            };
+            if (item.date && item.time) scheduled.push(item);
+            else unscheduled.push(item);
+          });
+          planningUnscheduled = unscheduled;
+          planningScheduled = scheduled;
+        } catch (e) {
+          console.error(
+            "Gagal memuat data perencanaan kelas (class_planning):",
+            e,
+          );
+          planningUnscheduled = [];
+          planningScheduled = [];
+        }
+      }
+
+      async function addPlanningClass() {
+        const nameEl = document.getElementById("planName");
+        const mentorEl = document.getElementById("planMentor");
+        const durationEl = document.getElementById("planDuration");
+        const typeEl = document.getElementById("planType");
+        const noteEl = document.getElementById("planNote");
+        if (!nameEl || !mentorEl || !durationEl || !typeEl || !noteEl) return;
+        const name = nameEl.value.trim();
+        const mentor = mentorEl.value.trim();
+        const durationRaw = parseInt(durationEl.value || "0", 10);
+        const duration =
+          isNaN(durationRaw) || durationRaw <= 0 ? 1 : durationRaw;
+        const type = (typeEl.value || "Online").trim();
+        const note = noteEl.value.trim();
+        if (!name) {
+          showPlanningToast("Nama kelas wajib diisi.", "error");
+          return;
+        }
+        const button = document.getElementById("btnPlanningAddClass");
+        if (button) button.disabled = true;
+        try {
+          let docRef = null;
+          if (db && addDoc && collection) {
+            docRef = await addDoc(collection(db, "class_planning"), {
+              name,
+              mentor,
+              duration,
+              type,
+              note,
+              date: "",
+              time: "",
+              createdAt: serverTimestamp ? serverTimestamp() : null,
+            });
+          }
+          const id =
+            docRef && docRef.id
+              ? docRef.id
+              : "tmp_" +
+                Date.now() +
+                "_" +
+                Math.random().toString(16).slice(2, 6);
+          planningUnscheduled.push({
+            id,
+            name,
+            mentor,
+            duration,
+            type,
+            note,
+            date: "",
+            time: "",
+          });
+          nameEl.value = "";
+          showPlanningToast("Kelas ditambahkan ke daftar rencana.", "success");
+          renderPlanningUnscheduled();
+        } catch (e) {
+          console.error("Gagal menambahkan rencana kelas:", e);
+          showPlanningToast("Gagal menyimpan rencana kelas.", "error");
+        } finally {
+          if (button) button.disabled = false;
+        }
+      }
+
+      async function handlePlanningDrop(dateKey, time) {
+        if (!planningDragState || !planningDragState.id) return;
+        const id = planningDragState.id;
+        const source = planningDragState.source;
+        let item = null;
+        if (source === "unscheduled") {
+          const idx = planningUnscheduled.findIndex((p) => p.id === id);
+          if (idx === -1) return;
+          item = planningUnscheduled.splice(idx, 1)[0];
+          item.date = dateKey;
+          item.time = time;
+          planningScheduled.push(item);
+        } else if (source === "calendar") {
+          const idx = planningScheduled.findIndex((p) => p.id === id);
+          if (idx === -1) return;
+          item = planningScheduled[idx];
+          item.date = dateKey;
+          item.time = time;
+        } else {
+          return;
+        }
+        renderPlanningUnscheduled();
+        renderPlanningCalendar();
+        try {
+          if (db && updateDoc && doc) {
+            await updateDoc(doc(db, "class_planning", id), {
+              date: dateKey,
+              time: time,
+            });
+          }
+          showPlanningToast(
+            "Jadwal diperbarui: " + dateKey + " • " + time,
+            "success",
+          );
+        } catch (e) {
+          console.error("Gagal menyimpan jadwal perencanaan kelas:", e);
+          showPlanningToast("Gagal menyimpan jadwal ke database.", "error");
+        }
+      }
+
+      function openPlanningModal() {
+        const modal = document.getElementById("planningModal");
+        if (modal) modal.classList.add("open");
+      }
+
+      function closePlanningModal() {
+        const modal = document.getElementById("planningModal");
+        if (modal) modal.classList.remove("open");
+      }
+
+      let remedialClassesData = [];
+      let mentorsData = [];
+      let selectedRemedialClass = null;
+      let selectedRemedialMentor = null;
+
+      function getRemedialClassLabel(item) {
+        if (!item || !item.data) return "Tidak diketahui";
+        return (
+          item.data.name ||
+          item.data.class_name ||
+          item.data.productName ||
+          item.data.className ||
+          "Kelas tanpa nama"
+        );
+      }
+
+      function getRemedialProductName(item) {
+        if (!item || !item.data) return "";
+        return (
+          item.data.productName ||
+          item.data.product_name ||
+          item.data.product ||
+          item.data.programName ||
+          item.data.program_name ||
+          ""
+        );
+      }
+
+      function getRemedialProductId(item) {
+        if (!item || !item.data) return "";
+        return (
+          item.data.productId ||
+          item.data.product_id ||
+          item.data.productCode ||
+          item.data.product_code ||
+          ""
+        );
+      }
+
+      function fillRemedialParentFields(item) {
+        const productName = document.getElementById("remedialProductName");
+        const productId = document.getElementById("remedialProductId");
+        const typeEl = document.getElementById("remedialType");
+        const locationEl = document.getElementById("remedialLocation");
+        const nameEl = document.getElementById("remedialClassName");
+        const d = item && item.data ? item.data : {};
+        if (productName) productName.value = getRemedialProductName(item);
+        if (productId) productId.value = getRemedialProductId(item);
+        if (typeEl && d.type) typeEl.value = d.type;
+        if (locationEl && d.location) locationEl.value = d.location;
+        if (nameEl && !nameEl.value.trim()) {
+          nameEl.value = getRemedialClassLabel(item) + " - Remedial 1";
+        }
+      }
+
+      function getMentorLabel(item) {
+        if (!item || !item.data) return "Tidak diketahui";
+        return (
+          item.data.name ||
+          item.data.fullName ||
+          item.data.mentor_name ||
+          "Mentor tanpa nama"
+        );
+      }
+
+      function renderSearchDropdown(listElement, items, labelFn) {
+        listElement.innerHTML = "";
+        if (!items.length) {
+          const empty = document.createElement("div");
+          empty.className = "search-dropdown-empty";
+          empty.textContent = "Tidak ada data ditemukan.";
+          listElement.appendChild(empty);
+          return;
+        }
+        items.forEach((item) => {
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "search-dropdown-item w-full text-left";
+          row.textContent = labelFn(item);
+          row.addEventListener("click", () => {
+            const input = listElement.previousElementSibling;
+            if (input && input instanceof HTMLInputElement) {
+              input.value = labelFn(item);
+            }
+            if (listElement.id === "remedialClassList") {
+              selectedRemedialClass = item;
+              fillRemedialParentFields(item);
+              document
+                .getElementById("remedialClassError")
+                .classList.add("hidden");
+            } else {
+              selectedRemedialMentor = item;
+              document
+                .getElementById("remedialMentorError")
+                .classList.add("hidden");
+            }
+            listElement.classList.add("hidden");
+          });
+          listElement.appendChild(row);
+        });
+      }
+
+      async function loadRemedialLookups() {
+        if (!db) return;
+        try {
+          const classSnap = await getDocs(collection(db, "class_planning"));
+          remedialClassesData = classSnap.docs.map((docSnap) => ({
+            id: docSnap.id,
+            data: docSnap.data() || {},
+          }));
+        } catch (e) {
+          console.error("Gagal memuat data class_planning:", e);
+        }
+        try {
+          const mentorSnap = await getDocs(collection(db, "mentor"));
+          mentorsData = mentorSnap.docs.map((docSnap) => ({
+            id: docSnap.id,
+            data: docSnap.data() || {},
+          }));
+        } catch (e) {
+          console.error("Gagal memuat data mentor:", e);
+        }
+      }
+
+      function resetRemedialForm() {
+        selectedRemedialClass = null;
+        selectedRemedialMentor = null;
+        const classInput = document.getElementById("remedialClassSearch");
+        const mentorInput = document.getElementById("remedialMentorSearch");
+        const nameInput = document.getElementById("remedialClassName");
+        const productName = document.getElementById("remedialProductName");
+        const productId = document.getElementById("remedialProductId");
+        const startDate = document.getElementById("remedialStartDate");
+        const meetingTotal = document.getElementById("remedialMeetingTotal");
+        const typeEl = document.getElementById("remedialType");
+        const locationEl = document.getElementById("remedialLocation");
+        const reasonEl = document.getElementById("remedialReason");
+        const classList = document.getElementById("remedialClassList");
+        const mentorList = document.getElementById("remedialMentorList");
+        [
+          "remedialClassNameError",
+          "remedialClassError",
+          "remedialMentorError",
+          "remedialMeetingTotalError",
+          "remedialReasonError",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.add("hidden");
+            el.textContent = "";
+          }
+        });
+        if (classInput) classInput.value = "";
+        if (mentorInput) mentorInput.value = "";
+        if (nameInput) nameInput.value = "";
+        if (productName) productName.value = "";
+        if (productId) productId.value = "";
+        if (startDate) startDate.value = "";
+        if (meetingTotal) meetingTotal.value = "";
+        if (typeEl) typeEl.value = "Online";
+        if (locationEl) locationEl.value = "";
+        if (reasonEl) reasonEl.value = "";
+        if (classList) classList.classList.add("hidden");
+        if (mentorList) mentorList.classList.add("hidden");
+      }
+
+      async function openRemedialModal() {
+        const modal = document.getElementById("remedialModal");
+        if (!modal) return;
+        resetRemedialForm();
+        if (!remedialClassesData.length || !mentorsData.length) {
+          await loadRemedialLookups();
+        }
+        modal.classList.add("open");
+      }
+
+      function closeRemedialModal() {
+        const modal = document.getElementById("remedialModal");
+        if (modal) modal.classList.remove("open");
+      }
+
+      function validateRemedialForm() {
+        let valid = true;
+        const nameInput = document.getElementById("remedialClassName");
+        const meetingTotalInput = document.getElementById("remedialMeetingTotal");
+        const reasonInput = document.getElementById("remedialReason");
+        const classError = document.getElementById("remedialClassError");
+        const mentorError = document.getElementById("remedialMentorError");
+        const nameError = document.getElementById("remedialClassNameError");
+        const meetingTotalError = document.getElementById("remedialMeetingTotalError");
+        const reasonError = document.getElementById("remedialReasonError");
+        if (
+          !nameInput ||
+          !meetingTotalInput ||
+          !reasonInput ||
+          !classError ||
+          !mentorError ||
+          !nameError ||
+          !meetingTotalError ||
+          !reasonError
+        )
+          return false;
+        const remedialName = nameInput.value.trim();
+        const meetingTotal = parseInt(meetingTotalInput.value || "0", 10) || 0;
+        const remedialReason = reasonInput.value.trim();
+        if (!remedialName) {
+          nameError.textContent = "Nama kelas wajib diisi";
+          nameError.classList.remove("hidden");
+          valid = false;
+        } else {
+          nameError.classList.add("hidden");
+        }
+        if (!selectedRemedialClass) {
+          classError.textContent = "Silakan pilih kelas";
+          classError.classList.remove("hidden");
+          valid = false;
+        } else {
+          classError.classList.add("hidden");
+        }
+        if (!selectedRemedialMentor) {
+          mentorError.textContent = "Silakan pilih mentor";
+          mentorError.classList.remove("hidden");
+          valid = false;
+        } else {
+          mentorError.classList.add("hidden");
+        }
+        if (meetingTotal < 0) {
+          meetingTotalError.textContent = "Total meeting tidak boleh negatif";
+          meetingTotalError.classList.remove("hidden");
+          valid = false;
+        } else {
+          meetingTotalError.classList.add("hidden");
+        }
+        if (!remedialReason) {
+          reasonError.textContent = "Alasan remedial wajib diisi";
+          reasonError.classList.remove("hidden");
+          valid = false;
+        } else {
+          reasonError.classList.add("hidden");
+        }
+        return valid;
+      }
+
+      async function saveRemedialClass() {
+        const saveButton = document.getElementById("btnSaveRemedial");
+        if (!saveButton) return;
+        if (!validateRemedialForm()) return;
+        const nameInput = document.getElementById("remedialClassName");
+        if (!nameInput || !selectedRemedialClass || !selectedRemedialMentor)
+          return;
+        const remedialName = nameInput.value.trim();
+        const parentData = selectedRemedialClass.data || {};
+        const mentorName = getMentorLabel(selectedRemedialMentor);
+        const startDate = (document.getElementById("remedialStartDate")?.value || "").trim();
+        const type = (document.getElementById("remedialType")?.value || "Online").trim();
+        const location = (document.getElementById("remedialLocation")?.value || "").trim();
+        const meetingTotal = parseInt(document.getElementById("remedialMeetingTotal")?.value || "0", 10) || 0;
+        const remedialReason = (document.getElementById("remedialReason")?.value || "").trim();
+        const productName = (document.getElementById("remedialProductName")?.value || "").trim();
+        const productId = (document.getElementById("remedialProductId")?.value || "").trim();
+        const parentClassName = getRemedialClassLabel(selectedRemedialClass);
+        const parentLevel = parseInt(parentData.remedial_level || parentData.remedialLevel || "0", 10) || 0;
+        const remedialLevel = parentLevel + 1;
+        const rootClassDocId =
+          parentData.root_class_doc_id ||
+          parentData.rootClassDocId ||
+          selectedRemedialClass.id;
+        saveButton.disabled = true;
+        saveButton.textContent = "Menyimpan...";
+        try {
+          if (!selectedRemedialClass.id)
+            throw new Error("ID kelas tidak valid");
+          const mentorInitials = mentorName
+            .split(" ")
+            .filter(Boolean)
+            .map((part) => part.charAt(0))
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+          const payload = {
+            name: remedialName,
+            class_name: remedialName,
+            variant: "remedial",
+            is_remedial: true,
+            parent_class_doc_id: selectedRemedialClass.id,
+            parent_class_name: parentClassName,
+            root_class_doc_id: rootClassDocId,
+            remedial_level: remedialLevel,
+            remedial_reason: remedialReason,
+            productName,
+            product_name: productName,
+            productId,
+            product_id: productId,
+            mentorId: selectedRemedialMentor.id,
+            mentor_id: selectedRemedialMentor.id,
+            mentorName,
+            mentor_name: mentorName,
+            mentor: mentorName,
+            mentors: [{ id: selectedRemedialMentor.id, name: mentorName, initials: mentorInitials }],
+            status: "Soon",
+            class_status: "Soon",
+            meeting_done: 0,
+            meeting_total: meetingTotal,
+            meetingDone: 0,
+            meetingTotal,
+            current_joined: 0,
+            type,
+            location,
+            date: startDate,
+            start_date: startDate,
+            startDate,
+            time: "",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          };
+          const docRef = await addDoc(collection(db, "class_planning"), payload);
+
+          const remedialEntry = {
+            remedialClassDocId: docRef.id,
+            remedialClassName: remedialName,
+            parentClassDocId: selectedRemedialClass.id,
+            parentClassName,
+            rootClassDocId,
+            remedialLevel,
+            createdAt: new Date().toISOString(),
+          };
+          await updateDoc(
+            doc(db, "class_planning", selectedRemedialClass.id),
+            {
+              remedials: arrayUnion(remedialEntry),
+              updatedAt: serverTimestamp(),
+            },
+          );
+
+          showPlanningToast("Kelas remedial berhasil dibuat.", "success");
+          closeRemedialModal();
+          await loadRemedialLookups();
+          await loadClassesFromFirestore();
+          updateAll();
+        } catch (e) {
+          console.error("Gagal menyimpan remedial:", e);
+          const msg =
+            e && e.message ? e.message : "Gagal menyimpan kelas remedial.";
+          showPlanningToast("Gagal menyimpan kelas remedial: " + msg, "error");
+        } finally {
+          saveButton.disabled = false;
+          if (saveButton) saveButton.textContent = "Simpan";
+        }
+      }
+
+      function filterRemedialClassResults(value) {
+        const list = document.getElementById("remedialClassList");
+        if (!list) return;
+        const filtered = remedialClassesData.filter((item) =>
+          getRemedialClassLabel(item)
+            .toLowerCase()
+            .includes(value.toLowerCase()),
+        );
+        renderSearchDropdown(list, filtered, getRemedialClassLabel);
+        list.classList.remove("hidden");
+        selectedRemedialClass = null;
+        fillRemedialParentFields(null);
+      }
+
+      function filterRemedialMentorResults(value) {
+        const list = document.getElementById("remedialMentorList");
+        if (!list) return;
+        const filtered = mentorsData.filter((item) =>
+          getMentorLabel(item).toLowerCase().includes(value.toLowerCase()),
+        );
+        renderSearchDropdown(list, filtered, getMentorLabel);
+        list.classList.remove("hidden");
+        selectedRemedialMentor = null;
+      }
+
+      function showMessageStatus(message) {
+        const statusText = document.getElementById("remedialStatusText");
+        if (!statusText) return;
+        statusText.textContent = message;
+      }
+
+      function clearSearchDropdownsOnClickOutside(event) {
+        const classList = document.getElementById("remedialClassList");
+        const mentorList = document.getElementById("remedialMentorList");
+        const classInput = document.getElementById("remedialClassSearch");
+        const mentorInput = document.getElementById("remedialMentorSearch");
+        if (
+          classList &&
+          classInput &&
+          !classList.contains(event.target) &&
+          event.target !== classInput
+        ) {
+          classList.classList.add("hidden");
+        }
+        if (
+          mentorList &&
+          mentorInput &&
+          !mentorList.contains(event.target) &&
+          event.target !== mentorInput
+        ) {
+          mentorList.classList.add("hidden");
+        }
+      }
+
+      function deriveStatusFromAvailability(d) {
+        const raw = d && (d.status || d.class_status);
+        if (raw) {
+          const lower = String(raw).toLowerCase();
+          if (lower === "soon") return "Soon";
+          if (lower === "running") return "Running";
+          if (lower === "reminder") return "Reminder";
+          if (lower === "stall") return "Stall";
+          if (lower === "graduate") return "Graduate";
+          if (lower === "complete") return "Complete";
+        }
+        const startRaw = d && (d.start_date || d.startDate);
+        if (!startRaw || startRaw === "Flexible") return "Soon";
+        const start = new Date(startRaw);
+        if (isNaN(start.getTime())) return "Soon";
+        const now = new Date();
+        if (start.getTime() > now.getTime()) return "Soon";
+        return "Running";
+      }
+
+      function mapAvailabilityDocToClass(docSnap, idx) {
+        const d = docSnap.data() || {};
+        const id = d.id || docSnap.id || `c${idx}`;
+        const startRaw = d.date || d.start_date || d.startDate || "";
+        const mentorName = d.mentor_name || d.mentor || "";
+        const mentors = [];
+        if (typeof mentorName === "string" && mentorName.trim() !== "") {
+          mentorName.split(",").forEach((part) => {
+            const name = part.trim();
+            if (!name) return;
+            const initials = name
+              .split(" ")
+              .filter(Boolean)
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2);
+            mentors.push({ name, initials });
+          });
+        }
+        if (Array.isArray(d.mentors)) {
+          d.mentors.forEach((m) => {
+            if (!m) return;
+            if (typeof m === "string") {
+              const name = m.trim();
+              if (!name) return;
+              const initials = name
+                .split(" ")
+                .filter(Boolean)
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
+              mentors.push({ name, initials });
+            } else if (m.name) {
+              const name = String(m.name);
+              const initials =
+                m.initials ||
+                name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2);
+              mentors.push({ name, initials });
+            }
+          });
+        }
+        const picName = d.pic || "";
+        const notifyName = d.notify || "";
+        const buildPerson = (name) => {
+          if (!name) return null;
+          const initials = name
+            .split(" ")
+            .filter(Boolean)
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+          return { name, initials };
+        };
+        const attendanceRate =
+          typeof d.attendanceRate === "number" ? d.attendanceRate : 0;
+        const delayCount = typeof d.delayCount === "number" ? d.delayCount : 0;
+        const rescheduleCount =
+          typeof d.rescheduleCount === "number" ? d.rescheduleCount : 0;
+        const meetingDone =
+          typeof d.meeting_done === "number"
+            ? d.meeting_done
+            : typeof d.meetingDone === "number"
+              ? d.meetingDone
+              : 0;
+        const meetingTotal =
+          typeof d.meeting_total === "number"
+            ? d.meeting_total
+            : typeof d.meetingTotal === "number"
+              ? d.meetingTotal
+              : 0;
+        const isRemedial =
+          d.is_remedial === true ||
+          d.isRemedial === true ||
+          String(d.variant || "").toLowerCase() === "remedial";
+
+        return {
+          id,
+          docId: docSnap.id,
+          name: d.name || d.class_name || "Unnamed Class",
+          className: d.class_name || d.name || "Unnamed Class",
+          variant: d.variant || (isRemedial ? "remedial" : "regular"),
+          isRemedial,
+          parentClassDocId: d.parent_class_doc_id || d.parentClassDocId || "",
+          parentClassName: d.parent_class_name || d.parentClassName || "",
+          rootClassDocId: d.root_class_doc_id || d.rootClassDocId || "",
+          remedialLevel:
+            typeof d.remedial_level === "number"
+              ? d.remedial_level
+              : typeof d.remedialLevel === "number"
+                ? d.remedialLevel
+                : 0,
+          remedialReason: d.remedial_reason || d.remedialReason || "",
+          productName: d.productName || d.product_name || "",
+          productId: d.productId || d.product_id || "",
+          status: deriveStatusFromAvailability(d),
+          startDate: startRaw,
+          dates: Array.isArray(d.dates) ? d.dates : [],
+          location: d.location || "",
+          type: d.type || "Offline",
+          pic: buildPerson(picName),
+          notify: buildPerson(notifyName),
+          meeting: {
+            done: meetingDone,
+            total: meetingTotal,
+          },
+          mentors,
+          groupLink: d.group_link || d.groupLink || "",
+          membersCount:
+            typeof d.current_joined === "number" ? d.current_joined : 0,
+          memberRefs: [],
+          files: Array.isArray(d.files) ? d.files : [],
+          comment: d.comment || d.remedial_reason || "",
+          attendanceRate,
+          delayCount,
+          rescheduleCount,
+        };
+      }
+
+      async function loadClassesFromFirestore() {
+        if (!db || !collection || !getDocs) {
+          classesState = dummyClassesState.slice();
+          populateFilterOptions(classesState);
+          updateAll();
+          return;
+        }
+        try {
+          const snap = await getDocs(collection(db, "class_planning"));
+          const loaded = [];
+          let idx = 1;
+          snap.forEach((docSnap) => {
+            loaded.push(mapAvailabilityDocToClass(docSnap, idx++));
+          });
+          classesState = loaded.length > 0 ? loaded : dummyClassesState.slice();
+        } catch (e) {
+          console.error(
+            "Gagal memuat data kelas dari Firestore (class_planning):",
+            e,
+          );
+          classesState = dummyClassesState.slice();
+        }
+        populateFilterOptions(classesState);
+        updateAll();
+      }
+
+      function computeHealthScore(c) {
+        const attendance =
+          typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+        const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+        const reschedule =
+          typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+        let score = (attendance / 100) * 10;
+        score -= delay * 0.8;
+        score -= reschedule * 1.0;
+        if (score < 0) score = 0;
+        if (score > 10) score = 10;
+        return parseFloat(score.toFixed(1));
+      }
+
+      function getHealthColor(score) {
+        if (score >= 8) return "emerald";
+        if (score >= 5) return "amber";
+        return "rose";
+      }
+
+      function getStatusClass(status) {
+        if (status === "Soon") return "status-pill status-soon";
+        if (status === "Running") return "status-pill status-running";
+        if (status === "Reminder") return "status-pill status-reminder";
+        if (status === "Stall") return "status-pill status-stall";
+        if (status === "Graduate") return "status-pill status-graduate";
+        if (status === "Complete") return "status-pill status-complete";
+        return "status-pill status-soon";
+      }
+
+      function applyFilters() {
+        let list = classesState.map((c) =>
+          Object.assign({}, c, { healthScore: computeHealthScore(c) }),
+        );
+        if (currentFilters.search) {
+          const q = currentFilters.search.toLowerCase();
+          list = list.filter(
+            (c) =>
+              (c.name || "").toLowerCase().includes(q) ||
+              (c.location || "").toLowerCase().includes(q),
+          );
+        }
+        if (currentFilters.status) {
+          list = list.filter((c) => (c.status || "") === currentFilters.status);
+        }
+        if (currentFilters.mentor) {
+          const q = currentFilters.mentor.toLowerCase();
+          list = list.filter(
+            (c) =>
+              Array.isArray(c.mentors) &&
+              c.mentors.some((m) => (m.name || "").toLowerCase() === q),
+          );
+        }
+        if (currentFilters.pic) {
+          const q = currentFilters.pic.toLowerCase();
+          list = list.filter(
+            (c) => c.pic && (c.pic.name || "").toLowerCase() === q,
+          );
+        }
+        if (currentFilters.location) {
+          list = list.filter(
+            (c) => (c.location || "") === currentFilters.location,
+          );
+        }
+        if (currentFilters.type) {
+          list = list.filter((c) => (c.type || "") === currentFilters.type);
+        }
+        if (currentFilters.stall === "active") {
+          list = list.filter((c) => c.status !== "Stall");
+        } else if (currentFilters.stall === "stall") {
+          list = list.filter((c) => c.status === "Stall");
+        }
+        if (currentFilters.dateFrom) {
+          const from = new Date(currentFilters.dateFrom).getTime();
+          list = list.filter((c) =>
+            c.startDate ? new Date(c.startDate).getTime() >= from : true,
+          );
+        }
+        if (currentFilters.dateTo) {
+          const to = new Date(currentFilters.dateTo).getTime();
+          list = list.filter((c) =>
+            c.startDate ? new Date(c.startDate).getTime() <= to : true,
+          );
+        }
+
+        list.sort((a, b) => {
+          const dir = currentSort.dir === "asc" ? 1 : -1;
+          if (currentSort.field === "name") {
+            return (
+              dir * String(a.name || "").localeCompare(String(b.name || ""))
+            );
+          }
+          if (currentSort.field === "status") {
+            return (
+              dir * String(a.status || "").localeCompare(String(b.status || ""))
+            );
+          }
+          if (currentSort.field === "startDate") {
+            const da = a.startDate ? new Date(a.startDate).getTime() : 0;
+            const db = b.startDate ? new Date(b.startDate).getTime() : 0;
+            return dir * (da - db);
+          }
+          if (currentSort.field === "health") {
+            return dir * ((a.healthScore || 0) - (b.healthScore || 0));
+          }
+          return dir * String(a.name || "").localeCompare(String(b.name || ""));
+        });
+
+        return list;
+      }
+
+      function renderSummary(list) {
+        const total = list.length;
+        const running = list.filter((c) => c.status === "Running").length;
+        const stall = list.filter((c) => c.status === "Stall").length;
+        const avgHealth = list.length
+          ? list.reduce((acc, c) => acc + (c.healthScore || 0), 0) / list.length
+          : 0;
+
+        const totalEl = document.getElementById("statTotalClass");
+        const runningEl = document.getElementById("statRunningClass");
+        const runningRatioEl = document.getElementById("statRunningRatio");
+        const stallEl = document.getElementById("statStallClass");
+        const stallRatioEl = document.getElementById("statStallRatio");
+        const avgHealthEl = document.getElementById("statAvgHealth");
+
+        if (totalEl) totalEl.textContent = String(total);
+        if (runningEl) runningEl.textContent = String(running);
+        if (stallEl) stallEl.textContent = String(stall);
+        if (runningRatioEl) {
+          const pct = total ? Math.round((running / total) * 100) : 0;
+          runningRatioEl.textContent = total ? pct + "% running" : "";
+        }
+        if (stallRatioEl) {
+          const pct = total ? Math.round((stall / total) * 100) : 0;
+          stallRatioEl.textContent = total ? pct + "% stall" : "";
+        }
+        if (avgHealthEl) avgHealthEl.textContent = avgHealth.toFixed(1);
+      }
+
+      function renderClassTable(list) {
+        const tbody = document.getElementById("classTableBody");
+        const countText = document.getElementById("classCountText");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        list.forEach((c) => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition cursor-pointer";
+
+          const tdCheck = document.createElement("td");
+          tdCheck.className = "px-3 py-2";
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.className = "rounded border-slate-300";
+          cb.checked = selectedClassIds.has(c.id);
+          cb.addEventListener("click", (e) => e.stopPropagation());
+          cb.addEventListener("change", () => {
+            if (cb.checked) selectedClassIds.add(c.id);
+            else selectedClassIds.delete(c.id);
+          });
+          tdCheck.appendChild(cb);
+
+          const tdName = document.createElement("td");
+          tdName.className = "px-3 py-2 align-top";
+          const nameCol = document.createElement("div");
+          nameCol.className = "flex flex-col";
+          const nameEl = document.createElement("div");
+          nameEl.className = "text-xs font-semibold text-slate-900";
+          nameEl.textContent = c.name || "-";
+          const badgeRow = document.createElement("div");
+          badgeRow.className = "flex items-center gap-1 flex-wrap mt-1";
+          if (c.isRemedial) {
+            const remedialBadge = document.createElement("span");
+            remedialBadge.className =
+              "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-100";
+            remedialBadge.textContent = "Remedial";
+            badgeRow.appendChild(remedialBadge);
+            if (c.parentClassName) {
+              const parentInfo = document.createElement("span");
+              parentInfo.className = "text-[10px] text-slate-500";
+              parentInfo.textContent = "Parent: " + c.parentClassName;
+              badgeRow.appendChild(parentInfo);
+            }
+          }
+          const metaEl = document.createElement("div");
+          metaEl.className = "text-[10px] text-slate-400";
+          metaEl.textContent = (c.location || "-") + " • " + (c.type || "-");
+          nameCol.appendChild(nameEl);
+          if (badgeRow.children.length) nameCol.appendChild(badgeRow);
+          nameCol.appendChild(metaEl);
+          tdName.appendChild(nameCol);
+
+          const tdStatus = document.createElement("td");
+          tdStatus.className = "px-3 py-2 text-center align-top";
+          const statusSpan = document.createElement("span");
+          statusSpan.className = getStatusClass(c.status);
+          statusSpan.textContent = c.status || "-";
+          tdStatus.appendChild(statusSpan);
+
+          const tdStart = document.createElement("td");
+          tdStart.className = "px-3 py-2 text-center align-top";
+          tdStart.textContent = c.startDate || "-";
+
+          const tdMeeting = document.createElement("td");
+          tdMeeting.className = "px-3 py-2 text-center align-top";
+          const meetingWrapper = document.createElement("div");
+          meetingWrapper.className = "flex flex-col items-center gap-1";
+          const meetingText = document.createElement("div");
+          const done = c.meeting ? c.meeting.done || 0 : 0;
+          const total = c.meeting ? c.meeting.total || 0 : 0;
+          const pct = total ? Math.round((done / total) * 100) : 0;
+          meetingText.className = "text-[10px] text-slate-500";
+          meetingText.textContent = done + "/" + total + " (" + pct + "%)";
+          const meetingBarOuter = document.createElement("div");
+          meetingBarOuter.className =
+            "w-20 h-1.5 rounded-full bg-slate-100 overflow-hidden";
+          const meetingBarInner = document.createElement("div");
+          meetingBarInner.className = "h-1.5 rounded-full bg-emerald-500";
+          meetingBarInner.style.width = pct + "%";
+          meetingBarOuter.appendChild(meetingBarInner);
+          meetingWrapper.appendChild(meetingText);
+          meetingWrapper.appendChild(meetingBarOuter);
+          tdMeeting.appendChild(meetingWrapper);
+
+          const tdPic = document.createElement("td");
+          tdPic.className = "px-3 py-2 text-center align-top";
+          const picWrapper = document.createElement("div");
+          picWrapper.className = "flex items-center justify-center gap-1";
+          if (c.pic) {
+            const avatar = document.createElement("div");
+            avatar.className =
+              "w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold";
+            avatar.textContent = (
+              c.pic.initials || (c.pic.name || "P").charAt(0)
+            ).toUpperCase();
+            const label = document.createElement("span");
+            label.className = "text-[11px] text-slate-700";
+            label.textContent = c.pic.name || "-";
+            picWrapper.appendChild(avatar);
+            picWrapper.appendChild(label);
+          } else {
+            picWrapper.textContent = "-";
+          }
+          tdPic.appendChild(picWrapper);
+
+          const tdMentor = document.createElement("td");
+          tdMentor.className = "px-3 py-2 text-center align-top";
+          const mentorWrapper = document.createElement("div");
+          mentorWrapper.className =
+            "flex items-center justify-center gap-1 flex-wrap";
+          if (Array.isArray(c.mentors) && c.mentors.length) {
+            c.mentors.slice(0, 3).forEach((m) => {
+              const avatar = document.createElement("div");
+              avatar.className =
+                "w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold";
+              avatar.textContent = (
+                m.initials || (m.name || "M").charAt(0)
+              ).toUpperCase();
+              mentorWrapper.appendChild(avatar);
+            });
+            if (c.mentors.length > 3) {
+              const more = document.createElement("span");
+              more.className = "text-[10px] text-slate-400";
+              more.textContent = "+" + (c.mentors.length - 3);
+              mentorWrapper.appendChild(more);
+            }
+          } else {
+            mentorWrapper.textContent = "-";
+          }
+          tdMentor.appendChild(mentorWrapper);
+
+          const tdHealth = document.createElement("td");
+          tdHealth.className = "px-3 py-2 text-center align-top";
+          const hs = c.healthScore || 0;
+          const color = getHealthColor(hs);
+          const healthWrapper = document.createElement("div");
+          healthWrapper.className = "flex flex-col items-center gap-1";
+          const pill = document.createElement("div");
+          let fg = "text-emerald-700",
+            bg = "bg-emerald-50";
+          if (color === "amber") {
+            fg = "text-amber-700";
+            bg = "bg-amber-50";
+          } else if (color === "rose") {
+            fg = "text-rose-700";
+            bg = "bg-rose-50";
+          }
+          pill.className =
+            "px-2 py-0.5 rounded-full text-[10px] font-semibold " +
+            fg +
+            " " +
+            bg;
+          pill.textContent = hs.toFixed(1) + "/10";
+          const barOuter = document.createElement("div");
+          barOuter.className =
+            "w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden";
+          const barInner = document.createElement("div");
+          let barColor = "bg-emerald-500";
+          if (color === "amber") barColor = "bg-amber-500";
+          else if (color === "rose") barColor = "bg-rose-500";
+          barInner.className = "h-1.5 rounded-full " + barColor;
+          barInner.style.width = hs * 10 + "%";
+          barOuter.appendChild(barInner);
+          healthWrapper.appendChild(pill);
+          healthWrapper.appendChild(barOuter);
+          tdHealth.appendChild(healthWrapper);
+
+          const tdAction = document.createElement("td");
+          tdAction.className = "px-3 py-2 text-center align-top";
+          const btnDetail = document.createElement("button");
+          btnDetail.className =
+            "inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-semibold bg-slate-900 text-white hover:bg-slate-800";
+          btnDetail.innerHTML =
+            '<i data-lucide="eye" class="w-3 h-3"></i> Detail';
+          btnDetail.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openDetailModal(c.id);
+          });
+          tdAction.appendChild(btnDetail);
+
+          tr.appendChild(tdCheck);
+          tr.appendChild(tdName);
+          tr.appendChild(tdStatus);
+          tr.appendChild(tdStart);
+          tr.appendChild(tdMeeting);
+          tr.appendChild(tdPic);
+          tr.appendChild(tdMentor);
+          tr.appendChild(tdHealth);
+          tr.appendChild(tdAction);
+
+          tr.addEventListener("click", () => openDetailModal(c.id));
+
+          tbody.appendChild(tr);
+        });
+        if (countText) {
+          countText.textContent = list.length + " kelas";
+        }
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }
+
+      function renderStatusBreakdown(list) {
+        const container = document.getElementById("statusBreakdownList");
+        const legend = document.getElementById("statusLegend");
+        if (!container) return;
+        const statusOrder = [
+          "Soon",
+          "Running",
+          "Reminder",
+          "Stall",
+          "Graduate",
+          "Complete",
+        ];
+        const breakdownStyles = {
+          Soon: { badge: "status-breakdown-soon", bar: "status-bar-soon" },
+          Running: {
+            badge: "status-breakdown-running",
+            bar: "status-bar-running",
+          },
+          Reminder: {
+            badge: "status-breakdown-reminder",
+            bar: "status-bar-reminder",
+          },
+          Stall: { badge: "status-breakdown-stall", bar: "status-bar-stall" },
+          Graduate: {
+            badge: "status-breakdown-graduate",
+            bar: "status-bar-graduate",
+          },
+          Complete: {
+            badge: "status-breakdown-complete",
+            bar: "status-bar-complete",
+          },
+        };
+        const counts = {};
+        statusOrder.forEach((s) => (counts[s] = 0));
+        list.forEach((c) => {
+          const s = c.status || "Soon";
+          if (!counts[s] && counts[s] !== 0) counts[s] = 0;
+          counts[s] += 1;
+        });
+        const total = list.length || 1;
+        container.innerHTML = "";
+        statusOrder.forEach((s) => {
+          const count = counts[s] || 0;
+          const pct = Math.round((count / total) * 100);
+          const breakdownClass = breakdownStyles[s] || {};
+          const row = document.createElement("div");
+          row.className = "flex items-center justify-between gap-2";
+          const left = document.createElement("div");
+          left.className = "flex items-center gap-2";
+          const badge = document.createElement("span");
+          badge.className =
+            "status-pill status-breakdown " + (breakdownClass.badge || "");
+          badge.textContent = s;
+          const text = document.createElement("span");
+          text.className = "text-[11px] text-slate-500";
+          text.textContent = count + " kelas";
+          left.appendChild(badge);
+          left.appendChild(text);
+          const barOuter = document.createElement("div");
+          barOuter.className =
+            "flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden";
+          const barInner = document.createElement("div");
+          barInner.className =
+            "h-1.5 rounded-full " + (breakdownClass.bar || "bg-slate-400");
+          barInner.style.width = pct + "%";
+          barOuter.appendChild(barInner);
+          row.appendChild(left);
+          row.appendChild(barOuter);
+          container.appendChild(row);
+        });
+        if (legend) {
+          legend.textContent = "Total " + list.length + " kelas";
+        }
+      }
+
+      function renderAtRiskClasses(list) {
+        const container = document.getElementById("atRiskClassList");
+        if (!container) return;
+        container.innerHTML = "";
+        const atRisk = list
+          .filter((c) => c.status === "Stall" || (c.healthScore || 0) < 6)
+          .slice(0, 5);
+        if (!atRisk.length) {
+          const empty = document.createElement("div");
+          empty.className = "text-[11px] text-slate-400";
+          empty.textContent = "Tidak ada kelas berisiko tinggi saat ini.";
+          container.appendChild(empty);
+          return;
+        }
+        atRisk.forEach((c) => {
+          const row = document.createElement("div");
+          row.className =
+            "flex items-start justify-between gap-2 p-2 rounded-2xl bg-rose-50/40 border border-rose-100";
+          const left = document.createElement("div");
+          left.className = "flex flex-col";
+          const name = document.createElement("div");
+          name.className = "text-[11px] font-semibold text-slate-800";
+          name.textContent = c.name || "-";
+          const meta = document.createElement("div");
+          meta.className = "text-[10px] text-rose-600";
+          meta.textContent =
+            (c.status === "Stall" ? "Stall" : "Health rendah") +
+            " • " +
+            (c.healthScore || 0).toFixed(1) +
+            "/10";
+          left.appendChild(name);
+          left.appendChild(meta);
+          const btn = document.createElement("button");
+          btn.className =
+            "px-2 py-1 rounded-xl text-[10px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100";
+          btn.textContent = "Lihat";
+          btn.addEventListener("click", () => openDetailModal(c.id));
+          row.appendChild(left);
+          row.appendChild(btn);
+          container.appendChild(row);
+        });
+      }
+
+      function renderMeetingProgress(list) {
+        const container = document.getElementById("meetingProgressList");
+        const summary = document.getElementById("meetingSummary");
+        if (!container) return;
+        container.innerHTML = "";
+        let totalDone = 0;
+        let totalPlan = 0;
+        list.forEach((c) => {
+          const done = c.meeting ? c.meeting.done || 0 : 0;
+          const total = c.meeting ? c.meeting.total || 0 : 0;
+          totalDone += done;
+          totalPlan += total;
+        });
+        const overallPct = totalPlan
+          ? Math.round((totalDone / totalPlan) * 100)
+          : 0;
+        if (summary) {
+          summary.textContent =
+            totalDone + "/" + totalPlan + " meeting (" + overallPct + "%)";
+        }
+        const sorted = list
+          .slice()
+          .sort((a, b) => {
+            const da = a.meeting
+              ? (a.meeting.done || 0) / (a.meeting.total || 1)
+              : 0;
+            const db = b.meeting
+              ? (b.meeting.done || 0) / (b.meeting.total || 1)
+              : 0;
+            return db - da;
+          })
+          .slice(0, 5);
+        sorted.forEach((c) => {
+          const row = document.createElement("div");
+          row.className = "flex items-center justify-between gap-2";
+          const left = document.createElement("div");
+          left.className = "flex flex-col";
+          const name = document.createElement("div");
+          name.className = "text-[11px] text-slate-800";
+          name.textContent = c.name || "-";
+          const done = c.meeting ? c.meeting.done || 0 : 0;
+          const total = c.meeting ? c.meeting.total || 0 : 0;
+          const pct = total ? Math.round((done / total) * 100) : 0;
+          const meta = document.createElement("div");
+          meta.className = "text-[10px] text-slate-400";
+          meta.textContent = done + "/" + total + " meeting • " + pct + "%";
+          left.appendChild(name);
+          left.appendChild(meta);
+          const barOuter = document.createElement("div");
+          barOuter.className =
+            "flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden";
+          const barInner = document.createElement("div");
+          barInner.className = "h-1.5 rounded-full bg-sky-500";
+          barInner.style.width = pct + "%";
+          barOuter.appendChild(barInner);
+          row.appendChild(left);
+          row.appendChild(barOuter);
+          container.appendChild(row);
+        });
+      }
+
+      /* === Calendar state & logic === */
+      let calYear = new Date().getFullYear();
+      let calMonth = new Date().getMonth();
+      let currentView = "table";
+
+      const MONTH_NAMES = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const DAY_NAMES = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+
+      function getCalCardClass(status) {
+        const map = {
+          Soon: "cal-card-soon",
+          Running: "cal-card-running",
+          Reminder: "cal-card-reminder",
+          Stall: "cal-card-stall",
+          Graduate: "cal-card-graduate",
+          Complete: "cal-card-complete",
+        };
+        return map[status] || "cal-card-soon";
+      }
+
+      function renderCalendar(list) {
+        const grid = document.getElementById("calGrid");
+        const label = document.getElementById("calMonthLabel");
+        const countEl = document.getElementById("calClassCount");
+        if (!grid) return;
+        grid.innerHTML = "";
+        if (label) label.textContent = MONTH_NAMES[calMonth] + " " + calYear;
+
+        DAY_NAMES.forEach((d) => {
+          const h = document.createElement("div");
+          h.className = "cal-day-header";
+          h.textContent = d.substring(0, 3);
+          grid.appendChild(h);
+        });
+
+        const firstDay = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+        const today = new Date();
+        const todayStr =
+          today.getFullYear() +
+          "-" +
+          String(today.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(today.getDate()).padStart(2, "0");
+        const classByDate = {};
+        let calCount = 0;
+        list.forEach((c) => {
+          if (!c.startDate) return;
+          let raw = c.startDate;
+          // Handle Firestore Timestamp objects
+          if (
+            raw &&
+            typeof raw === "object" &&
+            typeof raw.toDate === "function"
+          ) {
+            raw = raw.toDate();
+          }
+          const parsed = new Date(raw);
+          if (isNaN(parsed.getTime())) return;
+          const key =
+            parsed.getFullYear() +
+            "-" +
+            String(parsed.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(parsed.getDate()).padStart(2, "0");
+          if (!classByDate[key]) classByDate[key] = [];
+          classByDate[key].push(c);
+        });
+
+        for (let i = 0; i < firstDay; i++) {
+          const d = prevMonthDays - firstDay + 1 + i;
+          const cell = document.createElement("div");
+          cell.className = "cal-cell other-month";
+          const num = document.createElement("div");
+          num.className = "cal-date-num";
+          num.textContent = d;
+          cell.appendChild(num);
+          grid.appendChild(cell);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr =
+            calYear +
+            "-" +
+            String(calMonth + 1).padStart(2, "0") +
+            "-" +
+            String(d).padStart(2, "0");
+          const cell = document.createElement("div");
+          cell.className = "cal-cell" + (dateStr === todayStr ? " today" : "");
+          const num = document.createElement("div");
+          num.className = "cal-date-num";
+          num.textContent = d;
+          cell.appendChild(num);
+          const classes = classByDate[dateStr] || [];
+          calCount += classes.length;
+          classes.forEach((c) => {
+            const card = document.createElement("div");
+            card.className = "cal-card " + getCalCardClass(c.status);
+            card.title = c.name;
+            const title = document.createElement("div");
+            title.className = "cal-card-title";
+            title.textContent = c.name || "-";
+            const meta = document.createElement("div");
+            meta.className = "cal-card-meta";
+            const done = c.meeting ? c.meeting.done || 0 : 0;
+            meta.innerHTML = "<span>M:" + done + "</span>";
+            if (c.mentors && c.mentors.length)
+              meta.innerHTML += "<span>• " + c.mentors[0].name + "</span>";
+            if (c.type)
+              meta.innerHTML +=
+                '<span class="cal-type-badge">' + c.type + "</span>";
+            card.appendChild(title);
+            card.appendChild(meta);
+            card.addEventListener("click", () => openDetailModal(c.id));
+            cell.appendChild(card);
+          });
+          grid.appendChild(cell);
+        }
+
+        const totalCells = firstDay + daysInMonth;
+        const remaining = (7 - (totalCells % 7)) % 7;
+        for (let i = 1; i <= remaining; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cal-cell other-month";
+          const num = document.createElement("div");
+          num.className = "cal-date-num";
+          num.textContent = i;
+          cell.appendChild(num);
+          grid.appendChild(cell);
+        }
+        if (countEl) countEl.textContent = calCount + " kelas";
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function updateAll() {
+        const list = applyFilters();
+        renderSummary(list);
+        renderClassTable(list);
+        renderCalendar(list);
+        renderStatusBreakdown(list);
+        renderAtRiskClasses(list);
+        renderMeetingProgress(list);
+      }
+
+      function populateFilterOptions(list) {
+        const mentorSelect = document.getElementById("filterMentor");
+        const picSelect = document.getElementById("filterPic");
+        const locSelect = document.getElementById("filterLocation");
+        if (mentorSelect) {
+          const set = new Set();
+          list.forEach((c) => {
+            if (Array.isArray(c.mentors)) {
+              c.mentors.forEach((m) => {
+                if (m.name) set.add(m.name);
+              });
+            }
+          });
+          while (mentorSelect.options.length > 1) mentorSelect.remove(1);
+          Array.from(set)
+            .sort()
+            .forEach((name) => {
+              const opt = document.createElement("option");
+              opt.value = name;
+              opt.textContent = name;
+              mentorSelect.appendChild(opt);
+            });
+        }
+        if (picSelect) {
+          const set = new Set();
+          list.forEach((c) => {
+            if (c.pic && c.pic.name) set.add(c.pic.name);
+          });
+          while (picSelect.options.length > 1) picSelect.remove(1);
+          Array.from(set)
+            .sort()
+            .forEach((name) => {
+              const opt = document.createElement("option");
+              opt.value = name;
+              opt.textContent = name;
+              picSelect.appendChild(opt);
+            });
+        }
+        if (locSelect) {
+          const set = new Set();
+          list.forEach((c) => {
+            if (c.location) set.add(c.location);
+          });
+          while (locSelect.options.length > 1) locSelect.remove(1);
+          Array.from(set)
+            .sort()
+            .forEach((loc) => {
+              const opt = document.createElement("option");
+              opt.value = loc;
+              opt.textContent = loc;
+              locSelect.appendChild(opt);
+            });
+        }
+      }
+
+      function getClassById(id) {
+        return classesState.find((c) => c.id === id) || null;
+      }
+
+      function openDetailModal(id) {
+        const c = getClassById(id);
+        if (!c) return;
+        currentDetailClassId = id;
+        const modal = document.getElementById("classDetailModal");
+        if (!modal) return;
+
+        const avatar = document.getElementById("detailAvatar");
+        const className = document.getElementById("detailClassName");
+        const subtitle = document.getElementById("detailSubtitle");
+        const statusBadge = document.getElementById("detailStatusBadge");
+        const classNameValue = document.getElementById("detailClassNameValue");
+        const statusText = document.getElementById("detailStatusText");
+        const startDate = document.getElementById("detailStartDate");
+        const location = document.getElementById("detailLocation");
+        const pic = document.getElementById("detailPic");
+        const notify = document.getElementById("detailNotify");
+        const type = document.getElementById("detailType");
+        const groupLink = document.getElementById("detailGroupLink");
+        const mentorList = document.getElementById("detailMentorList");
+        const meetingSummary = document.getElementById("detailMeetingSummary");
+        const meetingPercent = document.getElementById("detailMeetingPercent");
+        const meetingBar = document.getElementById("detailMeetingBar");
+        const healthScoreEl = document.getElementById("detailHealthScore");
+        const healthLabel = document.getElementById("detailHealthLabel");
+        const healthMeta = document.getElementById("detailHealthMeta");
+        const datesList = document.getElementById("detailDatesList");
+        const attendanceEl = document.getElementById("detailAttendance");
+        const delayEl = document.getElementById("detailDelay");
+        const rescheduleEl = document.getElementById("detailReschedule");
+        const healthBar = document.getElementById("detailHealthBar");
+        const healthExplanation = document.getElementById(
+          "detailHealthExplanation",
+        );
+        const memberList = document.getElementById("detailMemberList");
+        const fileList = document.getElementById("detailFileList");
+        const comment = document.getElementById("detailComment");
+
+        if (avatar) {
+          const initials = (c.name || "C")
+            .split(" ")
+            .map((p) => p.charAt(0))
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
+          avatar.textContent = initials;
+        }
+        if (className) className.textContent = c.name || "-";
+        if (subtitle)
+          subtitle.textContent = (c.location || "-") + " • " + (c.type || "-");
+        if (subtitle && c.isRemedial && c.parentClassName) {
+          subtitle.textContent =
+            subtitle.textContent + " | Parent: " + c.parentClassName;
+        }
+        if (statusBadge) {
+          statusBadge.innerHTML = "";
+          const span = document.createElement("span");
+          span.className = getStatusClass(c.status);
+          span.textContent = c.status || "-";
+          statusBadge.appendChild(span);
+        }
+        if (classNameValue) classNameValue.textContent = c.name || "-";
+        if (statusText) statusText.textContent = c.status || "-";
+        if (startDate) startDate.textContent = c.startDate || "-";
+        if (location) location.textContent = c.location || "-";
+        if (type) type.textContent = c.type || "-";
+        if (groupLink) {
+          groupLink.textContent = c.groupLink || "-";
+          groupLink.href = c.groupLink || "#";
+        }
+        if (pic) {
+          pic.innerHTML = "";
+          if (c.pic) {
+            const avatarPic = document.createElement("div");
+            avatarPic.className =
+              "w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold";
+            avatarPic.textContent = (
+              c.pic.initials || (c.pic.name || "P").charAt(0)
+            ).toUpperCase();
+            const label = document.createElement("span");
+            label.className = "text-xs text-slate-700";
+            label.textContent = c.pic.name || "-";
+            pic.appendChild(avatarPic);
+            pic.appendChild(label);
+          } else {
+            pic.textContent = "-";
+          }
+        }
+        if (notify) {
+          notify.innerHTML = "";
+          if (c.notify) {
+            const avatarNotify = document.createElement("div");
+            avatarNotify.className =
+              "w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-bold";
+            avatarNotify.textContent = (
+              c.notify.initials || (c.notify.name || "N").charAt(0)
+            ).toUpperCase();
+            const label = document.createElement("span");
+            label.className = "text-xs text-slate-700";
+            label.textContent = c.notify.name || "-";
+            notify.appendChild(avatarNotify);
+            notify.appendChild(label);
+          } else {
+            notify.textContent = "-";
+          }
+        }
+
+        if (mentorList) {
+          mentorList.innerHTML = "";
+          if (Array.isArray(c.mentors) && c.mentors.length) {
+            c.mentors.forEach((m) => {
+              const chip = document.createElement("div");
+              chip.className =
+                "inline-flex items-center gap-2 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100";
+              const avatar = document.createElement("div");
+              avatar.className =
+                "w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold";
+              avatar.textContent = (
+                m.initials || (m.name || "M").charAt(0)
+              ).toUpperCase();
+              const label = document.createElement("span");
+              label.className = "text-[11px]";
+              label.textContent = m.name || "-";
+              chip.appendChild(avatar);
+              chip.appendChild(label);
+              mentorList.appendChild(chip);
+            });
+          } else {
+            mentorList.textContent = "-";
+          }
+        }
+
+        const done = c.meeting ? c.meeting.done || 0 : 0;
+        const total = c.meeting ? c.meeting.total || 0 : 0;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        if (meetingSummary)
+          meetingSummary.textContent = done + "/" + total + " meeting";
+        if (meetingPercent) meetingPercent.textContent = pct + "%";
+        if (meetingBar) meetingBar.style.width = pct + "%";
+
+        const hs = c.healthScore || computeHealthScore(c);
+        const color = getHealthColor(hs);
+        if (healthScoreEl) healthScoreEl.textContent = hs.toFixed(1);
+        if (healthLabel) {
+          if (color === "emerald") healthLabel.textContent = "Sehat";
+          else if (color === "amber")
+            healthLabel.textContent = "Perlu Dipantau";
+          else healthLabel.textContent = "Berisiko";
+        }
+        if (healthMeta) {
+          const attendance =
+            typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+          const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+          const reschedule =
+            typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+          healthMeta.textContent =
+            "Attendance " +
+            attendance +
+            "% • Delay " +
+            delay +
+            "x • Reschedule " +
+            reschedule +
+            "x";
+        }
+
+        if (datesList) {
+          datesList.innerHTML = "";
+          if (Array.isArray(c.dates) && c.dates.length) {
+            c.dates.forEach((d) => {
+              const row = document.createElement("div");
+              row.className =
+                "flex items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-slate-50 border border-slate-100";
+              const left = document.createElement("div");
+              left.className = "flex flex-col";
+              const dt = document.createElement("div");
+              dt.className = "text-[11px] text-slate-800";
+              dt.textContent = d.date || "-";
+              const lbl = document.createElement("div");
+              lbl.className = "text-[10px] text-slate-500";
+              lbl.textContent = d.label || "-";
+              left.appendChild(dt);
+              left.appendChild(lbl);
+              const tag = document.createElement("span");
+              tag.className =
+                "text-[10px] font-semibold px-2 py-0.5 rounded-full";
+              if (d.type === "meeting") {
+                tag.className += " bg-emerald-50 text-emerald-700";
+                tag.textContent = "Meeting";
+              } else if (d.type === "reminder") {
+                tag.className += " bg-amber-50 text-amber-700";
+                tag.textContent = "Reminder";
+              } else {
+                tag.className += " bg-slate-50 text-slate-500";
+                tag.textContent = "Other";
+              }
+              row.appendChild(left);
+              row.appendChild(tag);
+              datesList.appendChild(row);
+            });
+          } else {
+            const empty = document.createElement("div");
+            empty.className = "text-[11px] text-slate-400";
+            empty.textContent = "Belum ada jadwal atau reminder.";
+            datesList.appendChild(empty);
+          }
+        }
+
+        const attendance =
+          typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+        const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+        const reschedule =
+          typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+        if (attendanceEl) attendanceEl.textContent = attendance + "%";
+        if (delayEl) delayEl.textContent = delay + "x";
+        if (rescheduleEl) rescheduleEl.textContent = reschedule + "x";
+        if (healthBar) {
+          const width = hs * 10;
+          const clr = getHealthColor(hs);
+          let barColor = "bg-emerald-500";
+          if (clr === "amber") barColor = "bg-amber-500";
+          else if (clr === "rose") barColor = "bg-rose-500";
+          healthBar.className = "h-2 rounded-full " + barColor;
+          healthBar.style.width = width + "%";
+        }
+        if (healthExplanation) {
+          healthExplanation.textContent =
+            "Score tinggi jika attendance baik dan jarang delay/reschedule. Score turun jika sering reminder atau reschedule.";
+        }
+
+        if (memberList) {
+          memberList.innerHTML = "";
+          const info = document.createElement("div");
+          info.className = "text-[11px] text-slate-500 mb-1";
+          info.textContent =
+            "Member count: " +
+            (c.membersCount || 0) +
+            " (koneksi ke leads-management bisa ditambahkan)";
+          memberList.appendChild(info);
+        }
+
+        if (fileList) {
+          fileList.innerHTML = "";
+          if (Array.isArray(c.files) && c.files.length) {
+            c.files.forEach((f) => {
+              const row = document.createElement("div");
+              row.className =
+                "flex items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-slate-50 border border-slate-100";
+              const left = document.createElement("div");
+              left.className = "flex items-center gap-2";
+              const icon = document.createElement("div");
+              icon.className =
+                "w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px]";
+              icon.textContent = (f.type || "file")
+                .substring(0, 3)
+                .toUpperCase();
+              const name = document.createElement("div");
+              name.className = "text-[11px] text-slate-800";
+              name.textContent = f.name || "-";
+              left.appendChild(icon);
+              left.appendChild(name);
+              const badge = document.createElement("span");
+              badge.className = "text-[10px] text-slate-400";
+              badge.textContent = f.type || "";
+              row.appendChild(left);
+              row.appendChild(badge);
+              fileList.appendChild(row);
+            });
+          } else {
+            const empty = document.createElement("div");
+            empty.className = "text-[11px] text-slate-400";
+            empty.textContent = "Belum ada file yang diupload.";
+            fileList.appendChild(empty);
+          }
+        }
+
+        if (comment) {
+          comment.value = c.comment || "";
+        }
+
+        setActiveTab("overview");
+        modal.classList.add("open");
+      }
+
+      function closeDetailModal() {
+        const modal = document.getElementById("classDetailModal");
+        if (modal) modal.classList.remove("open");
+        currentDetailClassId = null;
+      }
+
+      function setActiveTab(id) {
+        const tabs = ["overview", "schedule", "attendance", "members", "files"];
+        tabs.forEach((t) => {
+          const btn = document.querySelector(
+            '#detailTabList button[data-tab="' + t + '"]',
+          );
+          const panel = document.getElementById("tab-" + t);
+          if (!btn || !panel) return;
+          if (t === id) {
+            btn.classList.add("tab-pill-active");
+            btn.classList.remove("tab-pill-inactive");
+            panel.classList.remove("hidden");
+          } else {
+            btn.classList.remove("tab-pill-active");
+            btn.classList.add("tab-pill-inactive");
+            panel.classList.add("hidden");
+          }
+        });
+      }
+
+      function openAddClassModal() {
+        const modal = document.getElementById("addClassModal");
+        if (!modal) return;
+        modal.classList.add("open");
+      }
+
+      function closeAddClassModal() {
+        const modal = document.getElementById("addClassModal");
+        if (modal) modal.classList.remove("open");
+        const fields = [
+          "inputClassName",
+          "inputStatus",
+          "inputType",
+          "inputStartDate",
+          "inputLocation",
+          "inputPic",
+          "inputNotify",
+          "inputMentor",
+          "inputGroupLink",
+          "inputMeetingTotal",
+          "inputMeetingDone",
+        ];
+        fields.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName === "SELECT") {
+            el.selectedIndex = 0;
+          } else {
+            el.value = "";
+          }
+        });
+      }
+
+      function saveNewClass() {
+        const nameEl = document.getElementById("inputClassName");
+        const statusEl = document.getElementById("inputStatus");
+        const typeEl = document.getElementById("inputType");
+        const startEl = document.getElementById("inputStartDate");
+        const locEl = document.getElementById("inputLocation");
+        const picEl = document.getElementById("inputPic");
+        const notifyEl = document.getElementById("inputNotify");
+        const mentorEl = document.getElementById("inputMentor");
+        const groupEl = document.getElementById("inputGroupLink");
+        const totalEl = document.getElementById("inputMeetingTotal");
+        const doneEl = document.getElementById("inputMeetingDone");
+        if (!nameEl || !statusEl) return;
+        const id = "c_" + Date.now();
+        const mentors = (
+          mentorEl && mentorEl.value
+            ? mentorEl.value
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : []
+        ).map((name) => ({
+          name: name,
+          initials: name
+            .split(" ")
+            .map((p) => p.charAt(0))
+            .join("")
+            .slice(0, 2)
+            .toUpperCase(),
+        }));
+        const total =
+          totalEl && totalEl.value ? parseInt(totalEl.value, 10) : 0;
+        const done = doneEl && doneEl.value ? parseInt(doneEl.value, 10) : 0;
+        const newClass = {
+          id: id,
+          name: nameEl.value || "-",
+          status: statusEl.value || "Soon",
+          startDate: startEl ? startEl.value : "",
+          dates: [],
+          location: locEl ? locEl.value : "",
+          type: typeEl ? typeEl.value : "",
+          pic:
+            picEl && picEl.value
+              ? {
+                  name: picEl.value,
+                  initials: picEl.value
+                    .split(" ")
+                    .map((p) => p.charAt(0))
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase(),
+                }
+              : null,
+          notify:
+            notifyEl && notifyEl.value
+              ? {
+                  name: notifyEl.value,
+                  initials: notifyEl.value
+                    .split(" ")
+                    .map((p) => p.charAt(0))
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase(),
+                }
+              : null,
+          meeting: { done: done, total: total },
+          mentors: mentors,
+          groupLink: groupEl ? groupEl.value : "",
+          membersCount: 0,
+          memberRefs: [],
+          files: [],
+          comment: "",
+          attendanceRate: 0,
+          delayCount: 0,
+          rescheduleCount: 0,
+        };
+        classesState.push(newClass);
+        populateFilterOptions(classesState);
+        updateAll();
+        closeAddClassModal();
+      }
+
+      function saveDetailChanges() {
+        if (!currentDetailClassId) return;
+        const c = getClassById(currentDetailClassId);
+        if (!c) return;
+        const comment = document.getElementById("detailComment");
+        if (comment) {
+          c.comment = comment.value || "";
+        }
+        classesState = classesState.map((item) =>
+          item.id === c.id ? c : item,
+        );
+        updateAll();
+        closeDetailModal();
+      }
+
+      function deleteCurrentClass() {
+        if (!currentDetailClassId) return;
+        const c = getClassById(currentDetailClassId);
+        if (!c) {
+          closeDetailModal();
+          return;
+        }
+        const ok = confirm('Hapus kelas "' + (c.name || "") + '"?');
+        if (!ok) return;
+        classesState = classesState.filter((item) => item.id !== c.id);
+        selectedClassIds.delete(c.id);
+        currentDetailClassId = null;
+        updateAll();
+        closeDetailModal();
+      }
+
+      function exportToCsv(list) {
+        const headers = [
+          "Class Name",
+          "Status",
+          "Start Date",
+          "Location",
+          "Type",
+          "PIC",
+          "Notify",
+          "Mentor",
+          "Meeting Done",
+          "Meeting Total",
+          "Attendance",
+          "Delay",
+          "Reschedule",
+          "Health Score",
+          "Group Link",
+        ];
+        const rows = list.map((c) => {
+          const mentorNames = Array.isArray(c.mentors)
+            ? c.mentors.map((m) => m.name || "").join(" / ")
+            : "";
+          const done = c.meeting ? c.meeting.done || 0 : 0;
+          const total = c.meeting ? c.meeting.total || 0 : 0;
+          const attendance =
+            typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+          const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+          const reschedule =
+            typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+          const hs = c.healthScore || computeHealthScore(c);
+          return [
+            c.name || "",
+            c.status || "",
+            c.startDate || "",
+            c.location || "",
+            c.type || "",
+            c.pic && c.pic.name ? c.pic.name : "",
+            c.notify && c.notify.name ? c.notify.name : "",
+            mentorNames,
+            String(done),
+            String(total),
+            String(attendance),
+            String(delay),
+            String(reschedule),
+            hs.toFixed(1),
+            c.groupLink || "",
+          ];
+        });
+        const csvContent = [headers]
+          .concat(rows)
+          .map((row) =>
+            row
+              .map((field) => {
+                if (field === null || field === undefined) return "";
+                const s = String(field);
+                if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+                  return '"' + s.replace(/"/g, '""') + '"';
+                }
+                return s;
+              })
+              .join(","),
+          )
+          .join("\n");
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "class-management.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadClassesFromFirestore();
+        loadPlanningFromFirestore().then(() => {
+          renderPlanningUnscheduled();
+          renderPlanningCalendar();
+        });
+        loadRemedialLookups();
+
+        const searchInput = document.getElementById("searchClass");
+        const filterStatus = document.getElementById("filterStatus");
+        const filterMentor = document.getElementById("filterMentor");
+        const filterPic = document.getElementById("filterPic");
+        const filterLocation = document.getElementById("filterLocation");
+        const filterType = document.getElementById("filterType");
+        const filterStall = document.getElementById("filterStall");
+        const filterDateFrom = document.getElementById("filterDateFrom");
+        const filterDateTo = document.getElementById("filterDateTo");
+        const toggleFilter = document.getElementById("btnToggleFilter");
+        const filterPanel = document.getElementById("filterPanel");
+        const sortLabel = document.getElementById("sortLabel");
+        const checkAll = document.getElementById("checkAllClass");
+        const btnExportMenu = document.getElementById("btnExportMenu");
+        const exportDropdown = document.getElementById("exportDropdown");
+        const btnExportCsv = document.getElementById("btnExportCsv");
+        const btnExportExcel = document.getElementById("btnExportExcel");
+        const btnCloseDetail = document.getElementById("btnCloseDetail");
+        const btnDetailDelete = document.getElementById("btnDetailDelete");
+        const btnDetailSave = document.getElementById("btnDetailSave");
+        const btnCloseAddClass = document.getElementById("btnCloseAddClass");
+        const btnAddClassCancel = document.getElementById("btnAddClassCancel");
+        const btnAddClassSave = document.getElementById("btnAddClassSave");
+        const detailTabs = document.querySelectorAll(
+          "#detailTabList button[data-tab]",
+        );
+        const btnOpenPlanning = document.getElementById("btnOpenPlanning");
+        const planningModal = document.getElementById("planningModal");
+        const btnClosePlanning = document.getElementById("btnClosePlanning");
+        const btnPlanningAddClass = document.getElementById(
+          "btnPlanningAddClass",
+        );
+        const planningPrevWeek = document.getElementById("planningPrevWeek");
+        const planningNextWeek = document.getElementById("planningNextWeek");
+
+        if (searchInput) {
+          searchInput.addEventListener("input", () => {
+            currentFilters.search = searchInput.value.trim();
+            updateAll();
+          });
+        }
+        if (filterStatus) {
+          filterStatus.addEventListener("change", () => {
+            currentFilters.status = filterStatus.value;
+            updateAll();
+          });
+        }
+        if (filterMentor) {
+          filterMentor.addEventListener("change", () => {
+            currentFilters.mentor = filterMentor.value;
+            updateAll();
+          });
+        }
+        if (filterPic) {
+          filterPic.addEventListener("change", () => {
+            currentFilters.pic = filterPic.value;
+            updateAll();
+          });
+        }
+        if (filterLocation) {
+          filterLocation.addEventListener("change", () => {
+            currentFilters.location = filterLocation.value;
+            updateAll();
+          });
+        }
+        if (filterType) {
+          filterType.addEventListener("change", () => {
+            currentFilters.type = filterType.value;
+            updateAll();
+          });
+        }
+        if (filterStall) {
+          filterStall.addEventListener("change", () => {
+            currentFilters.stall = filterStall.value;
+            updateAll();
+          });
+        }
+        if (filterDateFrom) {
+          filterDateFrom.addEventListener("change", () => {
+            currentFilters.dateFrom = filterDateFrom.value;
+            updateAll();
+          });
+        }
+        if (filterDateTo) {
+          filterDateTo.addEventListener("change", () => {
+            currentFilters.dateTo = filterDateTo.value;
+            updateAll();
+          });
+        }
+        if (toggleFilter && filterPanel) {
+          toggleFilter.addEventListener("click", () => {
+            if (filterPanel.classList.contains("hidden"))
+              filterPanel.classList.remove("hidden");
+            else filterPanel.classList.add("hidden");
+          });
+        }
+
+        document.querySelectorAll("th[data-sort]").forEach((th) => {
+          th.addEventListener("click", () => {
+            const field = th.getAttribute("data-sort");
+            if (!field) return;
+            if (currentSort.field === field) {
+              currentSort.dir = currentSort.dir === "asc" ? "desc" : "asc";
+            } else {
+              currentSort.field = field;
+              currentSort.dir = "asc";
+            }
+            if (sortLabel) {
+              const arrow = currentSort.dir === "asc" ? "↑" : "↓";
+              let label = field;
+              if (field === "startDate") label = "Start Date";
+              if (field === "status") label = "Status";
+              if (field === "name") label = "Name";
+              if (field === "health") label = "Health";
+              sortLabel.textContent = label + " " + arrow;
+            }
+            updateAll();
+          });
+        });
+
+        if (checkAll) {
+          checkAll.addEventListener("change", () => {
+            selectedClassIds.clear();
+            if (checkAll.checked) {
+              applyFilters().forEach((c) => selectedClassIds.add(c.id));
+            }
+            updateAll();
+          });
+        }
+
+        if (btnExportMenu && exportDropdown) {
+          btnExportMenu.addEventListener("click", () => {
+            if (exportDropdown.classList.contains("hidden"))
+              exportDropdown.classList.remove("hidden");
+            else exportDropdown.classList.add("hidden");
+          });
+          document.addEventListener("click", (e) => {
+            if (
+              !exportDropdown.contains(e.target) &&
+              e.target !== btnExportMenu &&
+              !btnExportMenu.contains(e.target)
+            ) {
+              exportDropdown.classList.add("hidden");
+            }
+          });
+        }
+
+        if (btnExportCsv) {
+          btnExportCsv.addEventListener("click", () => {
+            exportToCsv(applyFilters());
+          });
+        }
+        if (btnExportExcel) {
+          btnExportExcel.addEventListener("click", () => {
+            exportToCsv(applyFilters());
+          });
+        }
+
+        if (btnCloseDetail) {
+          btnCloseDetail.addEventListener("click", () => closeDetailModal());
+        }
+        const detailModal = document.getElementById("classDetailModal");
+        if (detailModal) {
+          detailModal.addEventListener("click", (e) => {
+            if (e.target === detailModal) closeDetailModal();
+          });
+        }
+        if (btnDetailDelete) {
+          btnDetailDelete.addEventListener("click", () => deleteCurrentClass());
+        }
+        if (btnDetailSave) {
+          btnDetailSave.addEventListener("click", () => saveDetailChanges());
+        }
+
+        if (btnCloseAddClass)
+          btnCloseAddClass.addEventListener("click", () =>
+            closeAddClassModal(),
+          );
+        if (btnAddClassCancel)
+          btnAddClassCancel.addEventListener("click", () =>
+            closeAddClassModal(),
+          );
+        if (btnAddClassSave)
+          btnAddClassSave.addEventListener("click", () => saveNewClass());
+        const addClassModal = document.getElementById("addClassModal");
+        if (addClassModal) {
+          addClassModal.addEventListener("click", (e) => {
+            if (e.target === addClassModal) closeAddClassModal();
+          });
+        }
+
+        if (btnOpenPlanning && planningModal) {
+          btnOpenPlanning.addEventListener("click", () => openPlanningModal());
+        }
+        if (btnClosePlanning) {
+          btnClosePlanning.addEventListener("click", () =>
+            closePlanningModal(),
+          );
+        }
+        if (planningModal) {
+          planningModal.addEventListener("click", (e) => {
+            if (e.target === planningModal) closePlanningModal();
+          });
+        }
+        if (btnPlanningAddClass) {
+          btnPlanningAddClass.addEventListener("click", () => {
+            addPlanningClass();
+          });
+        }
+        if (planningPrevWeek) {
+          planningPrevWeek.addEventListener("click", () => {
+            planningWeekStart.setDate(planningWeekStart.getDate() - 7);
+            renderPlanningCalendar();
+          });
+        }
+        if (planningNextWeek) {
+          planningNextWeek.addEventListener("click", () => {
+            planningWeekStart.setDate(planningWeekStart.getDate() + 7);
+            renderPlanningCalendar();
+          });
+        }
+        const btnOpenRemedial = document.getElementById("btnOpenRemedial");
+        const remedialModal = document.getElementById("remedialModal");
+        const btnCloseRemedial = document.getElementById("btnCloseRemedial");
+        const remedialClassSearch = document.getElementById(
+          "remedialClassSearch",
+        );
+        const remedialMentorSearch = document.getElementById(
+          "remedialMentorSearch",
+        );
+        const btnSaveRemedial = document.getElementById("btnSaveRemedial");
+
+        if (btnOpenRemedial) {
+          btnOpenRemedial.addEventListener("click", () => openRemedialModal());
+        }
+        if (btnCloseRemedial) {
+          btnCloseRemedial.addEventListener("click", () =>
+            closeRemedialModal(),
+          );
+        }
+        if (remedialModal) {
+          remedialModal.addEventListener("click", (e) => {
+            if (e.target === remedialModal) closeRemedialModal();
+          });
+        }
+        if (remedialClassSearch) {
+          remedialClassSearch.addEventListener("input", () => {
+            filterRemedialClassResults(remedialClassSearch.value || "");
+          });
+          remedialClassSearch.addEventListener("focus", () => {
+            filterRemedialClassResults(remedialClassSearch.value || "");
+          });
+        }
+        if (remedialMentorSearch) {
+          remedialMentorSearch.addEventListener("input", () => {
+            filterRemedialMentorResults(remedialMentorSearch.value || "");
+          });
+          remedialMentorSearch.addEventListener("focus", () => {
+            filterRemedialMentorResults(remedialMentorSearch.value || "");
+          });
+        }
+        if (btnSaveRemedial) {
+          btnSaveRemedial.addEventListener("click", () => saveRemedialClass());
+        }
+        document.addEventListener("click", clearSearchDropdownsOnClickOutside);
+
+        detailTabs.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const tabId = btn.getAttribute("data-tab");
+            if (!tabId) return;
+            setActiveTab(tabId);
+          });
+        });
+
+        /* === Calendar & View Toggle === */
+        function setView(view) {
+          currentView = view;
+          const tableEl = document.getElementById("tableView");
+          const calEl = document.getElementById("calendarView");
+          const btnT = document.getElementById("btnViewTable");
+          const btnC = document.getElementById("btnViewCalendar");
+          if (view === "calendar") {
+            if (tableEl) tableEl.classList.add("hidden");
+            if (calEl) calEl.classList.remove("hidden");
+            if (btnT) btnT.classList.remove("active");
+            if (btnC) btnC.classList.add("active");
+          } else {
+            if (tableEl) tableEl.classList.remove("hidden");
+            if (calEl) calEl.classList.add("hidden");
+            if (btnT) btnT.classList.add("active");
+            if (btnC) btnC.classList.remove("active");
+          }
+        }
+        const btnVT = document.getElementById("btnViewTable");
+        const btnVC = document.getElementById("btnViewCalendar");
+        if (btnVT) btnVT.addEventListener("click", () => setView("table"));
+        if (btnVC) btnVC.addEventListener("click", () => setView("calendar"));
+
+        const calPrev = document.getElementById("calPrev");
+        const calNext = document.getElementById("calNext");
+        const calTodayBtn = document.getElementById("calToday");
+        if (calPrev)
+          calPrev.addEventListener("click", () => {
+            calMonth--;
+            if (calMonth < 0) {
+              calMonth = 11;
+              calYear--;
+            }
+            updateAll();
+          });
+        if (calNext)
+          calNext.addEventListener("click", () => {
+            calMonth++;
+            if (calMonth > 11) {
+              calMonth = 0;
+              calYear++;
+            }
+            updateAll();
+          });
+        if (calTodayBtn)
+          calTodayBtn.addEventListener("click", () => {
+            const now = new Date();
+            calYear = now.getFullYear();
+            calMonth = now.getMonth();
+            updateAll();
+          });
+      });
+    </script>
+  </body>
+</html>

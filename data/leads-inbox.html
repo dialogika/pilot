@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads Inbox - Team Dialogika</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .btn-new-project-placeholder {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            color: #64748b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 200px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-new-project-placeholder:hover {
+            border-color: var(--dlg-blue);
+            color: var(--dlg-blue);
+            background-color: #eff6ff;
+            transform: translateY(-5px);
+        }
+        .new-proj-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
+        .modal-body { padding: 30px; }
+        .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
+        
+        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-control, .form-select {
+            padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { border-color: var(--dlg-blue); box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1); }
+
+        .modal-editor-box {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .modal-editor-toolbar {
+            background: #fff; border-bottom: 1px solid #f3f4f6; padding: 5px 10px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .modal-editor-content {
+            min-height: 120px; padding: 15px; outline: none; background: #fff;
+        }
+
+        .form-check-input:checked {
+            background-color: #108a00;
+            border-color: #108a00;
+        }
+
+        .project-card-actions i {
+            cursor: pointer;
+        }
+        .project-card-actions .project-trash-icon {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .project-card:hover .project-card-actions .project-trash-icon {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .project-card-actions-unpinned i {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .project-card:hover .project-card-actions-unpinned i {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .leads-inbox-wrapper {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            padding-top: 40px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .leads-inbox-wrapper * {
+            box-sizing: border-box;
+        }
+
+        .leads-inbox-wrapper .stage-switcher-container {
+            position: fixed;
+            top: 110px;
+            right: 40px;
+            z-index: 999;
+        }
+
+        .leads-inbox-wrapper .dropdown-trigger {
+            background: linear-gradient(to top, #f1ac15 22%, #fcf221 100%);
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+        }
+
+        .leads-inbox-wrapper .dropdown-trigger:hover {
+            background: linear-gradient(to top,#fcf221 22%, #f1ac15 100%);
+            box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
+        }
+
+        .leads-inbox-wrapper .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: block;
+            pointer-events: none;
+        }
+
+        .leads-inbox-wrapper .stage-switcher-container:hover .dropdown-menu,
+        .leads-inbox-wrapper .stage-switcher-container.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .leads-inbox-wrapper .dropdown-item {
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1e293b;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .leads-inbox-wrapper .dropdown-item:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+        .leads-inbox-wrapper .dropdown-item.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .leads-inbox-wrapper .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .leads-inbox-wrapper .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .leads-inbox-wrapper header {
+            margin-bottom: 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .leads-inbox-wrapper .leads-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .leads-inbox-wrapper .btn-upload-csv {
+            background: #f9fafb;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            padding: 0.6rem 1.1rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .leads-inbox-wrapper .btn-upload-csv:hover {
+            background: #eef2ff;
+            border-color: #0B2B6A;
+            color: #0B2B6A;
+        }
+
+        .leads-inbox-wrapper .btn-add-lead {
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.6rem;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .leads-inbox-wrapper .btn-add-lead:hover {
+            background: linear-gradient(to bottom, #0b2b6a 5%, #0f61a8 100%);
+            color: #fff;
+            box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
+        }
+
+        .leads-inbox-wrapper .btn-calendar {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+        }
+
+        .leads-inbox-wrapper .btn-calendar:hover {
+            background: #f9fafb;
+        }
+
+        .leads-inbox-wrapper .title-area h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: #0f172a;
+        }
+        .leads-inbox-wrapper .title-area p {
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .leads-inbox-wrapper .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3.5rem;
+        }
+        
+        .leads-inbox-wrapper .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+        }
+        
+        .leads-inbox-wrapper .stat-card small {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-size: 0.7rem;
+        }
+        .leads-inbox-wrapper .stat-card h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+            color: #0f172a;
+        }
+
+        .leads-inbox-wrapper .table-wrapper {
+            background: white;
+            border-radius: 35px;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid white;
+            overflow: hidden;
+            margin-bottom: 50px;
+        }
+
+        .leads-inbox-wrapper .table-scroll-x {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .leads-inbox-wrapper .table-scroll-x table {
+            min-width: 900px;
+        }
+
+        .leads-inbox-wrapper .leads-table-meta {
+            padding: 1.5rem 2.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .leads-inbox-wrapper .leads-table-meta-select {
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            background: #ffffff;
+        }
+
+        .leads-inbox-wrapper .table-toolbar {
+            padding: 1.25rem 2.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .leads-inbox-wrapper .search-elite {
+            background: #f1f5f9;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 18px;
+            width: 350px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .leads-inbox-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leads-inbox-wrapper th {
+            background: #f8fafc;
+            padding: 1.2rem 2.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+        }
+
+        .leads-inbox-wrapper td {
+            padding: 1.8rem 2.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+        .leads-inbox-wrapper tr:hover td {
+            background: #fbfdff;
+        }
+
+        .leads-inbox-wrapper .badge {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+        .leads-inbox-wrapper .b-leads {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+        .leads-inbox-wrapper .b-closing {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .leads-inbox-wrapper .btn-wa {
+            background: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .leads-inbox-wrapper .btn-wa:hover {
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+            transform: scale(1.03);
+        }
+
+        .leads-inbox-wrapper .client-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: block;
+        }
+        .leads-inbox-wrapper .client-loc {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .leads-inbox-wrapper .urgent {
+            color: #ef4444;
+            font-weight: 800;
+        }
+
+        .leads-inbox-wrapper .stage-badge {
+            cursor: pointer;
+        }
+
+        .stage-dropdown-menu {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+            border: 1px solid #e5e7eb;
+            padding: 6px 0;
+            z-index: 2000;
+            min-width: 190px;
+        }
+
+        .stage-dropdown-item {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        .stage-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+        .stage-dropdown-item.active {
+            background: #0B2B6A;
+            color: #ffffff;
+        }
+
+        .assigned-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 0 0 2px #ffffff;
+        }
+
+        .leads-inbox-wrapper .assigned-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            object-fit: cover;
+            border: 1px solid #e5e7eb;
+            box-shadow: none;
+        }
+
+        .leads-inbox-wrapper .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .leads-inbox-wrapper .action-buttons button {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+
+        .leads-inbox-wrapper .action-buttons button:hover {
+            color: #0B2B6A;
+        }
+
+        .assigned-picker {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .assigned-avatar-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .assigned-avatar-group .assigned-avatar {
+            margin-left: -10px;
+        }
+
+        .assigned-avatar-group .assigned-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .assigned-avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+
+        .assigned-more-count {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: #0B2B6A;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            margin-left: -10px;
+        }
+
+        .assigned-picker-toggle {
+            font-size: 0.85rem;
+            border-radius: 999px;
+            padding-inline: 14px;
+        }
+
+        .assigned-picker-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            width: 320px;
+            max-height: 260px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(4px);
+            transition: all 0.18s ease-out;
+            z-index: 1056;
+        }
+
+        .assigned-picker.open .assigned-picker-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .assigned-picker-list {
+            max-height: 210px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .assigned-picker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .assigned-picker-item:hover {
+            background: #f3f4f6;
+        }
+
+        .assigned-picker-item input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .assigned-picker-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .assigned-picker-item-name {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .assigned-picker-item-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .assigned-picker-search {
+            padding: 4px 6px 6px;
+        }
+
+        .assigned-picker-search input {
+            width: 100%;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+        }
+
+        .leads-inbox-wrapper .leads-pagination {
+            padding: 0.75rem 2.5rem 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .leads-inbox-wrapper .pagination-buttons {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .leads-inbox-wrapper .pagination-buttons button {
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            color: #4b5563;
+        }
+
+        .leads-inbox-wrapper .pagination-buttons button.active {
+            background: #0B2B6A;
+            color: #ffffff;
+            border-color: #0B2B6A;
+        }
+
+        @media (max-width: 992px) {
+            .leads-inbox-wrapper .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .leads-inbox-wrapper .container {
+                padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .leads-inbox-wrapper header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .leads-inbox-wrapper .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .leads-inbox-wrapper .table-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .leads-inbox-wrapper .search-elite {
+                width: 100%;
+            }
+        }
+
+        #leadDetailModal {
+            --primary: #0062ff;
+            --danger: #ff4d4f;
+            --slate-900: #0f172a;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --border: #f1f5f9;
+        }
+
+        #leadDetailModal .modal-dialog {
+            max-width: 650px;
+        }
+
+        #leadDetailModal .modal-content {
+            border-radius: 32px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        #leadDetailModal .modal-header {
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #leadDetailModal .modal-header .modal-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            letter-spacing: -0.5px;
+        }
+
+        #leadDetailModal .modal-header .action-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #leadDetailModal .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            background: #f8fafc;
+        }
+
+        #leadDetailModal .btn-edit:hover {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        #leadDetailModal .btn-delete:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        #leadDetailModal .btn-close:hover {
+            background: #f1f5f9;
+        }
+
+        #leadDetailModal .modal-body {
+            padding: 0;
+        }
+
+        #leadDetailModal .profile-hero {
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(to bottom, #fff, #fbfdff);
+        }
+
+        #leadDetailModal .profile-info h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+
+        #leadDetailModal .profile-info p {
+            font-size: 1rem;
+            color: var(--slate-600);
+            font-weight: 600;
+        }
+
+        #leadDetailModal .status-badge {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #leadDetailModal .details-grid {
+            padding: 0 40px 40px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        #leadDetailModal .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #leadDetailModal .detail-item label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #leadDetailModal .detail-item span {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        #leadDetailModal .notes-area {
+            grid-column: span 2;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px dashed #e2e8f0;
+        }
+
+        #leadDetailModal .modal-footer {
+            padding: 32px 40px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #leadDetailModal .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+            transition: 0.3s;
+        }
+
+        #leadDetailModal .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.3);
+        }
+
+        #leadDetailModal .btn-secondary {
+            color: var(--slate-600);
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+        #leadDetailModal .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        #leadDetailModal .icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <div id="topbarContainer"></div>
+    
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="leads-inbox-wrapper">
+                <div class="stage-switcher-container">
+                    <div class="dropdown-trigger">
+                        <span class="indicator" style="background: #22c55e;"></span>
+                        Current Stage: <span id="currentStageLabel">All Activities</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                    
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item active" data-stage-filter="ALL">📊 All Activities</a>
+                        <a href="#" class="dropdown-item" data-stage-filter="LEADS"><span class="indicator" style="background: #3b82f6;"></span> 💎 Leads Stage</a>
+                        <a href="#" class="dropdown-item" data-stage-filter="FOLLOW_UP"><span class="indicator" style="background: #f59e0b;"></span> 🔥 Follow Up</a>
+                        <a href="#" class="dropdown-item" data-stage-filter="INVOICE_SENT"><span class="indicator" style="background: #a855f7;"></span> 🧾 Invoice Sent</a>
+                        <a href="#" class="dropdown-item" data-stage-filter="NURTURING"><span class="indicator" style="background: #f97316;"></span> 🌱 Nurturing</a>
+                        <a href="#" class="dropdown-item" data-stage-filter="CLOSED_DEAL"><span class="indicator" style="background: #22c55e;"></span> 🏆 Closed Deals</a>
+                        <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+                        <a href="#" class="dropdown-item" data-stage-filter="CANCELLED" style="color: #ef4444;">✖ Cancelled</a>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <header>
+                        <div class="title-area">
+                            <p>MANAGEMENT</p>
+                            <h1>Leads</h1>
+                        </div>
+                        <div class="leads-header-actions">
+                            <button type="button" class="btn-upload-csv" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
+                                Upload CSV
+                            </button>
+                            <button type="button" class="btn-add-lead" data-bs-toggle="modal" data-bs-target="#addLeadModal">
+                                + Add New Lead
+                            </button>
+                            <button type="button" class="btn-calendar" id="btnLeadsCalendar" aria-label="Filter by date">
+                                <i class="bi bi-calendar-event"></i>
+                            </button>
+                            <input type="text" id="leadsDateRange" class="visually-hidden">
+                        </div>
+                    </header>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <small>New Leads</small>
+                            <h2 id="statNewOpportunities" style="color: #2563eb">0</h2>
+                        </div>
+                        <div class="stat-card">
+                            <small>Follow Up</small>
+                            <h2 id="statActionRequired" style="color: #f59e0b">0</h2>
+                        </div>
+                        <div class="stat-card">
+                            <small>Total Invoice</small>
+                            <h2 id="statTotalInvoice" style="color: #a855f7">0</h2>
+                        </div>
+                        <div class="stat-card">
+                            <small>Conversion Rate</small>
+                            <h2 id="statConversionRate" style="color: #22c55e">0%</h2>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <div class="leads-table-meta">
+                            <span>Show</span>
+                            <select class="leads-table-meta-select" id="leadsPageSize">
+                                <option value="20">20</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="table-toolbar">
+                            <h3 style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px;">Live Sales Pipeline</h3>
+                            <input type="text" class="search-elite" id="leadsSearchInput" placeholder="Search by name, city, or program...">
+                        </div>
+                        
+                        <div class="table-scroll-x">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Next</th>
+                                        <th>Stage</th>
+                                        <th>Contact</th>
+                                        <th>Interest</th>
+                                        <th>Assigned</th>
+                                        <th>City</th>
+                                        <th>Notes</th>
+                                        <th>Review</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leadsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="leads-pagination">
+                            <span id="leadsTableSummary">Showing 0 to 0 of 0 entries</span>
+                            <div class="pagination-buttons">
+                                <button type="button" class="active">1</button>
+                                <button type="button">2</button>
+                                <button type="button">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="uploadCsvModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Leads via CSV</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Upload file CSV untuk menambahkan data leads baru ke dalam daftar ini.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small">Pilih File CSV</label>
+                        <input type="file" class="form-control" accept=".csv">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Catatan</label>
+                        <textarea class="form-control" rows="3" placeholder="Contoh: Import leads dari campaign webinar..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dlg-blue">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addLeadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Lead</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nama</label>
+                            <input type="text" class="form-control" id="leadName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Whatsapp <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="leadWhatsapp" inputmode="tel" placeholder="+62..." required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">Notes</label>
+                            <textarea class="form-control" id="leadNotes" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">Address</label>
+                            <input type="text" class="form-control" id="leadAddress">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Ads Channel</label>
+                            <select class="form-select" id="leadAdsChannel"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Referral</label>
+                            <input type="text" class="form-control" id="leadReferral">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Interest</label>
+                            <select class="form-select" id="leadInterest"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Created</label>
+                            <input type="text" class="form-control" id="leadCreatedAt" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Due</label>
+                            <input type="date" class="form-control" id="leadDueDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Assigned</label>
+                            <div class="assigned-picker" id="leadAssignedPicker">
+                                <div class="assigned-avatar-group" id="leadAssignedAvatarGroup">
+                                    <div class="assigned-avatar-placeholder">+</div>
+                                </div>
+                                <button type="button" class="btn btn-light border assigned-picker-toggle" id="leadAssignedToggle">
+                                    Pilih Team
+                                </button>
+                                <div class="assigned-picker-dropdown">
+                                    <div class="assigned-picker-search">
+                                        <input type="text" id="leadAssignedSearch" placeholder="Cari nama atau email">
+                                    </div>
+                                    <div class="assigned-picker-list" id="leadAssignedList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dlg-blue" id="btnSaveLead">Save Lead</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="leadDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Lead Details</h2>
+                    <div class="action-group">
+                        <button type="button" class="icon-btn btn-edit" id="leadDetailEditButton" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="button" class="icon-btn btn-delete" id="leadDetailDeleteButton" title="Delete Lead">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <div style="width: 1px; height: 20px; background: #e2e8f0; margin: 0 5px;"></div>
+                        <button type="button" class="icon-btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="profile-hero">
+                        <div class="profile-info">
+                            <h3 id="leadDetailName"></h3>
+                            <p id="leadDetailWhatsapp"></p>
+                        </div>
+                        <span class="status-badge" id="leadDetailStage"></span>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>Address</label>
+                            <span id="leadDetailAddress"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>City</label>
+                            <span id="leadDetailCity"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Ads Channel</label>
+                            <span id="leadDetailAdsChannel"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Interest</label>
+                            <span id="leadDetailInterest"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Due Date</label>
+                            <span id="leadDetailDueDate"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Referral</label>
+                            <span id="leadDetailReferral"></span>
+                        </div>
+                        <div class="detail-item notes-area">
+                            <label>Internal Notes</label>
+                            <span id="leadDetailNotes"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn-secondary" data-bs-dismiss="modal">Close View</a>
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" id="leadDetailWhatsappLink">
+                        <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.63 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        Continue to WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.getDoc = getDoc;
+        window.doc = doc;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.serverTimestamp = serverTimestamp;
+        let currentUserId = null;
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem("userData");
+            } catch (e) {}
+            window.location.href = "/index.html";
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            currentUserId = user.uid || null;
+            loadAdsAndInterests();
+        });
+
+        let adsChannelConfig = [];
+        window.leadsAdsChannelOptions = adsChannelConfig;
+        window.leadsInterestOptions = [];
+        let leadsRangePicker = null;
+        let loadedLeads = [];
+        let leadsSearchTerm = "";
+        let leadsRangeStart = null;
+        let leadsRangeEnd = null;
+        let leadsStageFilter = "ALL";
+        let editingLeadId = null;
+        let editingLeadData = null;
+        const rangeInput = document.getElementById("leadsDateRange");
+        const leadsSearchInput = document.getElementById("leadsSearchInput");
+        if (rangeInput && typeof flatpickr === "function") {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now);
+            thirtyDaysAgo.setDate(now.getDate() - 29);
+            leadsRangeStart = new Date(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth(), thirtyDaysAgo.getDate());
+            leadsRangeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            leadsRangePicker = flatpickr(rangeInput, {
+                mode: "range",
+                defaultDate: [thirtyDaysAgo, now],
+                dateFormat: "Y-m-d",
+                onChange: (selectedDates) => {
+                    if (selectedDates && selectedDates.length) {
+                        const start = selectedDates[0];
+                        const end = selectedDates[1] || selectedDates[0];
+                        if (start && end) {
+                            leadsRangeStart = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                            leadsRangeEnd = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                        }
+                    } else {
+                        leadsRangeStart = null;
+                        leadsRangeEnd = null;
+                    }
+                    applyLeadsFilters();
+                }
+            });
+        }
+
+        if (leadsSearchInput) {
+            leadsSearchInput.addEventListener("input", (ev) => {
+                leadsSearchTerm = ev.target.value || "";
+                applyLeadsFilters();
+            });
+        }
+
+        const calendarBtn = document.getElementById("btnLeadsCalendar");
+        if (calendarBtn && leadsRangePicker) {
+            calendarBtn.addEventListener("click", () => {
+                leadsRangePicker.open();
+            });
+        }
+
+        let availableAssignedUsers = [];
+        let selectedAssignedIds = new Set();
+
+        function renderAssignedAvatarGroup() {
+            const groupEl = document.getElementById("leadAssignedAvatarGroup");
+            if (!groupEl) return;
+            groupEl.innerHTML = "";
+            const selectedUsers = availableAssignedUsers.filter(u => selectedAssignedIds.has(u.id));
+            if (!selectedUsers.length) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "assigned-avatar-placeholder";
+                placeholder.textContent = "+";
+                groupEl.appendChild(placeholder);
+                return;
+            }
+            const maxVisible = 3;
+            selectedUsers.slice(0, maxVisible).forEach(user => {
+                const img = document.createElement("img");
+                img.className = "assigned-avatar";
+                img.src = user.photo;
+                img.alt = user.name || user.email || "User";
+                groupEl.appendChild(img);
+            });
+            if (selectedUsers.length > maxVisible) {
+                const more = document.createElement("div");
+                more.className = "assigned-more-count";
+                more.textContent = `+${selectedUsers.length - maxVisible}`;
+                groupEl.appendChild(more);
+            }
+        }
+
+        function renderAssignedList(filterText) {
+            const listEl = document.getElementById("leadAssignedList");
+            if (!listEl) return;
+            const keyword = (filterText || "").toLowerCase();
+            listEl.innerHTML = "";
+            availableAssignedUsers
+                .filter(user => {
+                    if (!keyword) return true;
+                    const name = (user.name || "").toLowerCase();
+                    const email = (user.email || "").toLowerCase();
+                    return name.includes(keyword) || email.includes(keyword);
+                })
+                .forEach(user => {
+                    const item = document.createElement("div");
+                    item.className = "assigned-picker-item";
+                    item.dataset.id = user.id;
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.checked = selectedAssignedIds.has(user.id);
+
+                    const img = document.createElement("img");
+                    img.className = "assigned-avatar";
+                    img.src = user.photo;
+                    img.alt = user.name || user.email || "User";
+
+                    const info = document.createElement("div");
+                    info.className = "assigned-picker-item-info";
+
+                    const nameEl = document.createElement("div");
+                    nameEl.className = "assigned-picker-item-name";
+                    nameEl.textContent = user.name || "User";
+
+                    const metaEl = document.createElement("div");
+                    metaEl.className = "assigned-picker-item-meta";
+                    metaEl.textContent = user.email || "";
+
+                    info.appendChild(nameEl);
+                    info.appendChild(metaEl);
+
+                    item.appendChild(checkbox);
+                    item.appendChild(img);
+                    item.appendChild(info);
+
+                    item.addEventListener("click", (e) => {
+                        if (e.target.tagName !== "INPUT") {
+                            checkbox.checked = !checkbox.checked;
+                        }
+                        if (checkbox.checked) {
+                            selectedAssignedIds.add(user.id);
+                        } else {
+                            selectedAssignedIds.delete(user.id);
+                        }
+                        renderAssignedAvatarGroup();
+                    });
+
+                    checkbox.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        if (checkbox.checked) {
+                            selectedAssignedIds.add(user.id);
+                        } else {
+                            selectedAssignedIds.delete(user.id);
+                        }
+                        renderAssignedAvatarGroup();
+                    });
+
+                    listEl.appendChild(item);
+                });
+        }
+
+        function populateAdsChannelSelect() {
+            const select = document.getElementById("leadAdsChannel");
+            if (!select) return;
+            select.innerHTML = "";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Pilih ads channel";
+            select.appendChild(placeholder);
+            adsChannelConfig.forEach(cfg => {
+                const opt = document.createElement("option");
+                opt.value = cfg.id || cfg.value || cfg.name;
+                opt.textContent = cfg.name || cfg.label || cfg.value;
+                select.appendChild(opt);
+            });
+            select.value = "";
+        }
+
+        function populateInterestSelect(channelValue) {
+            const select = document.getElementById("leadInterest");
+            if (!select) return;
+            select.innerHTML = "";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Pilih program";
+            select.appendChild(placeholder);
+            const options = Array.isArray(window.leadsInterestOptions) ? window.leadsInterestOptions : [];
+            const filtered = (!channelValue || channelValue === "Unknown")
+                ? options
+                : options.filter(o => o.ads_channel_id === channelValue);
+            filtered.forEach((item) => {
+                const opt = document.createElement("option");
+                opt.value = item.name;
+                opt.textContent = item.name;
+                select.appendChild(opt);
+            });
+            select.value = "";
+        }
+
+        async function loadAdsAndInterests() {
+            try {
+                const adsSnap = await getDocs(collection(db, "leads_settings_ads_channels"));
+                adsChannelConfig = [];
+                adsSnap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    adsChannelConfig.push({
+                        id: docSnap.id,
+                        name: d.name || ""
+                    });
+                });
+                window.leadsAdsChannelOptions = adsChannelConfig;
+                const interestSnap = await getDocs(collection(db, "leads_settings_interests"));
+                const interestArr = [];
+                interestSnap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    interestArr.push({
+                        id: docSnap.id,
+                        name: d.name || "",
+                        ads_channel_id: d.ads_channel_id || ""
+                    });
+                });
+                window.leadsInterestOptions = interestArr;
+                populateAdsChannelSelect();
+            } catch (e) {
+                console.error("Gagal memuat konfigurasi ads/interest", e);
+            }
+        }
+
+        async function loadAssignedUsers() {
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                availableAssignedUsers = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    availableAssignedUsers.push({
+                        id: docSnap.id,
+                        name: data.name || data.displayName || "",
+                        email: data.email || "",
+                        photo: data.photo || `https://i.pravatar.cc/150?u=${docSnap.id}`
+                    });
+                });
+                renderAssignedList("");
+                renderAssignedAvatarGroup();
+                if (Array.isArray(loadedLeads) && loadedLeads.length) {
+                    applyLeadsFilters();
+                }
+            } catch (e) {
+                console.error("Gagal memuat user untuk assigned", e);
+            }
+        }
+
+        const addLeadModalEl = document.getElementById("addLeadModal");
+        if (addLeadModalEl) {
+            addLeadModalEl.addEventListener("show.bs.modal", () => {
+                const createdInput = document.getElementById("leadCreatedAt");
+                const dueInput = document.getElementById("leadDueDate");
+                const adsSelect = document.getElementById("leadAdsChannel");
+                const nameInput = document.getElementById("leadName");
+                const whatsappInput = document.getElementById("leadWhatsapp");
+                const notesInput = document.getElementById("leadNotes");
+                const addressInput = document.getElementById("leadAddress");
+                const referralInput = document.getElementById("leadReferral");
+                const interestSelect = document.getElementById("leadInterest");
+                const btnSaveLead = document.getElementById("btnSaveLead");
+                const now = new Date();
+                const threeDaysLater = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+                function formatDisplay(d) {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, "0");
+                    const day = String(d.getDate()).padStart(2, "0");
+                    const hh = String(d.getHours()).padStart(2, "0");
+                    const mm = String(d.getMinutes()).padStart(2, "0");
+                    return `${y}-${m}-${day} ${hh}:${mm}`;
+                }
+
+                if (editingLeadData) {
+                    if (nameInput) {
+                        nameInput.value = editingLeadData.name || "";
+                    }
+                    if (whatsappInput) {
+                        whatsappInput.value = editingLeadData.whatsapp || "";
+                    }
+                    if (notesInput) {
+                        notesInput.value = editingLeadData.notes || "";
+                    }
+                    if (addressInput) {
+                        addressInput.value = editingLeadData.address || "";
+                    }
+                    if (referralInput) {
+                        referralInput.value = editingLeadData.referral || "";
+                    }
+                    if (createdInput) {
+                        createdInput.value = editingLeadData.created_display || "";
+                    }
+                    if (dueInput) {
+                        dueInput.value = editingLeadData.due_date || "";
+                    }
+                    populateAdsChannelSelect();
+                    if (adsSelect) {
+                        adsSelect.value = editingLeadData.ads_channel || "Unknown";
+                        const initialValue = adsSelect.value || "Unknown";
+                        populateInterestSelect(initialValue);
+                    } else {
+                        populateInterestSelect("Unknown");
+                    }
+                    if (interestSelect) {
+                        interestSelect.value = editingLeadData.interest_program || "";
+                    }
+                    selectedAssignedIds = new Set(Array.isArray(editingLeadData.assigned_ids) ? editingLeadData.assigned_ids : []);
+                    renderAssignedAvatarGroup();
+                    renderAssignedList("");
+                    loadAssignedUsers();
+                    if (btnSaveLead) {
+                        btnSaveLead.textContent = "Update Lead";
+                    }
+                } else {
+                    if (createdInput) {
+                        createdInput.value = formatDisplay(now);
+                    }
+                    if (dueInput) {
+                        const y = threeDaysLater.getFullYear();
+                        const m = String(threeDaysLater.getMonth() + 1).padStart(2, "0");
+                        const d = String(threeDaysLater.getDate()).padStart(2, "0");
+                        dueInput.value = `${y}-${m}-${d}`;
+                    }
+
+                    populateAdsChannelSelect();
+                    if (adsSelect) {
+                        const initialValue = adsSelect.value || "";
+                        populateInterestSelect(initialValue || "Unknown");
+                    } else {
+                        populateInterestSelect("Unknown");
+                    }
+
+                    selectedAssignedIds = new Set();
+                    renderAssignedAvatarGroup();
+                    renderAssignedList("");
+                    loadAssignedUsers();
+                    if (nameInput) {
+                        nameInput.value = "";
+                    }
+                    if (whatsappInput) {
+                        whatsappInput.value = "";
+                    }
+                    if (notesInput) {
+                        notesInput.value = "";
+                    }
+                    if (addressInput) {
+                        addressInput.value = "";
+                    }
+                    if (referralInput) {
+                        referralInput.value = "";
+                    }
+                    if (interestSelect) {
+                        interestSelect.value = "";
+                    }
+                    if (btnSaveLead) {
+                        btnSaveLead.textContent = "Save Lead";
+                    }
+                }
+            });
+            addLeadModalEl.addEventListener("hidden.bs.modal", () => {
+                editingLeadId = null;
+                editingLeadData = null;
+            });
+        }
+
+        function formatWhatsAppLink(number) {
+            if (!number) return "#";
+            let num = number.trim();
+            if (num.startsWith("0")) {
+                num = "+62" + num.substring(1);
+            }
+            if (num.startsWith("+")) {
+                num = num.substring(1);
+            }
+            num = num.replace(/[^0-9]/g, "");
+            return `https://wa.me/${num}`;
+        }
+
+        function normalizeDateOnly(date) {
+            if (!(date instanceof Date)) return null;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function parseDateOnly(value) {
+            if (!value) return null;
+            const parts = String(value).split("-");
+            if (parts.length !== 3) return null;
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const d = new Date(year, month, day);
+            if (isNaN(d.getTime())) return null;
+            return d;
+        }
+
+        function formatShortDateLabel(value) {
+            const d = parseDateOnly(value);
+            if (!d) return "";
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const day = String(d.getDate()).padStart(2, "0");
+            const monthLabel = months[d.getMonth()];
+            return `${day} ${monthLabel}`;
+        }
+
+        function createStageBadge(stage) {
+            const span = document.createElement("span");
+            span.className = "badge stage-badge";
+            const v = String(stage || "").toUpperCase();
+            span.dataset.stage = v || "LEADS";
+            if (v.includes("CLOSING") || v.includes("CLOSED") || v.includes("DEAL")) {
+                span.classList.add("b-closing");
+                span.textContent = "🏆 CLOSED DEALS";
+            } else if (v.includes("FOLLOW")) {
+                span.classList.add("b-leads");
+                span.textContent = "2. FOLLOW UP";
+            } else if (v.includes("INVOICE")) {
+                span.classList.add("b-leads");
+                span.textContent = "3. INVOICE";
+            } else if (v.includes("NURTUR")) {
+                span.classList.add("b-leads");
+                span.textContent = "4. NURTURING";
+            } else {
+                span.classList.add("b-leads");
+                span.textContent = "1. LEADS";
+            }
+            return span;
+        }
+
+        function getLeadDateForRange(lead) {
+            const created = String(lead.created_display || "").trim();
+            if (created) {
+                const parts = created.split(" ");
+                if (parts[0]) {
+                    const d = parseDateOnly(parts[0]);
+                    if (d) return d;
+                }
+            }
+            return parseDateOnly(lead.due_date || "");
+        }
+
+        function matchesStageFilter(stageValue, filter) {
+            const s = String(stageValue || "").toLowerCase();
+            const f = String(filter || "").toUpperCase();
+            if (!f || f === "ALL") return true;
+            if (f === "LEADS") {
+                if (s.includes("follow") || s.includes("invoice") || s.includes("closing") || s.includes("closed") || s.includes("deal") || s.includes("nurtur") || s.includes("cancel")) {
+                    return false;
+                }
+                return s.includes("lead");
+            }
+            if (f === "FOLLOW_UP") {
+                return s.includes("follow");
+            }
+            if (f === "INVOICE_SENT") {
+                return s.includes("invoice");
+            }
+            if (f === "NURTURING") {
+                return s.includes("nurtur");
+            }
+            if (f === "CLOSED_DEAL") {
+                return s.includes("closing") || s.includes("closed") || s.includes("deal");
+            }
+            if (f === "CANCELLED") {
+                return s.includes("cancel");
+            }
+            return true;
+        }
+
+        function updateLeadsStats() {
+            const all = Array.isArray(loadedLeads) ? loadedLeads : [];
+            const statNewEl = document.getElementById("statNewOpportunities");
+            const statActionEl = document.getElementById("statActionRequired");
+            const statInvoiceEl = document.getElementById("statTotalInvoice");
+            const statConversionEl = document.getElementById("statConversionRate");
+            let totalInvoice = 0;
+            let totalConverted = 0;
+            all.forEach((lead) => {
+                const stageRaw = String(lead.stage || "").toLowerCase();
+                if (stageRaw.includes("invoice")) {
+                    totalInvoice += 1;
+                }
+                if (stageRaw.includes("closing") || stageRaw.includes("closed") || stageRaw.includes("deal")) {
+                    totalConverted += 1;
+                }
+            });
+            const totalLeads = all.length;
+            const rate = totalLeads ? Math.round((totalConverted * 100) / totalLeads) : 0;
+            const hasRange = leadsRangeStart && leadsRangeEnd;
+            let newCount = totalLeads;
+            let actionRequiredCount = 0;
+            if (hasRange) {
+                const start = normalizeDateOnly(leadsRangeStart);
+                const end = normalizeDateOnly(leadsRangeEnd);
+                if (start && end) {
+                    newCount = 0;
+                    actionRequiredCount = 0;
+                    all.forEach((lead) => {
+                        const d = getLeadDateForRange(lead);
+                        if (!d || d < start || d > end) return;
+                        newCount += 1;
+                        const s = String(lead.stage || "").toLowerCase();
+                        if (s.includes("lead") || s.includes("follow") || s.includes("invoice")) {
+                            actionRequiredCount += 1;
+                        }
+                    });
+                } else {
+                    newCount = 0;
+                    actionRequiredCount = 0;
+                }
+            } else {
+                newCount = totalLeads;
+                actionRequiredCount = all.filter((lead) => {
+                    const s = String(lead.stage || "").toLowerCase();
+                    if (s.includes("lead") || s.includes("follow") || s.includes("invoice")) {
+                        return true;
+                    }
+                    return false;
+                }).length;
+            }
+            if (statNewEl) {
+                statNewEl.textContent = String(newCount);
+            }
+            if (statActionEl) {
+                statActionEl.textContent = String(actionRequiredCount);
+            }
+            if (statInvoiceEl) {
+                statInvoiceEl.textContent = String(totalInvoice);
+            }
+            if (statConversionEl) {
+                statConversionEl.textContent = `${rate}%`;
+            }
+        }
+
+        const stageOptions = [
+            { value: "LEADS", label: "1. LEADS" },
+            { value: "FOLLOW_UP", label: "2. FOLLOW UP" },
+            { value: "INVOICE_SENT", label: "3. INVOICE SENT" },
+            { value: "NURTURING", label: "4. NURTURING" },
+            { value: "CLOSED_DEAL", label: "5. CLOSED DEALS" }
+        ];
+
+        let activeStageDropdown = null;
+
+        function closeStageDropdown() {
+            if (activeStageDropdown && activeStageDropdown.parentNode) {
+                activeStageDropdown.parentNode.removeChild(activeStageDropdown);
+            }
+            activeStageDropdown = null;
+        }
+
+        function openStageDropdown(targetEl, lead) {
+            if (!targetEl || !lead || !lead.id) return;
+            closeStageDropdown();
+            const menu = document.createElement("div");
+            menu.className = "stage-dropdown-menu";
+            const currentStage = String(lead.stage || "LEADS").toUpperCase();
+            stageOptions.forEach((opt) => {
+                const item = document.createElement("div");
+                item.className = "stage-dropdown-item";
+                if (currentStage === opt.value.toUpperCase()) {
+                    item.classList.add("active");
+                }
+                item.textContent = opt.label;
+                item.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    changeLeadStage(lead, opt.value);
+                });
+                menu.appendChild(item);
+            });
+            const rect = targetEl.getBoundingClientRect();
+            menu.style.left = `${window.scrollX + rect.left}px`;
+            menu.style.top = `${window.scrollY + rect.bottom + 4}px`;
+            document.body.appendChild(menu);
+            activeStageDropdown = menu;
+        }
+
+        async function changeLeadStage(lead, newStage) {
+            if (!lead || !lead.id || !newStage) return;
+            const currentStage = String(lead.stage || "").toUpperCase();
+            if (currentStage === String(newStage || "").toUpperCase()) {
+                closeStageDropdown();
+                return;
+            }
+            try {
+                await updateDoc(doc(db, "leads", lead.id), { stage: newStage });
+                loadedLeads = loadedLeads.map((l) => {
+                    if (l.id === lead.id) {
+                        return Object.assign({}, l, { stage: newStage });
+                    }
+                    return l;
+                });
+                closeStageDropdown();
+                applyLeadsFilters();
+            } catch (e) {
+                console.error("Gagal mengubah stage lead", e);
+                alert("Gagal mengubah stage. Silakan coba lagi.");
+            }
+        }
+
+        function renderLeadsTable(source) {
+            const tbody = document.getElementById("leadsTableBody");
+            const summary = document.getElementById("leadsTableSummary");
+            if (!tbody || !summary) return;
+            tbody.innerHTML = "";
+            const data = Array.isArray(source) ? source : loadedLeads;
+            if (!data.length) {
+                summary.textContent = "Showing 0 to 0 of 0 entries";
+                return;
+            }
+            const pageSizeSelect = document.getElementById("leadsPageSize");
+            const pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value, 10) || 50 : 50;
+            const page = 1;
+            const startIndex = (page - 1) * pageSize;
+            const slice = data.slice(startIndex, startIndex + pageSize);
+
+            slice.forEach((lead) => {
+                const tr = document.createElement("tr");
+
+                const tdClient = document.createElement("td");
+                const nameEl = document.createElement("span");
+                nameEl.className = "client-name";
+                nameEl.textContent = lead.name || "(No name)";
+                const locEl = document.createElement("span");
+                locEl.className = "client-loc";
+                locEl.textContent = lead.address || "-";
+                tdClient.appendChild(nameEl);
+                tdClient.appendChild(locEl);
+
+                const tdStage = document.createElement("td");
+                const stageBadge = createStageBadge(lead.stage);
+                stageBadge.addEventListener("click", (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    openStageDropdown(stageBadge, lead);
+                });
+                tdStage.appendChild(stageBadge);
+
+                const tdInterest = document.createElement("td");
+                const interestSpan = document.createElement("span");
+                interestSpan.style.fontWeight = "700";
+                interestSpan.textContent = lead.interest_program || "-";
+                tdInterest.appendChild(interestSpan);
+
+                const tdAssigned = document.createElement("td");
+                const assignedGroup = document.createElement("div");
+                assignedGroup.className = "assigned-avatar-group";
+                if (Array.isArray(lead.assigned_photos) && lead.assigned_photos.length) {
+                    lead.assigned_photos.slice(0, 3).forEach((url) => {
+                        const img = document.createElement("img");
+                        img.className = "assigned-avatar";
+                        img.src = url;
+                        img.alt = "Assigned";
+                        assignedGroup.appendChild(img);
+                    });
+                } else if (Array.isArray(lead.assigned_ids) && lead.assigned_ids.length && Array.isArray(availableAssignedUsers) && availableAssignedUsers.length) {
+                    const maxVisibleAssigned = 3;
+                    const matchedUsers = availableAssignedUsers.filter(u => lead.assigned_ids.includes(u.id)).slice(0, maxVisibleAssigned);
+                    if (matchedUsers.length) {
+                        matchedUsers.forEach(user => {
+                            const img = document.createElement("img");
+                            img.className = "assigned-avatar";
+                            img.src = user.photo;
+                            img.alt = user.name || user.email || "Assigned";
+                            assignedGroup.appendChild(img);
+                        });
+                    } else {
+                        const img = document.createElement("img");
+                        img.className = "assigned-avatar";
+                        img.src = "https://i.pravatar.cc/60?u=unassigned";
+                        img.alt = "Unassigned";
+                        assignedGroup.appendChild(img);
+                    }
+                } else {
+                    const img = document.createElement("img");
+                    img.className = "assigned-avatar";
+                    img.src = "https://i.pravatar.cc/60?u=unassigned";
+                    img.alt = "Unassigned";
+                    assignedGroup.appendChild(img);
+                }
+                tdAssigned.appendChild(assignedGroup);
+
+                const tdCity = document.createElement("td");
+                tdCity.textContent = lead.city || "-";
+
+                const tdNotes = document.createElement("td");
+                tdNotes.textContent = lead.notes || "-";
+
+                const tdNext = document.createElement("td");
+                if (lead.due_date) {
+                    const span = document.createElement("span");
+                    span.className = "urgent";
+                    const label = formatShortDateLabel(lead.due_date || "");
+                    span.textContent = label ? `⏰ ${label}` : "⏰";
+                    tdNext.appendChild(span);
+                } else {
+                    tdNext.textContent = "-";
+                }
+
+                const tdContact = document.createElement("td");
+                const waLink = document.createElement("a");
+                waLink.href = formatWhatsAppLink(lead.whatsapp);
+                waLink.target = "_blank";
+                waLink.rel = "noopener noreferrer";
+                waLink.className = "btn-wa";
+                waLink.textContent = "WhatsApp";
+                tdContact.appendChild(waLink);
+
+                const tdReview = document.createElement("td");
+                const btnReview = document.createElement("button");
+                btnReview.style.background = "none";
+                btnReview.style.border = "1px solid #ddd";
+                btnReview.style.padding = "10px 18px";
+                btnReview.style.borderRadius = "12px";
+                btnReview.style.fontWeight = "700";
+                btnReview.style.cursor = "pointer";
+                btnReview.textContent = "Open";
+                btnReview.addEventListener("click", () => {
+                    openLeadDetail(lead);
+                });
+                tdReview.appendChild(btnReview);
+
+                const tdAction = document.createElement("td");
+                const btnEdit = document.createElement("button");
+                btnEdit.type = "button";
+                btnEdit.className = "btn btn-sm btn-link text-primary p-0 me-2";
+                btnEdit.innerHTML = '<i class="bi bi-pencil-square"></i>';
+                btnEdit.addEventListener("click", (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    if (lead && lead.id) {
+                        startEditLead(lead);
+                    }
+                });
+                const btnDelete = document.createElement("button");
+                btnDelete.type = "button";
+                btnDelete.className = "btn btn-sm btn-link text-danger p-0";
+                btnDelete.innerHTML = '<i class="bi bi-trash3"></i>';
+                btnDelete.addEventListener("click", (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    if (lead && lead.id) {
+                        deleteLead(lead.id);
+                    }
+                });
+                tdAction.appendChild(btnEdit);
+                tdAction.appendChild(btnDelete);
+
+                tr.appendChild(tdClient);
+                tr.appendChild(tdNext);
+                tr.appendChild(tdStage);
+                tr.appendChild(tdContact);
+                tr.appendChild(tdInterest);
+                tr.appendChild(tdAssigned);
+                tr.appendChild(tdCity);
+                tr.appendChild(tdNotes);
+                tr.appendChild(tdReview);
+                tr.appendChild(tdAction);
+
+                tbody.appendChild(tr);
+            });
+
+            const endIndex = startIndex + slice.length;
+            summary.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${data.length} entries`;
+        }
+
+        function applyLeadsFilters() {
+            if (!Array.isArray(loadedLeads)) {
+                renderLeadsTable([]);
+                updateLeadsStats();
+                return;
+            }
+            let filtered = loadedLeads.slice();
+            const term = String(leadsSearchTerm || "").toLowerCase().trim();
+            if (term) {
+                filtered = filtered.filter((lead) => {
+                    const name = (lead.name || "").toLowerCase();
+                    const city = (lead.city || "").toLowerCase();
+                    const program = (lead.interest_program || "").toLowerCase();
+                    const notes = (lead.notes || "").toLowerCase();
+                    return (
+                        name.includes(term) ||
+                        city.includes(term) ||
+                        program.includes(term) ||
+                        notes.includes(term)
+                    );
+                });
+            }
+            if (leadsStageFilter && leadsStageFilter !== "ALL") {
+                const filterValue = String(leadsStageFilter || "").toUpperCase();
+                filtered = filtered.filter((lead) => matchesStageFilter(lead.stage, filterValue));
+            }
+            const hasRange = leadsRangeStart && leadsRangeEnd;
+            if (hasRange) {
+                const start = normalizeDateOnly(leadsRangeStart);
+                const end = normalizeDateOnly(leadsRangeEnd);
+                if (start && end) {
+                    filtered = filtered.filter((lead) => {
+                        const d = getLeadDateForRange(lead);
+                        if (!d) return false;
+                        const nd = normalizeDateOnly(d);
+                        if (!nd) return false;
+                        return nd >= start && nd <= end;
+                    });
+                }
+            }
+            renderLeadsTable(filtered);
+            updateLeadsStats();
+        }
+
+        async function loadLeadsFromFirestore() {
+            try {
+                const snap = await getDocs(collection(db, "leads"));
+                loadedLeads = [];
+                snap.forEach((docSnap) => {
+                    const data = docSnap.data() || {};
+                    loadedLeads.push({
+                        id: docSnap.id,
+                        name: data.name || "",
+                        whatsapp: data.whatsapp || "",
+                        notes: data.notes || "",
+                        address: data.address || "",
+                        city: data.city || "",
+                        ads_channel: data.ads_channel || "",
+                        referral: data.referral || "",
+                        interest_program: data.interest_program || "",
+                        due_date: data.due_date || "",
+                        created_display: data.created_display || "",
+                        stage: data.stage || "LEADS",
+                        assigned_ids: Array.isArray(data.assigned_ids) ? data.assigned_ids : [],
+                        assigned_photos: Array.isArray(data.assigned_photos) ? data.assigned_photos : []
+                    });
+                });
+                applyLeadsFilters();
+            } catch (e) {
+                console.error("Gagal memuat leads", e);
+            }
+        }
+
+        function openLeadDetail(lead) {
+            const modalEl = document.getElementById("leadDetailModal");
+            if (!modalEl || !window.bootstrap || !window.bootstrap.Modal || !lead) return;
+            const nameEl = document.getElementById("leadDetailName");
+            const waEl = document.getElementById("leadDetailWhatsapp");
+            const stageEl = document.getElementById("leadDetailStage");
+            const addrEl = document.getElementById("leadDetailAddress");
+            const cityEl = document.getElementById("leadDetailCity");
+            const adsEl = document.getElementById("leadDetailAdsChannel");
+            const interestEl = document.getElementById("leadDetailInterest");
+            const dueEl = document.getElementById("leadDetailDueDate");
+            const refEl = document.getElementById("leadDetailReferral");
+            const notesEl = document.getElementById("leadDetailNotes");
+            const waBtn = document.getElementById("leadDetailWhatsappLink");
+            const editBtn = document.getElementById("leadDetailEditButton");
+            const deleteBtn = document.getElementById("leadDetailDeleteButton");
+            if (nameEl) nameEl.textContent = lead.name || "(No name)";
+            if (waEl) waEl.textContent = lead.whatsapp || "";
+            if (stageEl) stageEl.textContent = lead.stage || "LEADS";
+            if (addrEl) addrEl.textContent = lead.address || "-";
+            if (cityEl) cityEl.textContent = lead.city || "-";
+            if (adsEl) adsEl.textContent = lead.ads_channel || "-";
+            if (interestEl) interestEl.textContent = lead.interest_program || "-";
+            if (dueEl) dueEl.textContent = lead.due_date || "-";
+            if (refEl) refEl.textContent = lead.referral || "-";
+            if (notesEl) notesEl.textContent = lead.notes || "-";
+            if (waBtn) {
+                const href = formatWhatsAppLink(lead.whatsapp);
+                waBtn.href = href;
+            }
+            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+            if (editBtn) {
+                editBtn.onclick = () => {
+                    modal.hide();
+                    startEditLead(lead);
+                };
+            }
+            if (deleteBtn) {
+                deleteBtn.onclick = () => {
+                    modal.hide();
+                    deleteLead(lead.id);
+                };
+            }
+            modal.show();
+        }
+
+        function startEditLead(lead) {
+            const modalEl = document.getElementById("addLeadModal");
+            if (!modalEl || !window.bootstrap || !window.bootstrap.Modal || !lead) return;
+            editingLeadId = lead.id || null;
+            editingLeadData = lead;
+            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        async function deleteLead(id) {
+            if (!id) return;
+            const confirmed = window.confirm("Yakin ingin menghapus lead ini?");
+            if (!confirmed) return;
+            try {
+                await deleteDoc(doc(db, "leads", id));
+                loadedLeads = loadedLeads.filter((l) => l.id !== id);
+                applyLeadsFilters();
+                alert("Lead berhasil dihapus.");
+            } catch (e) {
+                console.error("Gagal menghapus lead", e);
+                alert("Gagal menghapus lead. Silakan coba lagi.");
+            }
+        }
+
+        const stageContainer = document.querySelector(".stage-switcher-container");
+        if (stageContainer) {
+            const trigger = stageContainer.querySelector(".dropdown-trigger");
+            const items = stageContainer.querySelectorAll(".dropdown-item");
+            const currentLabel = document.getElementById("currentStageLabel");
+            const indicator = stageContainer.querySelector(".dropdown-trigger .indicator");
+
+            if (trigger) {
+                trigger.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    stageContainer.classList.toggle("open");
+                });
+            }
+
+            items.forEach(item => {
+                item.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    items.forEach(i => i.classList.remove("active"));
+                    item.classList.add("active");
+                    if (currentLabel) {
+                        const text = item.textContent.trim().replace(/^📊\s*/, "");
+                        currentLabel.textContent = text;
+                    }
+                    const dot = item.querySelector(".indicator");
+                    if (indicator && dot && dot.style.background) {
+                        indicator.style.background = dot.style.background;
+                    }
+                    const datasetFilter = item.dataset.stageFilter || "ALL";
+                    leadsStageFilter = String(datasetFilter || "ALL").toUpperCase();
+                    applyLeadsFilters();
+                    stageContainer.classList.remove("open");
+                });
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!stageContainer.contains(e.target)) {
+                    stageContainer.classList.remove("open");
+                }
+            });
+        }
+
+        document.addEventListener("click", (e) => {
+            if (activeStageDropdown && !activeStageDropdown.contains(e.target)) {
+                closeStageDropdown();
+            }
+        });
+
+        const assignedPicker = document.getElementById("leadAssignedPicker");
+        if (assignedPicker) {
+            const toggle = document.getElementById("leadAssignedToggle");
+            const searchInput = document.getElementById("leadAssignedSearch");
+
+            if (toggle) {
+                toggle.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    assignedPicker.classList.toggle("open");
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    const value = e.target.value || "";
+                    renderAssignedList(value);
+                });
+            }
+
+            assignedPicker.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+
+            document.addEventListener("click", () => {
+                assignedPicker.classList.remove("open");
+            });
+        }
+
+        async function saveLeadToFirestore() {
+            const nameInput = document.getElementById("leadName");
+            const whatsappInput = document.getElementById("leadWhatsapp");
+            const notesInput = document.getElementById("leadNotes");
+            const addressInput = document.getElementById("leadAddress");
+            const adsSelect = document.getElementById("leadAdsChannel");
+            const referralInput = document.getElementById("leadReferral");
+            const interestSelect = document.getElementById("leadInterest");
+            const createdInput = document.getElementById("leadCreatedAt");
+            const dueInput = document.getElementById("leadDueDate");
+
+            const name = nameInput ? nameInput.value.trim() : "";
+            const whatsappRaw = whatsappInput ? whatsappInput.value.trim() : "";
+            const notes = notesInput ? notesInput.value.trim() : "";
+            const address = addressInput ? addressInput.value.trim() : "";
+            const adsChannel = adsSelect ? adsSelect.value : "";
+            const referral = referralInput ? referralInput.value.trim() : "";
+            const interest = interestSelect ? interestSelect.value : "";
+            const createdDisplay = createdInput ? createdInput.value : "";
+            const dueDate = dueInput ? dueInput.value : "";
+
+            if (!whatsappRaw) {
+                alert("Whatsapp wajib diisi.");
+                if (whatsappInput) whatsappInput.focus();
+                return;
+            }
+
+            let whatsapp = whatsappRaw.replace(/[^0-9+]/g, "");
+            if (whatsapp.startsWith("0")) {
+                whatsapp = "+62" + whatsapp.substring(1);
+            }
+
+            const assignedIds = Array.from(selectedAssignedIds || []);
+
+            try {
+                const baseData = {
+                    name,
+                    whatsapp,
+                    notes,
+                    address,
+                    ads_channel: adsChannel || "Unknown",
+                    referral,
+                    interest_program: interest || "",
+                    created_display: createdDisplay,
+                    due_date: dueDate || null,
+                    assigned_ids: assignedIds
+                };
+                if (editingLeadId) {
+                    await updateDoc(doc(db, "leads", editingLeadId), baseData);
+                    alert("Lead berhasil diperbarui.");
+                } else {
+                    await addDoc(collection(db, "leads"), Object.assign({}, baseData, {
+                        stage: "LEADS",
+                        source: "inbox_manual",
+                        created_by: currentUserId || null,
+                        created_at: serverTimestamp()
+                    }));
+                    alert("Lead berhasil disimpan.");
+                }
+
+                if (addLeadModalEl && window.bootstrap && window.bootstrap.Modal) {
+                    const instance = window.bootstrap.Modal.getInstance(addLeadModalEl) || new window.bootstrap.Modal(addLeadModalEl);
+                    instance.hide();
+                }
+                loadLeadsFromFirestore();
+            } catch (e) {
+                console.error("Gagal menyimpan lead", e);
+                alert("Gagal menyimpan lead. Silakan coba lagi.");
+            }
+        }
+
+        const btnSaveLead = document.getElementById("btnSaveLead");
+        if (btnSaveLead) {
+            btnSaveLead.addEventListener("click", () => {
+                saveLeadToFirestore();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadLeadsFromFirestore();
+            loadAssignedUsers();
+        });
+    </script>
+</body>
+</html>

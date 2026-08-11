@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+data/node_modules/
+
+# Utilities/tooling files (bukan bagian aplikasi)
+setting/class-management-dfd.md
+setting/class-management-erd.md
+.tools/
+task_dfd_prompt.md
+task_workflow_prompt.md
+data/copy_replace.ps1
+data/check_errors_http.js
+data/check_errors.js
+data/package.json
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Kredensial — JANGAN PERNAH commit service account / env dengan secret
+source-service-account.json
+target-service-account.json
+*.service-account.json
+role-mapping.csv
+migration-reports/

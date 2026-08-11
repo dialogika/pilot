@@ -1,0 +1,8 @@
+﻿[
+  {
+    "origin": ["https://team.dialogika.co"],
+    "method": ["GET"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

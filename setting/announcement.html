@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Announcement - Team Dialogika</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .announcement-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        background: #fff;
+        position: relative;
+        overflow: hidden;
+      }
+      .announcement-card .type-strip {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 6px;
+      }
+      .type-info .type-strip {
+        background: #0d6efd;
+      }
+      .type-update .type-strip {
+        background: #108a00;
+      }
+      .type-warning .type-strip {
+        background: #f1ac15;
+      }
+      .type-urgent .type-strip {
+        background: #e7181b;
+      }
+
+      .type-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+      }
+      .type-info .type-badge {
+        background: #e7f1ff;
+        color: #0d6efd;
+      }
+      .type-update .type-badge {
+        background: #e6f7e4;
+        color: #108a00;
+      }
+      .type-warning .type-badge {
+        background: #fff6e0;
+        color: #a56a00;
+      }
+      .type-urgent .type-badge {
+        background: #fdeaea;
+        color: #e7181b;
+      }
+
+      .announcement-actions i {
+        cursor: pointer;
+      }
+      .announcement-content-preview {
+        max-height: 3.2em;
+        overflow: hidden;
+      }
+      .modal-editor-box {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .modal-editor-toolbar {
+        background: #fff;
+        border-bottom: 1px solid #f3f4f6;
+        padding: 5px 10px;
+        display: flex;
+        gap: 8px;
+      }
+      .modal-editor-content {
+        min-height: 140px;
+        padding: 15px;
+        outline: none;
+        background: #fff;
+      }
+      .modal-editor-content:empty:before {
+        content: attr(data-placeholder);
+        color: #94a3b8;
+      }
+      .type-pill {
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+      }
+      .type-pill.active-pill.pill-info {
+        background: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+      }
+      .type-pill.active-pill.pill-update {
+        background: #108a00;
+        color: #fff;
+        border-color: #108a00;
+      }
+      .type-pill.active-pill.pill-warning {
+        background: #f1ac15;
+        color: #111;
+        border-color: #f1ac15;
+      }
+      .type-pill.active-pill.pill-urgent {
+        background: #e7181b;
+        color: #fff;
+        border-color: #e7181b;
+      }
+
+      .announcement-card h6,
+      .announcement-content-preview,
+      .modal-editor-content,
+      #deleteAnnouncementTitle {
+        overflow-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+      }
+    </style>
+
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+
+  <body>
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold mb-0">Announcement</h4>
+            <small class="text-muted"
+              >Buat dan kelola pengumuman untuk seluruh tim.</small
+            >
+          </div>
+          <button
+            class="btn btn-dlg-blue rounded-pill px-4"
+            onclick="openCreateAnnouncementModal()"
+          >
+            <i class="bi bi-plus-lg me-1"></i> Create Announcement
+          </button>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          <select
+            id="filterTypeSelect"
+            class="form-select rounded-pill"
+            style="width: 160px"
+          >
+            <option value="all">All Types</option>
+            <option value="info">Info</option>
+            <option value="update">Update</option>
+            <option value="warning">Warning</option>
+            <option value="urgent">Urgent</option>
+          </select>
+          <select
+            id="filterStatusSelect"
+            class="form-select rounded-pill"
+            style="width: 160px"
+          >
+            <option value="all">All Status</option>
+            <option value="active" selected>Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div id="announcementList" class="row g-3">
+          <div class="col-12 text-center text-muted py-5">
+            Loading announcements...
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL: CREATE / EDIT ANNOUNCEMENT -->
+    <div
+      class="modal fade"
+      id="announcementModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0 pb-2">
+            <h5
+              class="modal-title fw-bold text-dark"
+              id="announcementModalTitle"
+            >
+              Create Announcement
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <input type="hidden" id="announcementId" />
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Title</label>
+              <input
+                type="text"
+                id="announcementTitleInput"
+                class="form-control form-control-lg"
+                placeholder="e.g. Jadwal Libur Nasional"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-block">Type</label>
+              <div class="d-flex flex-wrap gap-2">
+                <span
+                  class="type-pill pill-info"
+                  data-type="info"
+                  onclick="selectAnnouncementType('info')"
+                  >Info</span
+                >
+                <span
+                  class="type-pill pill-update"
+                  data-type="update"
+                  onclick="selectAnnouncementType('update')"
+                  >Update</span
+                >
+                <span
+                  class="type-pill pill-warning"
+                  data-type="warning"
+                  onclick="selectAnnouncementType('warning')"
+                  >Warning</span
+                >
+                <span
+                  class="type-pill pill-urgent"
+                  data-type="urgent"
+                  onclick="selectAnnouncementType('urgent')"
+                  >Urgent</span
+                >
+              </div>
+              <input type="hidden" id="announcementTypeInput" value="info" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Target Audience</label>
+              <select id="announcementTargetSelect" class="form-select">
+                <option value="">All Employees</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Content</label>
+              <div class="modal-editor-box">
+                <div class="modal-editor-toolbar">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    onclick="annApplyFormat('bold')"
+                  >
+                    <b>B</b>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    onclick="annApplyFormat('italic')"
+                  >
+                    <i>I</i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light border"
+                    onclick="annApplyFormat('insertUnorderedList')"
+                  >
+                    <i class="bi bi-list-ul"></i>
+                  </button>
+                </div>
+                <div
+                  id="announcementContentInput"
+                  class="modal-editor-content"
+                  contenteditable="true"
+                  data-placeholder="Tulis isi pengumuman di sini..."
+                ></div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-4">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="announcementPinnedInput"
+                />
+                <label class="form-check-label" for="announcementPinnedInput"
+                  >Pin di atas</label
+                >
+              </div>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="announcementActiveInput"
+                  checked
+                />
+                <label class="form-check-label" for="announcementActiveInput"
+                  >Active (tampil di Home)</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 p-4 pt-0">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill px-4 border"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-dlg-blue rounded-pill px-4"
+              id="announcementSaveButton"
+              onclick="saveAnnouncement()"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DELETE CONFIRM -->
+    <div
+      class="modal fade"
+      id="deleteAnnouncementModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+          <div class="modal-header border-0 p-4 pb-0">
+            <h5 class="fw-bold text-danger">Delete Announcement</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <p class="mb-0">
+              Yakin ingin menghapus pengumuman
+              <span id="deleteAnnouncementTitle" class="fw-bold"></span>?
+            </p>
+            <input type="hidden" id="deleteAnnouncementId" />
+          </div>
+          <div class="modal-footer border-0 px-4 pb-4">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              onclick="confirmDeleteAnnouncement()"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        updateDoc,
+        deleteDoc,
+        serverTimestamp,
+        onSnapshot,
+        query,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      renderTopBar(document.getElementById("topbarContainer"));
+      renderSidebar(document.getElementById("sidebarContainer"));
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      window.db = db;
+      window.collection = collection;
+      window.addDoc = addDoc;
+      window.getDocs = getDocs;
+      window.doc = doc;
+      window.updateDoc = updateDoc;
+      window.deleteDoc = deleteDoc;
+      window.serverTimestamp = serverTimestamp;
+
+      let currentUser = null;
+      let allAnnouncements = [];
+      let departmentsCache = [];
+      let announcementsUnsubscribe = null;
+      let currentAnnouncementType = "info";
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "../index.html";
+          return;
+        }
+        currentUser = user;
+        await loadDepartmentsForTarget();
+        listenToAnnouncements();
+      });
+
+      async function loadDepartmentsForTarget() {
+        const select = document.getElementById("announcementTargetSelect");
+        try {
+          const snap = await getDocs(collection(db, "departments"));
+          departmentsCache = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            departmentsCache.push({
+              id: docSnap.id,
+              name: d.name || "Untitled",
+            });
+          });
+          departmentsCache.forEach((dep) => {
+            const opt = document.createElement("option");
+            opt.value = dep.id;
+            opt.textContent = dep.name;
+            select.appendChild(opt);
+          });
+        } catch (e) {
+          console.error("Failed to load departments", e);
+        }
+      }
+
+      function departmentNameById(id) {
+        const found = departmentsCache.find((d) => d.id === id);
+        return found ? found.name : "";
+      }
+
+      function listenToAnnouncements() {
+        if (announcementsUnsubscribe) announcementsUnsubscribe();
+        const q = query(collection(db, "announcements"));
+        announcementsUnsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            allAnnouncements = [];
+            snapshot.forEach((docSnap) => {
+              allAnnouncements.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            renderAnnouncementList();
+          },
+          (error) => {
+            console.error("Failed to load announcements:", error);
+            document.getElementById("announcementList").innerHTML =
+              '<div class="col-12 text-center text-danger py-4">Failed to load announcements.</div>';
+          },
+        );
+      }
+
+      function renderAnnouncementList() {
+        const container = document.getElementById("announcementList");
+        const typeFilter = document.getElementById("filterTypeSelect").value;
+        const statusFilter =
+          document.getElementById("filterStatusSelect").value;
+
+        let items = allAnnouncements.slice();
+        if (typeFilter !== "all") {
+          items = items.filter((a) => (a.type || "info") === typeFilter);
+        }
+        if (statusFilter !== "all") {
+          const wantActive = statusFilter === "active";
+          items = items.filter((a) => !!a.active === wantActive);
+        }
+        items.sort((a, b) => {
+          if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+          const at =
+            a.created_at && a.created_at.toDate
+              ? a.created_at.toDate().getTime()
+              : 0;
+          const bt =
+            b.created_at && b.created_at.toDate
+              ? b.created_at.toDate().getTime()
+              : 0;
+          return bt - at;
+        });
+
+        container.innerHTML = "";
+        if (items.length === 0) {
+          container.innerHTML =
+            '<div class="col-12 text-center text-muted py-5">Belum ada announcement.</div>';
+          return;
+        }
+
+        items.forEach((a) => {
+          const type = a.type || "info";
+          const createdAt =
+            a.created_at && a.created_at.toDate
+              ? a.created_at.toDate().toLocaleString("id-ID")
+              : "-";
+          const targetLabel = a.target_department_name
+            ? a.target_department_name
+            : "All Employees";
+          const tmp = document.createElement("div");
+          tmp.innerHTML = a.content || "";
+          const plain = (tmp.textContent || "").trim();
+
+          const col = document.createElement("div");
+          col.className = "col-md-6 col-lg-4";
+          col.innerHTML = `
+                    <div class="announcement-card type-${type} p-3">
+                        <div class="type-strip"></div>
+                        <div class="ps-2">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="type-badge text-uppercase">${type}</span>
+                                <div class="d-flex align-items-center gap-2 announcement-actions">
+                                    ${a.pinned ? '<i class="bi bi-pin-angle-fill text-primary" title="Pinned"></i>' : ""}
+                                    <i class="bi bi-pencil-square text-secondary" onclick="openEditAnnouncementModal('${a.id}')"></i>
+                                    <i class="bi bi-trash3 text-danger" onclick="openDeleteAnnouncementModal('${a.id}', '${(a.title || "").replace(/'/g, "\\'")}')"></i>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-1">${a.title || "Untitled"}</h6>
+                            <p class="text-muted small announcement-content-preview mb-2">${plain || "No content."}</p>
+                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                <span><i class="bi bi-people me-1"></i>${targetLabel}</span>
+                                <span class="badge ${a.active ? "bg-success" : "bg-secondary"} bg-opacity-10 ${a.active ? "text-success" : "text-secondary"}">${a.active ? "Active" : "Inactive"}</span>
+                            </div>
+                            <div class="text-muted mt-2" style="font-size:11px;">${createdAt}</div>
+                        </div>
+                    </div>
+                `;
+          container.appendChild(col);
+        });
+      }
+
+      document
+        .getElementById("filterTypeSelect")
+        .addEventListener("change", renderAnnouncementList);
+      document
+        .getElementById("filterStatusSelect")
+        .addEventListener("change", renderAnnouncementList);
+
+      window.selectAnnouncementType = function (type) {
+        currentAnnouncementType = type;
+        document.getElementById("announcementTypeInput").value = type;
+        document
+          .querySelectorAll(".type-pill")
+          .forEach((p) => p.classList.remove("active-pill"));
+        const pill = document.querySelector(
+          '.type-pill[data-type="' + type + '"]',
+        );
+        if (pill) pill.classList.add("active-pill");
+      };
+
+      window.annApplyFormat = function (command) {
+        const editor = document.getElementById("announcementContentInput");
+        editor.focus();
+        document.execCommand(command, false, null);
+      };
+
+      window.openCreateAnnouncementModal = function () {
+        document.getElementById("announcementModalTitle").innerText =
+          "Create Announcement";
+        document.getElementById("announcementId").value = "";
+        document.getElementById("announcementTitleInput").value = "";
+        document.getElementById("announcementContentInput").innerHTML = "";
+        document.getElementById("announcementTargetSelect").value = "";
+        document.getElementById("announcementPinnedInput").checked = false;
+        document.getElementById("announcementActiveInput").checked = true;
+        selectAnnouncementType("info");
+        const modal = bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("announcementModal"),
+        );
+        modal.show();
+      };
+
+      window.openEditAnnouncementModal = function (id) {
+        const data = allAnnouncements.find((a) => a.id === id);
+        if (!data) return;
+        document.getElementById("announcementModalTitle").innerText =
+          "Edit Announcement";
+        document.getElementById("announcementId").value = id;
+        document.getElementById("announcementTitleInput").value =
+          data.title || "";
+        document.getElementById("announcementContentInput").innerHTML =
+          data.content || "";
+        document.getElementById("announcementTargetSelect").value =
+          data.target_department || "";
+        document.getElementById("announcementPinnedInput").checked =
+          !!data.pinned;
+        document.getElementById("announcementActiveInput").checked =
+          !!data.active;
+        selectAnnouncementType(data.type || "info");
+        const modal = bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("announcementModal"),
+        );
+        modal.show();
+      };
+
+      window.saveAnnouncement = async function () {
+        const id = document.getElementById("announcementId").value;
+        const title = document
+          .getElementById("announcementTitleInput")
+          .value.trim();
+        const content = document
+          .getElementById("announcementContentInput")
+          .innerHTML.trim();
+        const targetDeptId = document.getElementById(
+          "announcementTargetSelect",
+        ).value;
+        const pinned = document.getElementById(
+          "announcementPinnedInput",
+        ).checked;
+        const active = document.getElementById(
+          "announcementActiveInput",
+        ).checked;
+        const type =
+          document.getElementById("announcementTypeInput").value || "info";
+
+        if (!title) {
+          Swal.fire({
+            title: "Peringatan",
+            text: "Judul announcement wajib diisi.",
+            icon: "warning",
+          });
+          return;
+        }
+
+        const saveBtn = document.getElementById("announcementSaveButton");
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Saving...";
+
+        try {
+          const localData = JSON.parse(
+            localStorage.getItem("userData") || "null",
+          );
+          const payload = {
+            title,
+            content,
+            type,
+            target_department: targetDeptId || "",
+            target_department_name: targetDeptId
+              ? departmentNameById(targetDeptId)
+              : "",
+            pinned,
+            active,
+            updated_at: serverTimestamp(),
+          };
+
+          if (id) {
+            await updateDoc(doc(db, "announcements", id), payload);
+          } else {
+            payload.created_at = serverTimestamp();
+            payload.created_by = currentUser ? currentUser.uid : "";
+            payload.created_by_name =
+              (localData && localData.name) ||
+              (currentUser ? currentUser.email : "");
+            await addDoc(collection(db, "announcements"), payload);
+          }
+
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("announcementModal"),
+          );
+          if (modal) modal.hide();
+
+          Swal.fire({
+            title: "Berhasil!",
+            text: "Announcement berhasil disimpan.",
+            icon: "success",
+            timer: 2000,
+            timerProgressBar: true,
+          });
+        } catch (e) {
+          console.error("Failed to save announcement", e);
+          Swal.fire({
+            title: "Gagal",
+            text: "Gagal menyimpan announcement: " + e.message,
+            icon: "error",
+          });
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save";
+        }
+      };
+
+      window.openDeleteAnnouncementModal = function (id, title) {
+        document.getElementById("deleteAnnouncementId").value = id;
+        document.getElementById("deleteAnnouncementTitle").innerText =
+          title || "";
+        const modal = bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("deleteAnnouncementModal"),
+        );
+        modal.show();
+      };
+
+      window.confirmDeleteAnnouncement = async function () {
+        const id = document.getElementById("deleteAnnouncementId").value;
+        if (!id) return;
+        try {
+          const data = allAnnouncements.find((a) => a.id === id);
+          if (data) {
+            await addDoc(collection(db, "trash"), {
+              type: "announcement",
+              entity_id: id,
+              data,
+              deleted_at: serverTimestamp(),
+              deleted_by: currentUser ? currentUser.uid : "",
+            });
+          }
+          await deleteDoc(doc(db, "announcements", id));
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("deleteAnnouncementModal"),
+          );
+          if (modal) modal.hide();
+        } catch (e) {
+          console.error("Failed to delete announcement", e);
+          Swal.fire({
+            title: "Gagal",
+            text: "Gagal menghapus: " + e.message,
+            icon: "error",
+          });
+        }
+      };
+
+      window.addEventListener("unload", () => {
+        if (announcementsUnsubscribe) announcementsUnsubscribe();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,3496 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management | Dialogika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-active {
+            background: white;
+            color: #2563eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-input {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .custom-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+
+<body class="p-8 text-slate-900">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+                    <div class="space-y-1">
+                        <div
+                            class="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-[0.2em] mb-2">
+                            <span class="w-8 h-[2px] bg-blue-600"></span> Administration
+                        </div>
+                        <nav class="flex gap-2 text-[10px] font-bold text-blue-600 uppercase tracking-widest">
+                            <a href="../home.html" class="hover:text-blue-800"><i class="fa-solid fa-house"></i></a>
+                            <span class="text-slate-300">/</span>
+                            <a href="../example/closing.html" class="hover:text-blue-800">Closing</a>
+                            <span class="text-slate-300">/</span>
+                            <span class="text-slate-400">Invoice Management</span>
+                        </nav>
+                        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Invoice Center</h1>
+                        <p class="text-slate-500 font-medium">Monitoring and configure your financial documents
+                            effortlessly.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="https://dialogika.co/invoice.html" target="_blank"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all text-sm shadow-sm">
+                            <i class="fa-solid fa-eye text-blue-500"></i> Preview Invoice
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 hidden md:grid">
+                    <div id="invoiceStatCard"
+                        class="glass-card p-6 rounded-3xl relative overflow-hidden group cursor-pointer">
+                        <div
+                            class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                        </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                            </div>
+                            <span
+                                class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">Invoices</span>
+                        </div>
+                        <p class="text-slate-500 text-sm font-semibold">Configured Invoice</p>
+                        <h3 class="text-3xl font-extrabold text-slate-800 configured-invoice-count">0</h3>
+                    </div>
+                    <div id="classStatCard"
+                        class="glass-card p-6 rounded-3xl relative overflow-hidden group cursor-pointer">
+                        <div
+                            class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                        </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                <i class="fa-solid fa-graduation-cap text-xl"></i>
+                            </div>
+                            <span
+                                class="text-slate-400 text-xs font-bold bg-slate-100 px-2 py-1 rounded-lg">Classes</span>
+                        </div>
+                        <p class="text-slate-500 text-sm font-semibold">Upcoming Classes</p>
+                        <h3 id="classStatCount" class="text-3xl font-extrabold text-slate-800">0</h3>
+                    </div>
+                    <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                        <div
+                            class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                        </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                <i class="fa-solid fa-ticket text-xl"></i>
+                            </div>
+                            <span
+                                class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">Referral</span>
+                        </div>
+                        <p class="text-slate-500 text-sm font-semibold">Referral Codes</p>
+                        <h3 id="referralStatCount" class="text-3xl font-extrabold text-slate-800">0</h3>
+                    </div>
+                    <div id="receiptStatCard"
+                        class="glass-card p-6 rounded-3xl relative overflow-hidden group cursor-pointer">
+                        <div
+                            class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                        </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                <i class="fa-solid fa-building-columns text-xl"></i>
+                            </div>
+                            <span class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-lg">Banks</span>
+                        </div>
+                        <p class="text-slate-500 text-sm font-semibold">Receipt Pembayaran</p>
+                        <h3 id="receiptStatCount" class="text-3xl font-extrabold text-slate-800">0</h3>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-8">
+                    <div class="bg-slate-200/50 p-1.5 rounded-2xl flex w-full max-w-2xl overflow-x-auto scrollbar-hide">
+                        <button id="tabBtnInvoiceSettings" onclick="openTab(event, 'tab-invoice')"
+                            class="tab-btn tab-active flex-none min-w-[120px] md:flex-1 md:min-w-0 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-gears"></i> Invoice
+                        </button>
+                        <button id="tabBtnInvoiceList" onclick="openTab(event, 'tab-invoice-list')"
+                            class="tab-btn flex-none min-w-[120px] md:flex-1 md:min-w-0 py-3 px-4 rounded-xl text-sm font-bold text-slate-500 transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-table-list"></i> List
+                        </button>
+                        <button onclick="openTab(event, 'tab-referral')"
+                            class="tab-btn flex-none min-w-[120px] md:flex-1 md:min-w-0 py-3 px-4 rounded-xl text-sm font-bold text-slate-500 transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-share-nodes"></i> Referral
+                        </button>
+                        <button onclick="openTab(event, 'tab-bank')"
+                            class="tab-btn flex-none min-w-[120px] md:flex-1 md:min-w-0 py-3 px-4 rounded-xl text-sm font-bold text-slate-500 transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-building-columns"></i> Banks
+                        </button>
+                        <button id="tabBtnReceipt" onclick="openTab(event, 'tab-receipt')"
+                            class="tab-btn flex-none min-w-[120px] md:flex-1 md:min-w-0 py-3 px-4 rounded-xl text-sm font-bold text-slate-500 transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-receipt"></i> Receipt
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-invoice" class="tab-content active">
+                    <div class="glass-card rounded-[2.5rem] p-8 md:p-12 overflow-hidden relative">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-1.5 h-8 bg-blue-600 rounded-full"></div>
+                            <h2 class="text-2xl font-extrabold text-slate-800">Invoice Identity</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-3">Nama Penerima Invoice</label>
+                                <input id="settingLeadName" type="text"
+                                    class="custom-input w-full p-4 bg-white/50 rounded-2xl font-medium"
+                                    placeholder="Contoh: Andi Pratama">
+                                <input id="invoiceId" type="hidden">
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="block text-sm font-bold text-slate-700 mb-3">Program Kelas</label>
+                                <select id="settingClassName"
+                                    class="custom-input w-full p-4 bg-white/50 rounded-2xl font-medium appearance-none bg-[url('https://cdn-icons-png.flaticon.com/512/2985/2985150.png')] bg-[length:12px] bg-no-repeat bg-[right_1.5rem_center]">
+                                    <option value="">Memuat daftar kelas...</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="block text-sm font-bold text-slate-700 mb-3">Produk Induk</label>
+                                <select id="settingProductName"
+                                    class="custom-input w-full p-4 bg-white/50 rounded-2xl font-medium appearance-none bg-[url('https://cdn-icons-png.flaticon.com/512/2985/2985150.png')] bg-[length:12px] bg-no-repeat bg-[right_1.5rem_center]">
+                                    <option value="">Memuat daftar product...</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Batch</label>
+                                    <input id="settingBatchLabel" type="text"
+                                        class="custom-input w-full p-4 bg-white/50 rounded-2xl text-center"
+                                        placeholder="Batch 42">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Mode</label>
+                                    <select id="settingClassType"
+                                        class="custom-input w-full p-4 bg-white/50 rounded-2xl">
+                                        <option value="Offline">Offline</option>
+                                        <option value="Online">Online</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">City</label>
+                                    <div id="locationFieldWrapper">
+                                        <input id="settingLocation" type="text"
+                                            class="custom-input w-full p-4 bg-white/50 rounded-2xl"
+                                            placeholder="Jakarta">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6 col-span-2">
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Sisa Seat</label>
+                                        <input id="settingSeatsLeft" type="number" min="0"
+                                            class="custom-input w-full p-4 bg-white/50 rounded-2xl" placeholder="4">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Batas Waktu
+                                            (Jam)</label>
+                                        <input id="settingDeadlineMinutes" type="number" min="1"
+                                            class="custom-input w-full p-4 bg-white/50 rounded-2xl" placeholder="1">
+                                    </div>
+                                </div>
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Harga Kelas
+                                            (Rp)</label>
+                                        <input id="settingBasePrice" type="text" inputmode="numeric"
+                                            class="custom-input w-full p-4 bg-white/50 rounded-2xl font-bold text-blue-600"
+                                            placeholder="2.500.000">
+                                    </div>
+                                    <div>
+                                        <label id="dpLabel" class="block text-sm font-bold text-slate-700 mb-2">Minimal
+                                            DP</label>
+                                        <input id="settingDpPercent" type="text" inputmode="numeric"
+                                            class="custom-input w-full p-4 bg-white/50 rounded-2xl"
+                                            placeholder="875.000">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <p id="statusSettings" class="text-xs text-slate-400"></p>
+                            <button id="btnSaveSettings"
+                                class="w-full md:w-auto px-10 py-4 btn-dlg-blue text-white rounded-2xl font-bold hover:bg-black transition-all shadow-xl shadow-slate-200">
+                                Create Invoice
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 md:hidden">
+                        <div id="invoiceStatCardMobile"
+                            class="glass-card p-6 rounded-3xl relative overflow-hidden group cursor-pointer">
+                            <div
+                                class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                            </div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                    <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                                </div>
+                                <span
+                                    class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">Invoices</span>
+                            </div>
+                            <p class="text-slate-500 text-sm font-semibold">Configured Invoice</p>
+                            <h3 class="text-3xl font-extrabold text-slate-800 configured-invoice-count">0</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                            <div
+                                class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                            </div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                                </div>
+                                <span
+                                    class="text-slate-400 text-xs font-bold bg-slate-100 px-2 py-1 rounded-lg">Classes</span>
+                            </div>
+                            <p class="text-slate-500 text-sm font-semibold">Active Classes</p>
+                            <h3 class="text-3xl font-extrabold text-slate-800">24</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                            <div
+                                class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                            </div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                    <i class="fa-solid fa-ticket text-xl"></i>
+                                </div>
+                                <span
+                                    class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">Referral</span>
+                            </div>
+                            <p class="text-slate-500 text-sm font-semibold">Referral Codes</p>
+                            <h3 class="text-3xl font-extrabold text-slate-800">45</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                            <div
+                                class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700">
+                            </div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                    <i class="fa-solid fa-building-columns text-xl"></i>
+                                </div>
+                                <span
+                                    class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-lg">Banks</span>
+                            </div>
+                            <p class="text-slate-500 text-sm font-semibold">Bank Channels</p>
+                            <h3 class="text-3xl font-extrabold text-slate-800">3</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-invoice-list" class="tab-content">
+                    <div class="glass-card rounded-[2.5rem] p-8 md:p-10 overflow-hidden relative">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl md:text-2xl font-extrabold text-slate-800">Daftar Invoice</h2>
+                                <p class="text-slate-500 text-sm">Kelola invoice yang sudah dibuat.</p>
+                            </div>
+                        </div>
+                        <div
+                            class="glass-card rounded-3xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
+                            <div class="relative w-full lg:w-80">
+                                <i
+                                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="invoiceSearchInput" type="text"
+                                    placeholder="Cari nama / program / invoice..."
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                                <div class="relative">
+                                    <button type="button" id="invoiceDateRangeBtn"
+                                        class="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 text-sm font-bold text-slate-700 outline-none">
+                                        <i class="fa-regular fa-calendar-days text-slate-500"></i>
+                                        <span id="invoiceDateRangeLabel"
+                                            class="text-xs md:text-sm whitespace-nowrap">Tanggal: 30 hari
+                                            terakhir</span>
+                                    </button>
+                                    <div id="invoiceDateRangePopover"
+                                        class="absolute z-20 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 hidden">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span
+                                                    class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">From</span>
+                                                <input id="invoiceDateFrom" type="date"
+                                                    class="flex-1 text-sm font-bold text-slate-700 outline-none bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
+                                            </div>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span
+                                                    class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">To</span>
+                                                <input id="invoiceDateTo" type="date"
+                                                    class="flex-1 text-sm font-bold text-slate-700 outline-none bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
+                                            </div>
+                                            <div class="flex justify-end gap-2 pt-1">
+                                                <button type="button" id="invoiceDateRangeClear"
+                                                    class="px-3 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-800">Reset</button>
+                                                <button type="button" id="invoiceDateRangeApply"
+                                                    class="px-3 py-1 text-[10px] font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700">Apply</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <select id="invoiceExpiryFilter"
+                                    class="bg-white px-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-700 outline-none">
+                                    <option value="all">All</option>
+                                    <option value="active">Not Expired</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="not_started">Not Open</option>
+                                </select>
+                                <select id="invoicePageSize"
+                                    class="bg-white px-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-700 outline-none">
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                </select>
+                            </div>
+                        </div>
+<div class="overflow-x-auto rounded-2xl border border-slate-100 max-h-[420px] overflow-auto">
+                            <table class="min-w-max text-left text-xs">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-widest font-extrabold">
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Program</th>
+                                        <th class="p-3">Invoice</th>
+                                        <th class="p-3">Tgl Buat</th>
+                                        <th class="p-3">Expired</th>
+                                        <th class="p-3 text-right">Nominal</th>
+                                        <th class="p-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-receipt" class="tab-content">
+                    <div class="glass-card rounded-[2.5rem] p-8 md:p-10 overflow-hidden relative">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl md:text-2xl font-extrabold text-slate-800">Receipt</h2>
+                                <p class="text-slate-500 text-sm">Client yang sudah bayar (Full / DP / Book).</p>
+                            </div>
+                        </div>
+                        <div
+                            class="glass-card rounded-3xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
+                            <div class="relative w-full lg:w-80">
+                                <i
+                                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="receiptSearchInput" type="text"
+                                    placeholder="Cari nama / program / invoice..."
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                                <div class="relative">
+                                    <button type="button" id="receiptDateRangeBtn"
+                                        class="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 text-sm font-bold text-slate-700 outline-none">
+                                        <i class="fa-regular fa-calendar-days text-slate-500"></i>
+                                        <span id="receiptDateRangeLabel"
+                                            class="text-xs md:text-sm whitespace-nowrap">Tanggal: 30 hari
+                                            terakhir</span>
+                                    </button>
+                                    <div id="receiptDateRangePopover"
+                                        class="absolute z-20 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 hidden">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span
+                                                    class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">From</span>
+                                                <input id="receiptDateFrom" type="date"
+                                                    class="flex-1 text-sm font-bold text-slate-700 outline-none bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
+                                            </div>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span
+                                                    class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">To</span>
+                                                <input id="receiptDateTo" type="date"
+                                                    class="flex-1 text-sm font-bold text-slate-700 outline-none bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
+                                            </div>
+                                            <div class="flex justify-end gap-2 pt-1">
+                                                <button type="button" id="receiptDateRangeClear"
+                                                    class="px-3 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-800">Reset</button>
+                                                <button type="button" id="receiptDateRangeApply"
+                                                    class="px-3 py-1 text-[10px] font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700">Apply</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200">
+                                    <i class="fa-solid fa-filter text-slate-500"></i>
+                                    <select id="receiptStatusFilter"
+                                        class="bg-transparent text-sm font-bold text-slate-700 outline-none">
+                                        <option value="all">All Status</option>
+                                        <option value="full">Full</option>
+                                        <option value="dp">DP</option>
+                                        <option value="book">Book</option>
+                                    </select>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200">
+                                    <i class="fa-solid fa-share-nodes text-slate-500"></i>
+                                    <select id="receiptReferralFilter"
+                                        class="bg-transparent text-sm font-bold text-slate-700 outline-none">
+                                        <option value="all">All Referral</option>
+                                    </select>
+                                </div>
+                                <select id="receiptPageSize"
+                                    class="bg-white px-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-700 outline-none">
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-2xl border border-slate-100 max-h-[420px] overflow-auto">
+                            <table class="min-w-max text-left text-xs">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-widest font-extrabold">
+                                        <th class="p-3">Invoice</th>
+                                        <th class="p-3">Photo</th>
+                                        <th class="p-3">Nama</th>
+                                        <th class="p-3">Program</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3 text-right">Payment</th>
+                                        <th class="p-3 text-right">Liability</th>
+                                        <th class="p-3 text-right">Nominal</th>
+                                        <th class="p-3">Referral</th>
+                                        <th class="p-3">Metode</th>
+                                        <th class="p-3">Bank</th>
+                                        <th class="p-3">Phone</th>
+                                        <th class="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receiptTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <p id="receiptTotalPayment"
+                                class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Total Payment: Rp
+                                0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-referral" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div class="lg:col-span-4">
+                            <div class="glass-card rounded-[2.5rem] p-8 sticky top-10">
+                                <div class="flex items-center gap-3 mb-8">
+                                    <div
+                                        class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                    <h2 class="text-xl font-bold text-slate-800">Create New Referral</h2>
+                                </div>
+                                <div class="space-y-6">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Pemegang
+                                            Referral</label>
+                                        <select id="refHolderType"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl font-semibold text-slate-700 appearance-none bg-[url('https://cdn-icons-png.flaticon.com/512/2985/2985150.png')] bg-[length:12px] bg-no-repeat bg-[right_1.5rem_center]">
+                                            <option value="system">System (Default)</option>
+                                            <option value="user">Specific User / Student</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Produk
+                                            Terkait</label>
+                                        <div id="refProductDropdown"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl font-semibold text-slate-700 flex items-center justify-between cursor-pointer">
+                                            <span id="refProductSummary"
+                                                class="text-sm font-semibold text-slate-700">Pilih minimal 1
+                                                product</span>
+                                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+                                        </div>
+                                        <div id="refProductOptions"
+                                            class="mt-2 bg-white border border-slate-200 rounded-2xl p-3 max-h-52 overflow-y-auto hidden">
+                                            <p class="text-[11px] text-slate-400">Memuat daftar product...</p>
+                                        </div>
+                                    </div>
+                                    <div id="refOwnerNameWrapper">
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nama
+                                            Pemegang</label>
+                                        <input id="refOwnerName" type="text" placeholder="Nama user / student"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Kode
+                                            Referral</label>
+                                        <div class="relative">
+                                            <input id="refCode" type="text" placeholder="DLGFRIEND"
+                                                class="custom-input w-full p-4 pl-11 bg-white rounded-2xl font-mono tracking-widest uppercase">
+                                            <i
+                                                class="fa-solid fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fungsi
+                                            Referral</label>
+                                        <select id="refFunctionType"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl font-semibold text-slate-700 appearance-none bg-[url('https://cdn-icons-png.flaticon.com/512/2985/2985150.png')] bg-[length:12px] bg-no-repeat bg-[right_1.5rem_center]">
+                                            <option value="">Pilih fungsi referral</option>
+                                            <option value="discount">Discount</option>
+                                            <option value="cashback" disabled>Cashback (Soon)</option>
+                                            <option value="charity" disabled>Charity (Soon)</option>
+                                            <option value="point" disabled>Point (Soon)</option>
+                                            <option value="addon" disabled>Add On (Soon)</option>
+                                            <option value="reward" disabled>Reward (Soon)</option>
+                                            <option value="exclusivity" disabled>Exclusivity (Soon)</option>
+                                        </select>
+                                    </div>
+                                    <div id="refDiscountWrapper" class="grid grid-cols-2 gap-4 mt-2 hidden">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Potongan
+                                                (%)</label>
+                                            <input id="refDiscountPercent" type="number" min="0" max="100"
+                                                class="custom-input w-full p-4 bg-white rounded-2xl font-bold text-slate-700"
+                                                placeholder="10">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nilai
+                                                Potongan</label>
+                                            <input id="refDiscountAmount" type="text"
+                                                class="custom-input w-full p-4 bg-white rounded-2xl font-bold text-slate-700"
+                                                placeholder="250000">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Maks
+                                                Pakai</label>
+                                            <input id="refMaxUsage" type="number" min="1"
+                                                class="custom-input w-full p-4 bg-white rounded-2xl font-bold text-slate-700"
+                                                placeholder="10">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Berlaku
+                                                (Bln)</label>
+                                            <input id="refMonthsValid" type="number" min="1"
+                                                class="custom-input w-full p-4 bg-white rounded-2xl font-bold text-slate-700"
+                                                placeholder="2">
+                                            <p class="text-[10px] text-slate-400 mt-1">*Batas 2 bulan default</p>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Sudah
+                                                Dipakai</label>
+                                            <input id="refUsedCount" type="number" min="0"
+                                                class="custom-input w-full p-4 bg-white rounded-2xl font-bold text-slate-700"
+                                                placeholder="0">
+                                        </div>
+                                    </div>
+                                    <div class="pt-4">
+                                        <button type="button" id="btnOpenDiscountCalculator"
+                                            class="w-full py-3 mb-3 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 text-sm text-slate-700">
+                                            <i class="fa-solid fa-calculator text-blue-600"></i> Kalkulator Discount
+                                        </button>
+                                        <button id="btnSaveReferral"
+                                            class="w-full py-4 bg-[linear-gradient(to_bottom,#006a4e_5%,#003f2e_100%)] text-white rounded-2xl font-bold hover:bg-[linear-gradient(to_bottom,#003f2e_10%,#006a4e_95%)] transition-all shadow-sm shadow-emerald-700 flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-floppy-disk"></i> Simpan / Update Referral
+                                        </button>
+                                        <button id="btnClearReferralForm"
+                                            class="w-full mt-4 text-xs font-bold text-slate-400 hover:text-red-400 transition-colors uppercase tracking-widest">
+                                            Reset Form
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-8 space-y-6">
+                            <div
+                                class="glass-card rounded-3xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+                                <div class="relative w-full md:w-72">
+                                    <i
+                                        class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input id="refSearchInput" type="text" placeholder="Cari kode atau pemegang..."
+                                        class="w-full pl-11 pr-4 py-2 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="button" data-ref-filter="all"
+                                        class="ref-filter-btn px-4 py-2 text-xs font-bold bg-white border border-slate-200 rounded-xl hover:bg-slate-50">Semua</button>
+                                    <button type="button" data-ref-filter="active"
+                                        class="ref-filter-btn px-4 py-2 text-xs font-bold text-slate-400 hover:text-emerald-600">Aktif</button>
+                                    <button type="button" data-ref-filter="expired"
+                                        class="ref-filter-btn px-4 py-2 text-xs font-bold text-slate-400 hover:text-red-500">Expired</button>
+                                </div>
+                            </div>
+                            <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-slate-50/50 text-[11px] uppercase tracking-[0.15em] font-extrabold text-slate-400">
+                                            <th class="p-6">Pemegang &amp; Kode</th>
+                                            <th class="p-6">Masa Berlaku</th>
+                                            <th class="p-6">Penggunaan</th>
+                                            <th class="p-6 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="refTableBody" class="divide-y divide-slate-50"></tbody>
+                                </table>
+                                <div class="bg-slate-50/30 p-4 text-center border-t border-slate-50">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                                        id="refFooterSummary">Referral List</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-bank" class="tab-content">
+                    <div class="glass-card rounded-[2.5rem] p-10 max-w-4xl mx-auto">
+                        <div
+                            class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 border-b border-slate-100 pb-8">
+                            <div>
+                                <h2 class="text-2xl font-extrabold text-slate-800">Payment Channels</h2>
+                                <p class="text-slate-500 text-sm">Manage where your students send their payment.</p>
+                            </div>
+                            <button id="btnClearBankForm"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:shadow-xl transition shadow-blue-200 text-sm">
+                                Reset Form Rekening
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                            <div
+                                class="p-6 rounded-3xl bg-gradient-to-br from-white to-slate-50 border border-slate-200">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Nama
+                                            Bank</label>
+                                        <input id="bankName" type="text"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl text-sm"
+                                            placeholder="BCA / BRI / BSI">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">No.
+                                            Rekening</label>
+                                        <input id="bankNumber" type="text"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl text-sm"
+                                            placeholder="8920129301">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Atas
+                                            Nama</label>
+                                        <input id="bankHolder" type="text"
+                                            class="custom-input w-full p-4 bg-white rounded-2xl text-sm"
+                                            placeholder="PT Dialogika Indonesia">
+                                    </div>
+                                    <input id="bankId" type="hidden">
+                                    <button id="btnSaveBank"
+                                        class="w-full py-3 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition shadow-lg shadow-slate-200 text-sm">
+                                        Simpan / Update Rekening
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="p-6 rounded-3xl bg-gradient-to-br from-white to-slate-50 border border-slate-200">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-sm font-extrabold text-slate-700 uppercase tracking-widest">Daftar
+                                        Rekening</h3>
+                                </div>
+                                <div class="max-h-64 overflow-auto border border-slate-100 rounded-2xl">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-slate-50 text-slate-500">
+                                            <tr>
+                                                <th class="px-3 py-2 font-bold uppercase tracking-widest">Bank</th>
+                                                <th class="px-3 py-2 font-bold uppercase tracking-widest">No. Rekening
+                                                </th>
+                                                <th class="px-3 py-2 font-bold uppercase tracking-widest">Atas Nama</th>
+                                                <th class="px-3 py-2 text-center font-bold uppercase tracking-widest">
+                                                    Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bankTableBody" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div id="copyLinkModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+            <h2 class="text-lg font-extrabold text-slate-900 mb-2">Link Invoice Siap</h2>
+            <p class="text-sm text-slate-500 mb-4">Copy link di bawah lalu kirim ke client.</p>
+            <div class="flex items-center gap-2 mb-4">
+                <input id="invoiceLinkInput" type="text"
+                    class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm" readonly>
+                <button type="button" onclick="copyInvoiceLink()"
+                    class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest">
+                    Copy
+                </button>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" onclick="closeCopyLinkModal()"
+                    class="text-xs font-bold text-slate-500 hover:text-slate-800">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="paidInvoiceModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg md:text-xl font-extrabold text-slate-900">Daftar Pembayaran</h2>
+                <button id="closePaidInvoiceModalBtn"
+                    class="text-slate-500 hover:text-slate-800 text-sm font-bold">Tutup</button>
+            </div>
+                        <div class="overflow-x-auto rounded-2xl border border-slate-100 max-h-[420px] overflow-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-widest font-extrabold">
+                            <th class="p-3">Nama</th>
+                            <th class="p-3">Program</th>
+                            <th class="p-3">Invoice</th>
+                            <th class="p-3">Tgl Bayar</th>
+                            <th class="p-3 text-right">Nominal</th>
+                            <th class="p-3">Metode</th>
+                            <th class="p-3">Bank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paidInvoiceTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="invoiceViewModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+            <h2 class="text-lg font-extrabold text-slate-900 mb-4">Detail Invoice</h2>
+            <div class="space-y-2 text-sm text-slate-700 mb-4">
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Nama</span>
+                    <span id="viewLeadName" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Program</span>
+                    <span id="viewClassName" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Invoice</span>
+                    <span id="viewInvoiceNumber" class="text-right font-mono text-[11px]"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Batch / Mode</span>
+                    <span id="viewBatchMode" class="text-right text-xs"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Lokasi</span>
+                    <span id="viewLocation" class="text-right text-xs"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Harga</span>
+                    <span id="viewBasePrice" class="text-right font-semibold"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Minimal DP</span>
+                    <span id="viewDpInfo" class="text-right text-xs"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="font-semibold">Sisa Seat</span>
+                    <span id="viewSeats" class="text-right text-xs"></span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <a id="viewInvoiceLink" href="#" target="_blank"
+                    class="text-xs font-bold text-blue-600 hover:text-blue-800">
+                    Buka Halaman Invoice
+                </a>
+                <button type="button" onclick="closeInvoiceViewModal()"
+                    class="text-xs font-bold text-slate-500 hover:text-slate-800">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentViewModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div
+            class="max-w-5xl w-full bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100 mx-4 flex flex-col md:flex-row relative">
+            <div
+                class="w-full md:w-[360px] bg-slate-100/50 p-6 md:p-8 flex flex-col border-b md:border-b-0 md:border-r border-slate-100">
+                <div class="flex justify-between items-center mb-4 md:mb-6">
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Bukti Transfer</span>
+                    <span
+                        class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-tight">Digital
+                        Receipt</span>
+                </div>
+                <div class="relative group mx-auto w-full">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-b from-blue-200 to-transparent rounded-2xl blur opacity-20 transition duration-1000 group-hover:opacity-40">
+                    </div>
+                    <div class="relative bg-white p-2.5 md:p-3 rounded-2xl shadow-xl shadow-slate-200/50">
+                        <div id="paymentViewProofWrapper"
+                            class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden aspect-square flex items-center justify-center">
+                            <span class="text-slate-400 text-xs font-bold">No Photo</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-6 md:mt-8 text-[11px] text-slate-400 text-center leading-relaxed">
+                    Detail pembayaran ini membantu Admin memverifikasi transaksi peserta.
+                </p>
+            </div>
+            <div class="flex-1 p-6 md:p-10 relative bg-white">
+                <button id="closePaymentViewModalBtn"
+                    class="absolute top-5 right-5 md:top-8 md:right-8 text-slate-300 hover:text-slate-900 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <header class="mb-8 md:mb-10">
+                    <div class="flex flex-wrap items-center gap-3 mb-3">
+                        <span id="paymentVerificationBadge"
+                            class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded-full border border-emerald-100 flex items-center gap-1.5"></span>
+                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">
+                            Invoice: <span id="paymentViewInvoice" class="font-mono"></span>
+                        </span>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Detail Pembayaran</h1>
+                </header>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 text-sm text-slate-700">
+                    <div class="space-y-5">
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama
+                                Peserta</p>
+                            <p id="paymentViewName" class="text-sm font-semibold text-slate-800"></p>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Program
+                                Pelatihan</p>
+                            <p id="paymentViewProgram" class="text-sm font-semibold text-slate-800 leading-relaxed"></p>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Metode &
+                                Bank</p>
+                            <div class="flex items-center gap-2">
+                                <span id="paymentViewMethod" class="text-sm font-semibold text-slate-800"></span>
+                                <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                <span id="paymentViewBank" class="text-sm font-bold text-blue-600 uppercase"></span>
+                            </div>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">No. HP</p>
+                            <p id="paymentViewPhone" class="text-sm font-semibold text-slate-800"></p>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Referral &
+                                Status</p>
+                            <p class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                                <span id="paymentViewReferral" class="font-mono text-blue-600"></span>
+                                <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                <span id="paymentViewStatus"></span>
+                            </p>
+                        </section>
+                    </div>
+                    <div class="space-y-5">
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tanggal
+                                Bayar</p>
+                            <p id="paymentViewDate" class="text-sm font-semibold text-slate-800"></p>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Verifikasi
+                                Admin</p>
+                            <div class="flex items-center gap-2">
+                                <select id="paymentVerificationStatus"
+                                    class="text-xs font-bold bg-slate-50 border border-slate-200 rounded-lg py-1 pl-2 pr-8 focus:ring-0 cursor-pointer text-slate-700">
+                                    <option value="legit">Legit</option>
+                                    <option value="not_verified">Not Verified</option>
+                                    <option value="scam">Scam</option>
+                                </select>
+                            </div>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Payment
+                                Amount</p>
+                            <p id="paymentViewPayment" class="text-sm font-semibold text-slate-800"></p>
+                        </section>
+                        <section>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Liability
+                                (Hutang)</p>
+                            <p id="paymentViewLiability" class="text-sm font-semibold text-slate-800"></p>
+                        </section>
+                    </div>
+                    <div class="sm:col-span-2 pt-6 border-t border-slate-50 space-y-4">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">Total Nominal</span>
+                            <span id="paymentViewNominal" class="font-bold text-slate-900"></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-50 mt-2">
+                            <a id="paymentViewReceiptLink" href="#" target="_blank"
+                                class="group flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-all font-bold text-xs md:text-sm">
+                                Buka Halaman Receipt
+                                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                            <div class="flex items-center gap-3">
+                                <button type="button"
+                                    class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-[11px] hover:bg-slate-200 transition-all">
+                                    Cetak PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="discountCalculatorModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full mx-4 overflow-hidden">
+            <div class="flex items-center justify-between p-4 border-b border-slate-100">
+                <h2 class="text-sm md:text-base font-extrabold text-slate-900">Kalkulator Discount</h2>
+                <button id="closeDiscountCalculatorModalBtn"
+                    class="text-slate-500 hover:text-slate-800 text-sm font-bold">Tutup</button>
+            </div>
+            <iframe src="../frame/calculator.html" class="w-full h-[75vh] bg-white"></iframe>
+        </div>
+    </div>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            addDoc,
+            doc,
+            getDoc,
+            updateDoc,
+            deleteDoc,
+            query,
+            orderBy,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.dlgDb = db;
+        window.dlgCollection = collection;
+        window.dlgGetDocs = getDocs;
+        window.dlgAddDoc = addDoc;
+        window.dlgDoc = doc;
+        window.dlgSetDoc = setDoc;
+        window.dlgGetDoc = getDoc;
+        window.dlgUpdateDoc = updateDoc;
+        window.dlgDeleteDoc = deleteDoc;
+        window.dlgQuery = query;
+        window.dlgOrderBy = orderBy;
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById("sidebarNav");
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle("show");
+            } else {
+                document.body.classList.toggle("sidebar-collapsed");
+            }
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) { }
+            try {
+                localStorage.removeItem("userData");
+            } catch (e) { }
+            window.location.href = "../index.html";
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+            }
+        });
+    </script>
+
+    <script>
+        function openTab(evt, tabId) {
+            var i, tabContent, tabBtn;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].classList.remove("active");
+            }
+            tabBtn = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tabBtn.length; i++) {
+                tabBtn[i].classList.remove("tab-active");
+                tabBtn[i].classList.add("text-slate-500");
+            }
+            var active = document.getElementById(tabId);
+            if (active) {
+                active.classList.add("active");
+            }
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add("tab-active");
+                evt.currentTarget.classList.remove("text-slate-500");
+            }
+        }
+        const STORAGE_KEY_SETTINGS = "dlg_invoice_settings";
+        const STORAGE_KEY_BANKS = "dlg_invoice_banks";
+        const STORAGE_KEY_REFERRALS = "dlg_invoice_referrals";
+
+        function loadSettings() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
+                if (!raw) {
+                    return {
+                        leadName: "Andi Pratama",
+                        className: "Public Speaking Playbook",
+                        batchLabel: "Batch 42",
+                        classType: "Offline",
+                        location: "Jakarta",
+                        seatsLeft: 4,
+                        deadlineMinutes: 60,
+                        basePrice: 2500000,
+                        dpPercent: 35,
+                        dpAmount: 875000,
+                        classMeta: "Batch 42 • Offline • Jakarta"
+                    };
+                }
+                const parsed = JSON.parse(raw);
+                const merged = Object.assign({
+                    leadName: "",
+                    className: "",
+                    batchLabel: "",
+                    classType: "",
+                    location: "",
+                    seatsLeft: 0,
+                    deadlineMinutes: 60,
+                    basePrice: 0,
+                    dpPercent: 35,
+                    dpAmount: 0,
+                    classMeta: ""
+                }, parsed);
+                if (!merged.batchLabel && merged.classMeta) {
+                    const parts = merged.classMeta.split("•").map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+                    merged.batchLabel = parts[0] || "";
+                    merged.classType = parts[1] || "";
+                    merged.location = parts[2] || "";
+                }
+                if ((!merged.dpAmount || merged.dpAmount <= 0) && merged.basePrice && merged.dpPercent) {
+                    merged.dpAmount = Math.round(merged.basePrice * merged.dpPercent / 100);
+                }
+                return merged;
+            } catch (e) {
+                return {
+                    leadName: "",
+                    className: "",
+                    batchLabel: "",
+                    classType: "",
+                    location: "",
+                    seatsLeft: 0,
+                    deadlineMinutes: 60,
+                    basePrice: 0,
+                    dpPercent: 35,
+                    dpAmount: 0,
+                    classMeta: ""
+                };
+            }
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+        }
+
+        function loadBanks() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_BANKS);
+                if (!raw) {
+                    return [
+                        { id: "BCA", name: "BCA", number: "8920129301", holder: "PT Dialogika Indonesia" },
+                        { id: "BCA_SYR", name: "BCA Syariah", number: "8920129301", holder: "PT Dialogika Indonesia" },
+                        { id: "BSI", name: "BSI", number: "8920129301", holder: "PT Dialogika Indonesia" }
+                    ];
+                }
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function waitForSettingsFirestoreTools() {
+            if (window.dlgDb && window.dlgDoc && window.dlgGetDoc && window.dlgSetDoc) return true;
+            let attempts = 0;
+            while (!(window.dlgDb && window.dlgDoc && window.dlgGetDoc && window.dlgSetDoc) && attempts < 30) {
+                await new Promise(function (resolve) { return setTimeout(resolve, 250); });
+                attempts++;
+            }
+            return !!(window.dlgDb && window.dlgDoc && window.dlgGetDoc && window.dlgSetDoc);
+        }
+
+        async function loadBanksFromFirestore() {
+            const ready = await waitForSettingsFirestoreTools();
+            if (!ready) return null;
+            try {
+                const ref = window.dlgDoc(window.dlgDb, "settings", "banks");
+                const snap = await window.dlgGetDoc(ref);
+                if (!snap.exists()) return null;
+                const d = snap.data() || {};
+                const banks = d.banks || [];
+                return Array.isArray(banks) ? banks : [];
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function loadReferralsFromFirestore() {
+            const ready = await waitForSettingsFirestoreTools();
+            if (!ready) return null;
+            try {
+                const ref = window.dlgDoc(window.dlgDb, "settings", "referrals");
+                const snap = await window.dlgGetDoc(ref);
+                if (!snap.exists()) return null;
+                const d = snap.data() || {};
+                const referrals = d.referrals || [];
+                return Array.isArray(referrals) ? referrals : [];
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function syncBanksToFirestore(banks) {
+            const ready = await waitForSettingsFirestoreTools();
+            if (!ready) return false;
+            try {
+                const ref = window.dlgDoc(window.dlgDb, "settings", "banks");
+                await window.dlgSetDoc(ref, { banks: banks }, { merge: true });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function syncReferralsToFirestore(referrals) {
+            const ready = await waitForSettingsFirestoreTools();
+            if (!ready) return false;
+            try {
+                const ref = window.dlgDoc(window.dlgDb, "settings", "referrals");
+                await window.dlgSetDoc(ref, { referrals: referrals }, { merge: true });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function saveBanks(banks) {
+            localStorage.setItem(STORAGE_KEY_BANKS, JSON.stringify(banks));
+            const ok = await syncBanksToFirestore(banks);
+            if (ok) {
+                console.log("Banks saved to Firestore");
+            } else {
+                console.error("Error saving banks to Firestore:", new Error("Firestore not ready"));
+            }
+        }
+
+        function loadReferrals() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_REFERRALS);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function saveReferrals(referrals) {
+            localStorage.setItem(STORAGE_KEY_REFERRALS, JSON.stringify(referrals));
+            const ok = await syncReferralsToFirestore(referrals);
+            if (ok) {
+                console.log("Referrals saved to Firestore");
+            } else {
+                console.error("Error saving referrals to Firestore:", new Error("Firestore not ready"));
+            }
+        }
+
+        let currentBanks = [];
+        let currentReferrals = [];
+        let currentInvoices = [];
+        let invoiceListKeyword = "";
+        let invoiceListDateFrom = "";
+        let invoiceListDateTo = "";
+        let invoiceListExpiryFilter = "all";
+        let invoiceListPageSize = 100;
+        let invoiceExpiryTicker = null;
+        let receiptFilterKeyword = "";
+        let receiptFilterStatus = "all";
+        let receiptFilterReferral = "all";
+        let receiptDateFrom = "";
+        let receiptDateTo = "";
+        let receiptPageSize = 100;
+
+        function generateInvoiceNumber() {
+            const now = new Date();
+            const yy = String(now.getFullYear()).slice(-2);
+            const mm = String(now.getMonth() + 1).padStart(2, "0");
+            const dd = String(now.getDate()).padStart(2, "0");
+            const random = Math.floor(Math.random() * 9000) + 1000;
+            return "INV-" + yy + mm + dd + "-" + random;
+        }
+
+        function formatCurrencyId(amount) {
+            const n = typeof amount === "number" ? amount : parseInt(amount, 10) || 0;
+            return n.toLocaleString("id-ID");
+        }
+
+        function formatNumberWithDotsStr(value) {
+            const numeric = String(value || "").replace(/\D/g, "");
+            if (!numeric) return "";
+            return numeric.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function parseFormattedNumberStr(value) {
+            const numeric = String(value || "").replace(/\D/g, "");
+            return numeric ? parseInt(numeric, 10) : 0;
+        }
+
+        function updateInvoiceStatsCount(count) {
+            const els = document.querySelectorAll(".configured-invoice-count");
+            for (var i = 0; i < els.length; i++) {
+                els[i].textContent = String(count);
+            }
+        }
+
+        function updateClassStatsCount(count) {
+            const el = document.getElementById("classStatCount");
+            if (el) {
+                el.textContent = String(count);
+            }
+        }
+
+        function updateReferralStatsCount(count) {
+            const el = document.getElementById("referralStatCount");
+            if (el) {
+                el.textContent = String(count);
+            }
+        }
+
+        function updateReceiptStatsCount(count) {
+            const el = document.getElementById("receiptStatCount");
+            if (el) {
+                el.textContent = String(count);
+            }
+        }
+
+        function normalizeUpper(val) {
+            return String(val || "").trim().toUpperCase();
+        }
+
+        function getReferralByCode(code) {
+            const key = normalizeUpper(code);
+            if (!key) return null;
+            return currentReferrals.find(function (r) {
+                return normalizeUpper(r && r.code) === key;
+            }) || null;
+        }
+
+        function getReferralTooltip(code) {
+            const ref = getReferralByCode(code);
+            if (!ref) return "";
+            const label = getReferralFunctionLabel(ref);
+            if ((ref.functionType || "").toLowerCase() === "discount") {
+                const p = typeof ref.discountPercent === "number" ? ref.discountPercent : 0;
+                const a = typeof ref.discountAmount === "number" ? ref.discountAmount : 0;
+                if (a > 0) return label + " • Rp " + formatCurrencyId(a);
+                if (p > 0) return label + " • " + p + "%";
+            }
+            return label;
+        }
+
+        function getInvoiceExpiryMeta(inv, nowMs) {
+            const now = typeof nowMs === "number" ? nowMs : Date.now();
+            const startedAtMs = typeof inv.startedAtMs === "number" && inv.startedAtMs > 0
+                ? inv.startedAtMs
+                : (typeof inv.createdAtMs === "number" && inv.createdAtMs > 0 ? inv.createdAtMs : 0);
+            const deadlineMinutes = typeof inv.deadlineMinutes === "number" ? inv.deadlineMinutes : 0;
+            if (!deadlineMinutes) {
+                return { state: "no_deadline", expiryMs: 0, remainingMs: 0 };
+            }
+            if (!startedAtMs) {
+                return { state: "not_started", expiryMs: 0, remainingMs: 0 };
+            }
+            const expiryMs = startedAtMs + deadlineMinutes * 60 * 1000;
+            const remainingMs = expiryMs - now;
+            if (remainingMs <= 0) {
+                return { state: "expired", expiryMs: expiryMs, remainingMs: 0 };
+            }
+            return { state: "active", expiryMs: expiryMs, remainingMs: remainingMs };
+        }
+
+        function formatRemainingMs(ms) {
+            const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            if (h > 0) {
+                return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+            }
+            return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+        }
+
+        function formatDateForInput(date) {
+            const d = date instanceof Date ? date : new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return year + "-" + month + "-" + day;
+        }
+
+        function formatDateRangeLabel(fromStr, toStr) {
+            if (!fromStr && !toStr) {
+                return "Tanpa filter tanggal";
+            }
+            const fromDate = fromStr ? new Date(fromStr + "T00:00:00") : null;
+            const toDate = toStr ? new Date(toStr + "T00:00:00") : null;
+            if (fromDate && toDate) {
+                const fromLabel = fromDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+                const toLabel = toDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+                return fromLabel + " - " + toLabel;
+            }
+            if (fromDate) {
+                const fromLabel = fromDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+                return "≥ " + fromLabel;
+            }
+            const toLabel = toDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+            return "≤ " + toLabel;
+        }
+
+        function getVerificationStatusMeta(status) {
+            const key = String(status || "").toLowerCase();
+            if (key === "legit") {
+                return {
+                    key: "legit",
+                    label: "Legit",
+                    badge: '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i><span>Legit</span></span>'
+                };
+            }
+            if (key === "scam") {
+                return {
+                    key: "scam",
+                    label: "Scam",
+                    badge: '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 gap-1"><i class="fa-solid fa-triangle-exclamation text-rose-500"></i><span>Scam</span></span>'
+                };
+            }
+            if (key === "not_verified") {
+                return {
+                    key: "not_verified",
+                    label: "Not Verified",
+                    badge: '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 gap-1"><i class="fa-solid fa-circle-exclamation text-slate-500"></i><span>Not Verified</span></span>'
+                };
+            }
+            return {
+                key: "legit",
+                label: "Legit",
+                badge: '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i><span>Legit</span></span>'
+            };
+        }
+
+        function stopInvoiceExpiryTicker() {
+            if (invoiceExpiryTicker) {
+                clearInterval(invoiceExpiryTicker);
+                invoiceExpiryTicker = null;
+            }
+        }
+
+        function startInvoiceExpiryTicker() {
+            stopInvoiceExpiryTicker();
+            invoiceExpiryTicker = setInterval(function () {
+                const nodes = document.querySelectorAll(".inv-expiry[data-expiry-ms]");
+                if (!nodes || !nodes.length) {
+                    stopInvoiceExpiryTicker();
+                    return;
+                }
+                const now = Date.now();
+                let activeCount = 0;
+                nodes.forEach(function (el) {
+                    const expiryMs = parseInt(el.getAttribute("data-expiry-ms") || "0", 10) || 0;
+                    if (!expiryMs) {
+                        el.textContent = "-";
+                        return;
+                    }
+                    const remainingMs = expiryMs - now;
+                    if (remainingMs <= 0) {
+                        el.textContent = "Expired";
+                        el.classList.remove("text-emerald-600");
+                        el.classList.add("text-rose-600");
+                        el.removeAttribute("data-expiry-ms");
+                        return;
+                    }
+                    activeCount++;
+                    el.textContent = formatRemainingMs(remainingMs);
+                });
+                if (activeCount === 0) {
+                    stopInvoiceExpiryTicker();
+                }
+            }, 1000);
+        }
+
+        function renderPaidInvoiceTable() {
+            const tbody = document.getElementById("paidInvoiceTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            const paid = currentInvoices.filter(function (inv) {
+                return (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                    (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+            });
+            paid.sort(function (a, b) {
+                const ta = typeof a.paidAtMs === "number" ? a.paidAtMs : 0;
+                const tb = typeof b.paidAtMs === "number" ? b.paidAtMs : 0;
+                return tb - ta;
+            });
+            paid.forEach(function (inv) {
+                const paidLabel = inv.paidAtMs ? new Date(inv.paidAtMs).toLocaleString("id-ID", {
+                    dateStyle: "medium",
+                    timeStyle: "short"
+                }) : "-";
+                const amountLabel = inv.paidAmount ? "Rp " + formatCurrencyId(inv.paidAmount) : "-";
+                const invoiceNumber = inv.invoiceNumber || inv.id || "";
+                const tr = document.createElement("tr");
+                tr.innerHTML = [
+                    '<td class="px-3 py-2 font-semibold text-slate-800">' + (inv.leadName || "-") + "</td>",
+                    '<td class="px-3 py-2 text-slate-700">' + (inv.className || "-") + "</td>",
+                    '<td class="px-3 py-2 font-mono text-[11px] text-slate-600">' + (invoiceNumber || "-") + "</td>",
+                    '<td class="px-3 py-2 text-slate-500">' + paidLabel + "</td>",
+                    '<td class="px-3 py-2 text-right text-slate-800">' + amountLabel + "</td>",
+                    '<td class="px-3 py-2 text-slate-700">' + (inv.paymentMethod || "-") + "</td>",
+                    '<td class="px-3 py-2 text-slate-700">' + (inv.bankName || "-") + "</td>"
+                ].join("");
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderInvoiceTable() {
+            const tbody = document.getElementById("invoiceTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            const keyword = String(invoiceListKeyword || "").trim().toLowerCase();
+            const from = invoiceListDateFrom ? new Date(invoiceListDateFrom + "T00:00:00").getTime() : 0;
+            const to = invoiceListDateTo ? new Date(invoiceListDateTo + "T23:59:59").getTime() : 0;
+            const now = Date.now();
+
+            const filtered = currentInvoices.filter(function (inv) {
+                if (keyword) {
+                    const invNo = (inv.invoiceNumber || inv.id || "").toLowerCase();
+                    const name = (inv.leadName || "").toLowerCase();
+                    const program = (inv.className || "").toLowerCase();
+                    if (!(invNo.includes(keyword) || name.includes(keyword) || program.includes(keyword))) {
+                        return false;
+                    }
+                }
+                const createdAt = typeof inv.createdAtMs === "number" ? inv.createdAtMs : 0;
+                if (from && (!createdAt || createdAt < from)) return false;
+                if (to && (!createdAt || createdAt > to)) return false;
+
+                const meta = getInvoiceExpiryMeta(inv, now);
+                if (invoiceListExpiryFilter === "active" && meta.state !== "active") return false;
+                if (invoiceListExpiryFilter === "expired" && meta.state !== "expired") return false;
+                if (invoiceListExpiryFilter === "not_started" && meta.state !== "not_started") return false;
+                return true;
+            });
+
+            const limit = Math.max(parseInt(invoiceListPageSize, 10) || 100, 1);
+            const shown = filtered.slice(0, limit);
+
+            shown.forEach(function (inv) {
+                const createdAtLabel = inv.createdAtMs ? new Date(inv.createdAtMs).toLocaleString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }) : "-";
+                const amountLabel = inv.basePrice ? "Rp " + formatCurrencyId(inv.basePrice) : "-";
+                const invoiceNumber = inv.invoiceNumber || inv.id || "";
+                const expiryMeta = getInvoiceExpiryMeta(inv, now);
+                let expiryHtml = "";
+                if (expiryMeta.state === "no_deadline") {
+                    expiryHtml = '<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">-</span>';
+                } else if (expiryMeta.state === "not_started") {
+                    expiryHtml = '<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Belum Dibuka</span>';
+                } else if (expiryMeta.state === "expired") {
+                    expiryHtml = '<span class="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Expired</span>';
+                } else {
+                    expiryHtml = '<span class="inv-expiry font-mono text-[11px] font-bold text-emerald-600" data-expiry-ms="' + expiryMeta.expiryMs + '">' + formatRemainingMs(expiryMeta.remainingMs) + "</span>";
+                }
+                const tr = document.createElement("tr");
+                tr.innerHTML = [
+                    '<td class="px-3 py-2 font-semibold text-slate-800">' + (inv.leadName || "-") + "</td>",
+                    '<td class="px-3 py-2 text-slate-700">' + (inv.className || "-") + "</td>",
+                    '<td class="px-3 py-2 font-mono text-[11px] text-slate-600">' + (invoiceNumber || "-") + "</td>",
+                    '<td class="px-3 py-2 text-slate-500">' + createdAtLabel + "</td>",
+                    '<td class="px-3 py-2">' + expiryHtml + "</td>",
+                    '<td class="px-3 py-2 text-right text-slate-800">' + amountLabel + "</td>",
+                    '<td class="px-3 py-2 text-center space-x-2">' +
+                    '<button data-id="' + inv.id + '" class="view-invoice text-[10px] font-bold text-slate-600 hover:text-slate-900">View</button>' +
+                    '<button data-id="' + inv.id + '" class="edit-invoice text-[10px] font-bold text-blue-600 hover:text-blue-800">Edit</button>' +
+                    '<button data-id="' + inv.id + '" class="delete-invoice text-[10px] font-bold text-rose-600 hover:text-rose-800">Delete</button>' +
+                    "</td>"
+                ].join("");
+                tbody.appendChild(tr);
+            });
+
+            startInvoiceExpiryTicker();
+        }
+
+        function renderReceiptTable() {
+            const tbody = document.getElementById("receiptTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            const paid = currentInvoices.filter(function (inv) {
+                return (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                    (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+            });
+            const keyword = String(receiptFilterKeyword || "").trim().toLowerCase();
+            const from = receiptDateFrom ? new Date(receiptDateFrom + "T00:00:00").getTime() : 0;
+            const to = receiptDateTo ? new Date(receiptDateTo + "T23:59:59").getTime() : 0;
+            const statusFilter = receiptFilterStatus || "all";
+            const referralFilter = normalizeUpper(receiptFilterReferral || "all");
+            const filtered = paid.filter(function (inv) {
+                if (keyword) {
+                    const invoiceNumber = (inv.invoiceNumber || inv.id || "").toLowerCase();
+                    const name = (inv.leadName || "").toLowerCase();
+                    const program = (inv.className || "").toLowerCase();
+                    if (!(invoiceNumber.includes(keyword) || name.includes(keyword) || program.includes(keyword))) {
+                        return false;
+                    }
+                }
+                const baseTime = typeof inv.paidAtMs === "number" && inv.paidAtMs > 0
+                    ? inv.paidAtMs
+                    : (typeof inv.createdAtMs === "number" ? inv.createdAtMs : 0);
+                if (from && (!baseTime || baseTime < from)) return false;
+                if (to && (!baseTime || baseTime > to)) return false;
+                const statusKey = (inv.paymentMethod || "").toLowerCase() === "cash"
+                    ? "book"
+                    : (inv.paymentType === "dp" ? "dp" : "full");
+                if (statusFilter !== "all" && statusKey !== statusFilter) {
+                    return false;
+                }
+                if (referralFilter !== "ALL") {
+                    const invCode = normalizeUpper(inv.referralCode || "");
+                    if (!invCode || invCode !== referralFilter) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            filtered.sort(function (a, b) {
+                const ta = typeof a.paidAtMs === "number" ? a.paidAtMs : 0;
+                const tb = typeof b.paidAtMs === "number" ? b.paidAtMs : 0;
+                return tb - ta;
+            });
+            const limit = Math.max(parseInt(receiptPageSize, 10) || 100, 1);
+            const shown = filtered.slice(0, limit);
+            let totalPayment = 0;
+
+            shown.forEach(function (inv) {
+                const invoiceNumber = inv.invoiceNumber || inv.id || "";
+                const nominal = typeof inv.finalBasePrice === "number" && inv.finalBasePrice > 0 ? inv.finalBasePrice : (typeof inv.basePrice === "number" ? inv.basePrice : 0);
+                const payment = typeof inv.paidAmount === "number" ? inv.paidAmount : 0;
+                const liability = nominal > payment ? nominal - payment : 0;
+                totalPayment += payment > 0 ? payment : 0;
+                const statusKey = (inv.paymentMethod || "").toLowerCase() === "cash"
+                    ? "book"
+                    : (inv.paymentType === "dp" ? "dp" : "full");
+                const statusBadge = statusKey === "dp"
+                    ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700">DP</span>'
+                    : (statusKey === "book"
+                        ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">Book</span>'
+                        : '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Full</span>');
+                const paidLabel = inv.paidAtMs ? new Date(inv.paidAtMs).toLocaleString("id-ID", {
+                    dateStyle: "medium",
+                    timeStyle: "short"
+                }) : "-";
+                const photoUrl = inv.transferProofUrl || "";
+                const photoHtml = photoUrl
+                    ? '<button type="button" class="receipt-photo-btn w-10 h-10 rounded-xl bg-slate-100 overflow-hidden border border-slate-200" data-url="' + photoUrl + '"><img src="' + photoUrl + '" class="w-full h-full object-cover"></button>'
+                    : '<span class="text-slate-400">-</span>';
+                const referralCode = inv.referralCode || "";
+                const referralTooltip = referralCode ? getReferralTooltip(referralCode) : "";
+                const referralHtml = referralCode
+                    ? '<span class="text-[11px] font-bold text-slate-700" title="' + (referralTooltip || "") + '">' + referralCode + "</span>"
+                    : '<span class="text-slate-400">-</span>';
+                const tr = document.createElement("tr");
+                tr.innerHTML = [
+                    '<td class="p-3 font-mono text-[11px] text-slate-600">' + (invoiceNumber || "-") + "</td>",
+                    '<td class="p-3">' + photoHtml + "</td>",
+                    '<td class="p-3 font-semibold text-slate-800">' + (inv.leadName || "-") + "</td>",
+                    '<td class="p-3 text-slate-700">' + (inv.className || "-") + "</td>",
+                    '<td class="p-3">' + statusBadge + "</td>",
+                    '<td class="p-3 text-slate-500">' + paidLabel + "</td>",
+                    '<td class="p-3 text-right text-slate-800">' + (payment ? ("Rp " + formatCurrencyId(payment)) : "-") + "</td>",
+                    '<td class="p-3 text-right text-slate-700">' + (liability ? ("Rp " + formatCurrencyId(liability)) : "-") + "</td>",
+                    '<td class="p-3 text-right text-slate-800">' + (nominal ? ("Rp " + formatCurrencyId(nominal)) : "-") + "</td>",
+                    '<td class="p-3">' + referralHtml + "</td>",
+                    '<td class="p-3 text-slate-700">' + (inv.paymentMethod || "-") + "</td>",
+                    '<td class="p-3 text-slate-700">' + (inv.bankName || "-") + "</td>",
+
+                    '<td class="p-3 text-slate-700">' + (inv.leadPhone || "-") + "</td>",
+                    '<td class="p-3 text-center">' +
+                    '<button type="button" class="view-payment px-3 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-white" data-id="' + inv.id + '">View</button>' +
+                    "</td>"
+                ].join("");
+                tbody.appendChild(tr);
+            });
+            const totalEl = document.getElementById("receiptTotalPayment");
+            if (totalEl) {
+                totalEl.textContent = "Total Payment: Rp " + formatCurrencyId(totalPayment);
+            }
+        }
+
+        function openPaymentViewModal(inv) {
+            const modal = document.getElementById("paymentViewModal");
+            if (!modal || !inv) return;
+            modal.setAttribute("data-id", inv.id || "");
+            const invoiceNumber = inv.invoiceNumber || inv.id || "";
+            const nominal = typeof inv.finalBasePrice === "number" && inv.finalBasePrice > 0 ? inv.finalBasePrice : (typeof inv.basePrice === "number" ? inv.basePrice : 0);
+            const payment = typeof inv.paidAmount === "number" ? inv.paidAmount : 0;
+            const liability = nominal > payment ? nominal - payment : 0;
+
+            const statusKey = (inv.paymentMethod || "").toLowerCase() === "cash"
+                ? "book"
+                : (inv.paymentType === "dp" ? "dp" : "full");
+            const statusLabel = statusKey === "dp" ? "DP" : (statusKey === "book" ? "Book" : "Full");
+
+            const paidLabel = inv.paidAtMs ? new Date(inv.paidAtMs).toLocaleString("id-ID", {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }) : "-";
+
+            const proofWrapper = document.getElementById("paymentViewProofWrapper");
+            if (proofWrapper) {
+                const url = inv.transferProofUrl || "";
+                if (url) {
+                    const lower = url.toLowerCase();
+                    if (lower.includes(".pdf")) {
+                        proofWrapper.innerHTML = '<a href="' + url + '" target="_blank" class="text-xs font-bold text-blue-600 hover:text-blue-800">Buka PDF</a>';
+                    } else {
+                        proofWrapper.innerHTML = '<img src="' + url + '" class="w-full h-full object-cover cursor-pointer" alt="Bukti Pembayaran">';
+                        const img = proofWrapper.querySelector("img");
+                        if (img) {
+                            img.addEventListener("click", function () {
+                                window.open(url, "_blank");
+                            });
+                        }
+                    }
+                } else {
+                    proofWrapper.innerHTML = '<span class="text-slate-400 text-xs font-bold">No Photo</span>';
+                }
+            }
+
+            const setText = function (id, val) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            setText("paymentViewInvoice", invoiceNumber || "-");
+            setText("paymentViewName", inv.leadName || "-");
+            setText("paymentViewProgram", inv.className || "-");
+            setText("paymentViewStatus", statusLabel);
+            setText("paymentViewDate", paidLabel);
+            setText("paymentViewPayment", payment ? ("Rp " + formatCurrencyId(payment)) : "-");
+            setText("paymentViewLiability", liability ? ("Rp " + formatCurrencyId(liability)) : "-");
+            setText("paymentViewNominal", nominal ? ("Rp " + formatCurrencyId(nominal)) : "-");
+            setText("paymentViewReferral", inv.referralCode || "-");
+            // Ensure phone number is always visible (from various potential fields)
+            const phone = inv.phone || inv.phoneNumber || inv.leadPhone || inv.leadPhoneNumber || "";
+
+            setText("paymentViewPhone", phone || "-");
+
+            setText("paymentViewMethod", inv.paymentMethod || "-");
+            setText("paymentViewBank", inv.bankName || "-");
+            const verificationMeta = getVerificationStatusMeta(inv.verificationStatus || "legit");
+            const verificationSelect = document.getElementById("paymentVerificationStatus");
+            const verificationBadge = document.getElementById("paymentVerificationBadge");
+            if (verificationSelect) {
+                verificationSelect.value = verificationMeta.key;
+            }
+            if (verificationBadge) {
+                verificationBadge.innerHTML = verificationMeta.badge;
+            }
+
+            const receiptLink = document.getElementById("paymentViewReceiptLink");
+            if (receiptLink) {
+                const url = new URL("https://dialogika.co/receipt.html", window.location.href);
+                url.searchParams.set("invoiceId", inv.id);
+                receiptLink.href = url.href;
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function closePaymentViewModal() {
+            const modal = document.getElementById("paymentViewModal");
+            if (modal) modal.classList.add("hidden");
+        }
+
+        async function loadClassAvailabilityStats() {
+            if (!(window.dlgDb && window.dlgCollection && window.dlgGetDocs)) {
+                updateClassStatsCount("0/0");
+                return;
+            }
+            try {
+                const snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "class_availability"));
+                let totalJoined = 0;
+                let totalMax = 0;
+                snap.forEach(function (docSnap) {
+                    const d = docSnap.data() || {};
+                    const joined = typeof d.current_joined === "number" ? d.current_joined : parseInt(d.current_joined, 10) || 0;
+                    const max = typeof d.max_seat === "number" ? d.max_seat : parseInt(d.max_seat, 10) || 0;
+                    totalJoined += Math.max(joined, 0);
+                    totalMax += Math.max(max, 0);
+                });
+                updateClassStatsCount(totalJoined + "/" + totalMax);
+            } catch (e) {
+                updateClassStatsCount("0/0");
+            }
+        }
+
+        function updateReferralStatsSummary() {
+            const total = Array.isArray(currentReferrals) ? currentReferrals.length : 0;
+            const paidInvoices = Array.isArray(currentInvoices) ? currentInvoices.filter(function (inv) {
+                return (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                    (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+            }) : [];
+            const usedSet = new Set();
+            paidInvoices.forEach(function (inv) {
+                const code = normalizeUpper(inv.referralCode || "");
+                if (code) usedSet.add(code);
+            });
+            updateReferralStatsCount(usedSet.size + "/" + total);
+        }
+
+        async function initInvoiceProductDropdown() {
+            const select = document.getElementById("settingProductName");
+            if (!select) return;
+            select.innerHTML = '<option value="">Memuat daftar product...</option>';
+            if (!(window.dlgDb && window.dlgCollection && window.dlgGetDocs)) {
+                select.innerHTML = '<option value="">Produk tidak tersedia</option>';
+                return;
+            }
+            try {
+                const snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "products"));
+                const list = [];
+                snap.forEach(function (docSnap) {
+                    const d = docSnap.data() || {};
+                    const name = String(d.name || "").trim();
+                    if (!name) return;
+                    const id = d.productId || docSnap.id;
+                    list.push({ id: id, name: name });
+                });
+                if (!list.length) {
+                    select.innerHTML = '<option value="">Produk tidak tersedia</option>';
+                    return;
+                }
+                select.innerHTML = '<option value="">Pilih produk terkait (wajib)</option>';
+                list.forEach(function (p) {
+                    const opt = document.createElement("option");
+                    opt.value = p.id;
+                    opt.textContent = p.name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                select.innerHTML = '<option value="">Gagal memuat produk</option>';
+            }
+        }
+
+        function getReferralProductCheckboxes() {
+            const container = document.getElementById("refProductOptions");
+            if (!container) return [];
+            return Array.prototype.slice.call(container.querySelectorAll(".ref-product-checkbox"));
+        }
+
+        function updateReferralProductSummaryFromSelection() {
+            const summaryEl = document.getElementById("refProductSummary");
+            if (!summaryEl) return;
+            const checkboxes = getReferralProductCheckboxes();
+            const selectedNames = [];
+            checkboxes.forEach(function (cb) {
+                if (cb.checked) {
+                    const name = cb.getAttribute("data-product-name") || "";
+                    if (name) selectedNames.push(name);
+                }
+            });
+            if (!selectedNames.length) {
+                summaryEl.textContent = "Pilih minimal 1 product";
+            } else if (selectedNames.length === 1) {
+                summaryEl.textContent = selectedNames[0];
+            } else {
+                summaryEl.textContent = selectedNames.length + " product dipilih";
+            }
+        }
+
+        async function initReferralProductDropdown() {
+            const dropdown = document.getElementById("refProductDropdown");
+            const optionsBox = document.getElementById("refProductOptions");
+            const summaryEl = document.getElementById("refProductSummary");
+            if (!dropdown || !optionsBox || !summaryEl) return;
+
+            optionsBox.innerHTML = '<p class="text-[11px] text-slate-400">Memuat daftar product...</p>';
+
+            const list = [];
+            if (window.dlgDb && window.dlgCollection && window.dlgGetDocs) {
+                try {
+                    const snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "products"));
+                    snap.forEach(function (docSnap) {
+                        const d = docSnap.data() || {};
+                        const name = String(d.name || "").trim();
+                        if (!name) return;
+                        const id = d.productId || docSnap.id;
+                        list.push({ id: id, name: name });
+                    });
+                } catch (e) {
+                }
+            }
+
+            if (!list.length) {
+                optionsBox.innerHTML = '<p class="text-[11px] text-slate-400">Data product tidak tersedia.</p>';
+                summaryEl.textContent = "Tidak ada product";
+                dropdown.classList.add("cursor-not-allowed", "opacity-60");
+                dropdown.addEventListener("click", function (e) {
+                    e.preventDefault();
+                });
+                return;
+            }
+
+            optionsBox.innerHTML = "";
+            list.forEach(function (p) {
+                const row = document.createElement("label");
+                row.className = "flex items-center gap-2 py-1 cursor-pointer";
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.className = "ref-product-checkbox";
+                input.setAttribute("data-product-id", p.id);
+                input.setAttribute("data-product-name", p.name);
+                const span = document.createElement("span");
+                span.className = "text-sm text-slate-700";
+                span.textContent = p.name;
+                row.appendChild(input);
+                row.appendChild(span);
+                optionsBox.appendChild(row);
+            });
+
+            optionsBox.addEventListener("change", function (e) {
+                const target = e.target;
+                if (target && target.classList.contains("ref-product-checkbox")) {
+                    updateReferralProductSummaryFromSelection();
+                }
+            });
+
+            dropdown.addEventListener("click", function () {
+                optionsBox.classList.toggle("hidden");
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!optionsBox.contains(e.target) && !dropdown.contains(e.target)) {
+                    optionsBox.classList.add("hidden");
+                }
+            });
+
+            updateReferralProductSummaryFromSelection();
+        }
+
+        async function loadInvoicesFromFirestore() {
+            if (!(window.dlgDb && window.dlgCollection && window.dlgGetDocs)) {
+                return;
+            }
+            try {
+                let snap;
+                if (window.dlgQuery && window.dlgOrderBy) {
+                    const q = window.dlgQuery(window.dlgCollection(window.dlgDb, "invoices"), window.dlgOrderBy("createdAtMs", "desc"));
+                    snap = await window.dlgGetDocs(q);
+                } else {
+                    snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "invoices"));
+                }
+                const list = [];
+                snap.forEach(function (docSnap) {
+                    const d = docSnap.data() || {};
+                    list.push({
+                        id: docSnap.id,
+                        leadName: d.leadName || "",
+                        className: d.className || "",
+                        batchLabel: d.batchLabel || "",
+                        classType: d.classType || "",
+                        location: d.location || "",
+                        leadPhone: d.leadPhone,
+                        seatsLeft: typeof d.seatsLeft === "number" ? d.seatsLeft : 0,
+                        deadlineMinutes: typeof d.deadlineMinutes === "number" ? d.deadlineMinutes : 0,
+                        startedAtMs: typeof d.startedAtMs === "number" ? d.startedAtMs : 0,
+                        basePrice: typeof d.basePrice === "number" ? d.basePrice : 0,
+                        dpPercent: typeof d.dpPercent === "number" ? d.dpPercent : 0,
+                        dpAmount: typeof d.dpAmount === "number" ? d.dpAmount : 0,
+                        invoiceNumber: d.invoiceNumber || "",
+                        referralCode: d.referralCode || "",
+                        referralUsedAtMs: typeof d.referralUsedAtMs === "number" ? d.referralUsedAtMs : 0,
+                        createdAtMs: typeof d.createdAtMs === "number" ? d.createdAtMs : 0,
+                        paidAmount: typeof d.paidAmount === "number" ? d.paidAmount : 0,
+                        paidAtMs: typeof d.paidAtMs === "number" ? d.paidAtMs : 0,
+                        paymentMethod: d.paymentMethod || "",
+                        bankName: d.bankName || "",
+                        paymentType: d.paymentType || "",
+                        finalBasePrice: typeof d.finalBasePrice === "number" ? d.finalBasePrice : 0,
+                        transferProofUrl: d.transferProofUrl || "",
+                        verificationStatus: d.verificationStatus || "legit"
+                    });
+                });
+                currentInvoices = list;
+                updateInvoiceStatsCount(list.length);
+                const paidCount = list.filter(function (inv) {
+                    return (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                        (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+                }).length;
+                updateReceiptStatsCount(paidCount);
+                renderInvoiceTable();
+                renderReceiptTable();
+                updateReferralStatsSummary();
+            } catch (e) {
+            }
+        }
+
+        function fillInvoiceFormFromInvoice(inv) {
+            if (!inv) return;
+            const leadField = document.getElementById("settingLeadName");
+            const classField = document.getElementById("settingClassName");
+            const batchField = document.getElementById("settingBatchLabel");
+            const typeField = document.getElementById("settingClassType");
+            const locationField = document.getElementById("settingLocation");
+            const seatsField = document.getElementById("settingSeatsLeft");
+            const deadlineField = document.getElementById("settingDeadlineMinutes");
+            const basePriceField = document.getElementById("settingBasePrice");
+            const dpField = document.getElementById("settingDpPercent");
+            const invoiceIdField = document.getElementById("invoiceId");
+            if (leadField) leadField.value = inv.leadName || "";
+            if (classField) classField.value = inv.className || "";
+            if (batchField) batchField.value = inv.batchLabel || "";
+            if (typeField) typeField.value = inv.classType || "";
+            if (locationField) locationField.value = inv.location || "";
+            if (seatsField && typeof inv.seatsLeft === "number") seatsField.value = inv.seatsLeft;
+            if (deadlineField && typeof inv.deadlineMinutes === "number") {
+                var hours = Math.round(inv.deadlineMinutes / 60);
+                if (!hours || hours < 1) {
+                    hours = 1;
+                }
+                deadlineField.value = hours;
+            }
+            if (basePriceField && typeof inv.basePrice === "number") basePriceField.value = inv.basePrice;
+            if (dpField) {
+                if (typeof inv.dpAmount === "number" && inv.dpAmount > 0) {
+                    dpField.value = inv.dpAmount;
+                } else if (typeof inv.dpPercent === "number" && inv.dpPercent > 0 && typeof inv.basePrice === "number" && inv.basePrice > 0) {
+                    dpField.value = Math.round(inv.basePrice * inv.dpPercent / 100);
+                } else {
+                    dpField.value = "";
+                }
+            }
+            if (invoiceIdField) invoiceIdField.value = inv.id || "";
+        }
+
+        function updateDpLabelFromInputs() {
+            const basePriceField = document.getElementById("settingBasePrice");
+            const dpField = document.getElementById("settingDpPercent");
+            const label = document.getElementById("dpLabel");
+            if (!basePriceField || !dpField || !label) return;
+            const base = parseFormattedNumberStr(basePriceField.value);
+            const dpAmount = parseFormattedNumberStr(dpField.value);
+            if (!base || !dpAmount) {
+                label.textContent = "Minimal DP";
+                return;
+            }
+            const percent = Math.round(dpAmount / base * 100);
+            label.textContent = "Minimal DP : " + percent + "%";
+        }
+
+        function formatPriceAndDpInputs() {
+            const basePriceField = document.getElementById("settingBasePrice");
+            const dpField = document.getElementById("settingDpPercent");
+            if (basePriceField) {
+                basePriceField.value = formatNumberWithDotsStr(basePriceField.value);
+            }
+            if (dpField) {
+                dpField.value = formatNumberWithDotsStr(dpField.value);
+            }
+            updateDpLabelFromInputs();
+        }
+
+        function updateDiscountFieldsFromPercent() {
+            const basePriceField = document.getElementById("settingBasePrice");
+            const percentField = document.getElementById("refDiscountPercent");
+            const amountField = document.getElementById("refDiscountAmount");
+            if (!basePriceField || !percentField || !amountField) return;
+            const base = parseFormattedNumberStr(basePriceField.value);
+            const p = parseFloat(percentField.value);
+            if (!base || !p || p <= 0) {
+                if (!percentField.value) {
+                    amountField.value = "";
+                }
+                return;
+            }
+            const amount = Math.round(base * p / 100);
+            amountField.value = formatNumberWithDotsStr(amount);
+        }
+
+        function updateDiscountFieldsFromAmount() {
+            const basePriceField = document.getElementById("settingBasePrice");
+            const percentField = document.getElementById("refDiscountPercent");
+            const amountField = document.getElementById("refDiscountAmount");
+            if (!basePriceField || !percentField || !amountField) return;
+            const base = parseFormattedNumberStr(basePriceField.value);
+            const amount = parseFormattedNumberStr(amountField.value);
+            if (!base || !amount || amount <= 0) {
+                if (!amountField.value) {
+                    percentField.value = "";
+                }
+                return;
+            }
+            const p = Math.round(amount / base * 100);
+            percentField.value = String(p);
+            amountField.value = formatNumberWithDotsStr(amount);
+        }
+
+        function renderSettings() {
+            const s = loadSettings();
+            const leadField = document.getElementById("settingLeadName");
+            const batchField = document.getElementById("settingBatchLabel");
+            const typeField = document.getElementById("settingClassType");
+            const locationField = document.getElementById("settingLocation");
+            const seatsField = document.getElementById("settingSeatsLeft");
+            const deadlineField = document.getElementById("settingDeadlineMinutes");
+            const basePriceField = document.getElementById("settingBasePrice");
+            const dpField = document.getElementById("settingDpPercent");
+
+            if (leadField) leadField.value = s.leadName || "";
+            if (batchField) batchField.value = s.batchLabel || "";
+            if (typeField && s.classType) typeField.value = s.classType;
+            if (locationField) locationField.value = s.location || "";
+            if (seatsField) seatsField.value = s.seatsLeft || "";
+            if (deadlineField) {
+                var minutes = s.deadlineMinutes || 0;
+                var hours = Math.round(minutes / 60);
+                if (!hours || hours < 1) {
+                    hours = 1;
+                }
+                deadlineField.value = hours;
+            }
+            if (basePriceField) basePriceField.value = s.basePrice || "";
+            if (dpField) dpField.value = s.dpAmount || "";
+        }
+
+        function updateLocationVisibility() {
+            const typeField = document.getElementById("settingClassType");
+            const wrapper = document.getElementById("locationFieldWrapper");
+            if (!typeField || !wrapper) return;
+            const val = (typeField.value || "").toLowerCase();
+            if (val === "online") {
+                wrapper.classList.add("hidden");
+            } else {
+                wrapper.classList.remove("hidden");
+            }
+        }
+
+        async function loadClassOptionsAndInit() {
+            const select = document.getElementById("settingClassName");
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Memuat daftar kelas...</option>';
+
+            let attempts = 0;
+            while (!(window.dlgDb && window.dlgCollection && window.dlgGetDocs) && attempts < 10) {
+                await new Promise(function (r) { return setTimeout(r, 500); });
+                attempts++;
+            }
+
+            const settings = loadSettings();
+            const classes = [];
+
+            if (window.dlgDb && window.dlgCollection && window.dlgGetDocs) {
+                try {
+                    const snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "class_availability"));
+                    snap.forEach(function (docSnap) {
+                        const d = docSnap.data() || {};
+                        const maxSeat = Number(d.max_seat || 0);
+                        const currentJoined = Number(d.current_joined || 0);
+                        const seatsLeft = maxSeat - currentJoined;
+                        const startRaw = d.start_date || "";
+                        let isClosed = false;
+                        if (startRaw && startRaw !== "Flexible") {
+                            try {
+                                const dateObj = new Date(startRaw);
+                                if (!isNaN(dateObj.getTime())) {
+                                    const now = new Date();
+                                    if (dateObj.getTime() < now.getTime()) {
+                                        isClosed = true;
+                                    }
+                                }
+                            } catch (e) {
+                            }
+                        }
+                        if (!(seatsLeft > 0) || isClosed) {
+                            return;
+                        }
+                        classes.push({
+                            id: docSnap.id,
+                            name: d.name || "Unnamed Class",
+                            seatsLeft: seatsLeft
+                        });
+                    });
+                } catch (e) {
+                }
+            }
+
+            window.dlgClassOptions = classes;
+            updateClassStatsCount(classes.length);
+
+            if (!classes.length) {
+                select.innerHTML = '<option value="">Pilih program kelas (tidak ada data)</option>';
+            } else {
+                select.innerHTML = '<option value="">Pilih program kelas</option>';
+                classes.forEach(function (c) {
+                    const opt = document.createElement("option");
+                    opt.value = c.name;
+                    opt.textContent = c.name;
+                    select.appendChild(opt);
+                });
+            }
+
+            if (settings.className && classes.length) {
+                select.value = settings.className;
+            }
+
+            const seatsField = document.getElementById("settingSeatsLeft");
+            if (classes.length && seatsField) {
+                const savedSeat = parseInt(settings.seatsLeft, 10);
+                if (!savedSeat) {
+                    const currentName = settings.className || classes[0].name;
+                    const match = classes.find(function (c) { return c.name === currentName; });
+                    if (match && typeof match.seatsLeft === "number") {
+                        seatsField.value = match.seatsLeft;
+                    }
+                }
+            }
+
+            select.addEventListener("change", function () {
+                const name = this.value;
+                const seatsField = document.getElementById("settingSeatsLeft");
+                if (!seatsField) return;
+                const list = window.dlgClassOptions || [];
+                const match = list.find(function (c) { return c.name === name; });
+                if (match && typeof match.seatsLeft === "number") {
+                    seatsField.value = match.seatsLeft;
+                }
+            });
+        }
+
+        function openCopyLinkModal(invoiceId) {
+            const modal = document.getElementById("copyLinkModal");
+            const input = document.getElementById("invoiceLinkInput");
+            if (!modal || !input) return;
+            const isLocal = window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+            const url = isLocal
+                ? new URL("../example/invoice.html", window.location.href)
+                : new URL("/invoice.html", window.location.origin);
+            if (invoiceId) {
+                url.searchParams.set("invoiceId", invoiceId);
+            }
+            input.value = url.href;
+            modal.classList.remove("hidden");
+        }
+
+        function closeCopyLinkModal() {
+            const modal = document.getElementById("copyLinkModal");
+            if (!modal) return;
+            modal.classList.add("hidden");
+        }
+
+        function copyInvoiceLink() {
+            const input = document.getElementById("invoiceLinkInput");
+            if (!input) return;
+            input.select();
+            input.setSelectionRange(0, 99999);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(input.value).catch(function () {
+                    document.execCommand("copy");
+                });
+            } else {
+                document.execCommand("copy");
+            }
+        }
+
+        function openInvoiceViewModal(inv) {
+            const modal = document.getElementById("invoiceViewModal");
+            if (!modal || !inv) return;
+
+            const invoiceNumber = inv.invoiceNumber || inv.id || "";
+            const basePrice = typeof inv.basePrice === "number" ? inv.basePrice : 0;
+            const dpAmount = typeof inv.dpAmount === "number" ? inv.dpAmount : 0;
+            const dpPercent = typeof inv.dpPercent === "number" ? inv.dpPercent : 0;
+            const seats = typeof inv.seatsLeft === "number" ? inv.seatsLeft : 0;
+            const batchMode = [inv.batchLabel, inv.classType].filter(function (s) { return s; }).join(" • ");
+
+            const setText = function (id, val) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            setText("viewLeadName", inv.leadName || "-");
+            setText("viewClassName", inv.className || "-");
+            setText("viewInvoiceNumber", invoiceNumber || "-");
+            setText("viewBatchMode", batchMode || "-");
+            setText("viewLocation", inv.location || "-");
+            setText("viewBasePrice", basePrice ? ("Rp " + formatCurrencyId(basePrice)) : "-");
+            if (dpAmount > 0) {
+                setText("viewDpInfo", "Rp " + formatCurrencyId(dpAmount) + (dpPercent ? (" (" + dpPercent + "%)") : ""));
+            } else if (dpPercent > 0 && basePrice > 0) {
+                const calc = Math.round(basePrice * dpPercent / 100);
+                setText("viewDpInfo", "Rp " + formatCurrencyId(calc) + " (" + dpPercent + "%)");
+            } else {
+                setText("viewDpInfo", "-");
+            }
+            setText("viewSeats", String(seats));
+
+            const link = document.getElementById("viewInvoiceLink");
+            if (link) {
+                const isLocal = window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+                const url = isLocal
+                    ? new URL("../example/invoice.html", window.location.href)
+                    : new URL("/invoice.html", window.location.origin);
+                url.searchParams.set("invoiceId", inv.id);
+                link.href = url.href;
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeInvoiceViewModal() {
+            const modal = document.getElementById("invoiceViewModal");
+            if (modal) modal.classList.add("hidden");
+        }
+
+        function renderBanks() {
+            const tbody = document.getElementById("bankTableBody");
+            tbody.innerHTML = "";
+            currentBanks.forEach(function (b) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = [
+                    '<td class="px-3 py-2 font-semibold text-slate-800">' + b.name + "</td>",
+                    '<td class="px-3 py-2 text-slate-700">' + b.number + "</td>",
+                    '<td class="px-3 py-2 text-slate-500">' + b.holder + "</td>",
+                    '<td class="px-3 py-2 text-center space-x-2">' +
+                    '<button data-id="' + b.id + '" class="edit-bank text-[10px] font-bold text-blue-600 hover:text-blue-800">Edit</button>' +
+                    '<button data-id="' + b.id + '" class="delete-bank text-[10px] font-bold text-rose-600 hover:text-rose-800">Delete</button>' +
+                    "</td>"
+                ].join("");
+                tbody.appendChild(tr);
+            });
+        }
+
+        let refFilterStatus = "all";
+        let refSearchKeyword = "";
+
+        function getReferralOwnerLabel(r) {
+            const type = r.holderType || "system";
+            const name = (r.holderName || "").trim();
+            if (type === "user" && name) {
+                return "User: " + name;
+            }
+            return "System";
+        }
+
+        function getReferralFunctionLabel(r) {
+            const t = (r.functionType || "").toLowerCase();
+            if (!t) return "";
+            if (t === "cashback") return "Cashback";
+            if (t === "discount") return "Discount / Potongan Harga";
+            if (t === "charity") return "Charity";
+            if (t === "point") return "Point";
+            if (t === "addon") return "Tambahan Produk / Layanan";
+            if (t === "reward") return "Reward";
+            if (t === "exclusivity") return "Exclusivity";
+            return r.functionType;
+        }
+
+        function getReferralInitials(r) {
+            const label = getReferralOwnerLabel(r);
+            const parts = label.split(" ");
+            if (!parts.length) return "RF";
+            const first = parts[0] || "";
+            const second = parts[1] || "";
+            const a = first.charAt(0);
+            const b = second.charAt(0);
+            const letters = (a + b).toUpperCase().replace(/[^A-Z]/g, "");
+            if (letters) return letters;
+            return (r.code || "RF").slice(0, 2).toUpperCase();
+        }
+
+        function getReferralExpiryMeta(r) {
+            const months = r.monthsValid || 2;
+            const created = typeof r.createdAtMs === "number" && r.createdAtMs > 0 ? r.createdAtMs : null;
+            if (!created) {
+                return {
+                    expiryLabel: "Masa berlaku " + months + " bulan",
+                    statusLabel: "",
+                    isActive: true
+                };
+            }
+            const createdDate = new Date(created);
+            const expiryDate = new Date(created);
+            expiryDate.setMonth(expiryDate.getMonth() + months);
+            const now = new Date();
+            const isActive = expiryDate.getTime() >= now.getTime();
+            const diffMs = expiryDate.getTime() - now.getTime();
+            const diffDays = Math.max(Math.round(diffMs / (1000 * 60 * 60 * 24)), 0);
+            const expiryLabel = "Hingga " + expiryDate.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+            let statusLabel = "";
+            if (isActive) {
+                statusLabel = "Active - " + diffDays + " Days Left";
+            } else {
+                statusLabel = "Expired";
+            }
+            return {
+                expiryLabel: expiryLabel,
+                statusLabel: statusLabel,
+                isActive: isActive
+            };
+        }
+
+        function renderReferrals() {
+            const tbody = document.getElementById("refTableBody");
+            const footer = document.getElementById("refFooterSummary");
+            tbody.innerHTML = "";
+            const keyword = (refSearchKeyword || "").toLowerCase();
+            let visibleCount = 0;
+            currentReferrals.forEach(function (r, idx) {
+                const ownerLabel = getReferralOwnerLabel(r);
+                const initials = getReferralInitials(r);
+                const functionLabel = getReferralFunctionLabel(r);
+                const max = r.maxUsage || 0;
+                const usedInvoices = currentInvoices.filter(function (inv) {
+                    const codeInv = (inv.referralCode || "").toUpperCase();
+                    const codeRef = (r.code || "").toUpperCase();
+                    if (!(codeInv && codeRef && codeInv === codeRef)) {
+                        return false;
+                    }
+                    const isPaid = (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                        (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+                    return isPaid;
+                });
+                const usedFromInvoices = usedInvoices.length;
+                const used = usedFromInvoices;
+                const remaining = Math.max(max - used, 0);
+                const percent = max > 0 ? Math.min(100, Math.round(used / max * 100)) : 0;
+                const expiryMeta = getReferralExpiryMeta(r);
+                if (refFilterStatus === "active" && !expiryMeta.isActive) {
+                    return;
+                }
+                if (refFilterStatus === "expired" && expiryMeta.isActive) {
+                    return;
+                }
+                if (keyword) {
+                    const haystack = [r.code || "", ownerLabel].join(" ").toLowerCase();
+                    if (haystack.indexOf(keyword) === -1) {
+                        return;
+                    }
+                }
+                visibleCount++;
+                const historyId = "refHistory-" + idx;
+                const baseRow = document.createElement("tr");
+                const rowClasses = expiryMeta.isActive ? "group hover:bg-slate-50/50 transition-all" : "group hover:bg-slate-50/50 transition-all opacity-60";
+                baseRow.className = rowClasses;
+                baseRow.innerHTML = [
+                    '<td class="p-6">',
+                    '<div class="flex items-center gap-4">',
+                    '<div class="w-10 h-10 rounded-full ' + (expiryMeta.isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-600") + ' flex items-center justify-center font-bold text-xs">',
+                    initials,
+                    "</div>",
+                    '<div>',
+                    '<p class="text-xs font-bold text-slate-400 uppercase tracking-tight">' + ownerLabel + "</p>",
+                    '<p class="text-base font-extrabold text-slate-800 font-mono tracking-wider">' + (r.code || "-") + "</p>",
+                    (functionLabel ? '<p class="text-[10px] font-semibold text-emerald-600 mt-1 uppercase tracking-widest">' + functionLabel + "</p>" : ""),
+                    "</div>",
+                    "</div>",
+                    "</td>",
+                    '<td class="p-6">',
+                    '<div class="flex flex-col">',
+                    '<span class="text-sm font-bold text-slate-700 italic">' + expiryMeta.expiryLabel + "</span>",
+                    (expiryMeta.statusLabel ? ('<span class="text-[10px] font-bold ' + (expiryMeta.isActive ? "text-emerald-500 bg-emerald-50" : "text-red-500 bg-red-50") + ' px-2 py-0.5 rounded-full w-fit mt-1 uppercase tracking-tighter">' + expiryMeta.statusLabel + "</span>") : ""),
+                    "</div>",
+                    "</td>",
+                    '<td class="p-6">',
+                    '<div class="w-full max-w-[140px]">',
+                    '<div class="flex justify-between items-center mb-1">',
+                    '<span class="text-xs font-extrabold text-slate-700">' + used + " / " + max + "</span>",
+                    '<span class="text-[10px] text-slate-400 font-bold">' + percent + "%</span>",
+                    "</div>",
+                    '<div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">',
+                    '<div class="progress-bar h-full ' + (expiryMeta.isActive ? "bg-emerald-500" : "bg-slate-400") + '" style="width: ' + percent + '%;"></div>',
+                    "</div>",
+                    "</div>",
+                    "</td>",
+                    '<td class="p-6">',
+                    '<div class="flex items-center justify-center gap-2">',
+                    '<button type="button" data-history-id="' + historyId + '" class="toggle-ref-history w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white transition-all" title="Lihat Riwayat Invoice">',
+                    '<i class="fa-solid fa-receipt"></i>',
+                    "</button>",
+                    '<button type="button" data-idx="' + idx + '" class="edit-ref w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all" title="Edit Referral">',
+                    '<i class="fa-solid fa-pen-to-square text-sm"></i>',
+                    "</button>",
+                    '<button type="button" data-idx="' + idx + '" class="delete-ref w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-500 hover:text-white transition-all" title="Hapus Referral">',
+                    '<i class="fa-solid fa-trash-can text-sm"></i>',
+                    "</button>",
+                    "</div>",
+                    "</td>"
+                ].join("");
+                tbody.appendChild(baseRow);
+                const historyRow = document.createElement("tr");
+                historyRow.id = historyId;
+                historyRow.className = "hidden bg-slate-50/80";
+                let historyItemsHtml = "";
+                if (usedInvoices.length) {
+                    const slice = usedInvoices.slice(0, 4);
+                    slice.forEach(function (inv) {
+                        const invNumber = inv.invoiceNumber || ("#" + (inv.id || ""));
+                        const customer = inv.leadName || "-";
+                        const viewLabel = "Lihat Invoice";
+                        const onclickAttr = inv.id ? ' onclick="openCopyLinkModal(\'' + inv.id + '\')"' : "";
+                        historyItemsHtml += [
+                            '<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">',
+                            '<div>',
+                            '<p class="text-xs font-bold text-slate-800">' + invNumber + "</p>",
+                            '<p class="text-[10px] text-slate-500 font-medium">Customer: ' + customer + "</p>",
+                            "</div>",
+                            '<button type="button"' + onclickAttr + ' class="text-[10px] font-bold text-blue-600 hover:underline">' + viewLabel + ' <i class="fa-solid fa-arrow-right ml-1"></i></button>',
+                            "</div>"
+                        ].join("");
+                    });
+                } else {
+                    historyItemsHtml = '<p class="text-[11px] text-slate-500">Belum ada invoice yang tercatat menggunakan kode ini.</p>';
+                }
+                historyRow.innerHTML = [
+                    '<td colspan="4" class="p-6">',
+                    '<div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-inner">',
+                    '<div class="flex justify-between items-center mb-4">',
+                    '<h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-widest"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-500"></i> Riwayat Penggunaan Invoice</h4>',
+                    '<span class="text-[10px] font-bold text-slate-400 italic">Digunakan di ' + usedInvoices.length + " Invoice</span>",
+                    "</div>",
+                    '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' + historyItemsHtml + "</div>",
+                    "</div>",
+                    "</td>"
+                ].join("");
+                tbody.appendChild(historyRow);
+            });
+            if (footer) {
+                const total = currentReferrals.length;
+                footer.textContent = "Referral Terdaftar: " + total + " • Ditampilkan: " + visibleCount;
+            }
+            updateReferralStatsSummary();
+        }
+
+        function attachEvents() {
+            const typeField = document.getElementById("settingClassType");
+            if (typeField) {
+                typeField.addEventListener("change", updateLocationVisibility);
+            }
+
+            initInvoiceProductDropdown();
+            initReferralProductDropdown();
+
+            const holderTypeField = document.getElementById("refHolderType");
+            const ownerNameWrapper = document.getElementById("refOwnerNameWrapper");
+            if (holderTypeField && ownerNameWrapper) {
+                holderTypeField.addEventListener("change", function () {
+                    const val = this.value || "system";
+                    if (val === "user") {
+                        ownerNameWrapper.classList.remove("hidden");
+                    } else {
+                        ownerNameWrapper.classList.add("hidden");
+                    }
+                });
+                if (holderTypeField.value === "system") {
+                    ownerNameWrapper.classList.add("hidden");
+                }
+            }
+
+            const basePriceField = document.getElementById("settingBasePrice");
+            const dpField = document.getElementById("settingDpPercent");
+            if (basePriceField) {
+                basePriceField.addEventListener("input", function () {
+                    basePriceField.value = formatNumberWithDotsStr(basePriceField.value);
+                    updateDpLabelFromInputs();
+                });
+            }
+            if (dpField) {
+                dpField.addEventListener("input", function () {
+                    dpField.value = formatNumberWithDotsStr(dpField.value);
+                    updateDpLabelFromInputs();
+                });
+            }
+
+            const functionTypeField = document.getElementById("refFunctionType");
+            const discountWrapper = document.getElementById("refDiscountWrapper");
+            const discountPercentField = document.getElementById("refDiscountPercent");
+            const discountAmountField = document.getElementById("refDiscountAmount");
+            if (functionTypeField && discountWrapper) {
+                const toggleDiscountVisibility = function () {
+                    const val = functionTypeField.value || "";
+                    if (val === "discount") {
+                        discountWrapper.classList.remove("hidden");
+                    } else {
+                        discountWrapper.classList.add("hidden");
+                        if (discountPercentField) discountPercentField.value = "";
+                        if (discountAmountField) discountAmountField.value = "";
+                    }
+                };
+                functionTypeField.addEventListener("change", toggleDiscountVisibility);
+                toggleDiscountVisibility();
+            }
+            if (discountPercentField) {
+                discountPercentField.addEventListener("input", updateDiscountFieldsFromPercent);
+            }
+            if (discountAmountField) {
+                discountAmountField.addEventListener("input", updateDiscountFieldsFromAmount);
+            }
+
+            const invoiceStatCard = document.getElementById("invoiceStatCard");
+            const invoiceStatCardMobile = document.getElementById("invoiceStatCardMobile");
+            const classStatCard = document.getElementById("classStatCard");
+            const receiptStatCard = document.getElementById("receiptStatCard");
+            const tabBtnInvoiceList = document.getElementById("tabBtnInvoiceList");
+            if (tabBtnInvoiceList) {
+                if (invoiceStatCard) {
+                    invoiceStatCard.addEventListener("click", function () {
+                        tabBtnInvoiceList.click();
+                    });
+                }
+                if (invoiceStatCardMobile) {
+                    invoiceStatCardMobile.addEventListener("click", function () {
+                        tabBtnInvoiceList.click();
+                    });
+                }
+                if (receiptStatCard) {
+                    receiptStatCard.addEventListener("click", function () {
+                        const modal = document.getElementById("paidInvoiceModal");
+                        if (!modal) return;
+                        renderPaidInvoiceTable();
+                        modal.classList.remove("hidden");
+                    });
+                }
+            }
+            if (classStatCard) {
+                classStatCard.addEventListener("click", function () {
+                    const url = new URL("../data/class-available.html", window.location.href);
+                    window.open(url.href, "_blank");
+                });
+            }
+
+            const closePaidBtn = document.getElementById("closePaidInvoiceModalBtn");
+            const paidModal = document.getElementById("paidInvoiceModal");
+            if (closePaidBtn && paidModal) {
+                closePaidBtn.addEventListener("click", function () {
+                    paidModal.classList.add("hidden");
+                });
+                paidModal.addEventListener("click", function (e) {
+                    if (e.target === paidModal) {
+                        paidModal.classList.add("hidden");
+                    }
+                });
+            }
+
+            const invoiceSearchInput = document.getElementById("invoiceSearchInput");
+            const invoiceDateFrom = document.getElementById("invoiceDateFrom");
+            const invoiceDateTo = document.getElementById("invoiceDateTo");
+            const invoiceExpiryFilter = document.getElementById("invoiceExpiryFilter");
+            const invoicePageSize = document.getElementById("invoicePageSize");
+            const invoiceDateRangeBtn = document.getElementById("invoiceDateRangeBtn");
+            const invoiceDateRangePopover = document.getElementById("invoiceDateRangePopover");
+            const invoiceDateRangeApply = document.getElementById("invoiceDateRangeApply");
+            const invoiceDateRangeClear = document.getElementById("invoiceDateRangeClear");
+            const invoiceDateRangeLabel = document.getElementById("invoiceDateRangeLabel");
+
+            function updateInvoiceDateRangeLabel() {
+                if (!invoiceDateRangeLabel) return;
+                invoiceDateRangeLabel.textContent = "Tanggal: " + formatDateRangeLabel(invoiceListDateFrom, invoiceListDateTo);
+            }
+
+            if (invoiceDateFrom && invoiceDateTo && invoiceDateRangeLabel) {
+                if (!invoiceListDateFrom && !invoiceListDateTo) {
+                    const now = new Date();
+                    const toDate = now;
+                    const fromDate = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+                    const fromStr = formatDateForInput(fromDate);
+                    const toStr = formatDateForInput(toDate);
+                    invoiceDateFrom.value = fromStr;
+                    invoiceDateTo.value = toStr;
+                    invoiceListDateFrom = fromStr;
+                    invoiceListDateTo = toStr;
+                }
+                updateInvoiceDateRangeLabel();
+            }
+
+            if (invoiceSearchInput) {
+                invoiceSearchInput.addEventListener("input", function () {
+                    invoiceListKeyword = this.value || "";
+                    renderInvoiceTable();
+                });
+            }
+            if (invoiceDateFrom) {
+                invoiceDateFrom.addEventListener("change", function () {
+                    invoiceListDateFrom = this.value || "";
+                    updateInvoiceDateRangeLabel();
+                    renderInvoiceTable();
+                });
+            }
+            if (invoiceDateTo) {
+                invoiceDateTo.addEventListener("change", function () {
+                    invoiceListDateTo = this.value || "";
+                    updateInvoiceDateRangeLabel();
+                    renderInvoiceTable();
+                });
+            }
+            if (invoiceExpiryFilter) {
+                invoiceExpiryFilter.addEventListener("change", function () {
+                    invoiceListExpiryFilter = this.value || "all";
+                    renderInvoiceTable();
+                });
+            }
+            if (invoicePageSize) {
+                invoicePageSize.addEventListener("change", function () {
+                    invoiceListPageSize = parseInt(this.value, 10) || 100;
+                    renderInvoiceTable();
+                });
+            }
+
+            if (invoiceDateRangeBtn && invoiceDateRangePopover) {
+                invoiceDateRangeBtn.addEventListener("click", function () {
+                    invoiceDateRangePopover.classList.toggle("hidden");
+                });
+            }
+            if (invoiceDateRangeApply && invoiceDateRangePopover) {
+                invoiceDateRangeApply.addEventListener("click", function () {
+                    invoiceDateRangePopover.classList.add("hidden");
+                    renderInvoiceTable();
+                });
+            }
+            if (invoiceDateRangeClear && invoiceDateFrom && invoiceDateTo) {
+                invoiceDateRangeClear.addEventListener("click", function () {
+                    invoiceDateFrom.value = "";
+                    invoiceDateTo.value = "";
+                    invoiceListDateFrom = "";
+                    invoiceListDateTo = "";
+                    updateInvoiceDateRangeLabel();
+                    renderInvoiceTable();
+                });
+            }
+            if (invoiceDateRangePopover && invoiceDateRangeBtn) {
+                document.addEventListener("click", function (e) {
+                    if (invoiceDateRangePopover.classList.contains("hidden")) return;
+                    if (!invoiceDateRangePopover.contains(e.target) && !invoiceDateRangeBtn.contains(e.target)) {
+                        invoiceDateRangePopover.classList.add("hidden");
+                    }
+                });
+            }
+
+            const receiptTableBody = document.getElementById("receiptTableBody");
+            if (receiptTableBody) {
+                receiptTableBody.addEventListener("click", function (e) {
+                    const target = e.target;
+                    const viewBtn = target.classList.contains("view-payment") ? target : target.closest(".view-payment");
+                    if (viewBtn) {
+                        const id = viewBtn.getAttribute("data-id") || "";
+                        const inv = currentInvoices.find(function (x) { return x.id === id; });
+                        if (!inv) return;
+                        openPaymentViewModal(inv);
+                        return;
+                    }
+                    const photoBtn = target.classList.contains("receipt-photo-btn") ? target : target.closest(".receipt-photo-btn");
+                    if (photoBtn) {
+                        const url = photoBtn.getAttribute("data-url") || "";
+                        if (url) {
+                            window.open(url, "_blank");
+                        }
+                    }
+                });
+            }
+
+            const receiptSearchInput = document.getElementById("receiptSearchInput");
+            const receiptDateFromInput = document.getElementById("receiptDateFrom");
+            const receiptDateToInput = document.getElementById("receiptDateTo");
+            const receiptStatusSelect = document.getElementById("receiptStatusFilter");
+            const receiptReferralSelect = document.getElementById("receiptReferralFilter");
+            const receiptPageSizeSelect = document.getElementById("receiptPageSize");
+            const receiptDateRangeBtn = document.getElementById("receiptDateRangeBtn");
+            const receiptDateRangePopover = document.getElementById("receiptDateRangePopover");
+            const receiptDateRangeApply = document.getElementById("receiptDateRangeApply");
+            const receiptDateRangeClear = document.getElementById("receiptDateRangeClear");
+            const receiptDateRangeLabel = document.getElementById("receiptDateRangeLabel");
+
+            function updateReceiptDateRangeLabel() {
+                if (!receiptDateRangeLabel) return;
+                receiptDateRangeLabel.textContent = "Tanggal: " + formatDateRangeLabel(receiptDateFrom, receiptDateTo);
+            }
+
+            if (receiptDateFromInput && receiptDateToInput && receiptDateRangeLabel) {
+                if (!receiptDateFrom && !receiptDateTo) {
+                    const now = new Date();
+                    const toDate = now;
+                    const fromDate = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+                    const fromStr = formatDateForInput(fromDate);
+                    const toStr = formatDateForInput(toDate);
+                    receiptDateFromInput.value = fromStr;
+                    receiptDateToInput.value = toStr;
+                    receiptDateFrom = fromStr;
+                    receiptDateTo = toStr;
+                }
+                updateReceiptDateRangeLabel();
+            }
+
+            if (receiptSearchInput) {
+                receiptSearchInput.addEventListener("input", function () {
+                    receiptFilterKeyword = this.value || "";
+                    renderReceiptTable();
+                });
+            }
+            if (receiptDateFromInput) {
+                receiptDateFromInput.addEventListener("change", function () {
+                    receiptDateFrom = this.value || "";
+                    updateReceiptDateRangeLabel();
+                    renderReceiptTable();
+                });
+            }
+            if (receiptDateToInput) {
+                receiptDateToInput.addEventListener("change", function () {
+                    receiptDateTo = this.value || "";
+                    updateReceiptDateRangeLabel();
+                    renderReceiptTable();
+                });
+            }
+            if (receiptStatusSelect) {
+                receiptStatusSelect.addEventListener("change", function () {
+                    receiptFilterStatus = this.value || "all";
+                    renderReceiptTable();
+                });
+            }
+            if (receiptReferralSelect) {
+                receiptReferralSelect.addEventListener("change", function () {
+                    receiptFilterReferral = this.value || "all";
+                    renderReceiptTable();
+                });
+            }
+            if (receiptPageSizeSelect) {
+                receiptPageSizeSelect.addEventListener("change", function () {
+                    receiptPageSize = parseInt(this.value, 10) || 100;
+                    renderReceiptTable();
+                });
+            }
+            if (receiptDateRangeBtn && receiptDateRangePopover) {
+                receiptDateRangeBtn.addEventListener("click", function () {
+                    receiptDateRangePopover.classList.toggle("hidden");
+                });
+            }
+            if (receiptDateRangeApply && receiptDateRangePopover) {
+                receiptDateRangeApply.addEventListener("click", function () {
+                    receiptDateRangePopover.classList.add("hidden");
+                    renderReceiptTable();
+                });
+            }
+            if (receiptDateRangeClear && receiptDateFromInput && receiptDateToInput) {
+                receiptDateRangeClear.addEventListener("click", function () {
+                    receiptDateFromInput.value = "";
+                    receiptDateToInput.value = "";
+                    receiptDateFrom = "";
+                    receiptDateTo = "";
+                    updateReceiptDateRangeLabel();
+                    renderReceiptTable();
+                });
+            }
+            if (receiptDateRangePopover && receiptDateRangeBtn) {
+                document.addEventListener("click", function (e) {
+                    if (receiptDateRangePopover.classList.contains("hidden")) return;
+                    if (!receiptDateRangePopover.contains(e.target) && !receiptDateRangeBtn.contains(e.target)) {
+                        receiptDateRangePopover.classList.add("hidden");
+                    }
+                });
+            }
+
+            const closePaymentBtn = document.getElementById("closePaymentViewModalBtn");
+            if (closePaymentBtn) {
+                closePaymentBtn.addEventListener("click", closePaymentViewModal);
+            }
+            const paymentModal = document.getElementById("paymentViewModal");
+            if (paymentModal) {
+                paymentModal.addEventListener("click", function (e) {
+                    if (e.target === paymentModal) {
+                        closePaymentViewModal();
+                    }
+                });
+            }
+
+            const calcOpenBtn = document.getElementById("btnOpenDiscountCalculator");
+            const calcModal = document.getElementById("discountCalculatorModal");
+            const calcCloseBtn = document.getElementById("closeDiscountCalculatorModalBtn");
+            if (calcOpenBtn && calcModal) {
+                calcOpenBtn.addEventListener("click", function () {
+                    calcModal.classList.remove("hidden");
+                });
+            }
+            if (calcCloseBtn && calcModal) {
+                calcCloseBtn.addEventListener("click", function () {
+                    calcModal.classList.add("hidden");
+                });
+                calcModal.addEventListener("click", function (e) {
+                    if (e.target === calcModal) {
+                        calcModal.classList.add("hidden");
+                    }
+                });
+            }
+
+            document.getElementById("btnSaveSettings").addEventListener("click", async function () {
+                const status = document.getElementById("statusSettings");
+                const batchLabel = document.getElementById("settingBatchLabel").value.trim();
+                const classType = document.getElementById("settingClassType").value.trim();
+                const location = document.getElementById("settingLocation").value.trim();
+                const productSelect = document.getElementById("settingProductName");
+                const selectedProductId = productSelect ? (productSelect.value || "") : "";
+                const selectedProductName = productSelect && productSelect.selectedIndex > 0 ? (productSelect.options[productSelect.selectedIndex].text || "") : "";
+                const invoiceIdField = document.getElementById("invoiceId");
+                let existingId = "";
+                if (invoiceIdField && invoiceIdField.value) {
+                    existingId = invoiceIdField.value.trim();
+                }
+                const basePriceRaw = document.getElementById("settingBasePrice").value;
+                const dpRaw = document.getElementById("settingDpPercent").value;
+                const basePrice = parseFormattedNumberStr(basePriceRaw);
+                const dpAmount = parseFormattedNumberStr(dpRaw);
+                let dpPercent = 0;
+                if (basePrice > 0 && dpAmount > 0) {
+                    dpPercent = Math.round(dpAmount / basePrice * 100);
+                }
+                var deadlineHours = parseInt(document.getElementById("settingDeadlineMinutes").value, 10) || 1;
+                if (deadlineHours < 1) {
+                    deadlineHours = 1;
+                }
+                let productMaterials = [];
+                let productFeatures = [];
+                let productSpecifications = [];
+                if (selectedProductId && window.dlgGetDoc && window.dlgDoc) {
+                    try {
+                        const ref = window.dlgDoc(window.dlgDb, "products", selectedProductId);
+                        const snap = await window.dlgGetDoc(ref);
+                        if (snap.exists()) {
+                            const pd = snap.data() || {};
+                            productMaterials = Array.isArray(pd.materials) ? pd.materials : [];
+                            productFeatures = Array.isArray(pd.features) ? pd.features : [];
+                            productSpecifications = Array.isArray(pd.specifications) ? pd.specifications : [];
+                        }
+                    } catch (e) {
+                        productMaterials = [];
+                        productFeatures = [];
+                        productSpecifications = [];
+                    }
+                }
+                const data = {
+                    leadName: document.getElementById("settingLeadName").value.trim(),
+                    className: document.getElementById("settingClassName").value.trim(),
+                    batchLabel: batchLabel,
+                    classType: classType,
+                    location: location,
+                    seatsLeft: parseInt(document.getElementById("settingSeatsLeft").value, 10) || 0,
+                    deadlineMinutes: deadlineHours * 60,
+                    basePrice: basePrice,
+                    dpPercent: dpPercent,
+                    dpAmount: dpAmount,
+                    productId: selectedProductId,
+                    productName: selectedProductName,
+                    productMaterials: productMaterials,
+                    productFeatures: productFeatures,
+                    productSpecifications: productSpecifications
+                };
+                data.classMeta = [batchLabel, classType, location].filter(function (s) { return s; }).join(" • ");
+                saveSettings(data);
+                let savedInvoiceId = existingId;
+                if (window.dlgDb && window.dlgCollection && window.dlgAddDoc) {
+                    const payload = {
+                        leadName: data.leadName,
+                        className: data.className,
+                        batchLabel: data.batchLabel,
+                        classType: data.classType,
+                        location: data.location,
+                        seatsLeft: data.seatsLeft,
+                        deadlineMinutes: data.deadlineMinutes,
+                        basePrice: data.basePrice,
+                        dpPercent: data.dpPercent,
+                        dpAmount: data.dpAmount,
+                        productId: data.productId,
+                        productName: data.productName,
+                        productMaterials: data.productMaterials,
+                        productFeatures: data.productFeatures,
+                        productSpecifications: data.productSpecifications
+                    };
+                    try {
+                        if (savedInvoiceId) {
+                            payload.updatedAtMs = Date.now();
+                            await window.dlgUpdateDoc(window.dlgDoc(window.dlgDb, "invoices", savedInvoiceId), payload);
+                        } else {
+                            payload.createdAtMs = Date.now();
+                            payload.invoiceNumber = generateInvoiceNumber();
+                            const ref = await window.dlgAddDoc(window.dlgCollection(window.dlgDb, "invoices"), payload);
+                            savedInvoiceId = ref.id;
+                            if (invoiceIdField) {
+                                invoiceIdField.value = savedInvoiceId;
+                            }
+                        }
+                        await loadInvoicesFromFirestore();
+                    } catch (e) {
+                    }
+                }
+                status.textContent = "Tersimpan. Buka ulang halaman invoice untuk melihat perubahan.";
+                openCopyLinkModal(savedInvoiceId);
+                setTimeout(function () {
+                    status.textContent = "";
+                }, 2500);
+            });
+
+            document.getElementById("btnSaveBank").addEventListener("click", function () {
+                const idField = document.getElementById("bankId");
+                const nameField = document.getElementById("bankName");
+                const numberField = document.getElementById("bankNumber");
+                const holderField = document.getElementById("bankHolder");
+
+                const name = nameField.value.trim();
+                const number = numberField.value.trim();
+                const holder = holderField.value.trim();
+
+                if (!name || !number) {
+                    alert("Nama bank dan nomor rekening wajib diisi.");
+                    return;
+                }
+
+                let id = idField.value;
+                if (!id) {
+                    id = "BANK_" + Date.now();
+                }
+
+                const existingIndex = currentBanks.findIndex(function (b) { return b.id === id; });
+                const item = { id: id, name: name, number: number, holder: holder };
+
+                if (existingIndex >= 0) {
+                    currentBanks[existingIndex] = item;
+                } else {
+                    currentBanks.push(item);
+                }
+
+                saveBanks(currentBanks);
+                renderBanks();
+
+                idField.value = "";
+                nameField.value = "";
+                numberField.value = "";
+                holderField.value = "";
+            });
+
+            document.getElementById("btnClearBankForm").addEventListener("click", function () {
+                document.getElementById("bankId").value = "";
+                document.getElementById("bankName").value = "";
+                document.getElementById("bankNumber").value = "";
+                document.getElementById("bankHolder").value = "";
+            });
+
+            document.getElementById("bankTableBody").addEventListener("click", function (e) {
+                const target = e.target;
+                if (target.classList.contains("edit-bank")) {
+                    const id = target.getAttribute("data-id");
+                    const bank = currentBanks.find(function (b) { return b.id === id; });
+                    if (!bank) return;
+                    document.getElementById("bankId").value = bank.id;
+                    document.getElementById("bankName").value = bank.name;
+                    document.getElementById("bankNumber").value = bank.number;
+                    document.getElementById("bankHolder").value = bank.holder;
+                }
+                if (target.classList.contains("delete-bank")) {
+                    const id = target.getAttribute("data-id");
+                    if (!confirm("Hapus rekening ini?")) return;
+                    currentBanks = currentBanks.filter(function (b) { return b.id !== id; });
+                    saveBanks(currentBanks);
+                    renderBanks();
+                }
+            });
+
+            document.getElementById("btnSaveReferral").addEventListener("click", function () {
+                const holderTypeFieldSave = document.getElementById("refHolderType");
+                const ownerNameField = document.getElementById("refOwnerName");
+                const codeField = document.getElementById("refCode");
+                const maxField = document.getElementById("refMaxUsage");
+                const monthsField = document.getElementById("refMonthsValid");
+                const usedField = document.getElementById("refUsedCount");
+                const functionField = document.getElementById("refFunctionType");
+                const discountPercentField = document.getElementById("refDiscountPercent");
+                const discountAmountField = document.getElementById("refDiscountAmount");
+                const productCheckboxes = getReferralProductCheckboxes();
+
+                const holderType = holderTypeFieldSave ? (holderTypeFieldSave.value || "system") : "system";
+                const holderName = ownerNameField ? ownerNameField.value.trim() : "";
+                const code = codeField.value.trim().toUpperCase();
+                const maxUsage = parseInt(maxField.value, 10) || 0;
+                const monthsValid = parseInt(monthsField.value, 10) || 2;
+                const usedCount = parseInt(usedField.value, 10) || 0;
+                const functionType = functionField ? (functionField.value || "") : "";
+
+                let discountPercent = 0;
+                let discountAmount = 0;
+                if (functionType === "discount") {
+                    if (discountPercentField) {
+                        const p = parseFloat(discountPercentField.value);
+                        if (!isNaN(p) && p > 0) {
+                            discountPercent = p;
+                        }
+                    }
+                    if (discountAmountField) {
+                        const a = parseFormattedNumberStr(discountAmountField.value);
+                        if (a > 0) {
+                            discountAmount = a;
+                        }
+                    }
+                }
+
+                const selectedProductNames = [];
+                const selectedProductIds = [];
+                productCheckboxes.forEach(function (cb) {
+                    if (cb.checked) {
+                        const name = cb.getAttribute("data-product-name") || "";
+                        const id = cb.getAttribute("data-product-id") || "";
+                        if (name) selectedProductNames.push(name);
+                        if (id) selectedProductIds.push(id);
+                    }
+                });
+
+                if (!selectedProductNames.length) {
+                    alert("Pilih minimal 1 product untuk referral ini.");
+                    return;
+                }
+
+                if (!code || maxUsage <= 0) {
+                    alert("Kode dan maksimal pemakaian wajib diisi.");
+                    return;
+                }
+
+                const existingIndex = currentReferrals.findIndex(function (r) { return r.code === code; });
+                let createdAtMs = Date.now();
+                if (existingIndex >= 0 && typeof currentReferrals[existingIndex].createdAtMs === "number") {
+                    createdAtMs = currentReferrals[existingIndex].createdAtMs;
+                }
+
+                const item = {
+                    code: code,
+                    maxUsage: maxUsage,
+                    usedCount: usedCount,
+                    holderType: holderType,
+                    holderName: holderName,
+                    monthsValid: monthsValid,
+                    createdAtMs: createdAtMs,
+                    functionType: functionType,
+                    discountPercent: discountPercent,
+                    discountAmount: discountAmount,
+                    productNames: selectedProductNames,
+                    productIds: selectedProductIds
+                };
+
+                if (existingIndex >= 0) {
+                    currentReferrals[existingIndex] = item;
+                } else {
+                    currentReferrals.push(item);
+                }
+
+                saveReferrals(currentReferrals);
+                renderReferrals();
+
+                if (holderTypeFieldSave) {
+                    holderTypeFieldSave.value = "system";
+                }
+                if (ownerNameField) {
+                    ownerNameField.value = "";
+                }
+                if (functionField) {
+                    functionField.value = "";
+                }
+                if (discountPercentField) {
+                    discountPercentField.value = "";
+                }
+                if (discountAmountField) {
+                    discountAmountField.value = "";
+                }
+                productCheckboxes.forEach(function (cb) {
+                    cb.checked = false;
+                });
+                updateReferralProductSummaryFromSelection();
+                codeField.value = "";
+                maxField.value = "";
+                monthsField.value = "";
+                usedField.value = "";
+            });
+
+            document.getElementById("btnClearReferralForm").addEventListener("click", function () {
+                const holderTypeFieldClear = document.getElementById("refHolderType");
+                const ownerNameFieldClear = document.getElementById("refOwnerName");
+                const functionFieldClear = document.getElementById("refFunctionType");
+                const productCheckboxes = getReferralProductCheckboxes();
+                document.getElementById("refCode").value = "";
+                document.getElementById("refMaxUsage").value = "";
+                document.getElementById("refMonthsValid").value = "";
+                document.getElementById("refUsedCount").value = "";
+                if (holderTypeFieldClear) {
+                    holderTypeFieldClear.value = "system";
+                }
+                if (ownerNameFieldClear) {
+                    ownerNameFieldClear.value = "";
+                }
+                if (functionFieldClear) {
+                    functionFieldClear.value = "";
+                }
+                productCheckboxes.forEach(function (cb) {
+                    cb.checked = false;
+                });
+                updateReferralProductSummaryFromSelection();
+                if (ownerNameWrapper) {
+                    ownerNameWrapper.classList.add("hidden");
+                }
+            });
+
+            const refSearchInput = document.getElementById("refSearchInput");
+            if (refSearchInput) {
+                refSearchInput.addEventListener("input", function () {
+                    refSearchKeyword = this.value || "";
+                    renderReferrals();
+                });
+            }
+
+            const filterButtons = document.querySelectorAll(".ref-filter-btn");
+            if (filterButtons && filterButtons.length) {
+                filterButtons.forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        const val = this.getAttribute("data-ref-filter") || "all";
+                        refFilterStatus = val;
+                        filterButtons.forEach(function (b) {
+                            b.classList.remove("bg-white", "border-slate-200");
+                            b.classList.remove("text-emerald-600");
+                        });
+                        if (val === "all") {
+                            this.classList.add("bg-white", "border", "border-slate-200");
+                        } else if (val === "active") {
+                            this.classList.add("text-emerald-600");
+                        } else if (val === "expired") {
+                            this.classList.add("text-red-500");
+                        }
+                        renderReferrals();
+                    });
+                });
+            }
+
+            document.getElementById("refTableBody").addEventListener("click", function (e) {
+                const target = e.target;
+                if (target.classList.contains("toggle-ref-history") || target.closest(".toggle-ref-history")) {
+                    const btn = target.classList.contains("toggle-ref-history") ? target : target.closest(".toggle-ref-history");
+                    const id = btn.getAttribute("data-history-id");
+                    if (!id) return;
+                    const row = document.getElementById(id);
+                    if (!row) return;
+                    if (row.classList.contains("hidden")) {
+                        row.classList.remove("hidden");
+                    } else {
+                        row.classList.add("hidden");
+                    }
+                    return;
+                }
+                if (target.classList.contains("edit-ref")) {
+                    const idx = parseInt(target.getAttribute("data-idx"), 10);
+                    const item = currentReferrals[idx];
+                    if (!item) return;
+                    const holderTypeEdit = document.getElementById("refHolderType");
+                    const ownerNameEdit = document.getElementById("refOwnerName");
+                    const functionTypeEdit = document.getElementById("refFunctionType");
+                    const productCheckboxes = getReferralProductCheckboxes();
+                    document.getElementById("refCode").value = item.code;
+                    document.getElementById("refMaxUsage").value = item.maxUsage || "";
+                    document.getElementById("refMonthsValid").value = item.monthsValid || "";
+                    document.getElementById("refUsedCount").value = item.usedCount || "";
+                    if (holderTypeEdit) {
+                        holderTypeEdit.value = item.holderType || "system";
+                    }
+                    if (ownerNameEdit) {
+                        ownerNameEdit.value = item.holderName || "";
+                    }
+                    if (functionTypeEdit) {
+                        functionTypeEdit.value = item.functionType || "";
+                    }
+                    const savedNames = Array.isArray(item.productNames) ? item.productNames.map(function (n) { return String(n || "").toLowerCase(); }) : [];
+                    productCheckboxes.forEach(function (cb) {
+                        const name = (cb.getAttribute("data-product-name") || "").toLowerCase();
+                        cb.checked = savedNames.indexOf(name) !== -1;
+                    });
+                    updateReferralProductSummaryFromSelection();
+                    if (holderTypeEdit && holderTypeEdit.value === "user" && ownerNameWrapper) {
+                        ownerNameWrapper.classList.remove("hidden");
+                    } else if (ownerNameWrapper) {
+                        ownerNameWrapper.classList.add("hidden");
+                    }
+                }
+                if (target.classList.contains("delete-ref")) {
+                    const idx = parseInt(target.getAttribute("data-idx"), 10);
+                    if (isNaN(idx)) return;
+                    if (!confirm("Hapus kode referral ini?")) return;
+                    currentReferrals.splice(idx, 1);
+                    saveReferrals(currentReferrals);
+                    renderReferrals();
+                }
+            });
+
+            const invoiceTableBody = document.getElementById("invoiceTableBody");
+            if (invoiceTableBody) {
+                invoiceTableBody.addEventListener("click", async function (e) {
+                    const target = e.target;
+                    if (target.classList.contains("view-invoice")) {
+                        const id = target.getAttribute("data-id");
+                        const inv = currentInvoices.find(function (x) { return x.id === id; });
+                        if (!inv) return;
+                        openInvoiceViewModal(inv);
+                    }
+                    if (target.classList.contains("edit-invoice")) {
+                        const id = target.getAttribute("data-id");
+                        const inv = currentInvoices.find(function (x) { return x.id === id; });
+                        if (!inv) return;
+                        fillInvoiceFormFromInvoice(inv);
+                        const btn = document.getElementById("tabBtnInvoiceSettings");
+                        if (btn) {
+                            btn.click();
+                        }
+                    }
+                    if (target.classList.contains("delete-invoice")) {
+                        const id = target.getAttribute("data-id");
+                        if (!id) return;
+                        if (!confirm("Hapus invoice ini?")) return;
+                        if (window.dlgDb && window.dlgDoc && window.dlgDeleteDoc) {
+                            try {
+                                await window.dlgDeleteDoc(window.dlgDoc(window.dlgDb, "invoices", id));
+                            } catch (e) {
+                            }
+                        }
+                        currentInvoices = currentInvoices.filter(function (x) { return x.id !== id; });
+                        updateInvoiceStatsCount(currentInvoices.length);
+                        renderInvoiceTable();
+                    }
+                });
+            }
+
+            const verificationSelect = document.getElementById("paymentVerificationStatus");
+            const verificationBadge = document.getElementById("paymentVerificationBadge");
+            if (verificationSelect) {
+                verificationSelect.addEventListener("change", async function () {
+                    const modalEl = document.getElementById("paymentViewModal");
+                    if (!modalEl) return;
+                    const invoiceId = modalEl.getAttribute("data-id") || "";
+                    if (!invoiceId) return;
+                    const meta = getVerificationStatusMeta(this.value || "legit");
+                    if (verificationBadge) {
+                        verificationBadge.innerHTML = meta.badge;
+                    }
+                    const idx = currentInvoices.findIndex(function (x) { return x.id === invoiceId; });
+                    if (idx >= 0) {
+                        currentInvoices[idx].verificationStatus = meta.key;
+                    }
+                    if (window.dlgDb && window.dlgDoc && (window.dlgUpdateDoc || window.dlgSetDoc)) {
+                        try {
+                            const ref = window.dlgDoc(window.dlgDb, "invoices", invoiceId);
+                            const payload = { verificationStatus: meta.key };
+                            if (window.dlgUpdateDoc) {
+                                await window.dlgUpdateDoc(ref, payload);
+                            } else if (window.dlgSetDoc) {
+                                await window.dlgSetDoc(ref, payload, { merge: true });
+                            }
+                        } catch (e) {
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            renderSettings();
+            updateLocationVisibility();
+            loadClassOptionsAndInit();
+            currentBanks = loadBanks();
+            currentReferrals = loadReferrals();
+            renderBanks();
+            renderReferrals();
+            attachEvents();
+            loadInvoicesFromFirestore();
+            loadClassAvailabilityStats();
+
+            (async function () {
+                const banksFromFs = await loadBanksFromFirestore();
+                if (Array.isArray(banksFromFs) && banksFromFs.length) {
+                    currentBanks = banksFromFs;
+                    localStorage.setItem(STORAGE_KEY_BANKS, JSON.stringify(currentBanks));
+                    renderBanks();
+                } else if (Array.isArray(currentBanks) && currentBanks.length) {
+                    await syncBanksToFirestore(currentBanks);
+                }
+
+                const refsFromFs = await loadReferralsFromFirestore();
+                if (Array.isArray(refsFromFs) && refsFromFs.length) {
+                    currentReferrals = refsFromFs;
+                    localStorage.setItem(STORAGE_KEY_REFERRALS, JSON.stringify(currentReferrals));
+                    renderReferrals();
+                    updateReferralStatsSummary();
+                } else if (Array.isArray(currentReferrals) && currentReferrals.length) {
+                    await syncReferralsToFirestore(currentReferrals);
+                }
+            })();
+
+            // Handle hash-based tab selection
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const targetTabId = hash.startsWith('tab-') ? hash : 'tab-' + hash;
+                const targetTab = document.getElementById(targetTabId);
+                if (targetTab) {
+                    const btns = document.querySelectorAll('.tab-btn');
+                    for (let btn of btns) {
+                        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + targetTabId + "'")) {
+                            btn.click();
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

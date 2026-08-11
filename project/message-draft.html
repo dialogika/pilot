@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Draft - Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+        body { }
+        .main-content {
+            margin-left: 290px;
+            width: calc(100% - 290px);
+            padding: 40px;
+            min-height: 100vh;
+        }
+        @media (max-width: 991px) {
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+        }
+        .project-context-card {
+            max-width: 800px;
+            width: 90%;
+            background-color: #fff;
+            color: white;
+            margin: 20px auto -20px auto;
+            padding: 20px 25px 40px 25px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        .ph-badge {
+            background: #FDE047;
+            color: #854D0E;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            position: absolute;
+            left: 30px;
+            top: 40%;
+            transform: translateY(-50%);
+        }
+        .ph-crumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+        }
+        .ph-crumb-link {
+            text-decoration: none;
+            color: #d1d5db;
+            font-weight: 500;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .ph-crumb-link:hover { color: white; }
+        .ph-crumb-active {
+            color: white;
+            font-weight: 700;
+            border-bottom: 2px solid #FDE047;
+        }
+        .ph-sep { font-size: 0.8rem; color: #6b7280; }
+        .main-list-card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 50px auto;
+            padding: 50px 60px;
+            position: relative;
+            z-index: 2;
+            border: 0px;
+        }
+        .rich-editor {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-btn {
+            border: none;
+            background: transparent;
+            padding: 4px 6px;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .rich-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .rich-editor-body {
+            min-height: 90px;
+            padding: 10px 12px;
+            background: #ffffff;
+            outline: none;
+        }
+        .rich-editor-body[contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+        .boost-emoji-container {
+            position: relative;
+            display: inline-block;
+        }
+        .boost-emoji-popover {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            border-radius: 999px;
+            padding: 6px 10px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .boost-emoji-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+        }
+        .boost-emoji-option:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+        }
+        .boost-emoji-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-left: 4px;
+            color: #9ca3af;
+        }
+        .boost-emoji-delete:hover {
+            color: #ef4444;
+        }
+        @media (max-width: 768px) {
+            .ph-badge { display: none; }
+            .ph-crumb-container { width: 100%; justify-content: center; padding: 8px 10px; gap: 8px; font-size: 0.85rem;}
+            .main-list-card { padding: 30px 20px; }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body style="background-color: #f1f7fd;">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="project-context-card">
+                <div class="ph-badge" id="projectBadge">Loading...</div>
+                <div class="ph-crumb-container">
+                    <a href="../home.html" class="ph-crumb-link" title="Dashboard">
+                        <i class="bi bi-house-fill"></i>
+                    </a>
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadProjectLink" class="ph-crumb-link">...</a>
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <a href="#" id="breadMessagesLink" class="ph-crumb-link">Messages</a>
+                    <i class="bi bi-chevron-right ph-sep"></i>
+                    <span class="ph-crumb-link ph-crumb-active">Drafts</span>
+                </div>
+                <div class="position-absolute end-0 me-3">
+                    <button class="btn btn-link text-white text-opacity-50"><i class="bi bi-three-dots"></i></button>
+                </div>
+            </div>
+
+            <div class="main-list-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1">Draft messages</h4>
+                        <p class="text-muted small mb-0">Message yang belum diposting akan muncul di sini.</p>
+                    </div>
+                    <button type="button" class="btn btn-dlg-green rounded-pill px-4 btn-sm" id="newDraftButton">
+                        Compose new message
+                    </button>
+                </div>
+                <div id="draftListContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            getDocs,
+            addDoc,
+            query,
+            where,
+            orderBy,
+            deleteDoc,
+            updateDoc,
+            setDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.doc = doc;
+        window.deleteDoc = deleteDoc;
+        window.updateDoc = updateDoc;
+        window.setDoc = setDoc;
+        window.serverTimestamp = serverTimestamp;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId') || urlParams.get('id');
+
+        let currentUser = null;
+
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return `https://i.pravatar.cc/150?u=${uid || "user"}`;
+            if (url.includes('drive.google.com')) {
+                let id = "";
+                if (url.includes('id=')) {
+                    id = url.split('id=')[1].split('&')[0];
+                } else if (url.includes('/d/')) {
+                    id = url.split('/d/')[1].split('/')[0];
+                }
+                if (id) return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            }
+            return url;
+        }
+
+        function normalizeTimestamp(value) {
+            if (!value) return null;
+            if (value.toDate) return value.toDate();
+            if (value instanceof Date) return value;
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function getCurrentUserUid() {
+            try {
+                if (currentUser && currentUser.uid) return currentUser.uid;
+                const localData = JSON.parse(localStorage.getItem('userData') || 'null');
+                if (localData && localData.uid) return localData.uid;
+            } catch (e) {}
+            return "";
+        }
+
+        function getMessageDraftsCollectionRef() {
+            if (!projectId) return null;
+            return collection(db, "projects", projectId, "message_drafts");
+        }
+
+        async function loadProjectHeader() {
+            if (!projectId) return;
+            try {
+                const snap = await getDoc(doc(db, "projects", projectId));
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const breadProjectLink = document.getElementById('breadProjectLink');
+                const badgeEl = document.getElementById('projectBadge');
+                if (breadProjectLink) breadProjectLink.innerText = data.name || "Untitled Project";
+                if (badgeEl) badgeEl.innerText = data.department || "Project";
+            } catch (e) {
+                console.error("Failed to load project header", e);
+            }
+        }
+
+        async function loadDrafts() {
+            const container = document.getElementById('draftListContainer');
+            if (!container) return;
+            if (!projectId) {
+                container.innerHTML = '<div class="alert alert-warning text-center">Project ID tidak ditemukan.</div>';
+                return;
+            }
+            container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+            try {
+                const draftsRef = getMessageDraftsCollectionRef();
+                if (!draftsRef) throw new Error("Project ID tidak valid.");
+                const uid = getCurrentUserUid();
+                let snap;
+                if (uid) {
+                    const q = query(draftsRef, where("user_id", "==", uid));
+                    snap = await getDocs(q);
+                } else {
+                    snap = await getDocs(draftsRef);
+                }
+                const drafts = [];
+                snap.forEach(docSnap => {
+                    drafts.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                drafts.sort((a, b) => {
+                    const ta = normalizeTimestamp(a.updated_at || a.created_at);
+                    const tb = normalizeTimestamp(b.updated_at || b.created_at);
+                    const va = ta ? ta.getTime() : 0;
+                    const vb = tb ? tb.getTime() : 0;
+                    return vb - va;
+                });
+                renderDraftList(drafts);
+            } catch (e) {
+                console.error("Failed to load drafts", e);
+                container.innerHTML = '<div class="alert alert-danger text-center">Gagal mengambil draft.</div>';
+            }
+        }
+
+        function renderDraftList(drafts) {
+            const container = document.getElementById('draftListContainer');
+            if (!container) return;
+            container.innerHTML = "";
+            if (!drafts || drafts.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center py-4 small">Belum ada draft message.</div>';
+                return;
+            }
+            drafts.forEach(d => {
+                const title = d.title || "Untitled message";
+                const rawPlain = d.text_plain || "";
+                const textSource = rawPlain.trim();
+                const baseSnippetSource = textSource || title;
+                let snippet = baseSnippetSource || "";
+                if (snippet.length > 120) {
+                    snippet = snippet.substring(0, 117) + "...";
+                }
+                const ts = normalizeTimestamp(d.updated_at || d.created_at);
+                const dateStr = ts ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(ts) : "";
+                const name = d.user_name || "";
+                const uid = d.user_id || "";
+                const photoUrl = getDirectPhotoUrl(d.user_photo || "", uid || "");
+                const initialsSource = d.user_initials || name || uid || "";
+                const initials = initialsSource ? String(initialsSource).trim().split(' ').map(part => part[0]).join('').substring(0, 2).toUpperCase() : "US";
+                const category = d.category || "";
+                const categoryLabel = category ? `<span class="badge bg-light text-dark border me-2">${category}</span>` : "";
+                const html = `
+                    <div class="border-dlg-blue rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle overflow-hidden" style="width:36px;height:36px;flex-shrink:0;">
+                                <img src="${photoUrl}" alt="${initials}" style="width:100%;height:100%;object-fit:cover;">
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-dark">
+                                    ${title}
+                                    <span class="badge bg-secondary ms-2">Draft</span>
+                                </div>
+                                <div class="small text-muted mt-1">${categoryLabel}${snippet || "Tidak ada isi pesan."}</div>
+                                <div class="small text-muted mt-1">Terakhir diupdate ${dateStr}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-end gap-2 ms-3">
+                            <button type="button" class="btn btn-sm btn-dlg-yellow rounded-pill px-3" onclick="continueDraft('${d.id}')" style="min-width: 100px;">
+                                Continue
+                            </button>
+                            <button type="button" class="btn btn-sm btn-dlg-red rounded-pill px-3" onclick="deleteDraft('${d.id}')" style="min-width: 100px;">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        window.continueDraft = function (id) {
+            if (!id || !projectId) return;
+            const targetUrl = `message-craft.html?projectId=${encodeURIComponent(projectId)}&draftId=${encodeURIComponent(id)}`;
+            window.location.href = targetUrl;
+        };
+
+        window.deleteDraft = async function (id) {
+            if (!id) return;
+            if (!projectId) {
+                alert("Project ID tidak ditemukan.");
+                return;
+            }
+            const confirmed = window.confirm("Hapus draft ini?");
+            if (!confirmed) return;
+            try {
+                const draftsRef = getMessageDraftsCollectionRef();
+                if (!draftsRef) throw new Error("Project ID tidak valid.");
+                await deleteDoc(doc(draftsRef, id));
+                await loadDrafts();
+            } catch (e) {
+                console.error("Failed to delete draft", e);
+                alert("Gagal menghapus draft: " + e.message);
+            }
+        };
+
+        window.toggleSidebar = function () {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const newDraftButton = document.getElementById('newDraftButton');
+            if (newDraftButton) {
+                newDraftButton.addEventListener('click', () => {
+                    if (!projectId) return;
+                    const targetUrl = `message-craft.html?projectId=${encodeURIComponent(projectId)}`;
+                    window.location.href = targetUrl;
+                });
+            }
+
+            const raw = localStorage.getItem('userData');
+            if (!raw) {
+                window.location.href = "index.html";
+                return;
+            }
+            try {
+                const user = JSON.parse(raw);
+                const photoUrl = getDirectPhotoUrl(user.photo || "", user.uid || "");
+                const nameDisplay = document.getElementById('user-name-display');
+                const roleDisplay = document.getElementById('user-role-display');
+                const photoDisplay = document.getElementById('user-photo-display');
+                if (nameDisplay) nameDisplay.innerText = user.name || "";
+                if (roleDisplay) roleDisplay.innerText = "Dialogika Member";
+                if (photoDisplay) photoDisplay.src = photoUrl;
+            } catch (e) {}
+
+            if (!projectId) {
+                alert("Error: Project ID tidak ditemukan.");
+                return;
+            }
+
+            const breadProjectLink = document.getElementById('breadProjectLink');
+            const breadMessagesLink = document.getElementById('breadMessagesLink');
+            if (breadProjectLink) {
+                breadProjectLink.href = `../project/project.html?id=${encodeURIComponent(projectId)}`;
+            }
+            if (breadMessagesLink) {
+                breadMessagesLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = `message.html?id=${encodeURIComponent(projectId)}`;
+                });
+            }
+
+            loadProjectHeader();
+            loadDrafts();
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user || null;
+                loadDrafts();
+            });
+        });
+    </script>
+    <script>
+        function logout() {
+            localStorage.removeItem('userData');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

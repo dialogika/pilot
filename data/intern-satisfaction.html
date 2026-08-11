@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intern Satisfaction Survey - Team Dialogika</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+        background-color: #f1f5f9;
+        color: #0f172a;
+      }
+      .summary-card {
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+        box-shadow: 0 18px 44px -22px rgba(79, 70, 229, 0.35);
+        padding: 28px 30px;
+      }
+      .summary-stars {
+        font-size: 40px;
+        line-height: 1;
+        letter-spacing: 4px;
+        color: #cbd5e1;
+      }
+      .summary-stars .star.filled {
+        color: #f59e0b;
+      }
+      .summary-big {
+        font-size: 40px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.03em;
+      }
+      .summary-big small {
+        font-size: 16px;
+        font-weight: 600;
+        color: #64748b;
+      }
+      .summary-respondents {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+      }
+      .summary-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: #4f46e5;
+        box-shadow: 0 8px 20px -10px rgba(79, 70, 229, 0.4);
+      }
+      /* ── category cards ── */
+      .cat-stat-card {
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        box-shadow: 0 10px 26px -16px rgba(15, 23, 42, 0.25);
+        padding: 20px;
+        height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .cat-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px -18px rgba(15, 23, 42, 0.3);
+      }
+      .cat-stat-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .cat-stat-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .cat-stat-score {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+      }
+      /* ── stars generic ── */
+      .star {
+        color: #cbd5e1;
+      }
+      .star.filled {
+        color: #f59e0b;
+      }
+      .stars-sm {
+        font-size: 15px;
+        letter-spacing: 2px;
+      }
+      .stars-lg {
+        font-size: 34px;
+        letter-spacing: 4px;
+      }
+      /* ── toolbar ── */
+      .toolbar-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 12px 14px;
+        box-shadow: 0 6px 18px -14px rgba(15, 23, 42, 0.2);
+      }
+      .toolbar-card input,
+      .toolbar-card select {
+        font-size: 13px;
+        border-radius: 12px;
+        border-color: #e2e8f0;
+      }
+      .toolbar-card input:focus,
+      .toolbar-card select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.12);
+      }
+      /* ── respondent grid ── */
+      .resp-card {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #fff;
+        padding: 18px;
+        box-shadow: 0 8px 22px -18px rgba(15, 23, 42, 0.28);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        cursor: pointer;
+      }
+      .resp-card:hover {
+        transform: translateY(-3px);
+        border-color: #c7d2fe;
+        box-shadow: 0 18px 34px -18px rgba(79, 70, 229, 0.4);
+      }
+      .avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .resp-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.25;
+      }
+      .resp-sub {
+        font-size: 11.5px;
+        color: #64748b;
+        font-weight: 500;
+      }
+      .resp-reason {
+        font-size: 11px;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 3px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 100%;
+      }
+      .cat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #475569;
+        white-space: nowrap;
+      }
+      .resp-date {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+      /* ── modal ── */
+      #detailModal .modal-content {
+        border-radius: 22px;
+        border: 1px solid #e2e8f0;
+      }
+      .detail-section {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #f8fafc;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+      }
+      .detail-section-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .detail-section-title i {
+        color: #6366f1;
+      }
+      .q-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      .q-row:last-child {
+        border-bottom: 0;
+      }
+      .q-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+      }
+      .q-score {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        white-space: nowrap;
+      }
+      .essay-block-detail {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+      }
+      .essay-question {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 6px;
+      }
+      .essay-answer {
+        font-size: 13px;
+        color: #334155;
+        white-space: pre-wrap;
+      }
+      .comment-block {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #334155;
+        white-space: pre-wrap;
+      }
+      .info-grid .info-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 2px;
+      }
+      .info-grid .info-value {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #0f172a;
+        word-break: break-word;
+      }
+      .modal-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        font-weight: 700;
+        font-size: 19px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .modal-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 56px 20px;
+        color: #94a3b8;
+      }
+      .pgn-btn {
+        min-width: 34px;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 10px;
+      }
+      .badge-pct-green {
+        color: #166534;
+        background: #dcfce7;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge-pct-yellow {
+        color: #854d0e;
+        background: #fef9c3;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge-pct-red {
+        color: #991b1b;
+        background: #fee2e2;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .rec-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .rec-ya {
+        color: #166534;
+        background: #dcfce7;
+      }
+      .rec-tidak {
+        color: #991b1b;
+        background: #fee2e2;
+      }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+  <body class="antialiased">
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="max-w-full px-4 px-md-6 py-6">
+          <header class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3 mb-4">
+            <div>
+              <nav class="d-flex gap-2 fw-bold text-blue-600 text-uppercase mb-2" style="letter-spacing:0.12em;font-size:11px;">
+                <a href="../home.html" class="text-decoration-none text-blue-600"><i class="bi bi-house-fill"></i></a>
+                <span class="text-slate-400">/</span>
+                <span>HR Division</span>
+                <span class="text-slate-400">/</span>
+                <span class="text-slate-400">Intern Satisfaction Survey</span>
+              </nav>
+              <h1 class="h3 fw-extrabold text-slate-900 mb-1">Intern Satisfaction Survey</h1>
+              <p class="text-slate-500 small fw-medium mb-0">
+                Ringkasan &amp; analisis hasil evaluasi internship yang dikirim peserta magang.
+              </p>
+            </div>
+            <div class="text-slate-400 small fw-medium" id="dataInfoText">Menunggu data...</div>
+          </header>
+
+          <!-- Loading -->
+          <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-indigo-600" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-slate-500 small">Memuat hasil survey dari Firebase...</p>
+          </div>
+
+          <div id="dashboardContent" style="display:none">
+            <!-- Summary -->
+            <section class="summary-card mb-4">
+              <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+                <div class="summary-icon"><i class="bi bi-stars"></i></div>
+                <div class="text-center text-md-start flex-grow-1">
+                  <div class="summary-stars" id="summaryStars">☆☆☆☆☆</div>
+                  <div class="mt-2 d-flex align-items-baseline justify-content-center justify-content-md-start gap-2">
+                    <span class="summary-big"><span id="summaryScore">0.0</span> <small>/ 5</small></span>
+                    <span class="text-slate-400 small fw-semibold">(rata-rata dari <span id="summaryRaw">0</span> pertanyaan Likert)</span>
+                  </div>
+                  <div class="summary-respondents mt-1">
+                    <i class="bi bi-people-fill me-1"></i>Berdasarkan <span id="summaryCount">0</span> responden
+                  </div>
+                </div>
+                <div class="text-center text-md-end">
+                  <div class="text-slate-400 small fw-bold text-uppercase mb-1" style="font-size:10px;letter-spacing:0.12em;">Tingkat Kepuasan</div>
+                  <div class="fs-4 fw-extrabold text-slate-900" id="summaryPct">0%</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Category stat cards -->
+            <div class="row g-3 mb-4" id="categoryCards"></div>
+
+            <!-- Toolbar -->
+            <div class="toolbar-card mb-4">
+              <div class="d-flex flex-column flex-lg-row gap-2 align-items-stretch">
+                <div class="position-relative flex-grow-1">
+                  <i class="bi bi-search position-absolute text-slate-400" style="left:12px;top:50%;transform:translateY(-50%);"></i>
+                  <input
+                    type="text"
+                    id="searchInput"
+                    class="form-control ps-5"
+                    placeholder="Cari nama, email, divisi, atau alasan mengakhiri..."
+                  />
+                </div>
+                <select id="deptFilter" class="form-select" style="max-width:240px;">
+                  <option value="">Semua Divisi</option>
+                </select>
+                <select id="sortSelect" class="form-select" style="max-width:200px;">
+                  <option value="newest">Terbaru</option>
+                  <option value="oldest">Terlama</option>
+                  <option value="highest">Rating Tertinggi</option>
+                  <option value="lowest">Rating Terendah</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Respondent grid -->
+            <div id="gridEmpty" class="empty-state" style="display:none;">
+              <i class="bi bi-inbox display-5 d-block mb-2"></i>
+              <p class="fw-semibold text-slate-500 mb-1">Belum ada data survey yang sesuai.</p>
+              <p class="small mb-0">Coba ubah kata kunci pencarian atau filter divisi.</p>
+            </div>
+            <div class="row g-3" id="respondentGrid"></div>
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-3">
+              <span class="small text-slate-400" id="pgnInfo"></span>
+              <div id="pgnControls" class="d-flex align-items-center gap-1 flex-wrap"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Detail Survey Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="detailModalTitle">Detail Survey</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-2" id="detailModalBody"></div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      renderTopBar(document.getElementById("topbarContainer"));
+      renderSidebar(document.getElementById("sidebarContainer"));
+
+      /* ─────────── CONFIG (modular: tambah kategori/pertanyaan di sini, id harus sama dengan form survey) ─────────── */
+      const COLLECTION = "internship_satisfaction_survey";
+      const PAGE_SIZE = 12;
+
+      const CATEGORIES = [
+        {
+          id: "self_performance",
+          title: "Penilaian Performa Diri",
+          short: "Self Performance",
+          icon: "bi-person-check-fill",
+          ratings: [
+            { id: "task_comprehension", label: "Kemampuan Memahami & Menyelesaikan Tugas" },
+            { id: "communication_collaboration", label: "Komunikasi & Kolaborasi" },
+            { id: "learning_adaptability_initiative", label: "Rasa Ingin Belajar, Adaptasi, Kreatif & Inisiatif" },
+            { id: "time_management_prioritization", label: "Mengatur Waktu & Prioritas" },
+          ],
+          essays: [
+            { id: "biggest_achievement_challenge", label: "Pencapaian dan tantangan terbesar selama internship" },
+            { id: "new_skills_learned", label: "Keterampilan atau pengetahuan baru yang dipelajari" },
+            { id: "most_valuable_project", label: "Tugas atau proyek paling berharga beserta alasannya" },
+          ],
+        },
+        {
+          id: "team_satisfaction",
+          title: "Penilaian Kepuasan Tim",
+          short: "Team Satisfaction",
+          icon: "bi-people-fill",
+          ratings: [
+            { id: "communication_coordination_support", label: "Komunikasi, Koordinasi & Dukungan Tim" },
+            { id: "openness_guidance", label: "Keterbukaan Tim & Bimbingan" },
+            { id: "relationship_appreciation", label: "Hubungan Kerja & Dihargai" },
+          ],
+          essays: [
+            { id: "liked_and_challenges", label: "Hal yang paling disukai sekaligus tantangan bersama tim" },
+            { id: "team_improvements", label: "Hal yang masih dapat ditingkatkan dari tim" },
+          ],
+        },
+        {
+          id: "overall_assessment",
+          title: "Penilaian Umum",
+          short: "Overall Assessment",
+          icon: "bi-clipboard-check-fill",
+          ratings: [
+            { id: "satisfaction", label: "Tingkat Kepuasan Keseluruhan" },
+          ],
+          essays: [],
+        },
+      ];
+
+      /* ─────────── state ─────────── */
+      let allSurveys = [];
+      let filtered = [];
+      let currentPage = 1;
+      let searchTerm = "";
+      let deptFilter = "";
+      let sortMode = "newest";
+      const userPhotoCache = new Map();
+
+      const els = {
+        loading: document.getElementById("loadingState"),
+        content: document.getElementById("dashboardContent"),
+        summaryStars: document.getElementById("summaryStars"),
+        summaryScore: document.getElementById("summaryScore"),
+        summaryRaw: document.getElementById("summaryRaw"),
+        summaryCount: document.getElementById("summaryCount"),
+        summaryPct: document.getElementById("summaryPct"),
+        categoryCards: document.getElementById("categoryCards"),
+        searchInput: document.getElementById("searchInput"),
+        deptFilter: document.getElementById("deptFilter"),
+        sortSelect: document.getElementById("sortSelect"),
+        grid: document.getElementById("respondentGrid"),
+        gridEmpty: document.getElementById("gridEmpty"),
+        pgnInfo: document.getElementById("pgnInfo"),
+        pgnControls: document.getElementById("pgnControls"),
+        dataInfoText: document.getElementById("dataInfoText"),
+        detailBody: document.getElementById("detailModalBody"),
+      };
+
+      /* ─────────── pure helpers ─────────── */
+      const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+      function mean(arr) {
+        const vals = arr.filter((v) => typeof v === "number" && !isNaN(v));
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      }
+      function toDate(v) {
+        if (!v) return null;
+        if (typeof v.toDate === "function") {
+          const t = v.toDate();
+          return isNaN(t.getTime()) ? null : t;
+        }
+        const t = new Date(v);
+        return isNaN(t.getTime()) ? null : t;
+      }
+      function fmtDate(v) {
+        const d = toDate(v);
+        if (!d) return "-";
+        return `${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      }
+      function esc(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function initials(name) {
+        return String(name || "?")
+          .trim()
+          .split(/\s+/)
+          .map((w) => w[0])
+          .filter(Boolean)
+          .slice(0, 2)
+          .join("")
+          .toUpperCase() || "?";
+      }
+      function clamp(v, min, max) {
+        return Math.min(max, Math.max(min, v));
+      }
+
+      /* ── rating math (skala data asli 1–5) ── */
+      function fullStars(d5) {
+        return clamp(Math.round(d5 - 0.25), 0, 5);
+      }
+      function pctScore(s) {
+        return (s / 5) * 100;
+      }
+      function colorFor(s) {
+        const p = pctScore(s);
+        if (p >= 75) return "#16a34a";
+        if (p >= 50) return "#d97706";
+        return "#dc2626";
+      }
+      function pctBadgeClass(s) {
+        const p = pctScore(s);
+        if (p >= 75) return "badge-pct-green";
+        if (p >= 50) return "badge-pct-yellow";
+        return "badge-pct-red";
+      }
+      function ratingValues(doc, cat) {
+        // Dukung dua bentuk: { ratings: {...} } (self_performance/team_satisfaction)
+        // dan field langsung (overall_assessment versi lama: satisfaction/recommend di map utama).
+        const obj = doc[cat.id] || {};
+        return Object.values(obj.ratings || obj);
+      }
+      function catAvg(doc, cat) {
+        return mean(ratingValues(doc, cat));
+      }
+      function overallScore(doc) {
+        let vals = [];
+        CATEGORIES.forEach((c) => {
+          vals = vals.concat(ratingValues(doc, c));
+        });
+        return mean(vals);
+      }
+      function starsHTML(d5, sizeClass) {
+        const f = fullStars(d5);
+        let h = "";
+        for (let i = 1; i <= 5; i++) {
+          h += `<span class="star${i <= f ? " filled" : ""}">${i <= f ? "★" : "☆"}</span>`;
+        }
+        return `<span class="${sizeClass || "stars-sm"}">${h}</span>`;
+      }
+      function circularHTML(pctVal, color, label) {
+        const r = 30;
+        const c = 2 * Math.PI * r;
+        const off = c - (clamp(pctVal, 0, 100) / 100) * c;
+        return `<svg viewBox="0 0 72 72" width="72" height="72" style="flex-shrink:0;">
+          <circle cx="36" cy="36" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="7"/>
+          <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round"
+            stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 36 36)"/>
+          <text x="36" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">${label}</text>
+        </svg>`;
+      }
+      function avatarHTML(photo, name, cls) {
+        if (photo) {
+          return `<div class="${cls}"><img src="${esc(photo)}" alt="" loading="lazy" onerror="this.remove()"/></div>`;
+        }
+        return `<div class="${cls}">${esc(initials(name))}</div>`;
+      }
+      function respondentInfo(doc) {
+        return doc.respondent_info || {};
+      }
+
+      /* ─────────── load data ─────────── */
+      async function loadUserPhotos() {
+        const ids = [...new Set(allSurveys.map((s) => s.user_id || "").filter(Boolean))];
+        await Promise.all(
+          ids.map(async (uid) => {
+            if (userPhotoCache.has(uid)) return;
+            try {
+              const snap = await getDoc(doc(db, "users", uid));
+              const pd = snap.exists() ? snap.data() : null;
+              userPhotoCache.set(uid, pd ? (pd.photo || pd.Photo || "") : "");
+            } catch (e) {
+              userPhotoCache.set(uid, "");
+            }
+          }),
+        );
+      }
+
+      async function loadData() {
+        try {
+          const snap = await getDocs(collection(db, COLLECTION));
+          allSurveys = [];
+          snap.forEach((ds) => {
+            const d = ds.data() || {};
+            // Eksklusi dokumen legacy (struktur lama tanpa respondent_info / penilaian baru)
+            if (!d.respondent_info && !d.self_performance) return;
+            allSurveys.push({ id: ds.id, ...d });
+          });
+          await loadUserPhotos();
+          renderSummary();
+          renderCategoryCards();
+          renderDeptFilter();
+          applyFilters();
+          els.loading.style.display = "none";
+          els.content.style.display = "block";
+          els.dataInfoText.textContent = `Total ${allSurveys.length} survey`;
+        } catch (e) {
+          console.error("Gagal memuat data survey:", e);
+          els.loading.innerHTML =
+            '<p class="text-danger small">Gagal memuat data. Cek koneksi atau Firebase.</p>';
+          els.dataInfoText.textContent = "Gagal memuat";
+        }
+      }
+
+      /* ─────────── summary ─────────── */
+      function renderSummary() {
+        const n = allSurveys.length;
+        const avg = n ? mean(allSurveys.map(overallScore)) : 0;
+        els.summaryStars.innerHTML = starsHTML(avg, "summary-stars");
+        els.summaryScore.textContent = avg.toFixed(1);
+        els.summaryRaw.textContent = CATEGORIES.reduce((acc, c) => acc + c.ratings.length, 0);
+        els.summaryCount.textContent = n;
+        els.summaryPct.textContent = Math.round(pctScore(avg)) + "%";
+      }
+
+      function renderCategoryCards() {
+        const n = allSurveys.length;
+        els.categoryCards.innerHTML = CATEGORIES.map((c) => {
+          const avg = n ? mean(allSurveys.map((s) => catAvg(s, c))) : 0;
+          const p = pctScore(avg);
+          const color = colorFor(avg);
+          const cls = pctBadgeClass(avg);
+          return `
+            <div class="col-12 col-md-4">
+              <div class="cat-stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:42px;height:42px;background:#eef2ff;color:#4f46e5;font-size:20px;">
+                      <i class="bi ${c.icon}"></i>
+                    </div>
+                    <div>
+                      <div class="cat-stat-title">${esc(c.title)}</div>
+                      <div class="cat-stat-sub">${esc(c.short)}</div>
+                    </div>
+                  </div>
+                  ${circularHTML(p, color, Math.round(p) + "%")}
+                </div>
+                <div class="d-flex align-items-end justify-content-between">
+                  <div>
+                    <div class="cat-stat-score">${avg.toFixed(1)} <small class="text-slate-400 fw-semibold" style="font-size:12px;">/ 5</small></div>
+                    <div class="small text-slate-400">${c.ratings.length} pertanyaan Likert</div>
+                  </div>
+                  <span class="${cls}">${Math.round(p)}% puas</span>
+                </div>
+                <div class="stars-sm mt-2">${starsHTML(avg)}</div>
+              </div>
+            </div>`;
+        }).join("");
+      }
+
+      /* ─────────── filters ─────────── */
+      function renderDeptFilter() {
+        const depts = [...new Set(allSurveys.map((s) => (respondentInfo(s).divisi || "").trim()).filter(Boolean))].sort();
+        els.deptFilter.innerHTML =
+          '<option value="">Semua Divisi</option>' +
+          depts.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+        els.deptFilter.value = deptFilter;
+      }
+
+      function applyFilters() {
+        const q = searchTerm.toLowerCase().trim();
+        let list = allSurveys.filter((s) => {
+          const ri = respondentInfo(s);
+          if (deptFilter && (ri.divisi || "") !== deptFilter) return false;
+          if (q) {
+            const hay = [ri.nama, s.email, ri.divisi, ri.alasan_mengakhiri].join(" ").toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+        list.sort((a, b) => {
+          if (sortMode === "oldest") return (toDate(a.created_at)?.getTime() || 0) - (toDate(b.created_at)?.getTime() || 0);
+          if (sortMode === "highest") return overallScore(b) - overallScore(a);
+          if (sortMode === "lowest") return overallScore(a) - overallScore(b);
+          return (toDate(b.created_at)?.getTime() || 0) - (toDate(a.created_at)?.getTime() || 0);
+        });
+        filtered = list;
+        currentPage = 1;
+        renderGrid();
+      }
+
+      /* ─────────── grid ─────────── */
+      function totalPages() {
+        return Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      }
+      function renderGrid() {
+        const tp = totalPages();
+        if (currentPage > tp) currentPage = tp;
+        if (!filtered.length) {
+          els.grid.innerHTML = "";
+          els.gridEmpty.style.display = "block";
+          els.pgnInfo.textContent = "";
+          els.pgnControls.innerHTML = "";
+          return;
+        }
+        els.gridEmpty.style.display = "none";
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const rows = filtered.slice(start, start + PAGE_SIZE);
+        els.grid.innerHTML = rows.map((s) => {
+          const ri = respondentInfo(s);
+          const ov = overallScore(s);
+          const photo = userPhotoCache.get(s.user_id || "") || "";
+          const pills = CATEGORIES.map((c) => {
+            return `<span class="cat-pill"><i class="bi ${c.icon} me-1" style="color:#6366f1;"></i>${catAvg(s, c).toFixed(1)}</span>`;
+          }).join(" ");
+          return `
+            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
+              <button type="button" class="resp-card" data-id="${esc(s.id)}">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  ${avatarHTML(photo, ri.nama, "avatar")}
+                  <div class="min-w-0">
+                    <div class="resp-name text-truncate">${esc(ri.nama || "-")}</div>
+                    <div class="resp-sub text-truncate">${esc(ri.divisi || "-")}</div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  ${starsHTML(ov)}
+                  <span class="small fw-bold text-slate-700">${ov.toFixed(1)}/5</span>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mb-2">${pills}</div>
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  <span class="resp-reason" title="${esc(ri.alasan_mengakhiri || "")}">
+                    <i class="bi bi-box-arrow-right"></i>${esc(ri.alasan_mengakhiri || "-")}
+                  </span>
+                </div>
+                <div class="resp-date"><i class="bi bi-calendar3 me-1"></i>${fmtDate(s.created_at)}</div>
+              </button>
+            </div>`;
+        }).join("");
+        renderPgn();
+      }
+
+      function renderPgn() {
+        const tp = totalPages();
+        const s = (currentPage - 1) * PAGE_SIZE + 1;
+        const e = Math.min(currentPage * PAGE_SIZE, filtered.length);
+        els.pgnInfo.textContent = filtered.length
+          ? `Menampilkan ${s}–${e} dari ${filtered.length} responden`
+          : "Tidak ada data";
+        const mk = (lbl, pg, dis, act) => {
+          const cls = act
+            ? "btn btn-primary pgn-btn"
+            : dis
+              ? "btn btn-light pgn-btn disabled"
+              : "btn btn-outline-secondary pgn-btn";
+          return `<button type="button" class="${cls}" data-page="${pg}" ${dis ? "disabled" : ""}>${lbl}</button>`;
+        };
+        let h = "";
+        h += mk("«", 1, currentPage === 1, false);
+        h += mk("‹", currentPage - 1, currentPage === 1, false);
+        const ps = Math.max(1, currentPage - 2);
+        const pe = Math.min(tp, ps + 4);
+        for (let p = ps; p <= pe; p++) h += mk(String(p), p, false, p === currentPage);
+        h += mk("›", currentPage + 1, currentPage === tp, false);
+        h += mk("»", tp, currentPage === tp, false);
+        els.pgnControls.innerHTML = h;
+      }
+
+      /* ─────────── detail modal ─────────── */
+      function openDetail(id) {
+        const s = allSurveys.find((x) => x.id === id);
+        if (!s) return;
+        const ri = respondentInfo(s);
+        const photo = userPhotoCache.get(s.user_id || "") || "";
+        const ov = overallScore(s);
+        const recommend = (s.overall_assessment || {}).recommend || "";
+
+        const categorySections = CATEGORIES.map((c) => {
+          const ratings = (s[c.id] || {}).ratings || s[c.id] || {};
+          const essays = (s[c.id] || {}).essays || {};
+          const rows = c.ratings
+            .map((q) => {
+              const score = ratings[q.id];
+              const has = typeof score === "number" && !isNaN(score);
+              return `
+                <div class="q-row">
+                  <div class="q-label">${esc(q.label)}</div>
+                  <div class="d-flex align-items-center gap-2">
+                    ${starsHTML(has ? score : 0)}
+                    <span class="q-score">${has ? score + "/5" : "—"}</span>
+                  </div>
+                </div>`;
+            })
+            .join("");
+          const essayBlocks = c.essays
+            .map((q) => {
+              const ans = essays[q.id] || "";
+              return `
+                <div class="essay-block-detail">
+                  <div class="essay-question">${esc(q.label)}</div>
+                  <div class="essay-answer">${esc(ans) || '<span class="text-slate-300">— Tidak ada jawaban —</span>'}</div>
+                </div>`;
+            })
+            .join("");
+          const recRow =
+            c.id === "overall_assessment"
+              ? `
+                <div class="q-row" style="border-top:1px dashed #e2e8f0;margin-top:4px;">
+                  <div class="q-label">Bersedia merekomendasikan sebagai tempat internship</div>
+                  <span class="rec-badge ${recommend === "Ya" ? "rec-ya" : "rec-tidak"}">
+                    <i class="bi ${recommend === "Ya" ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-down-fill"}"></i>${esc(recommend || "—")}
+                  </span>
+                </div>`
+              : "";
+          return `
+            <div class="detail-section">
+              <div class="detail-section-title"><i class="bi ${c.icon}"></i>${esc(c.title)}
+                <span class="badge rounded-pill ms-auto" style="background:#eef2ff;color:#4f46e5;">${catAvg(s, c).toFixed(1)}/5</span>
+              </div>
+              ${rows}
+              ${essayBlocks}
+              ${recRow}
+            </div>`;
+        }).join("");
+
+        els.detailBody.innerHTML = `
+          <div class="row g-3 mb-3">
+            <div class="col-md-7">
+              <div class="d-flex align-items-center gap-3">
+                ${avatarHTML(photo, ri.nama, "modal-avatar")}
+                <div>
+                  <div class="fs-5 fw-bold text-slate-900">${esc(ri.nama || "-")}</div>
+                  <div class="small text-slate-500">${esc(s.email || "-")}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div class="info-grid">
+                <div class="info-label">Divisi</div>
+                <div class="info-value mb-2">${esc(ri.divisi || "-")}</div>
+                <div class="info-label">Alasan Mengakhiri</div>
+                <div class="info-value">${esc(ri.alasan_mengakhiri || "-")}</div>
+              </div>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="info-grid">
+                <div class="info-label">Tanggal Pengisian</div>
+                <div class="info-value">${fmtDate(s.created_at)}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-grid">
+                <div class="info-label">Responden ID</div>
+                <div class="info-value text-slate-400">${esc(s.id)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section text-center">
+            <div class="detail-section-title justify-content-center"><i class="bi bi-stars"></i>Overall Rating</div>
+            ${starsHTML(ov, "stars-lg")}
+            <div class="fs-3 fw-extrabold text-slate-900 mt-1">${ov.toFixed(1)} <small class="text-slate-400 fw-semibold" style="font-size:14px;">/ 5</small></div>
+            <div class="small text-slate-400">rata-rata keseluruhan ${CATEGORIES.reduce((n, c) => n + c.ratings.length, 0)} pertanyaan Likert</div>
+          </div>
+
+          ${categorySections}
+        `;
+
+        const modalEl = document.getElementById("detailModal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      }
+
+      /* ─────────── events ─────────── */
+      let searchTimer = null;
+      els.searchInput.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          searchTerm = els.searchInput.value;
+          applyFilters();
+        }, 150);
+      });
+      els.deptFilter.addEventListener("change", () => {
+        deptFilter = els.deptFilter.value;
+        applyFilters();
+      });
+      els.sortSelect.addEventListener("change", () => {
+        sortMode = els.sortSelect.value;
+        applyFilters();
+      });
+      els.grid.addEventListener("click", (e) => {
+        const card = e.target.closest(".resp-card");
+        if (card) openDetail(card.dataset.id);
+      });
+      els.pgnControls.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-page]");
+        if (!btn || btn.disabled) return;
+        currentPage = parseInt(btn.dataset.page, 10);
+        renderGrid();
+      });
+
+      /* ─────────── init ─────────── */
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "../index.html";
+          return;
+        }
+        loadData();
+      });
+    </script>
+  </body>
+</html>

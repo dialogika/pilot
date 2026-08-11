@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operational Expenses - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8fafc;
+        }
+        [v-cloak] {
+            display: none;
+        }
+        .expense-shell {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+        .expense-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 26px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+        }
+        .expense-table-wrap {
+            overflow-x: auto;
+        }
+        .expense-table {
+            min-width: 1200px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .expense-table thead th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-weight: 800;
+            color: #94a3b8;
+            background: #f8fafc;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .expense-table tbody td {
+            padding: 20px 22px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        .expense-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .stat-card {
+            border-radius: 22px;
+            padding: 22px;
+            color: white;
+            min-height: 122px;
+        }
+        .stat-indigo { background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); }
+        .stat-amber { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+        .stat-emerald { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .stat-slate { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .status-requested { background: #e0f2fe; color: #0369a1; }
+        .status-reviewing { background: #fef3c7; color: #b45309; }
+        .status-paid { background: #dcfce7; color: #15803d; }
+        .status-whatsapp { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #b91c1c; }
+        .status-overdue { background: #ffe4e6; color: #e11d48; }
+        .stat-rose { background: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%); }
+        .note-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px 16px;
+        }
+        .form-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 26px;
+            padding: 28px;
+        }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 8px;
+        }
+        .field-control {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 13px 16px;
+            font-size: 14px;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .field-control:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            background: #ffffff;
+        }
+        .field-control-compact {
+            box-sizing: border-box;
+            min-height: 50px;
+            padding: 10px 12px;
+            font-size: 13px;
+            border-radius: 14px;
+        }
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 6px 8px;
+            box-sizing: border-box;
+            min-height: 50px;
+            width: 100%;
+            overflow-x: auto;
+        }
+        .date-nav {
+            width: 36px;
+            height: 36px;
+            border: 0;
+            border-radius: 12px;
+            background: #e2e8f0;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .date-nav:hover {
+            background: #cbd5e1;
+            color: #475569;
+        }
+        .date-pill {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 12px;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .date-pill-group {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .date-pill:hover {
+            background: #f1f5f9;
+        }
+        .date-pill.is-active {
+            background: #cbd5e1;
+            border-color: #cbd5e1;
+            color: #1d4ed8;
+        }
+        .sort-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            font: inherit;
+            color: inherit;
+            text-transform: inherit;
+            letter-spacing: inherit;
+            cursor: pointer;
+        }
+        .sort-icon {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        .sort-icon.is-active {
+            color: #64748b;
+        }
+        .field-help {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 7px;
+        }
+        .empty-state {
+            padding: 56px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        .drawer-backdrop {
+            position: fixed;
+            top: var(--topbar-height);
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 120;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .drawer-panel {
+            width: min(720px, 100%);
+            height: calc(100vh - var(--topbar-height));
+            background: #ffffff;
+            box-shadow: -20px 0 40px rgba(15, 23, 42, 0.14);
+            overflow-y: auto;
+            padding: 28px;
+        }
+        .mono {
+            font-family: Consolas, Monaco, monospace;
+        }
+        .proof-preview {
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        .proof-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .search-select {
+            position: relative;
+        }
+        .search-select-list {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            max-height: 240px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+            padding: 8px;
+            z-index: 30;
+        }
+        .search-select-item {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            border-radius: 14px;
+            padding: 10px 12px;
+            text-align: left;
+            transition: background 0.2s ease;
+        }
+        .search-select-item:hover {
+            background: #f8fafc;
+        }
+        .search-select-empty {
+            padding: 12px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .field-readonly {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+        @media (max-width: 991px) {
+            .drawer-panel {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8">
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div id="expenseApp" v-cloak class="expense-shell py-4">
+                <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-5 mb-8">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight text-slate-900">Operational Expenses</h1>
+                        <p class="text-slate-500 mt-2 max-w-3xl">
+                            Seluruh request pengeluaran perusahaan terdaftar di sini. Treasurer bisa cek tujuan transfer, upload bukti transfer, ubah status ke paid, dan membaca notes penjelasan dari admin kelas atau PIC.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button @click="loadExpenses" class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">
+                            Refresh Data
+                        </button>
+                        <button @click="openCreateDrawer" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-100 transition-all">
+                            + New Expense Request
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+                    <div class="stat-card stat-slate">
+                        <div class="text-[11px] uppercase tracking-[0.22em] font-black text-white/70">Total Request</div>
+                        <div class="text-4xl font-black mt-3">{{ stats.total }}</div>
+                        <div class="text-xs mt-3 text-white/70">Semua request yang terdaftar</div>
+                    </div>
+                    <div class="stat-card stat-amber">
+                        <div class="text-[11px] uppercase tracking-[0.22em] font-black text-white/70">Need Action</div>
+                        <div class="text-4xl font-black mt-3">{{ stats.pending }}</div>
+                        <div class="text-xs mt-3 text-white/70">Status requested atau reviewing</div>
+                    </div>
+                    <div class="stat-card stat-rose">
+                        <div class="text-[11px] uppercase tracking-[0.22em] font-black text-white/70">Overdue</div>
+                        <div class="text-4xl font-black mt-3">{{ stats.overdue }}</div>
+                        <div class="text-xs mt-3 text-white/70">Melewati due date pembayaran</div>
+                    </div>
+                    <div class="stat-card stat-emerald">
+                        <div class="text-[11px] uppercase tracking-[0.22em] font-black text-white/70">Paid</div>
+                        <div class="text-4xl font-black mt-3">{{ stats.paid }}</div>
+                        <div class="text-xs mt-3 text-white/70">Sudah lunas dan ada bukti transfer</div>
+                    </div>
+                    <div class="stat-card stat-indigo">
+                        <div class="text-[11px] uppercase tracking-[0.22em] font-black text-white/70">Total Amount</div>
+                        <div class="text-3xl font-black mt-3">Rp {{ formatCurrency(stats.amount) }}</div>
+                        <div class="text-xs mt-3 text-white/70">Akumulasi nominal seluruh request</div>
+                    </div>
+                </div>
+
+                <div class="expense-card p-6 mb-6">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="field-label">Search Request</label>
+                                <input v-model="searchQuery" type="text" class="field-control field-control-compact" placeholder="Cari judul, PIC, mentor, kelas, bank, atau nomor rekening">
+                            </div>
+                            <div>
+                                <label class="field-label">Status Filter</label>
+                                <select v-model="filterStatus" class="field-control field-control-compact">
+                                    <option value="all">Semua Status</option>
+                                    <option value="requested">Requested</option>
+                                    <option value="reviewing">Reviewing</option>
+                                    <option value="overdue">Overdue</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="complete">Complete</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">Category Filter</label>
+                                <select v-model="filterCategory" class="field-control field-control-compact">
+                                    <option value="all">Semua Kategori</option>
+                                    <option value="mentor_salary">Mentor Salary</option>
+                                    <option value="operational">Operational</option>
+                                    <option value="reimburse">Reimburse</option>
+                                    <option value="tools">Tools</option>
+                                    <option value="transport">Transport</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="field-label mb-0">Filter Tanggal</label>
+                                    <button
+                                        v-if="filterDate"
+                                        type="button"
+                                        class="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 hover:text-slate-600 transition-all"
+                                        @click="clearDateFilter"
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
+                                <div class="date-filter">
+                                    <button type="button" class="date-nav" aria-label="Tanggal sebelumnya" @click="shiftDateWindow(-1)">
+                                        <i class="bi bi-caret-left-fill"></i>
+                                    </button>
+                                    <div class="date-pill-group">
+                                        <button
+                                            v-for="option in dateWindow"
+                                            :key="option.iso"
+                                            type="button"
+                                            class="date-pill"
+                                            :class="{ 'is-active': option.iso === filterDate }"
+                                            @click="selectDate(option.iso)"
+                                        >
+                                            {{ option.label }}
+                                        </button>
+                                    </div>
+                                    <button type="button" class="date-nav" aria-label="Tanggal berikutnya" @click="shiftDateWindow(1)">
+                                        <i class="bi bi-caret-right-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="field-label text-[10px]">Start Date</label>
+                                <input v-model="filterDateStart" type="date" class="field-control field-control-compact">
+                            </div>
+                            <div>
+                                <label class="field-label text-[10px]">End Date</label>
+                                <input v-model="filterDateEnd" type="date" class="field-control field-control-compact">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expense-card">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 pt-6 pb-4">
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900">Expense Ledger</h2>
+                            <p class="text-sm text-slate-500 mt-1">Treasurer cukup buka item, cek tujuan transfer, upload bukti, lalu ubah status menjadi paid.</p>
+                        </div>
+                        <div class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                            {{ filteredExpenses.length }} item terlihat
+                        </div>
+                    </div>
+
+                    <div class="expense-table-wrap">
+                        <table class="expense-table">
+                            <thead>
+                                <tr>
+                                    <th :aria-sort="sortAria('request')">
+                                        <button type="button" class="sort-button" @click="toggleSort('request')">
+                                            Request
+                                            <i :class="[sortIcon('request'), sortIconClass('request')]"></i>
+                                        </button>
+                                    </th>
+                                    <th :aria-sort="sortAria('destination')">
+                                        <button type="button" class="sort-button" @click="toggleSort('destination')">
+                                            Transfer Destination
+                                            <i :class="[sortIcon('destination'), sortIconClass('destination')]"></i>
+                                        </button>
+                                    </th>
+                                    <th :aria-sort="sortAria('amount')">
+                                        <button type="button" class="sort-button" @click="toggleSort('amount')">
+                                            Amount & Due
+                                            <i :class="[sortIcon('amount'), sortIconClass('amount')]"></i>
+                                        </button>
+                                    </th>
+                                    <th :aria-sort="sortAria('notes')">
+                                        <button type="button" class="sort-button" @click="toggleSort('notes')">
+                                            Notes
+                                            <i :class="[sortIcon('notes'), sortIconClass('notes')]"></i>
+                                        </button>
+                                    </th>
+                                    <th :aria-sort="sortAria('status')">
+                                        <button type="button" class="sort-button" @click="toggleSort('status')">
+                                            Status
+                                            <i :class="[sortIcon('status'), sortIconClass('status')]"></i>
+                                        </button>
+                                    </th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="filteredExpenses.length">
+                                <tr v-for="expense in filteredExpenses" :key="expense.id">
+                                    <td>
+                                        <div class="space-y-2 max-w-sm">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <div class="text-sm font-black text-slate-900">{{ expense.title || '-' }}</div>
+                                                <span :class="statusBadgeClass(displayStatus(expense))" class="badge-pill">{{ displayStatus(expense) }}</span>
+                                            </div>
+                                            <div class="text-[11px] text-slate-500 uppercase tracking-[0.16em] font-black">{{ formatCategory(expense.category) }} • {{ expense.department || 'General' }}</div>
+                                            <div class="text-xs text-slate-600">
+                                                PIC: <span class="font-bold">{{ expense.requesterName || '-' }}</span>
+                                            </div>
+                                            <div v-if="expense.relatedClass || expense.mentorName" class="text-xs text-slate-500">
+                                                {{ expense.relatedClass || '-' }}<span v-if="expense.mentorName"> • Mentor: {{ expense.mentorName }}</span>
+                                            </div>
+                                            <div class="mono text-[11px] text-slate-400">#{{ expense.id }}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="space-y-2 max-w-xs">
+                                            <div class="text-sm font-bold text-slate-800">{{ expense.beneficiaryName || '-' }}</div>
+                                            <div class="text-xs text-slate-500">{{ expense.bankName || '-' }}</div>
+                                            <div class="mono text-xs text-slate-700">{{ expense.accountNumber || '-' }}</div>
+                                            <a v-if="expense.transferProofUrl" :href="expense.transferProofUrl" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800">
+                                                <i class="bi bi-paperclip"></i> Lihat Bukti TF
+                                            </a>
+                                            <span v-else class="text-xs font-bold text-slate-300">Belum ada bukti transfer</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="space-y-2">
+                                            <div class="text-base font-black text-slate-900">Rp {{ formatCurrency(expense.amount) }}</div>
+                                            <div class="text-xs text-slate-500">Due: {{ formatDateLabel(expense.dueDate) }}</div>
+                                            <div v-if="expense.paidAtMs" class="text-xs text-emerald-600 font-bold">
+                                                Paid: {{ formatDateTimeLabel(expense.paidAtMs) }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="space-y-3 max-w-sm">
+                                            <div class="note-box">
+                                                <div class="text-[10px] uppercase tracking-[0.16em] font-black text-slate-400 mb-1">Notes / Penjelasan</div>
+                                                <div class="text-xs text-slate-600 leading-relaxed">{{ expense.notes || 'Belum ada penjelasan tambahan.' }}</div>
+                                            </div>
+                                            <div class="note-box">
+                                                <div class="text-[10px] uppercase tracking-[0.16em] font-black text-slate-400 mb-1">Treasurer Note</div>
+                                                <div class="text-xs text-slate-600 leading-relaxed">{{ expense.paymentNotes || 'Belum ada catatan pembayaran.' }}</div>
+                                            </div>
+                                            <div v-if="expense.reimburseProofUrl" class="note-box">
+                                                <div class="text-[10px] uppercase tracking-[0.16em] font-black text-slate-400 mb-1">Dokumen Pendukung</div>
+                                                <div class="text-xs text-slate-600 leading-relaxed">
+                                                    <a :href="expense.reimburseProofUrl" target="_blank" class="font-bold text-blue-600 hover:text-blue-800">
+                                                        Lihat Dokumen
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="space-y-2">
+                                            <span :class="statusBadgeClass(displayStatus(expense))" class="badge-pill">{{ displayStatus(expense) }}</span>
+                                            <div class="text-xs text-slate-500">{{ expense.paymentMethod || 'Belum ditentukan' }}</div>
+                                            <div v-if="expense.status === 'complete' && expense.whatsappLink" class="text-xs">
+                                                <a :href="expense.whatsappLink" target="_blank" class="font-bold text-emerald-600 hover:text-emerald-700">Buka WhatsApp Mentor</a>
+                                            </div>
+                                            <div class="text-xs text-slate-400">Updated: {{ formatDateTimeLabel(expense.updatedAtMs) }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="flex flex-col gap-2 items-end">
+                                            <button @click="openEditDrawer(expense)" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-black transition-all">
+                                                Open Detail
+                                            </button>
+                                            <button
+                                                v-if="expense.status !== 'paid' && expense.status !== 'complete'"
+                                                @click="markAsReviewing(expense)"
+                                                class="px-4 py-2 rounded-xl border border-amber-200 text-amber-700 text-xs font-bold hover:bg-amber-50 transition-all"
+                                            >
+                                                Mark Reviewing
+                                            </button>
+                                            <button
+                                                v-if="expense.category === 'mentor_salary' && expense.status === 'paid' && expense.transferProofUrl"
+                                                @click="sendWhatsappToMentor(expense)"
+                                                class="px-4 py-2 rounded-xl border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-50 transition-all"
+                                            >
+                                                Kirim Bukti ke Mentor
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="bi bi-wallet2 text-3xl block mb-3"></i>
+                                            <div class="font-bold text-slate-500 mb-1">Belum ada expense request yang sesuai filter</div>
+                                            <div class="text-sm">Buat request baru atau ubah filter pencarian.</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <transition name="fade">
+                    <div v-if="showDrawer" class="drawer-backdrop" @click.self="closeDrawer">
+                        <div class="drawer-panel">
+                            <div class="flex items-start justify-between gap-4 mb-8">
+                                <div>
+                                    <div class="text-[11px] uppercase tracking-[0.18em] font-black text-indigo-500">{{ isEditMode ? 'Update Expense' : 'New Expense Request' }}</div>
+                                    <h3 class="text-2xl font-black text-slate-900 mt-2">{{ form.title || (isEditMode ? 'Expense Detail' : 'Create Request') }}</h3>
+                                    <p class="text-sm text-slate-500 mt-2 max-w-xl">Gunakan halaman ini untuk menyimpan request pengeluaran, detail rekening tujuan, notes penjelasan, dan bukti transfer.</p>
+                                </div>
+                                <button @click="closeDrawer" class="w-11 h-11 rounded-2xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition-all">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Request Information</div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Judul Pengeluaran</label>
+                                            <input v-model="form.title" type="text" class="field-control" placeholder="Contoh: Gaji Mentor FC Batch 12">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Kategori</label>
+                                            <select v-model="form.category" class="field-control">
+                                                <option value="mentor_salary">Mentor Salary</option>
+                                                <option value="operational">Operational</option>
+                                                <option value="reimburse">Reimburse</option>
+                                                <option value="tools">Tools</option>
+                                                <option value="transport">Transport</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Department</label>
+                                            <select v-model="form.department" class="field-control">
+                                                <option value="HR Division">HR Division</option>
+                                                <option value="Client & Product">Client & Product</option>
+                                                <option value="Marketing Division">Marketing Division</option>
+                                                <option value="Branding Division">Branding Division</option>
+                                                <option value="General">General</option>
+                                            </select>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Requester / PIC</label>
+                                            <div class="search-select">
+                                                <input
+                                                    v-model="requesterSearch"
+                                                    type="text"
+                                                    class="field-control"
+                                                    placeholder="Cari nama PIC, nickname, email, atau role"
+                                                    @focus="activeSearch = 'requester'"
+                                                    @input="handleRequesterInput"
+                                                    @blur="closeSearchLater"
+                                                >
+                                                <div v-if="activeSearch === 'requester'" class="search-select-list">
+                                                    <button
+                                                        v-for="option in filteredRequesterOptions"
+                                                        :key="option.id"
+                                                        type="button"
+                                                        class="search-select-item"
+                                                        @mousedown.prevent="selectRequester(option)"
+                                                    >
+                                                        <div class="text-sm font-bold text-slate-800">{{ option.name }}</div>
+                                                        <div class="text-[11px] text-slate-500">{{ option.meta }}</div>
+                                                    </button>
+                                                    <div v-if="!filteredRequesterOptions.length" class="search-select-empty">
+                                                        Tidak ada user yang cocok.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="field-help">Terhubung ke collection `users` agar PIC lebih konsisten.</div>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Due Date</label>
+                                            <input v-model="form.dueDate" type="date" class="field-control">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Amount (IDR)</label>
+                                            <input v-model="formattedAmount" type="text" inputmode="numeric" class="field-control" placeholder="1.250.000">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Status</label>
+                                            <select v-model="form.status" class="field-control">
+                                                <option value="requested">Requested</option>
+                                                <option value="reviewing">Reviewing</option>
+                                                <option value="paid">Paid</option>
+                                                <option value="complete">Complete</option>
+                                                <option value="rejected">Rejected</option>
+                                            </select>
+                                            <div class="field-help">Gunakan `paid` setelah bukti transfer dilampirkan, lalu `complete` setelah bukti dikirim ke mentor.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Category Detail</div>
+                                    <div v-if="form.category === 'mentor_salary'" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Related Class</label>
+                                            <div class="search-select">
+                                                <input
+                                                    v-model="classSearch"
+                                                    type="text"
+                                                    class="field-control"
+                                                    placeholder="Cari nama kelas"
+                                                    @focus="activeSearch = 'class'"
+                                                    @input="handleClassInput"
+                                                    @blur="closeSearchLater"
+                                                >
+                                                <div v-if="activeSearch === 'class'" class="search-select-list">
+                                                    <button
+                                                        v-for="option in filteredClassOptions"
+                                                        :key="option.id"
+                                                        type="button"
+                                                        class="search-select-item"
+                                                        @mousedown.prevent="selectClass(option)"
+                                                    >
+                                                        <div class="text-sm font-bold text-slate-800">{{ option.name }}</div>
+                                                    </button>
+                                                    <div v-if="!filteredClassOptions.length" class="search-select-empty">
+                                                        Tidak ada kelas yang cocok.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="field-help">Hanya muncul untuk kategori mentor salary.</div>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Mentor Name</label>
+                                            <div class="search-select">
+                                                <input
+                                                    v-model="mentorSearch"
+                                                    type="text"
+                                                    class="field-control"
+                                                    placeholder="Cari mentor"
+                                                    @focus="activeSearch = 'mentor'"
+                                                    @input="handleMentorInput"
+                                                    @blur="closeSearchLater"
+                                                >
+                                                <div v-if="activeSearch === 'mentor'" class="search-select-list">
+                                                    <button
+                                                        v-for="option in filteredMentorOptions"
+                                                        :key="option.id"
+                                                        type="button"
+                                                        class="search-select-item"
+                                                        @mousedown.prevent="selectMentor(option)"
+                                                    >
+                                                        <div class="text-sm font-bold text-slate-800">{{ option.name }}</div>
+                                                        <div class="text-[11px] text-slate-500">{{ option.meta }}</div>
+                                                    </button>
+                                                    <div v-if="!filteredMentorOptions.length" class="search-select-empty">
+                                                        Tidak ada mentor yang cocok.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="field-help">Saat mentor dipilih, rekening tujuan akan terisi otomatis dari collection `mentor`.</div>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Nomor WhatsApp Mentor</label>
+                                            <input v-model="form.mentorWhatsapp" type="text" class="field-control" readonly placeholder="Diambil otomatis dari collection mentor">
+                                            <div class="field-help">Nomor ini dipakai untuk mengirim bukti transfer setelah status paid.</div>
+                                        </div>
+                                    </div>
+
+                                    <div v-else-if="form.category === 'operational'" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Operational Item</label>
+                                            <input v-model="form.vendorName" type="text" class="field-control" placeholder="Contoh: Sewa venue / konsumsi / kebutuhan operasional">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Periode / Keperluan</label>
+                                            <input v-model="form.expensePeriod" type="text" class="field-control" placeholder="Contoh: April 2026 / event onboarding">
+                                        </div>
+                                    </div>
+
+                                    <div v-else-if="form.category === 'reimburse'" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Reimburse Type</label>
+                                            <input v-model="form.reimburseType" type="text" class="field-control" placeholder="Contoh: konsumsi, transport, ATK">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Reimburse For</label>
+                                            <input v-model="form.reimburseReason" type="text" class="field-control" placeholder="Contoh: meeting client / belanja tim">
+                                        </div>
+                                    </div>
+
+                                    <div v-else-if="form.category === 'tools'" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Tool / Platform</label>
+                                            <input v-model="form.toolName" type="text" class="field-control" placeholder="Contoh: Zoom Pro / Canva / Notion">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Billing Period</label>
+                                            <input v-model="form.billingPeriod" type="text" class="field-control" placeholder="Bulanan / Tahunan">
+                                        </div>
+                                    </div>
+
+                                    <div v-else-if="form.category === 'transport'" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Traveler / Penumpang</label>
+                                            <input v-model="form.travelerName" type="text" class="field-control" placeholder="Nama orang yang melakukan perjalanan">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Tanggal Perjalanan</label>
+                                            <input v-model="form.travelDate" type="date" class="field-control">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Rute / Detail Transport</label>
+                                            <input v-model="form.travelRoute" type="text" class="field-control" placeholder="Contoh: Jogja - Sleman PP / Grab ke venue">
+                                        </div>
+                                    </div>
+
+                                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Reference Label</label>
+                                            <input v-model="form.referenceLabel" type="text" class="field-control" placeholder="Kode referensi, vendor, atau label tambahan">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Additional Context</label>
+                                            <input v-model="form.referenceDetail" type="text" class="field-control" placeholder="Keterangan singkat tambahan">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Transfer Destination</div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Nama Penerima Rekening</label>
+                                            <input
+                                                v-model="form.beneficiaryName"
+                                                type="text"
+                                                class="field-control"
+                                                :class="{ 'field-readonly': isMentorSalary && !!form.mentorId }"
+                                                :readonly="isMentorSalary && !!form.mentorId"
+                                                placeholder="Nama pemilik rekening"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Bank</label>
+                                            <input
+                                                v-model="form.bankName"
+                                                type="text"
+                                                class="field-control"
+                                                :class="{ 'field-readonly': isMentorSalary && !!form.mentorId }"
+                                                :readonly="isMentorSalary && !!form.mentorId"
+                                                placeholder="BCA / BNI / Mandiri / dll"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Nomor Rekening</label>
+                                            <input
+                                                v-model="form.accountNumber"
+                                                type="text"
+                                                class="field-control mono"
+                                                :class="{ 'field-readonly': isMentorSalary && !!form.mentorId }"
+                                                :readonly="isMentorSalary && !!form.mentorId"
+                                                placeholder="1234567890"
+                                            >
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="field-label">Metode Pembayaran</label>
+                                            <input v-model="form.paymentMethod" type="text" class="field-control" placeholder="Transfer Bank / E-Wallet / Cash">
+                                            <div v-if="isMentorSalary && form.mentorId" class="field-help">Rekening tujuan mengikuti data mentor yang dipilih.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Context & Notes</div>
+                                    <div class="grid grid-cols-1 gap-5">
+                                        <div>
+                                            <label class="field-label">Notes / Penjelasan Request</label>
+                                            <textarea v-model="form.notes" rows="5" class="field-control" placeholder="Misalnya: Mentor mengajar 8 sesi, nominal sekian karena termasuk bonus evaluasi dan transport."></textarea>
+                                            <div class="field-help">Field ini berguna untuk menjelaskan kenapa nominal tertentu diajukan, terutama untuk gaji mentor per kelas.</div>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">Treasurer Note</label>
+                                            <textarea v-model="form.paymentNotes" rows="4" class="field-control" placeholder="Catatan dari treasurer saat review atau setelah membayar"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Supporting Document</div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Upload Nota / Dokumen Pendukung</label>
+                                            <input ref="reimburseProofInput" type="file" accept="image/*,.pdf" class="field-control !py-2 !bg-white">
+                                            <div class="field-help">Wajib untuk reimburse. Opsional untuk kategori lain.</div>
+                                        </div>
+                                        <div>
+                                            <div class="field-label">Preview Dokumen Saat Ini</div>
+                                            <div class="proof-preview">
+                                                <template v-if="form.reimburseProofUrl">
+                                                    <img v-if="isImageUrl(form.reimburseProofUrl)" :src="form.reimburseProofUrl" alt="Supporting Doc">
+                                                    <a v-else :href="form.reimburseProofUrl" target="_blank" class="text-sm font-bold text-blue-600 hover:text-blue-800">
+                                                        Buka Dokumen Pendukung
+                                                    </a>
+                                                </template>
+                                                <span v-else class="text-sm font-bold text-slate-300">Belum ada dokumen pendukung</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-panel">
+                                    <div class="text-sm font-black text-slate-900 mb-5">Transfer Proof</div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="field-label">Upload Bukti Transfer</label>
+                                            <input ref="proofFileInput" type="file" accept="image/*,.pdf" class="field-control !py-2 !bg-white">
+                                            <div class="field-help">Upload saat treasurer sudah melakukan transfer. File PDF dan gambar didukung.</div>
+                                        </div>
+                                        <div>
+                                            <div class="field-label">Preview Bukti Saat Ini</div>
+                                            <div class="proof-preview">
+                                                <template v-if="form.transferProofUrl">
+                                                    <img v-if="isImageUrl(form.transferProofUrl)" :src="form.transferProofUrl" alt="Proof">
+                                                    <a v-else :href="form.transferProofUrl" target="_blank" class="text-sm font-bold text-blue-600 hover:text-blue-800">
+                                                        Buka Bukti Transfer
+                                                    </a>
+                                                </template>
+                                                <span v-else class="text-sm font-bold text-slate-300">Belum ada bukti transfer</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col md:flex-row justify-between gap-3 mt-8">
+                                <div class="text-xs text-slate-400">
+                                    <span v-if="isEditMode">Expense ID: <span class="mono">{{ currentExpenseId }}</span></span>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button
+                                        v-if="isEditMode"
+                                        @click="deleteExpense"
+                                        :disabled="saving"
+                                        class="px-5 py-3 rounded-2xl border border-rose-200 text-rose-700 font-bold text-sm hover:bg-rose-50 transition-all disabled:opacity-60"
+                                    >
+                                        Hapus Data
+                                    </button>
+                                    <button @click="closeDrawer" class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition-all">
+                                        Cancel
+                                    </button>
+                                    <button @click="saveExpense" :disabled="saving" class="px-7 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-100 transition-all disabled:opacity-60">
+                                        {{ saving ? 'Saving...' : (isEditMode ? 'Update Expense' : 'Create Expense') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <transition name="fade">
+                    <div v-if="toast" class="fixed bottom-8 right-8 z-[130] px-5 py-3 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-2xl">
+                        {{ toast }}
+                    </div>
+                </transition>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { buildWhatsappDeepLink, normalizeWhatsappMessage, normalizeWhatsappNumber } from "../element/whatsapp-encoding.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeFirestore, collection, getDocs, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = initializeFirestore(firebaseApp, {
+            experimentalForceLongPolling: true,
+            useFetchStreams: false
+        });
+        const storage = getStorage(firebaseApp);
+
+        // ==========================================
+        // DISCORD WEBHOOK NOTIFICATION SYSTEM
+        // ==========================================
+        async function sendDiscordExpenseNotification(expenseData) {
+            const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1519571944364576809/hDYfs52OwPDvKcu_00WuL48PAcF0TKf_4BgDGu58vUXNmaVGkPg0w5aMoArM9OU02-ax";
+
+            try {
+                const formatCategory = (category) => {
+                    const map = {
+                        mentor_salary: 'Mentor Salary',
+                        operational: 'Operational',
+                        reimburse: 'Reimburse',
+                        tools: 'Tools',
+                        transport: 'Transport',
+                        other: 'Other'
+                    };
+                    return map[category] || category || 'Other';
+                };
+
+                const formattedAmount = typeof expenseData.amount === 'number'
+                    ? `Rp ${new Intl.NumberFormat('id-ID').format(expenseData.amount)}`
+                    : (expenseData.amount ? `Rp ${expenseData.amount}` : '-');
+
+                const fields = [
+                    { name: "👤 Pengaju", value: expenseData.requesterName || "-", inline: true },
+                    { name: "📋 Judul", value: expenseData.title || "-", inline: true },
+                    { name: "📂 Kategori", value: formatCategory(expenseData.category) || "-", inline: true },
+                    { name: "🏢 Department", value: expenseData.department || "-", inline: true },
+                    { name: "💰 Nominal", value: formattedAmount, inline: true },
+                    { name: "👥 Penerima", value: expenseData.beneficiaryName || "-", inline: true },
+                    { name: "🏦 Bank", value: expenseData.bankName || "-", inline: true },
+                    { name: "💳 Rekening", value: expenseData.accountNumber || "-", inline: true },
+                    { name: "💸 Metode Pembayaran", value: expenseData.paymentMethod || "-", inline: true },
+                    { name: "🎓 Kelas Terkait", value: expenseData.relatedClass || "-", inline: true },
+                    { name: "📅 Due Date", value: expenseData.dueDate || "-", inline: true },
+                    { name: "📌 Status", value: expenseData.status || "-", inline: true },
+                    { name: "📝 Catatan", value: expenseData.notes || "-", inline: false }
+                ];
+
+                if (expenseData.transferProofUrl) {
+                    fields.push({
+                        name: "📎 Bukti Transfer",
+                        value: expenseData.transferProofUrl,
+                        inline: false
+                    });
+                }
+
+                let timestamp;
+                if (expenseData.createdAt) {
+                    if (typeof expenseData.createdAt.toDate === 'function') {
+                        timestamp = expenseData.createdAt.toDate().toISOString();
+                    } else if (expenseData.createdAt instanceof Date) {
+                        timestamp = expenseData.createdAt.toISOString();
+                    } else if (typeof expenseData.createdAt === 'string') {
+                        timestamp = new Date(expenseData.createdAt).toISOString();
+                    }
+                }
+                if (!timestamp && expenseData.createdAtMs) {
+                    timestamp = new Date(expenseData.createdAtMs).toISOString();
+                }
+                if (!timestamp) {
+                    timestamp = new Date().toISOString();
+                }
+
+                const embed = {
+                    title: "💰 Operational Expense Baru",
+                    description: "Operasional baru telah ditambahkan ke sistem Dialogika.",
+                    color: 5195253, // #4f46e5 (Indigo)
+                    fields: fields,
+                    footer: {
+                        text: "Dialogika Operational Expenses System"
+                    },
+                    timestamp: timestamp
+                };
+
+                if (expenseData.transferProofUrl) {
+                    embed.image = {
+                        url: expenseData.transferProofUrl
+                    };
+                }
+
+                const payload = {
+                    embeds: [embed]
+                };
+
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Failed to send Discord notification:', error);
+            }
+        }
+
+        // Export to window for global reusability
+        window.sendDiscordExpenseNotification = sendDiscordExpenseNotification;
+
+        // DISCORD WEBHOOK NOTIFICATION SYSTEM (PAID)
+        // ==========================================
+        async function sendDiscordPaidNotification(expenseData) {
+            const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1519571944364576809/hDYfs52OwPDvKcu_00WuL48PAcF0TKf_4BgDGu58vUXNmaVGkPg0w5aMoArM9OU02-ax";
+
+            try {
+                const formatCategory = (category) => {
+                    const map = {
+                        mentor_salary: 'Mentor Salary',
+                        operational: 'Operational',
+                        reimburse: 'Reimburse',
+                        tools: 'Tools',
+                        transport: 'Transport',
+                        other: 'Other'
+                    };
+                    return map[category] || category || 'Other';
+                };
+
+                const formattedAmount = typeof expenseData.amount === 'number'
+                    ? `Rp ${new Intl.NumberFormat('id-ID').format(expenseData.amount)}`
+                    : (expenseData.amount ? `Rp ${expenseData.amount}` : '-');
+
+                const fields = [
+                    { name: "👤 Pengaju", value: expenseData.requesterName || "-", inline: true },
+                    { name: "📋 Judul", value: expenseData.title || "-", inline: true },
+                    { name: "📂 Kategori", value: formatCategory(expenseData.category) || "-", inline: true },
+                    { name: "💰 Nominal", value: formattedAmount, inline: true },
+                    { name: "👥 Penerima", value: expenseData.beneficiaryName || "-", inline: true },
+                    { name: "📌 Status", value: expenseData.status ? expenseData.status.toUpperCase() : "-", inline: true },
+                ];
+
+                if (expenseData.paymentNotes) {
+                    fields.push({ name: "📝 Catatan Pembayaran", value: expenseData.paymentNotes, inline: false });
+                }
+
+                let timestamp;
+                if (expenseData.paidAtMs) {
+                    timestamp = new Date(expenseData.paidAtMs).toISOString();
+                } else if (expenseData.updatedAtMs) {
+                    timestamp = new Date(expenseData.updatedAtMs).toISOString();
+                } else {
+                    timestamp = new Date().toISOString();
+                }
+                
+                const embed = {
+                    title: "✅ Expense Dibayarkan",
+                    description: `Request expense **${expenseData.title}** telah dibayarkan.`,
+                    color: 3581519, // #36b37f (Green)
+                    fields: fields,
+                    footer: {
+                        text: "Dialogika Operational Expenses System"
+                    },
+                    timestamp: timestamp
+                };
+
+                if (expenseData.transferProofUrl) {
+                    embed.image = {
+                        url: expenseData.transferProofUrl
+                    };
+                }
+
+                const payload = {
+                    embeds: [embed]
+                };
+
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Failed to send Discord paid notification:', error);
+            }
+        }
+
+        // Export to window for global reusability
+        window.sendDiscordPaidNotification = sendDiscordPaidNotification;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const expenses = ref([]);
+                const searchQuery = ref('');
+                const filterStatus = ref('all');
+                const filterCategory = ref('all');
+                const filterDate = ref('');
+                const filterDateStart = ref('');
+                const filterDateEnd = ref('');
+                
+                watch(filterStatus, (newVal) => {
+                    if (newVal === 'overdue') {
+                        searchQuery.value = '';
+                        filterCategory.value = 'all';
+                        filterDate.value = '';
+                        filterDateStart.value = '';
+                        filterDateEnd.value = '';
+                    }
+                });
+
+                const dateAnchor = ref(new Date());
+                const sortKey = ref('');
+                const sortDirection = ref('asc');
+                const showDrawer = ref(false);
+                const isEditMode = ref(false);
+                const saving = ref(false);
+                const toast = ref(null);
+                const currentExpenseId = ref('');
+                const previousStatus = ref('');
+                const proofFileInput = ref(null);
+                const reimburseProofInput = ref(null);
+                const form = ref({});
+                const requesterOptions = ref([]);
+                const mentorOptions = ref([]);
+                const classOptions = ref([]);
+                const requesterSearch = ref('');
+                const mentorSearch = ref('');
+                const classSearch = ref('');
+                const activeSearch = ref('');
+                let fallbackUsed = false;
+
+                const createEmptyForm = () => ({
+                    title: '',
+                    category: 'mentor_salary',
+                    department: 'HR Division',
+                    requesterId: '',
+                    requesterName: '',
+                    classId: '',
+                    relatedClass: '',
+                    mentorId: '',
+                    mentorName: '',
+                    dueDate: '',
+                    amount: 0,
+                    status: 'requested',
+                    beneficiaryName: '',
+                    bankName: '',
+                    accountNumber: '',
+                    paymentMethod: 'Transfer Bank',
+                    transferProofUrl: '',
+                    transferProofPath: '',
+                    mentorWhatsapp: '',
+                    whatsappMessage: '',
+                    whatsappLink: '',
+                    notes: '',
+                    paymentNotes: '',
+                    vendorName: '',
+                    expensePeriod: '',
+                    reimburseType: '',
+                    reimburseReason: '',
+                    reimburseProofUrl: '',
+                    reimburseProofPath: '',
+                    toolName: '',
+                    billingPeriod: '',
+                    travelerName: '',
+                    travelDate: '',
+                    travelRoute: '',
+                    referenceLabel: '',
+                    referenceDetail: ''
+                });
+
+                const withTimeout = (promise, ms) => Promise.race([
+                    promise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore request timeout')), ms))
+                ]);
+
+                const getStartOfDay = (value) => {
+                    const d = value instanceof Date ? value : new Date(value);
+                    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                };
+
+                const formatIsoDate = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+
+                if (!filterDate.value) {
+                    filterDate.value = formatIsoDate(dateAnchor.value);
+                }
+
+                const addDays = (date, amount) => {
+                    const d = new Date(date);
+                    d.setDate(d.getDate() + amount);
+                    return d;
+                };
+
+                const dateWindow = computed(() => {
+                    const base = getStartOfDay(dateAnchor.value);
+                    const days = [];
+                    for (let offset = -2; offset <= 2; offset += 1) {
+                        const day = addDays(base, offset);
+                        days.push({
+                            date: day,
+                            iso: formatIsoDate(day),
+                            label: String(day.getDate())
+                        });
+                    }
+                    return days;
+                });
+
+                const selectDate = (isoDate) => {
+                    filterDate.value = filterDate.value === isoDate ? '' : isoDate;
+                    filterDateStart.value = '';
+                    filterDateEnd.value = '';
+                };
+
+                const shiftDateWindow = (days) => {
+                    dateAnchor.value = addDays(dateAnchor.value, days);
+                };
+
+                const clearDateFilter = () => {
+                    filterDate.value = '';
+                    filterDateStart.value = '';
+                    filterDateEnd.value = '';
+                };
+
+                const mapExpenseDoc = (id, d) => ({
+                    id,
+                    title: d.title || '',
+                    category: d.category || 'other',
+                    department: d.department || 'General',
+                    requesterId: d.requesterId || '',
+                    requesterName: d.requesterName || '',
+                    classId: d.classId || '',
+                    relatedClass: d.relatedClass || '',
+                    mentorId: d.mentorId || '',
+                    mentorName: d.mentorName || '',
+                    dueDate: d.dueDate || '',
+                    amount: typeof d.amount === 'number' ? d.amount : 0,
+                    status: d.status || 'requested',
+                    beneficiaryName: d.beneficiaryName || '',
+                    bankName: d.bankName || '',
+                    accountNumber: d.accountNumber || '',
+                    paymentMethod: d.paymentMethod || 'Transfer Bank',
+                    transferProofUrl: d.transferProofUrl || '',
+                    transferProofPath: d.transferProofPath || '',
+                    mentorWhatsapp: d.mentorWhatsapp || '',
+                    whatsappMessage: d.whatsappMessage || '',
+                    whatsappLink: d.whatsappLink || '',
+                    notes: d.notes || '',
+                    paymentNotes: d.paymentNotes || '',
+                    vendorName: d.vendorName || '',
+                    expensePeriod: d.expensePeriod || '',
+                    reimburseType: d.reimburseType || '',
+                    reimburseReason: d.reimburseReason || '',
+                    reimburseProofUrl: d.reimburseProofUrl || '',
+                    reimburseProofPath: d.reimburseProofPath || '',
+                    toolName: d.toolName || '',
+                    billingPeriod: d.billingPeriod || '',
+                    travelerName: d.travelerName || '',
+                    travelDate: d.travelDate || '',
+                    travelRoute: d.travelRoute || '',
+                    referenceLabel: d.referenceLabel || '',
+                    referenceDetail: d.referenceDetail || '',
+                    paidAtMs: typeof d.paidAtMs === 'number' ? d.paidAtMs : 0,
+                    createdAtMs: typeof d.createdAtMs === 'number' ? d.createdAtMs : 0,
+                    updatedAtMs: typeof d.updatedAtMs === 'number' ? d.updatedAtMs : 0
+                });
+
+                const isMentorSalary = computed(() => form.value.category === 'mentor_salary');
+
+                const closeSearchLater = () => {
+                    setTimeout(() => {
+                        activeSearch.value = '';
+                    }, 120);
+                };
+
+                const normalizeText = (value) => String(value || '').trim().toLowerCase();
+
+                const compareText = (a, b) => String(a || '').localeCompare(String(b || ''), 'id', { sensitivity: 'base' });
+
+                const toggleSort = (key) => {
+                    if (sortKey.value !== key) {
+                        sortKey.value = key;
+                        sortDirection.value = 'asc';
+                        return;
+                    }
+                    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+                };
+
+                const sortIcon = (key) => {
+                    if (sortKey.value !== key) return 'bi bi-arrow-down-up';
+                    return sortDirection.value === 'asc' ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+                };
+
+                const sortIconClass = (key) => (sortKey.value === key ? 'sort-icon is-active' : 'sort-icon');
+
+                const sortAria = (key) => {
+                    if (sortKey.value !== key) return 'none';
+                    return sortDirection.value === 'asc' ? 'ascending' : 'descending';
+                };
+
+                const firstFilled = (...values) => {
+                    for (const value of values) {
+                        if (String(value || '').trim()) {
+                            return String(value || '').trim();
+                        }
+                    }
+                    return '';
+                };
+
+                const extractMentorWhatsapp = (data) => firstFilled(
+                    data.whatsappNumber,
+                    data.whatsapp,
+                    data.whatsApp,
+                    data.phone,
+                    data.no_wa,
+                    data.noWa,
+                    data.no_hp,
+                    data.noHp,
+                    data.nomorHp,
+                    data.nomor_hp,
+                    data.telepon
+                );
+
+                const buildMentorWhatsappMessage = ({ mentorName, className, proofUrl }) => {
+                    const safeProofUrl = String(proofUrl || '').trim();
+                    const lines = [
+                        `Halo Kak ${mentorName || '-'},`,
+                        '',
+                        `Kami ingin menginformasikan bahwa gaji mentor untuk kelas ${className || '-'} sudah kami transfer.`,
+                        '',
+                        'Silakan dicek kembali rekeningnya. Terima kasih atas kontribusi dan dedikasinya dalam membimbing kelas'
+                    ];
+                    if (safeProofUrl) {
+                        lines.push('', 'Bukti transfer:', safeProofUrl);
+                    }
+                    return normalizeWhatsappMessage(lines.join('\n'));
+                };
+
+                const buildMentorWhatsappPayload = ({ mentorName, className, proofUrl, phoneNumber }) => {
+                    const normalizedPhone = normalizeWhatsappNumber(phoneNumber);
+                    const message = buildMentorWhatsappMessage({ mentorName, className, proofUrl });
+                    return {
+                        phoneNumber: normalizedPhone,
+                        message,
+                        link: normalizedPhone ? buildWhatsappDeepLink(normalizedPhone, message) : ''
+                    };
+                };
+
+                const extractMentorBankInfo = (data) => ({
+                    beneficiaryName: firstFilled(
+                        data.beneficiaryName,
+                        data.accountHolderName,
+                        data.accountName,
+                        data.namaPemilikRekening,
+                        data.nama_rekening,
+                        data.namaRekening,
+                        data.fullName,
+                        data.nama_lengkap,
+                        data.name
+                    ),
+                    bankName: firstFilled(
+                        data.bankName,
+                        data.bank,
+                        data.namaBank,
+                        data.bank_name,
+                        data.rekeningBank,
+                        data.bankAccountBank
+                    ),
+                    accountNumber: firstFilled(
+                        data.accountNumber,
+                        data.noRekening,
+                        data.no_rekening,
+                        data.nomorRekening,
+                        data.nomor_rekening,
+                        data.account_number
+                    )
+                });
+
+                const autoFillMentorBankInfo = async (mentorId, mentorName) => {
+                    try {
+                        let mentorData = null;
+                        if (mentorId) {
+                            const found = mentorOptions.value.find(m => m.id === mentorId);
+                            if (found && found.bankInfo) {
+                                mentorData = found.bankInfo;
+                            }
+                        }
+                        if (!mentorData && mentorName) {
+                            const nameNorm = normalizeText(mentorName);
+                            const found = mentorOptions.value.find(m => normalizeText(m.name) === nameNorm);
+                            if (found && found.bankInfo) {
+                                mentorData = found.bankInfo;
+                                if (!form.value.mentorId) form.value.mentorId = found.id;
+                            }
+                        }
+                        if (mentorData && (mentorData.bankName || mentorData.accountNumber)) {
+                            form.value.beneficiaryName = form.value.beneficiaryName || mentorData.beneficiaryName || '';
+                            form.value.bankName = mentorData.bankName || '';
+                            form.value.accountNumber = mentorData.accountNumber || '';
+                        }
+                    } catch (e) {
+                        console.warn('[OperationalExpenses] Gagal auto-fill bank info mentor:', e);
+                    }
+                };
+
+                const loadRequesterOptions = async () => {
+                    try {
+                        const snap = await withTimeout(getDocs(collection(db, 'users')), 8000);
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            const d = docSnap.data() || {};
+                            const name = firstFilled(d.name, d.nickname, d.username, d.userName, d.email, docSnap.id);
+                            const nickname = firstFilled(d.nickname, d.username, d.userName);
+                            const email = firstFilled(d.email);
+                            const role = firstFilled(d.role, d.position);
+                            const metaParts = [nickname, email, role].filter(Boolean);
+                            list.push({
+                                id: docSnap.id,
+                                name,
+                                meta: metaParts.join(' • '),
+                                search: [name, nickname, email, role].filter(Boolean).join(' ').toLowerCase()
+                            });
+                        });
+                        requesterOptions.value = list.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal memuat users', error);
+                        requesterOptions.value = [];
+                    }
+                };
+
+                const loadMentorOptions = async () => {
+                    try {
+                        const snap = await withTimeout(getDocs(collection(db, 'mentor')), 8000);
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            const d = docSnap.data() || {};
+                            const name = firstFilled(d.fullName, d.nama_lengkap, d.name, d.displayName, docSnap.id);
+                            const bankInfo = extractMentorBankInfo(d);
+                            const metaParts = [bankInfo.bankName, bankInfo.accountNumber].filter(Boolean);
+                            list.push({
+                                id: docSnap.id,
+                                name,
+                                meta: metaParts.length ? metaParts.join(' • ') : 'Data rekening mentor belum lengkap',
+                                bankInfo,
+                                whatsapp: extractMentorWhatsapp(d),
+                                whatsappNumber: normalizeWhatsappNumber(extractMentorWhatsapp(d)),
+                                search: [name, bankInfo.bankName, bankInfo.accountNumber].filter(Boolean).join(' ').toLowerCase()
+                            });
+                        });
+                        mentorOptions.value = list.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal memuat mentor', error);
+                        mentorOptions.value = [];
+                    }
+                };
+
+                const loadClassOptions = async () => {
+                    try {
+                        const snap = await withTimeout(getDocs(collection(db, 'class_availability')), 8000);
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            const d = docSnap.data() || {};
+                            const name = firstFilled(d.name, d.className, d.title, docSnap.id);
+                            list.push({
+                                id: docSnap.id,
+                                name,
+                                search: name.toLowerCase()
+                            });
+                        });
+                        classOptions.value = list.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal memuat class', error);
+                        classOptions.value = [];
+                    }
+                };
+
+                const filteredRequesterOptions = computed(() => {
+                    const q = normalizeText(requesterSearch.value);
+                    return requesterOptions.value
+                        .filter((item) => !q || item.search.includes(q))
+                        .slice(0, 8);
+                });
+
+                const filteredMentorOptions = computed(() => {
+                    const q = normalizeText(mentorSearch.value);
+                    return mentorOptions.value
+                        .filter((item) => !q || item.search.includes(q))
+                        .slice(0, 8);
+                });
+
+                const filteredClassOptions = computed(() => {
+                    const q = normalizeText(classSearch.value);
+                    return classOptions.value
+                        .filter((item) => !q || item.search.includes(q))
+                        .slice(0, 8);
+                });
+
+                const selectRequester = (option) => {
+                    form.value.requesterId = option.id;
+                    form.value.requesterName = option.name;
+                    requesterSearch.value = option.name;
+                    activeSearch.value = '';
+                };
+
+                const selectMentor = (option) => {
+                    form.value.mentorId = option.id;
+                    form.value.mentorName = option.name;
+                    form.value.mentorWhatsapp = option.whatsappNumber || normalizeWhatsappNumber(option.whatsapp || '') || option.whatsapp || '';
+                    mentorSearch.value = option.name;
+                    form.value.beneficiaryName = option.bankInfo.beneficiaryName || option.name;
+                    form.value.bankName = option.bankInfo.bankName || '';
+                    form.value.accountNumber = option.bankInfo.accountNumber || '';
+                    activeSearch.value = '';
+                };
+
+                const selectClass = (option) => {
+                    form.value.classId = option.id;
+                    form.value.relatedClass = option.name;
+                    classSearch.value = option.name;
+                    activeSearch.value = '';
+                };
+
+                const handleRequesterInput = () => {
+                    form.value.requesterName = requesterSearch.value;
+                    form.value.requesterId = '';
+                    activeSearch.value = 'requester';
+                };
+
+                const handleMentorInput = () => {
+                    form.value.mentorName = mentorSearch.value;
+                    form.value.mentorId = '';
+                    if (isMentorSalary.value) {
+                        form.value.beneficiaryName = '';
+                        form.value.bankName = '';
+                        form.value.accountNumber = '';
+                    }
+                    activeSearch.value = 'mentor';
+                };
+
+                const handleClassInput = () => {
+                    form.value.relatedClass = classSearch.value;
+                    form.value.classId = '';
+                    activeSearch.value = 'class';
+                };
+
+                const syncSearchInputsFromForm = () => {
+                    requesterSearch.value = form.value.requesterName || '';
+                    mentorSearch.value = form.value.mentorName || '';
+                    classSearch.value = form.value.relatedClass || '';
+                };
+
+                const clearCategorySpecificFields = (category) => {
+                    if (category !== 'mentor_salary') {
+                        form.value.classId = '';
+                        form.value.relatedClass = '';
+                        form.value.mentorId = '';
+                        form.value.mentorName = '';
+                        classSearch.value = '';
+                        mentorSearch.value = '';
+                    }
+                    if (category !== 'operational') {
+                        form.value.vendorName = '';
+                        form.value.expensePeriod = '';
+                    }
+                    if (category !== 'reimburse') {
+                        form.value.reimburseType = '';
+                        form.value.reimburseReason = '';
+                    }
+                    if (category !== 'tools') {
+                        form.value.toolName = '';
+                        form.value.billingPeriod = '';
+                    }
+                    if (category !== 'transport') {
+                        form.value.travelerName = '';
+                        form.value.travelDate = '';
+                        form.value.travelRoute = '';
+                    }
+                    if (category !== 'other') {
+                        form.value.referenceLabel = '';
+                        form.value.referenceDetail = '';
+                    }
+                };
+
+                const useFallbackData = () => {
+                    if (fallbackUsed) return;
+                    fallbackUsed = true;
+                    expenses.value = [
+                        {
+                            id: 'OPS-DEMO-001',
+                            title: 'Gaji Mentor First Class Batch 12',
+                            category: 'mentor_salary',
+                            department: 'Client & Product',
+                            requesterName: 'Admin Kelas FC',
+                            relatedClass: 'First Class Batch 12',
+                            mentorName: 'Nadia Prameswari',
+                            dueDate: '2026-04-20',
+                            amount: 950000,
+                            status: 'requested',
+                            beneficiaryName: 'Nadia Prameswari',
+                            bankName: 'BCA',
+                            accountNumber: '1234567890',
+                            paymentMethod: 'Transfer Bank',
+                            transferProofUrl: '',
+                            mentorWhatsapp: '6281234567890',
+                            whatsappMessage: '',
+                            whatsappLink: '',
+                            notes: 'Nominal termasuk 8 sesi mengajar, 1 sesi evaluasi tambahan, dan kompensasi revisi materi.',
+                            paymentNotes: '',
+                            paidAtMs: 0,
+                            createdAtMs: Date.now() - 86400000,
+                            updatedAtMs: Date.now() - 86400000
+                        },
+                        {
+                            id: 'OPS-DEMO-002',
+                            title: 'Reimburse Zoom Pro Team',
+                            category: 'operational',
+                            department: 'HR Division',
+                            requesterName: 'Laras Finance Admin',
+                            relatedClass: '',
+                            mentorName: '',
+                            dueDate: '2026-04-18',
+                            amount: 289000,
+                            status: 'reviewing',
+                            beneficiaryName: 'PT Dialogika Persada',
+                            bankName: 'Mandiri',
+                            accountNumber: '9988776655',
+                            paymentMethod: 'Transfer Bank',
+                            transferProofUrl: '',
+                            mentorWhatsapp: '',
+                            whatsappMessage: '',
+                            whatsappLink: '',
+                            notes: 'Pembayaran langganan bulanan Zoom Pro untuk meeting internal dan interview.',
+                            paymentNotes: 'Menunggu approval final dari treasurer.',
+                            paidAtMs: 0,
+                            createdAtMs: Date.now() - 172800000,
+                            updatedAtMs: Date.now() - 3600000
+                        },
+                        {
+                            id: 'OPS-DEMO-003',
+                            title: 'Transport Mentor Kids Play',
+                            category: 'transport',
+                            department: 'Client & Product',
+                            requesterName: 'Admin KP',
+                            relatedClass: 'Kids Play Batch 03',
+                            mentorName: 'Raka Mahendra',
+                            dueDate: '2026-04-16',
+                            amount: 150000,
+                            status: 'paid',
+                            beneficiaryName: 'Raka Mahendra',
+                            bankName: 'BNI',
+                            accountNumber: '4455667788',
+                            paymentMethod: 'Transfer Bank',
+                            transferProofUrl: 'https://example.com/proof-demo.jpg',
+                            mentorWhatsapp: '6289988877766',
+                            whatsappMessage: '',
+                            whatsappLink: '',
+                            notes: 'Transport offline untuk 3 pertemuan di lokasi mitra.',
+                            paymentNotes: 'Sudah dibayar tanggal 15 April 2026.',
+                            paidAtMs: Date.now() - 7200000,
+                            createdAtMs: Date.now() - 259200000,
+                            updatedAtMs: Date.now() - 7200000
+                        }
+                    ];
+                };
+
+                const loadExpenses = async () => {
+                    try {
+                        const q = query(collection(db, 'operational_expenses'), orderBy('updatedAtMs', 'desc'));
+                        const snap = await withTimeout(getDocs(q), 8000);
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            list.push(mapExpenseDoc(docSnap.id, docSnap.data() || {}));
+                        });
+                        expenses.value = list;
+                        if (!list.length) {
+                            console.warn('[OperationalExpenses] Collection kosong, menggunakan state kosong.');
+                        }
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal memuat data', error);
+                        useFallbackData();
+                    }
+                };
+
+                const formatCurrency = (value) => new Intl.NumberFormat('id-ID').format(Number(value || 0));
+
+                const formatDateLabel = (dateValue) => {
+                    if (!dateValue) return '-';
+                    const d = new Date(dateValue);
+                    if (Number.isNaN(d.getTime())) return '-';
+                    return new Intl.DateTimeFormat('id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                    }).format(d);
+                };
+
+                const formatDateTimeLabel = (timestamp) => {
+                    if (!timestamp) return '-';
+                    const d = new Date(timestamp);
+                    if (Number.isNaN(d.getTime())) return '-';
+                    return new Intl.DateTimeFormat('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).format(d);
+                };
+
+                const formatCategory = (category) => {
+                    const map = {
+                        mentor_salary: 'Mentor Salary',
+                        operational: 'Operational',
+                        reimburse: 'Reimburse',
+                        tools: 'Tools',
+                        transport: 'Transport',
+                        other: 'Other'
+                    };
+                    return map[category] || category || 'Other';
+                };
+
+                const displayStatus = (expense) => {
+                    const normalized = String(expense.status || '').toLowerCase();
+                    if (['paid', 'complete', 'rejected'].includes(normalized)) {
+                        return expense.status;
+                    }
+                    if (expense.dueDate) {
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
+                        const due = new Date(expense.dueDate);
+                        due.setHours(0,0,0,0);
+                        if (due < today) {
+                            return 'overdue';
+                        }
+                    }
+                    return expense.status;
+                };
+
+                const statusBadgeClass = (status) => {
+                    const normalized = String(status || '').toLowerCase();
+                    if (normalized === 'overdue') return 'status-overdue';
+                    if (normalized === 'paid') return 'status-paid';
+                    if (normalized === 'complete') return 'status-whatsapp';
+                    if (normalized === 'reviewing') return 'status-reviewing';
+                    if (normalized === 'rejected') return 'status-rejected';
+                    return 'status-requested';
+                };
+
+                const isImageUrl = (url) => /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(String(url || ''));
+
+                const sorters = {
+                    request: (a, b) => compareText(normalizeText(a.title || a.requesterName || a.id), normalizeText(b.title || b.requesterName || b.id)),
+                    destination: (a, b) => compareText(normalizeText(a.beneficiaryName || a.bankName || a.accountNumber), normalizeText(b.beneficiaryName || b.bankName || b.accountNumber)),
+                    amount: (a, b) => {
+                        const diff = (Number(a.amount) || 0) - (Number(b.amount) || 0);
+                        if (diff) return diff;
+                        return compareText(String(a.dueDate || ''), String(b.dueDate || ''));
+                    },
+                    notes: (a, b) => compareText(normalizeText(a.notes || a.paymentNotes || ''), normalizeText(b.notes || b.paymentNotes || '')),
+                    status: (a, b) => compareText(normalizeText(a.status || ''), normalizeText(b.status || ''))
+                };
+
+                const filteredExpenses = computed(() => {
+                    const q = searchQuery.value.trim().toLowerCase();
+                    const filtered = expenses.value.filter((expense) => {
+                        const currentStatus = displayStatus(expense);
+                        const matchStatus = filterStatus.value === 'all' || currentStatus === filterStatus.value;
+                        const matchCategory = filterCategory.value === 'all' || expense.category === filterCategory.value;
+                        const dueDate = String(expense.dueDate || '').slice(0, 10);
+                        const hasRange = !!(filterDateStart.value || filterDateEnd.value);
+                        const matchRange = !hasRange || (!!dueDate
+                            && (!filterDateStart.value || dueDate >= filterDateStart.value)
+                            && (!filterDateEnd.value || dueDate <= filterDateEnd.value));
+                        const matchDate = (!filterDate.value || dueDate === filterDate.value) && matchRange;
+                        const matchQuery = !q || [
+                            expense.title,
+                            expense.requesterName,
+                            expense.relatedClass,
+                            expense.mentorName,
+                            expense.bankName,
+                            expense.accountNumber,
+                            expense.beneficiaryName,
+                            expense.notes,
+                            expense.paymentNotes,
+                            expense.vendorName,
+                            expense.expensePeriod,
+                            expense.reimburseType,
+                            expense.reimburseReason,
+                            expense.toolName,
+                            expense.billingPeriod,
+                            expense.travelerName,
+                            expense.travelDate,
+                            expense.travelRoute,
+                            expense.referenceLabel,
+                            expense.referenceDetail
+                        ].some((field) => String(field || '').toLowerCase().includes(q));
+                        return matchStatus && matchCategory && matchDate && matchQuery;
+                    });
+                    if (!sortKey.value || !sorters[sortKey.value]) {
+                        return filtered;
+                    }
+                    const sorted = [...filtered].sort(sorters[sortKey.value]);
+                    if (sortDirection.value === 'desc') {
+                        sorted.reverse();
+                    }
+                    return sorted;
+                });
+
+                const stats = computed(() => {
+                    const pending = expenses.value.filter((item) => {
+                        const stat = displayStatus(item);
+                        return stat === 'requested' || stat === 'reviewing';
+                    }).length;
+                    const overdue = expenses.value.filter((item) => displayStatus(item) === 'overdue').length;
+                    const paid = expenses.value.filter((item) => item.status === 'paid' || item.status === 'complete').length;
+                    const amount = expenses.value.reduce((total, item) => total + (Number(item.amount) || 0), 0);
+                    return {
+                        total: expenses.value.length,
+                        pending,
+                        overdue,
+                        paid,
+                        amount
+                    };
+                });
+
+                const formattedAmount = computed({
+                    get() {
+                        const raw = Number(form.value.amount || 0);
+                        return raw ? formatCurrency(raw) : '';
+                    },
+                    set(value) {
+                        const digits = String(value || '').replace(/[^\d]/g, '');
+                        form.value.amount = digits ? parseInt(digits, 10) : 0;
+                    }
+                });
+
+                const showToast = (message) => {
+                    toast.value = message;
+                    setTimeout(() => {
+                        toast.value = null;
+                    }, 3200);
+                };
+
+                const openCreateDrawer = () => {
+                    isEditMode.value = false;
+                    currentExpenseId.value = '';
+                    form.value = createEmptyForm();
+                    syncSearchInputsFromForm();
+                    showDrawer.value = true;
+                };
+
+                const openEditDrawer = (expense) => {
+                    isEditMode.value = true;
+                    currentExpenseId.value = expense.id;
+                    previousStatus.value = expense.status;
+                    let fallbackMentorWhatsapp = expense.mentorWhatsapp || '';
+                    if (!normalizeWhatsappNumber(fallbackMentorWhatsapp) && expense.mentorId) {
+                        const mentorById = mentorOptions.value.find((item) => item.id === expense.mentorId);
+                        fallbackMentorWhatsapp = mentorById?.whatsappNumber || mentorById?.whatsapp || fallbackMentorWhatsapp;
+                    }
+                    if (!normalizeWhatsappNumber(fallbackMentorWhatsapp) && expense.mentorName) {
+                        const mentorByName = mentorOptions.value.find((item) => normalizeText(item.name) === normalizeText(expense.mentorName));
+                        fallbackMentorWhatsapp = mentorByName?.whatsappNumber || mentorByName?.whatsapp || fallbackMentorWhatsapp;
+                    }
+                    form.value = {
+                        title: expense.title || '',
+                        category: expense.category || 'other',
+                        department: expense.department || 'General',
+                        requesterId: expense.requesterId || '',
+                        requesterName: expense.requesterName || '',
+                        classId: expense.classId || '',
+                        relatedClass: expense.relatedClass || '',
+                        mentorId: expense.mentorId || '',
+                        mentorName: expense.mentorName || '',
+                        dueDate: expense.dueDate || '',
+                        amount: Number(expense.amount || 0),
+                        status: expense.status || 'requested',
+                        beneficiaryName: expense.beneficiaryName || '',
+                        bankName: expense.bankName || '',
+                        accountNumber: expense.accountNumber || '',
+                        paymentMethod: expense.paymentMethod || 'Transfer Bank',
+                        transferProofUrl: expense.transferProofUrl || '',
+                        transferProofPath: expense.transferProofPath || '',
+                        mentorWhatsapp: normalizeWhatsappNumber(fallbackMentorWhatsapp) || fallbackMentorWhatsapp || '',
+                        whatsappMessage: expense.whatsappMessage || '',
+                        whatsappLink: expense.whatsappLink || '',
+                        notes: expense.notes || '',
+                        paymentNotes: expense.paymentNotes || '',
+                        vendorName: expense.vendorName || '',
+                        expensePeriod: expense.expensePeriod || '',
+                        reimburseType: expense.reimburseType || '',
+                        reimburseReason: expense.reimburseReason || '',
+                        reimburseProofUrl: expense.reimburseProofUrl || '',
+                        reimburseProofPath: expense.reimburseProofPath || '',
+                        toolName: expense.toolName || '',
+                        billingPeriod: expense.billingPeriod || '',
+                        travelerName: expense.travelerName || '',
+                        travelDate: expense.travelDate || '',
+                        travelRoute: expense.travelRoute || '',
+                        referenceLabel: expense.referenceLabel || '',
+                        referenceDetail: expense.referenceDetail || ''
+                    };
+                    syncSearchInputsFromForm();
+                    if (expense.category === 'mentor_salary') {
+                        const hasBankInfo = !!(expense.bankName && expense.accountNumber);
+                        if (!hasBankInfo) {
+                            autoFillMentorBankInfo(expense.mentorId, expense.mentorName);
+                        }
+                    }
+                    showDrawer.value = true;
+                };
+
+                const closeDrawer = () => {
+                    showDrawer.value = false;
+                    saving.value = false;
+                    currentExpenseId.value = '';
+                    form.value = createEmptyForm();
+                    syncSearchInputsFromForm();
+                    activeSearch.value = '';
+                    if (proofFileInput.value) {
+                        proofFileInput.value.value = '';
+                    }
+                    if (reimburseProofInput.value) {
+                        reimburseProofInput.value.value = '';
+                    }
+                };
+
+                const uploadTransferProof = async (expenseId) => {
+                    const file = proofFileInput.value && proofFileInput.value.files ? proofFileInput.value.files[0] : null;
+                    if (!file) {
+                        return {
+                            url: form.value.transferProofUrl || '',
+                            path: form.value.transferProofPath || ''
+                        };
+                    }
+
+                    const safeName = String(file.name || 'proof')
+                        .replace(/[^\w.\-]/g, '_')
+                        .replace(/_+/g, '_');
+                    const path = `operational-expenses/${expenseId}/${Date.now()}-${safeName}`;
+                    const refFile = storageRef(storage, path);
+                    await uploadBytes(refFile, file);
+                    return {
+                        url: await getDownloadURL(refFile),
+                        path
+                    };
+                };
+
+                const uploadReimburseProof = async (expenseId) => {
+                    const file = reimburseProofInput.value && reimburseProofInput.value.files ? reimburseProofInput.value.files[0] : null;
+                    if (!file) {
+                        return {
+                            url: form.value.reimburseProofUrl || '',
+                            path: form.value.reimburseProofPath || ''
+                        };
+                    }
+
+                    const safeName = String(file.name || 'reimburse')
+                        .replace(/[^\w.\-]/g, '_')
+                        .replace(/_+/g, '_');
+                    const path = `operational-expenses/${expenseId}/reimburse-${Date.now()}-${safeName}`;
+                    const refFile = storageRef(storage, path);
+                    await uploadBytes(refFile, file);
+                    return {
+                        url: await getDownloadURL(refFile),
+                        path
+                    };
+                };
+
+                const validateForm = () => {
+                    if (!String(form.value.title || '').trim()) {
+                        alert('Judul pengeluaran wajib diisi.');
+                        return false;
+                    }
+                    if (!String(form.value.requesterName || '').trim()) {
+                        alert('Requester / PIC wajib diisi.');
+                        return false;
+                    }
+                    if (!String(form.value.beneficiaryName || '').trim()) {
+                        alert('Nama penerima rekening wajib diisi.');
+                        return false;
+                    }
+                    if (!String(form.value.bankName || '').trim() || !String(form.value.accountNumber || '').trim()) {
+                        alert('Bank dan nomor rekening tujuan wajib diisi.');
+                        return false;
+                    }
+                    if (!(Number(form.value.amount) > 0)) {
+                        alert('Nominal pengeluaran wajib lebih dari 0.');
+                        return false;
+                    }
+                    if (form.value.category === 'reimburse' && !form.value.reimburseProofUrl
+                        && !(reimburseProofInput.value && reimburseProofInput.value.files && reimburseProofInput.value.files[0])) {
+                        alert('Untuk kategori reimburse, nota/kwitansi wajib dilampirkan.');
+                        return false;
+                    }
+                    if (form.value.category === 'mentor_salary') {
+                        if (!String(form.value.relatedClass || '').trim()) {
+                            alert('Related class wajib diisi untuk mentor salary.');
+                            return false;
+                        }
+                        if (!String(form.value.mentorId || '').trim()) {
+                            alert('Pilih mentor dari dropdown agar rekening tujuan sinkron dengan data mentor.');
+                            return false;
+                        }
+                        if (!String(form.value.mentorName || '').trim()) {
+                            alert('Mentor name wajib diisi untuk mentor salary.');
+                            return false;
+                        }
+                        if (!String(form.value.bankName || '').trim() || !String(form.value.accountNumber || '').trim()) {
+                            alert('Data rekening mentor belum lengkap. Cek collection mentor terlebih dahulu.');
+                            return false;
+                        }
+                    }
+                    if ((form.value.status === 'paid' || form.value.status === 'complete') && !form.value.transferProofUrl && !(proofFileInput.value && proofFileInput.value.files && proofFileInput.value.files[0])) {
+                        alert('Untuk status paid, bukti transfer wajib dilampirkan.');
+                        return false;
+                    }
+                    if (form.value.status === 'complete' && form.value.category === 'mentor_salary') {
+                        if (!normalizeWhatsappNumber(form.value.mentorWhatsapp)) {
+                            alert('Nomor WhatsApp mentor belum tersedia atau tidak valid.');
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+
+                const sendWhatsappToMentor = async (expense) => {
+                    if (!expense || expense.category !== 'mentor_salary') return;
+                    let phoneNumber = normalizeWhatsappNumber(expense.mentorWhatsapp || '');
+                    if (!phoneNumber && expense.mentorId) {
+                        const mentorOption = mentorOptions.value.find((item) => item.id === expense.mentorId);
+                        phoneNumber = mentorOption?.whatsappNumber || normalizeWhatsappNumber(mentorOption?.whatsapp || '');
+                    }
+                    if (!phoneNumber && expense.mentorName) {
+                        const mentorOption = mentorOptions.value.find((item) => normalizeText(item.name) === normalizeText(expense.mentorName));
+                        phoneNumber = mentorOption?.whatsappNumber || normalizeWhatsappNumber(mentorOption?.whatsapp || '');
+                    }
+                    if (!phoneNumber) {
+                        alert('Nomor WhatsApp mentor tidak tersedia atau tidak valid di collection mentor.');
+                        return;
+                    }
+                    if (!expense.transferProofUrl) {
+                        alert('Bukti transfer belum tersedia untuk dikirim ke mentor.');
+                        return;
+                    }
+                    const whatsappPayload = buildMentorWhatsappPayload({
+                        mentorName: expense.mentorName,
+                        className: expense.relatedClass,
+                        proofUrl: expense.transferProofUrl,
+                        phoneNumber
+                    });
+                    if (!whatsappPayload.link) {
+                        alert('Gagal membuat link WhatsApp mentor.');
+                        return;
+                    }
+                    try {
+                        await setDoc(doc(db, 'operational_expenses', expense.id), {
+                            status: 'complete',
+                            mentorWhatsapp: phoneNumber,
+                            whatsappMessage: whatsappPayload.message,
+                            whatsappLink: whatsappPayload.link,
+                            updatedAtMs: Date.now(),
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                        await loadExpenses();
+                        window.open(whatsappPayload.link, '_blank', 'noopener');
+                        showToast('WhatsApp mentor siap dikirim. Bukti transfer sudah disisipkan dalam pesan.');
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal menyiapkan WhatsApp mentor', error);
+                        alert('Gagal menyiapkan WhatsApp mentor.');
+                    }
+                };
+
+                const saveExpense = async () => {
+                    if (saving.value) return;
+                    if (!validateForm()) return;
+                    saving.value = true;
+
+                    const expenseId = currentExpenseId.value || `OPS-${Date.now()}`;
+
+                    try {
+                        const proofUpload = await uploadTransferProof(expenseId);
+                        const reimburseUpload = await uploadReimburseProof(expenseId);
+                        const isNewProofUploaded = !!(proofUpload.url && proofUpload.url !== form.value.transferProofUrl);
+                        if (isNewProofUploaded && form.value.status !== 'paid' && form.value.status !== 'rejected') {
+                            form.value.status = 'paid';
+                            showToast('Bukti transfer terdeteksi → status otomatis diubah ke Paid');
+                        }
+                        const selectedMentor = mentorOptions.value.find((item) => item.id === form.value.mentorId);
+                        const mentorBankInfo = selectedMentor ? selectedMentor.bankInfo : null;
+                        const nowMs = Date.now();
+                        const whatsappPayload = buildMentorWhatsappPayload({
+                            mentorName: form.value.mentorName,
+                            className: form.value.relatedClass,
+                            proofUrl: proofUpload.url || form.value.transferProofUrl || '',
+                            phoneNumber: form.value.mentorWhatsapp || ''
+                        });
+                        const payload = {
+                            title: String(form.value.title || '').trim(),
+                            category: String(form.value.category || 'other').trim(),
+                            department: String(form.value.department || 'General').trim(),
+                            requesterId: String(form.value.requesterId || '').trim(),
+                            requesterName: String(form.value.requesterName || '').trim(),
+                            classId: String(form.value.classId || '').trim(),
+                            relatedClass: String(form.value.relatedClass || '').trim(),
+                            mentorId: String(form.value.mentorId || '').trim(),
+                            mentorName: String(form.value.mentorName || '').trim(),
+                            dueDate: String(form.value.dueDate || '').trim(),
+                            amount: Number(form.value.amount) || 0,
+                            status: String(form.value.status || 'requested').trim(),
+                            beneficiaryName: isMentorSalary.value && mentorBankInfo ? String(mentorBankInfo.beneficiaryName || form.value.mentorName || '').trim() : String(form.value.beneficiaryName || '').trim(),
+                            bankName: isMentorSalary.value && mentorBankInfo ? String(mentorBankInfo.bankName || '').trim() : String(form.value.bankName || '').trim(),
+                            accountNumber: isMentorSalary.value && mentorBankInfo ? String(mentorBankInfo.accountNumber || '').trim() : String(form.value.accountNumber || '').trim(),
+                            paymentMethod: String(form.value.paymentMethod || '').trim(),
+                            transferProofUrl: proofUpload.url || form.value.transferProofUrl || '',
+                            transferProofPath: proofUpload.path || form.value.transferProofPath || '',
+                            mentorWhatsapp: normalizeWhatsappNumber(form.value.mentorWhatsapp || ''),
+                            whatsappMessage: whatsappPayload.message || '',
+                            whatsappLink: whatsappPayload.link || '',
+                            notes: String(form.value.notes || '').trim(),
+                            paymentNotes: String(form.value.paymentNotes || '').trim(),
+                            vendorName: String(form.value.vendorName || '').trim(),
+                            expensePeriod: String(form.value.expensePeriod || '').trim(),
+                            reimburseType: String(form.value.reimburseType || '').trim(),
+                            reimburseReason: String(form.value.reimburseReason || '').trim(),
+                            reimburseProofUrl: reimburseUpload.url || '',
+                            reimburseProofPath: reimburseUpload.path || '',
+                            toolName: String(form.value.toolName || '').trim(),
+                            billingPeriod: String(form.value.billingPeriod || '').trim(),
+                            travelerName: String(form.value.travelerName || '').trim(),
+                            travelDate: String(form.value.travelDate || '').trim(),
+                            travelRoute: String(form.value.travelRoute || '').trim(),
+                            referenceLabel: String(form.value.referenceLabel || '').trim(),
+                            referenceDetail: String(form.value.referenceDetail || '').trim(),
+                            updatedAtMs: nowMs,
+                            updatedAt: serverTimestamp()
+                        };
+
+                        if (!isEditMode.value) {
+                            payload.createdAtMs = nowMs;
+                            payload.createdAt = serverTimestamp();
+                        }
+
+                        if (payload.status === 'paid' || payload.status === 'complete') {
+                            payload.paidAtMs = nowMs;
+                        }
+
+                        const isNew = !isEditMode.value;
+                        const justPaidOrComplete = !isNew && previousStatus.value !== 'paid' && previousStatus.value !== 'complete' && (payload.status === 'paid' || payload.status === 'complete');
+
+                        await setDoc(doc(db, 'operational_expenses', expenseId), payload, { merge: true });
+
+                        // Automatic Discord Notification for new Operational Expense
+                        if (isNew) {
+                            sendDiscordExpenseNotification({
+                                id: expenseId,
+                                ...payload
+                            }).catch(err => {
+                                console.error('Error sending Discord notification:', err);
+                            });
+                        }
+
+                        // Automatic Discord Notification when status is changed to paid or complete
+                        if (justPaidOrComplete) {
+                            sendDiscordPaidNotification({
+                                id: expenseId,
+                                ...payload
+                            }).catch(err => {
+                                console.error('Error sending Discord paid notification:', err);
+                            });
+                        }
+
+                        await loadExpenses();
+                        closeDrawer();
+                        showToast(isEditMode.value ? 'Expense updated' : 'Expense request created');
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal menyimpan expense', error);
+                        alert('Gagal menyimpan expense request. Silakan coba lagi.');
+                    } finally {
+                        saving.value = false;
+                    }
+                };
+
+                const deleteExpense = async () => {
+                    if (!isEditMode.value || !currentExpenseId.value) return;
+                    if (!confirm('Hapus expense ini? Data yang sudah dihapus tidak bisa dikembalikan.')) return;
+                    saving.value = true;
+                    try {
+                        const proofRef = form.value.transferProofPath
+                            ? storageRef(storage, form.value.transferProofPath)
+                            : (form.value.transferProofUrl ? storageRef(storage, form.value.transferProofUrl) : null);
+                        const reimburseProofRef = form.value.reimburseProofPath
+                            ? storageRef(storage, form.value.reimburseProofPath)
+                            : (form.value.reimburseProofUrl ? storageRef(storage, form.value.reimburseProofUrl) : null);
+                        if (proofRef) {
+                            try {
+                                await deleteObject(proofRef);
+                            } catch (storageError) {
+                                console.warn('[OperationalExpenses] Bukti transfer tidak berhasil dihapus dari storage', storageError);
+                            }
+                        }
+                        if (reimburseProofRef) {
+                            try {
+                                await deleteObject(reimburseProofRef);
+                            } catch (storageError) {
+                                console.warn('[OperationalExpenses] Nota reimburse tidak berhasil dihapus dari storage', storageError);
+                            }
+                        }
+                        await deleteDoc(doc(db, 'operational_expenses', currentExpenseId.value));
+                        await loadExpenses();
+                        closeDrawer();
+                        showToast('Expense berhasil dihapus');
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal menghapus expense', error);
+                        alert('Gagal menghapus expense.');
+                    } finally {
+                        saving.value = false;
+                    }
+                };
+
+                const markAsReviewing = async (expense) => {
+                    try {
+                        await setDoc(doc(db, 'operational_expenses', expense.id), {
+                            status: 'reviewing',
+                            updatedAtMs: Date.now(),
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                        await loadExpenses();
+                        showToast('Status diubah ke reviewing');
+                    } catch (error) {
+                        console.error('[OperationalExpenses] Gagal update status', error);
+                        alert('Gagal mengubah status expense.');
+                    }
+                };
+
+                const enrichExpensesWithMentorBank = () => {
+                    expenses.value.forEach(expense => {
+                        if (expense.category !== 'mentor_salary') return;
+                        if (expense.bankName && expense.accountNumber) return;
+                        let mentorOpt = null;
+                        if (expense.mentorId) {
+                            mentorOpt = mentorOptions.value.find(m => m.id === expense.mentorId);
+                        }
+                        if (!mentorOpt && expense.mentorName) {
+                            const nameNorm = normalizeText(expense.mentorName);
+                            mentorOpt = mentorOptions.value.find(m => normalizeText(m.name) === nameNorm);
+                        }
+                        if (mentorOpt && mentorOpt.bankInfo) {
+                            if (!expense.beneficiaryName) expense.beneficiaryName = mentorOpt.bankInfo.beneficiaryName || '';
+                            if (!expense.bankName) expense.bankName = mentorOpt.bankInfo.bankName || '';
+                            if (!expense.accountNumber) expense.accountNumber = mentorOpt.bankInfo.accountNumber || '';
+                        }
+                    });
+                };
+
+                onMounted(() => {
+                    form.value = createEmptyForm();
+                    syncSearchInputsFromForm();
+                    onAuthStateChanged(auth, async (user) => {
+                        if (!user) {
+                            window.location.href = "../index.html";
+                            return;
+                        }
+                        loadRequesterOptions();
+                        loadClassOptions();
+                        await loadMentorOptions();
+                        await loadExpenses();
+                        enrichExpensesWithMentorBank();
+                    });
+                });
+
+                watch([filterDateStart, filterDateEnd], ([start, end]) => {
+                    if (start || end) {
+                        filterDate.value = '';
+                    }
+                });
+
+                watch(() => form.value.category, (newCategory, oldCategory) => {
+                    if (!newCategory || !oldCategory || newCategory === oldCategory) return;
+                    clearCategorySpecificFields(newCategory);
+                });
+
+                return {
+                    expenses,
+                    filteredExpenses,
+                    stats,
+                    isMentorSalary,
+                    searchQuery,
+                    filterStatus,
+                    filterCategory,
+                    filterDate,
+                    filterDateStart,
+                    filterDateEnd,
+                    dateWindow,
+                    sortKey,
+                    sortDirection,
+                    showDrawer,
+                    isEditMode,
+                    saving,
+                    toast,
+                    currentExpenseId,
+                    form,
+                    proofFileInput,
+                    reimburseProofInput,
+                    requesterSearch,
+                    mentorSearch,
+                    classSearch,
+                    activeSearch,
+                    filteredRequesterOptions,
+                    filteredMentorOptions,
+                    filteredClassOptions,
+                    formattedAmount,
+                    loadExpenses,
+                    formatCurrency,
+                    formatDateLabel,
+                    formatDateTimeLabel,
+                    formatCategory,
+                    statusBadgeClass,
+                    displayStatus,
+                    isImageUrl,
+                    toggleSort,
+                    sortIcon,
+                    sortIconClass,
+                    sortAria,
+                    selectDate,
+                    shiftDateWindow,
+                    clearDateFilter,
+                    openCreateDrawer,
+                    openEditDrawer,
+                    closeDrawer,
+                    closeSearchLater,
+                    handleRequesterInput,
+                    handleMentorInput,
+                    handleClassInput,
+                    selectRequester,
+                    selectMentor,
+                    selectClass,
+                    saveExpense,
+                    markAsReviewing,
+                    sendWhatsappToMentor,
+                    deleteExpense
+                };
+            }
+        }).mount('#expenseApp');
+    </script>
+</body>
+</html>

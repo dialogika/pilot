@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .text-muted-custom {
+            color: #636e72;
+            font-size: 0.85rem;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .btn-weekly {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recruitment-step-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .recruitment-step-item:last-child { border-bottom: none; }
+
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background-color: #eee;
+        }
+
+        .candidate-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #stepScreeningAvatars .candidate-photo,
+        #stepInterviewAvatars .candidate-photo,
+        #stepDecisionAvatars .candidate-photo,
+        #stepAcceptedAvatars .candidate-photo,
+        #stepRejectedAvatars .candidate-photo {
+            width: 26px;
+            height: 26px;
+            border-width: 1px;
+        }
+
+        .interview-list-item {
+            padding: 15px;
+            border-radius: 12px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+        }
+
+        .important-note-box {
+            background: linear-gradient(135deg, #0B2B6A, #1c84e3);
+            color: #f9fafb;
+            padding: 24px 28px;
+            border-radius: 18px;
+            box-shadow: 0 18px 35px rgba(15, 23, 42, 0.25);
+        }
+
+        .important-note-title {
+            font-size: 1.1rem;
+        }
+
+        .important-note-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        .important-note-box .btn-edit-notes {
+            background-color: #f9fafb;
+            color: #111827;
+            border: none;
+        }
+
+        .important-note-box .btn-edit-notes:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+
+        .card {
+            border: none;
+            border-radius: 18px;
+        }
+
+        .stats-clickable {
+            cursor: pointer;
+        }
+
+        .stats-clickable:focus-visible {
+            outline: 3px solid rgba(13, 110, 253, 0.35);
+            outline-offset: 2px;
+        }
+
+        .stats-modal-photo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 30%;
+            z-index: 1000;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1f2933;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: #0B2B6A;
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
+            border-color: #0B2B6A;
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold">Halo, Selamat Pagi! 👋</h1>
+                    <p class="text-slate-500 text-sm">Ringkasan performa, kehadiran, dan KPI divisi hari ini.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button class="bg-white p-2 rounded-lg border border-slate-200 hover:shadow-sm">
+                        <i data-lucide="bell" class="w-5 h-5 text-slate-600"></i>
+                    </button>
+                    <button id="btnMainMenu" class="btn-dlg-blue text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-semibold flex items-center gap-2 transition">
+                        <i data-lucide="menu" class="w-4 h-4"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-l-emerald-500 stats-clickable" onclick="window.location.href='../data/intern-presence.html'">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                            <i data-lucide="user-check"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-wider">Hadir</span>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Total Presensi</p>
+                    <h3 id="attendancePresentPercent" class="text-3xl font-black mt-1 text-emerald-600">94.8%</h3>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm border-l-4 border-l-rose-500 stats-clickable" onclick="window.location.href='../data/intern-presence.html'">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                            <i data-lucide="user-x"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full uppercase tracking-wider">Absen</span>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Total Absensi</p>
+                    <h3 id="attendanceAbsentPercent" class="text-3xl font-black mt-1 text-rose-600">5.2%</h3>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                            <i data-lucide="smile"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Satisfaction Score</p>
+                    <h3 class="text-2xl font-bold mt-1">4.8/5.0</h3>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                            <i data-lucide="graduation-cap"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Training Progress</p>
+                    <h3 class="text-2xl font-bold mt-1">72%</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                        <i data-lucide="line-chart" class="w-5 h-5 text-indigo-600"></i>
+                        <span>KPI Assessment per Division</span>
+                    </h2>
+                    <span class="text-xs text-slate-400 font-medium tracking-wide italic">Berdasarkan pencapaian target mingguan</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="space-y-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tighter">Marketing</span>
+                            <span class="text-sm font-black text-blue-600">82%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 82%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Target Lead Generation</p>
+                    </div>
+                    <div class="space-y-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tighter">Branding</span>
+                            <span class="text-sm font-black text-pink-600">95%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-pink-600 h-2 rounded-full" style="width: 95%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Engagement Rate Target</p>
+                    </div>
+                    <div class="space-y-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tighter">Product</span>
+                            <span class="text-sm font-black text-amber-500">74%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-amber-500 h-2 rounded-full" style="width: 74%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Feature Delivery Target</p>
+                    </div>
+                    <div class="space-y-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tighter">HR</span>
+                            <span class="text-sm font-black text-emerald-500">88%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-emerald-500 h-2 rounded-full" style="width: 88%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Employee Well-being Target</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-8">
+                <h2 class="font-bold text-lg mb-6 flex items-center gap-2">
+                    <i data-lucide="book-open-check" class="w-5 h-5 text-indigo-600"></i>
+                    <span>Detail Perencanaan Training</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <div class="flex justify-between mb-2 text-sm font-medium">
+                            <span>Onboarding & Culture</span>
+                            <span class="text-indigo-600 font-bold">100%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2 text-sm font-medium">
+                            <span>Technical Skill: UI/UX System</span>
+                            <span class="text-indigo-600 font-bold">65%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-8">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <h2 class="font-bold text-lg flex items-center gap-2">
+                            <i data-lucide="award" class="text-indigo-600 w-5 h-5"></i>
+                            <span>Leaderboard Gamification</span>
+                        </h2>
+                        <div class="flex bg-slate-100 p-1 rounded-xl">
+                            <button onclick="switchTab('weekly')" id="btn-weekly" class="px-6 py-2 text-xs font-bold rounded-lg transition bg-white shadow-sm text-indigo-600">Weekly</button>
+                            <button onclick="switchTab('monthly')" id="btn-monthly" class="px-6 py-2 text-xs font-bold rounded-lg transition text-slate-500">Monthly</button>
+                        </div>
+                    </div>
+                    <div id="tab-weekly" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-4 p-4 bg-indigo-50/30 border border-indigo-100 rounded-2xl">
+                            <span class="font-black text-2xl text-indigo-200 italic w-8 text-center">#1</span>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">DL</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Dewi Lestari</h4>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">2,450 XP</p>
+                            </div>
+                            <i data-lucide="trending-up" class="text-green-500 w-4 h-4"></i>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 border border-slate-100 rounded-2xl">
+                            <span class="font-black text-2xl text-slate-200 italic w-8 text-center">#2</span>
+                            <div class="w-12 h-12 rounded-full bg-slate-200"></div>
+                            <div class="flex-1 text-sm font-bold text-slate-700">Reza Rahardian</div>
+                            <p class="font-bold text-slate-500 text-xs">2,120 XP</p>
+                        </div>
+                    </div>
+                    <div id="tab-monthly" class="p-6 hidden">
+                        <div class="p-8 text-center text-slate-400 italic text-sm">Menampilkan data performa bulan ini...</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                        <h2 class="font-bold text-lg">Log Kehadiran Harian</h2>
+                        <button class="text-indigo-600 font-bold text-xs hover:underline uppercase tracking-tighter">View All Logs</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-[10px] uppercase font-bold tracking-widest">
+                                <tr>
+                                    <th class="px-6 py-4">Nama Intern</th>
+                                    <th class="px-6 py-4">Waktu</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr>
+                                    <td class="px-6 py-4 flex items-center gap-3 font-medium">
+                                        <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                                        <span>Budi Santoso</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500">08:02 AM</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">On-Time</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-slate-400 italic">Office - Jakarta</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 flex items-center gap-3 font-medium text-rose-600">
+                                        <div class="w-8 h-8 rounded-full bg-rose-100"></div>
+                                        <span>Andi Wijaya</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-300">-- : --</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded text-[10px] font-bold uppercase">Sakit</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-indigo-600 underline">surat_dokter.pdf</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm max-w-2xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-pink-50 text-pink-600 rounded-lg">
+                            <i data-lucide="heart"></i>
+                        </div>
+                        <h2 class="font-bold text-lg">Satisfaction Survey</h2>
+                    </div>
+                    <div class="flex gap-4 mb-6">
+                        <button class="text-3xl grayscale hover:grayscale-0 transition">😢</button>
+                        <button class="text-3xl grayscale hover:grayscale-0 transition">😐</button>
+                        <button class="text-3xl hover:scale-125 transition">😊</button>
+                        <button class="text-3xl shadow-xl rounded-full p-2 bg-yellow-50">😍</button>
+                    </div>
+                    <textarea class="w-full text-sm p-4 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B2B6A] mb-4" placeholder="Apa yang bisa ditingkatkan hari ini?" rows="2"></textarea>
+                    <button class="btn-dlg-blue text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#0B2B6A] transition">Submit Feedback</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="mainMenuOverlay" class="menu-overlay"></div>
+    <div id="mainMenuContainer" class="menu-container">
+        <div id="mainMenuCloseBtn" class="close-btn">
+            <i data-lucide="x"></i>
+        </div>
+        <div class="menu-header">
+            <h2>Menu</h2>
+        </div>
+        <div class="menu-grid">
+            <a href="../data/intern-presence.html" class="menu-item">
+                <i data-lucide="clipboard-list"></i>
+                <span>Intern Presence</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            getDocs,
+            collection,
+            query,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com", 
+            projectId: "pre-dialogika", 
+            storageBucket: "pre-dialogika.firebasestorage.app", 
+            messagingSenderId: "343771410480", 
+            appId: "1:343771410480:web:32881c9868522090237df5", 
+            measurementId: "G-SXN811P3N0" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        window.app = app;
+        window.auth = auth;
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        async function calculateInternshipAttendance() {
+            const presentEl = document.getElementById('attendancePresentPercent');
+            const absentEl = document.getElementById('attendanceAbsentPercent');
+            if (!presentEl || !absentEl) return;
+
+            try {
+                const usersRef = collection(db, "users");
+                const usersQuery = query(usersRef, where("role", "in", ["Internship", "internship"]));
+                const usersSnap = await getDocs(usersQuery);
+
+                const internIds = new Set();
+                usersSnap.forEach(docSnap => {
+                    internIds.add(docSnap.id);
+                });
+
+                const totalInterns = internIds.size;
+                if (totalInterns === 0) {
+                    presentEl.textContent = "0.0%";
+                    absentEl.textContent = "0.0%";
+                    return;
+                }
+
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, "0");
+                const dd = String(today.getDate()).padStart(2, "0");
+                const todayStr = `${yyyy}-${mm}-${dd}`;
+
+                const attendanceRef = collection(db, "user_attendance");
+                const attendanceQuery = query(attendanceRef, where("date", "==", todayStr));
+                const attendanceSnap = await getDocs(attendanceQuery);
+
+                const presentInternIds = new Set();
+                attendanceSnap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const userId = data.user_id || "";
+                    if (userId && internIds.has(userId)) {
+                        presentInternIds.add(userId);
+                    }
+                });
+
+                const presentCount = presentInternIds.size;
+                const presentPctRaw = (presentCount / totalInterns) * 100;
+                const presentPct = Math.round(presentPctRaw * 10) / 10;
+                let absentPct = Math.round((100 - presentPct) * 10) / 10;
+                if (absentPct < 0) absentPct = 0;
+
+                presentEl.textContent = `${presentPct.toFixed(1)}%`;
+                absentEl.textContent = `${absentPct.toFixed(1)}%`;
+            } catch (e) {
+                console.error("Failed to calculate internship attendance", e);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            calculateInternshipAttendance();
+        });
+    </script>
+    <script>
+        lucide.createIcons();
+
+        const mainMenuOverlay = document.getElementById('mainMenuOverlay');
+        const mainMenuContainer = document.getElementById('mainMenuContainer');
+        const mainMenuButton = document.getElementById('btnMainMenu');
+        const mainMenuCloseBtn = document.getElementById('mainMenuCloseBtn');
+
+        function openMainMenu() {
+            if (mainMenuOverlay) {
+                mainMenuOverlay.classList.add('active');
+            }
+            if (mainMenuContainer) {
+                mainMenuContainer.classList.add('active');
+            }
+        }
+
+        function closeMainMenu() {
+            if (mainMenuOverlay) {
+                mainMenuOverlay.classList.remove('active');
+            }
+            if (mainMenuContainer) {
+                mainMenuContainer.classList.remove('active');
+            }
+        }
+
+        if (mainMenuButton) {
+            mainMenuButton.addEventListener('click', openMainMenu);
+        }
+        if (mainMenuOverlay) {
+            mainMenuOverlay.addEventListener('click', closeMainMenu);
+        }
+        if (mainMenuCloseBtn) {
+            mainMenuCloseBtn.addEventListener('click', closeMainMenu);
+        }
+
+        function switchTab(type) {
+            const btnWeekly = document.getElementById('btn-weekly');
+            const btnMonthly = document.getElementById('btn-monthly');
+            const tabWeekly = document.getElementById('tab-weekly');
+            const tabMonthly = document.getElementById('tab-monthly');
+
+            if (type === 'weekly') {
+                tabWeekly.classList.remove('hidden');
+                tabMonthly.classList.add('hidden');
+                btnWeekly.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnWeekly.classList.remove('text-slate-500');
+                btnMonthly.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnMonthly.classList.add('text-slate-500');
+            } else {
+                tabMonthly.classList.remove('hidden');
+                tabWeekly.classList.add('hidden');
+                btnMonthly.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnMonthly.classList.remove('text-slate-500');
+                btnWeekly.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnWeekly.classList.add('text-slate-500');
+            }
+        }
+    </script>
+</body>
+</html>

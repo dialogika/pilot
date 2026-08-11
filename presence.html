@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Dialogika Presence System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --dlg-blue: #0B2B6A;
+            --topbar-height: 70px;
+            --bg-body: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 30px;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        main.main-content-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-top: var(--topbar-height);
+            width: 100%;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border-radius: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .gold-gradient {
+            background: linear-gradient(135deg, #0163ea 0%, #1c84e3 50%, #0B2B6A 100%);
+        }
+
+        .gold-text {
+            background: linear-gradient(to right, #0B2B6A, #0163ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .custom-select {
+            appearance: none;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            padding: 12px 20px;
+            border-radius: 9999px;
+            width: 100%;
+            font-size: 0.95rem;
+            color: #4a4a4a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .custom-select:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .select-with-avatar {
+            --avatar-size: 53px;
+            position: relative;
+        }
+
+        .select-with-avatar .custom-select {
+            min-height: 62px;
+            padding-top: 14px;
+            padding-bottom: 14px;
+        }
+
+        .select-with-avatar .custom-select.has-avatar {
+            padding-left: calc(var(--avatar-size) + 28px);
+        }
+
+        .select-with-avatar .avatar-mask {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: var(--avatar-size);
+            height: var(--avatar-size);
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .select-with-avatar .avatar-mask img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .select-with-avatar .avatar-mask.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            background: #ffffff;
+            height: 70px;
+            border-radius: 40px;
+            margin-top: 2.5rem;
+            padding: 5px;
+            border: 1px solid #eee;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .slider-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slider-wrapper.logout-mode {
+            border-color: #fbbf24;
+        }
+
+        .slider-wrapper.logout-mode .slider-handle {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #92400e 100%);
+        }
+
+        .slider-wrapper.disabled-slider {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 0.75rem;
+        }
+
+        .status-badge.login {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.logout {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.done {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .slider-handle {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            width: 60px;
+            height: 60px;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .slider-handle:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            width: 100%;
+            margin-top: auto;
+            background: #0B2B6A;
+            z-index: 10;
+        }
+
+        #footer {
+            font-size: 14px;
+            background: #0B2B6A;
+            color: #fff;
+            padding: 0;
+        }
+
+        #footer .container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        #footer .credits {
+            padding-top: 5px;
+            font-size: 13px;
+            color: #444444;
+        }
+
+        #footer .social-links a {
+            font-size: 18px;
+            display: inline-block;
+            background: #fff;
+            color: #0b2b6a;
+            line-height: 1;
+            padding: 8px 0;
+            margin-right: 4px;
+            border-radius: 50%;
+            text-align: center;
+            width: 36px;
+            height: 36px;
+            transition: 0.3s;
+            box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
+            -webkit-box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
+            -moz-box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
+        }
+
+        #footer .social-links a:hover {
+            background: #7204cf;
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
+            -webkit-box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
+            -moz-box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
+        }
+
+        @media (max-width: 768px) {
+            main.main-content-wrapper {
+                padding: 15px;
+                min-height: calc(100vh - var(--topbar-height) - 100px);
+            }
+
+            #footer .container {
+                flex-direction: column;
+                text-align: center !important;
+                gap: 15px;
+            }
+
+            .me-md-auto {
+                text-align: center !important;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color: #f1f7fd;">
+    <nav class="top-bar">
+        <div class="logo-center">
+            <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height: 35px;">
+        </div>
+    </nav>
+
+    <main class="main-content-wrapper">
+        <div class="glass-card">
+            <header class="mb-10">
+                <h1 class="text-3xl gold-text tracking-tight">Team Dialogika Attendance</h1>
+                <p class="text-xs text-gray-400 mt-1 uppercase tracking-[0.2em]">Thank You For Your <br /> Excellence &
+                    Integrity</p>
+            </header>
+
+            <div class="text-left mb-3">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Pilih Nama
+                    Anggota</label>
+                <div class="relative select-with-avatar">
+                    <div class="avatar-mask is-hidden" id="selectedAvatarMask">
+                        <img id="selectedAvatar" alt="Selected member avatar" />
+                    </div>
+                    <select id="nameSelect" class="custom-select">
+                        <option value="" disabled selected>Silahkan pilih nama...</option>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusBadgeContainer" style="min-height: 28px;"></div>
+            <p id="validationMessage" class="mt-2 mb-0 text-xs text-slate-500" style="min-height: 18px;"></p>
+
+            <div class="slider-wrapper" id="sliderWrapper">
+                <div class="slider-text" id="sliderText">Geser untuk Clock In</div>
+                <div class="slider-handle gold-gradient" id="sliderHandle">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <p class="mt-8 text-[11px] text-gray-400 italic">Waktu server: <span id="clock">00:00:00</span></p>
+        </div>
+    </main>
+
+    <!-- Success Screen -->
+    <div id="successOverlay" class="overlay">
+        <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-semibold text-gray-800">Presensi Berhasil</h2>
+        <p id="confirmedType" class="text-sm font-semibold mt-1" style="color:#0B2B6A;"></p>
+        <p id="confirmedUser" class="text-gray-500 mt-2 font-light"></p>
+        <p id="workDurationInfo" class="text-gray-500 mt-1 text-sm"></p>
+        <button onclick="location.reload()"
+            class="mt-12 px-8 py-3 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-all">Selesai</button>
+    </div>
+
+    <footer>
+        <div id="footer">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="me-md-auto text-center text-md-start">
+                    <div class="copyright">
+                        &copy; Copyright <strong><span>Dialogika</span></strong> | PT. Dialogika Persona Indonesia
+                    </div>
+                </div>
+                <div class="social-links text-center text-md-right">
+                    <a href="https://link.dialogika.co/twitter" class="twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="https://link.dialogika.co/facebook" class="facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="https://link.dialogika.co/instagram" class="instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="https://wa.link/emi1qx" class="instagram"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://link.dialogika.co/linkedin" class="instagram"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, serverTimestamp, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const nameSelectEl = document.getElementById('nameSelect');
+        let currentPresenceMode = 'login'; // 'login' or 'logout'
+        let unsubscribeUsersListener = null;
+        const validationMessageEl = document.getElementById('validationMessage');
+        const OFFICE_LOCATION = {
+            lat: -7.752773871518239,
+            lng: 110.38220611055455,
+            label: "Kantor Dialogika"
+        };
+        const GEOFENCE_RADIUS_METERS = 50;
+        const LOCATION_TIMEOUT_MS = 15000;
+        const LOCATION_MAX_AGE_MS = 10000;
+        const LOCATION_CACHE_TTL_MS = 2 * 60 * 1000;
+        let latestLocationValidation = null;
+        let isLocationChecking = false;
+        let isLocationValid = false;
+
+        function getLocalDateString(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getLocalTimeString(date = new Date()) {
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+            return `${hh}:${mm}:${ss}`;
+        }
+
+        function parseTimeToSeconds(timeStr) {
+            if (!timeStr || typeof timeStr !== "string") return null;
+            const [hh, mm, ss] = timeStr.split(':').map(Number);
+            if ([hh, mm, ss].some(n => Number.isNaN(n))) return null;
+            return (hh * 3600) + (mm * 60) + ss;
+        }
+
+        function formatDuration(totalSeconds) {
+            const safe = Math.max(0, Number(totalSeconds) || 0);
+            const hours = Math.floor(safe / 3600);
+            const minutes = Math.floor((safe % 3600) / 60);
+            const seconds = safe % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function formatClockHHMM(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function getDayPresenceRule(date = new Date()) {
+            const day = date.getDay();
+            const logoutDeadlineSec = (18 * 3600);
+
+            if (day === 2 || day === 4) { // Selasa, Kamis
+                return {
+                    loginStartSec: (9 * 3600) + (45 * 60),
+                    logoutDeadlineSec
+                };
+            }
+
+            if (day === 6 || day === 0) { // Sabtu, Minggu
+                return {
+                    loginStartSec: (8 * 3600) + (45 * 60),
+                    logoutDeadlineSec
+                };
+            }
+
+            return null;
+        }
+
+        function getNowSeconds(date = new Date()) {
+            return (date.getHours() * 3600) + (date.getMinutes() * 60) + date.getSeconds();
+        }
+
+        function validatePresenceTime(mode, date = new Date()) {
+            const rule = getDayPresenceRule(date);
+            if (!rule) {
+                return { valid: false, message: "Presensi tidak tersedia pada hari ini." };
+            }
+
+            const nowSec = getNowSeconds(date);
+
+            if (mode === 'login' && nowSec < rule.loginStartSec) {
+                return {
+                    valid: false,
+                    message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
+                };
+            }
+
+            if (mode === 'logout' && nowSec > rule.logoutDeadlineSec) {
+                return {
+                    valid: false,
+                    message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
+                };
+            }
+
+            return { valid: true, message: "" };
+        }
+
+        function setValidationMessage(message = "", tone = "error") {
+            validationMessageEl.classList.remove('text-red-500', 'text-emerald-600', 'text-slate-500');
+            if (tone === "success") {
+                validationMessageEl.classList.add('text-emerald-600');
+            } else if (tone === "info") {
+                validationMessageEl.classList.add('text-slate-500');
+            } else {
+                validationMessageEl.classList.add('text-red-500');
+            }
+            validationMessageEl.textContent = message;
+        }
+
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function haversineDistanceMeters(lat1, lng1, lat2, lng2) {
+            const earthRadiusMeters = 6371000;
+            const dLat = toRadians(lat2 - lat1);
+            const dLng = toRadians(lng2 - lng1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return earthRadiusMeters * c;
+        }
+
+        function formatMeters(meters) {
+            return `${Math.round(Number(meters) || 0)}m`;
+        }
+
+        function getCurrentPositionOnce(options = {}) {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("Browser tidak mendukung Geolocation."));
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(resolve, reject, options);
+            });
+        }
+
+        async function collectBestLocationSample() {
+            const geolocationOptions = {
+                enableHighAccuracy: true,
+                timeout: LOCATION_TIMEOUT_MS,
+                maximumAge: LOCATION_MAX_AGE_MS
+            };
+
+            const samples = [];
+            for (let i = 0; i < 2; i += 1) {
+                try {
+                    const pos = await getCurrentPositionOnce(geolocationOptions);
+                    samples.push(pos);
+                    if ((pos.coords?.accuracy || Infinity) <= 20) break;
+                } catch (e) {
+                    if (samples.length === 0) throw e;
+                }
+            }
+
+            if (!samples.length) {
+                throw new Error("Lokasi tidak terbaca.");
+            }
+
+            samples.sort((a, b) => (a.coords?.accuracy || Infinity) - (b.coords?.accuracy || Infinity));
+            return samples[0];
+        }
+
+        async function validatePresenceLocation(forceRefresh = false) {
+            const now = Date.now();
+            if (!forceRefresh && latestLocationValidation && (now - latestLocationValidation.checkedAt) <= LOCATION_CACHE_TTL_MS) {
+                return latestLocationValidation;
+            }
+
+            try {
+                const pos = await collectBestLocationSample();
+                const userLat = pos.coords.latitude;
+                const userLng = pos.coords.longitude;
+                const distanceMeters = haversineDistanceMeters(
+                    userLat,
+                    userLng,
+                    OFFICE_LOCATION.lat,
+                    OFFICE_LOCATION.lng
+                );
+
+                if (distanceMeters > GEOFENCE_RADIUS_METERS) {
+                    latestLocationValidation = {
+                        ok: false,
+                        message: "Anda tidak berada di wilayah kantor.",
+                        checkedAt: now,
+                        distanceMeters,
+                        latitude: userLat,
+                        longitude: userLng
+                    };
+                    return latestLocationValidation;
+                }
+
+                latestLocationValidation = {
+                    ok: true,
+                    message: "Lokasi sesuai! silahkan presensi.",
+                    checkedAt: now,
+                    distanceMeters,
+                    latitude: userLat,
+                    longitude: userLng
+                };
+                return latestLocationValidation;
+            } catch (error) {
+                const isPermissionError = error && (error.code === 1);
+                const isTimeoutError = error && (error.code === 3);
+                latestLocationValidation = {
+                    ok: false,
+                    message: isPermissionError
+                        ? "Izin lokasi ditolak. Aktifkan lokasi perangkat untuk presensi."
+                        : isTimeoutError
+                            ? "Permintaan lokasi timeout. Pastikan GPS aktif lalu coba lagi."
+                            : "Gagal membaca lokasi. Pastikan GPS aktif dan koneksi stabil.",
+                    checkedAt: now
+                };
+                return latestLocationValidation;
+            }
+        }
+
+        function loadUsers() {
+            const select = nameSelectEl;
+            select.innerHTML = '<option value="" disabled selected>Memuat daftar nama...</option>';
+
+            // Ambil semua user sekali saja (tidak real-time), filter di client-side.
+            const q = query(
+                collection(db, "users")
+            );
+
+            getDocs(q).then((snap) => {
+                const selectedUserId = select.value;
+                const users = [];
+                console.log('users snapshot size:', snap.size);
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const statusValueRaw = d.status;
+                    const statusValue = typeof statusValueRaw === 'string'
+                        ? statusValueRaw.trim().toLowerCase()
+                        : statusValueRaw;
+                    const access = d.access || {};
+                    const rawRoleCandidates = [
+                        d.role_id,
+                        access.role_id,
+                        d.role,
+                        access.role,
+                        d.roleId,
+                        access.roleId,
+                        d.role_name,
+                        access.role_name,
+                        d.roleName,
+                        access.roleName
+                    ];
+                    const rawRole = rawRoleCandidates.find(v => v !== undefined && v !== null && v !== "");
+                    const roleValue = rawRole ? String(rawRole).trim().toLowerCase() : "";
+                    const isStatusOk = statusValue === undefined || statusValue === null || statusValue === "active";
+                    const isRoleOk = ["staff", "sub_team"].includes(roleValue);
+
+                    console.log('user doc:', docSnap.id, {
+                        statusValueRaw,
+                        statusValue,
+                        roleValue,
+                        rawRole,
+                        accessRole: access.role_id ?? access.role,
+                        isStatusOk,
+                        isRoleOk,
+                        name: d.name,
+                        email: d.email
+                    });
+
+                    if (!isStatusOk) {
+                        console.warn('exclude user by status', docSnap.id, statusValueRaw);
+                        return;
+                    }
+                    if (!roleValue) {
+                        console.warn('exclude user missing role', docSnap.id);
+                        return;
+                    }
+                    if (!isRoleOk) {
+                        console.warn('exclude user by role mismatch', docSnap.id, roleValue);
+                        return;
+                    }
+
+                    users.push({
+                        id: docSnap.id,
+                        name: d.name || d.email || "Tanpa Nama",
+                        photo: d.photo || "",
+                        rawRole: roleValue
+                    });
+                });
+                users.sort((a, b) => a.name.localeCompare(b.name));
+
+                if (!users.length) {
+                    select.innerHTML = '<option value="" disabled selected>Tidak ada user (staff/sub_team)</option>';
+                } else {
+                    select.innerHTML = '<option value="" disabled selected>Pilih nama...</option>';
+                    users.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id;
+                        opt.textContent = u.name;
+                        if (u.photo) {
+                            opt.dataset.photo = u.photo;
+                        }
+                        if (selectedUserId && selectedUserId === u.id) {
+                            opt.selected = true;
+                        }
+                        select.appendChild(opt);
+                    });
+                }
+
+                if (selectedUserId && users.some(u => u.id === selectedUserId)) {
+                    onUserSelected();
+                } else {
+                    applySelectedPhoto();
+                    updateSliderMode('login');
+                }
+            }).catch((e) => {
+                console.error("Gagal memuat users", e);
+                select.innerHTML = '<option value="" disabled selected>Gagal memuat data</option>';
+            });
+        }
+
+        function applySelectedPhoto() {
+            const option = nameSelectEl.options[nameSelectEl.selectedIndex];
+            const photo = option ? option.dataset.photo : "";
+            const avatarMask = document.getElementById('selectedAvatarMask');
+            const avatarImg = document.getElementById('selectedAvatar');
+
+            if (photo) {
+                avatarImg.src = photo;
+                avatarMask.classList.remove('is-hidden');
+                nameSelectEl.classList.add('has-avatar');
+            } else {
+                avatarImg.removeAttribute('src');
+                avatarMask.classList.add('is-hidden');
+                nameSelectEl.classList.remove('has-avatar');
+            }
+        }
+
+        function setSliderEnabled(enabled) {
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            if (enabled) {
+                sliderWrapper.classList.remove('disabled-slider');
+            } else {
+                sliderWrapper.classList.add('disabled-slider');
+            }
+        }
+
+        async function checkTodayAttendance(userId) {
+            const dateStr = getLocalDateString();
+            try {
+                const q = query(
+                    collection(db, "user_attendance"),
+                    where("user_id", "==", userId),
+                    where("date", "==", dateStr)
+                );
+                const snap = await getDocs(q);
+                let hasLogin = false;
+                let hasLogout = false;
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d.type === 'login') hasLogin = true;
+                    if (d.type === 'logout') hasLogout = true;
+                });
+                return { hasLogin, hasLogout };
+            } catch (e) {
+                console.error("Gagal cek presensi hari ini", e);
+                return { hasLogin: false, hasLogout: false };
+            }
+        }
+
+        async function getTodayLatestLoginTime(userId, dateStr) {
+            try {
+                const q = query(
+                    collection(db, "user_attendance"),
+                    where("user_id", "==", userId),
+                    where("date", "==", dateStr),
+                    where("type", "==", "login"),
+                    orderBy("time", "desc"),
+                    limit(1)
+                );
+                const snap = await getDocs(q);
+                if (snap.empty) return null;
+                const docData = snap.docs[0].data() || {};
+                return docData.time || null;
+            } catch (e) {
+                console.error("Gagal mengambil login terakhir hari ini", e);
+                return null;
+            }
+        }
+
+        function updateSliderMode(mode) {
+            currentPresenceMode = mode;
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const sliderText = document.getElementById('sliderText');
+            const sliderHandle = document.getElementById('sliderHandle');
+            const badgeContainer = document.getElementById('statusBadgeContainer');
+
+            sliderWrapper.classList.remove('logout-mode', 'disabled-slider');
+
+            if (mode === 'login') {
+                sliderText.textContent = 'Geser untuk Clock In';
+                sliderHandle.className = 'slider-handle gold-gradient';
+                badgeContainer.innerHTML = '<span class="status-badge login"><i class="bi bi-box-arrow-in-right"></i> Mode: CLOCK IN</span>';
+            } else if (mode === 'logout') {
+                sliderText.textContent = 'Geser untuk Clock Out';
+                sliderWrapper.classList.add('logout-mode');
+                sliderHandle.className = 'slider-handle';
+                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-box-arrow-right"></i> Mode: CLOCK OUT</span>';
+            } else if (mode === 'locked-logout') {
+                sliderText.textContent = 'Clock Out ditutup (maks. 18:00)';
+                sliderWrapper.classList.add('disabled-slider');
+                badgeContainer.innerHTML = '<span class="status-badge logout"><i class="bi bi-lock-fill"></i> Clock Out Ditutup</span>';
+            } else if (mode === 'done') {
+                sliderText.textContent = 'Presensi hari ini selesai';
+                sliderWrapper.classList.add('disabled-slider');
+                badgeContainer.innerHTML = '<span class="status-badge done"><i class="bi bi-check-circle-fill"></i> Sudah Clock In & Clock Out</span>';
+            }
+        }
+
+        async function onUserSelected() {
+            applySelectedPhoto();
+            latestLocationValidation = null;
+            const option = nameSelectEl.options[nameSelectEl.selectedIndex];
+            if (!option || !option.value) {
+                updateSliderMode('login');
+                setSliderEnabled(false);
+                setValidationMessage('', 'info');
+                return;
+            }
+            const userId = option.value;
+            const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
+            const timeValidation = validatePresenceTime('logout');
+            setValidationMessage('Memeriksa lokasi perangkat...', 'info');
+            setSliderEnabled(false);
+
+            if (!hasLogin) {
+                updateSliderMode('login');
+            } else if (hasLogin && !hasLogout) {
+                if (!timeValidation.valid) {
+                    updateSliderMode('locked-logout');
+                    setValidationMessage(timeValidation.message);
+                    return;
+                } else {
+                    updateSliderMode('logout');
+                }
+            } else {
+                updateSliderMode('done');
+                setValidationMessage('', 'info');
+                return;
+            }
+
+            const locationValidation = await validatePresenceLocation(true);
+            if (locationValidation.ok) {
+                isLocationValid = true;
+                setValidationMessage(locationValidation.message, 'success');
+                setSliderEnabled(true);
+            } else {
+                isLocationValid = false;
+                setValidationMessage(locationValidation.message, 'error');
+                setSliderEnabled(false);
+            }
+
+            // Reset slider handle position
+            const handle = document.getElementById('sliderHandle');
+            handle.style.transition = 'all 0.3s ease';
+            handle.style.left = '5px';
+            document.getElementById('sliderText').style.opacity = 1;
+        }
+
+        async function recordAttendance(locationValidation) {
+            const option = nameSelectEl.options[nameSelectEl.selectedIndex];
+            if (!option || !option.value) return { workDurationText: "", workDurationSeconds: null };
+            const uid = option.value;
+            const name = option.textContent;
+            const photo = option.dataset.photo || "";
+            const now = new Date();
+            const dateStr = getLocalDateString(now);
+            const timeStr = getLocalTimeString(now);
+            let workDurationSeconds = null;
+            const { hasLogin, hasLogout } = await checkTodayAttendance(uid);
+            const timeValidation = validatePresenceTime(currentPresenceMode, now);
+
+            if (!timeValidation.valid) {
+                return { error: timeValidation.message };
+            }
+
+            if (currentPresenceMode === 'login' && hasLogin && !hasLogout) {
+                return { error: "Anda sudah clock in hari ini. Silakan clock out terlebih dahulu." };
+            }
+            if (currentPresenceMode === 'logout' && !hasLogin) {
+                return { error: "Tidak bisa clock out karena belum ada clock in hari ini." };
+            }
+            if (currentPresenceMode === 'logout' && hasLogout) {
+                return { error: "Anda sudah clock out hari ini." };
+            }
+
+            if (currentPresenceMode === 'logout') {
+                const loginTime = await getTodayLatestLoginTime(uid, dateStr);
+                const loginSec = parseTimeToSeconds(loginTime);
+                const logoutSec = parseTimeToSeconds(timeStr);
+                if (loginSec !== null && logoutSec !== null && logoutSec >= loginSec) {
+                    workDurationSeconds = logoutSec - loginSec;
+                }
+            }
+
+            try {
+                const payload = {
+                    user_id: uid,
+                    name: name,
+                    photo: photo,
+                    date: dateStr,
+                    time: timeStr,
+                    type: currentPresenceMode,
+                    source: "manual",
+                    created_at: serverTimestamp()
+                };
+
+                if (currentPresenceMode === 'logout' && workDurationSeconds !== null) {
+                    payload.work_duration_seconds = workDurationSeconds;
+                    payload.work_duration = formatDuration(workDurationSeconds);
+                }
+                if (locationValidation && locationValidation.ok) {
+                    payload.location = {
+                        latitude: locationValidation.latitude,
+                        longitude: locationValidation.longitude,
+                        distance_meters: Math.round(locationValidation.distanceMeters || 0),
+                        office_latitude: OFFICE_LOCATION.lat,
+                        office_longitude: OFFICE_LOCATION.lng
+                    };
+                }
+
+                await addDoc(collection(db, "user_attendance"), payload);
+                return {
+                    workDurationText: workDurationSeconds !== null ? formatDuration(workDurationSeconds) : "",
+                    workDurationSeconds
+                };
+            } catch (e) {
+                console.error("Gagal menyimpan presensi", e);
+                return { workDurationText: "", workDurationSeconds: null };
+            }
+        }
+
+        loadUsers();
+        setSliderEnabled(false);
+        nameSelectEl.addEventListener('change', onUserSelected);
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const handle = document.getElementById('sliderHandle');
+        const wrapper = document.getElementById('sliderWrapper');
+        const text = document.getElementById('sliderText');
+        const nameSelect = document.getElementById('nameSelect');
+        const successOverlay = document.getElementById('successOverlay');
+        const confirmedUser = document.getElementById('confirmedUser');
+        const workDurationInfo = document.getElementById('workDurationInfo');
+
+        let isDragging = false;
+        let startX = 0;
+        let maxSlide = wrapper.offsetWidth - handle.offsetWidth - 10;
+
+        handle.addEventListener('mousedown', startDrag);
+        handle.addEventListener('touchstart', startDrag);
+
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag);
+
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+
+        async function startDrag(e) {
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            if (sliderWrapper.classList.contains('disabled-slider')) {
+                return;
+            }
+            if (nameSelect.value === "") {
+                nameSelect.classList.add('border-red-400');
+                setTimeout(() => nameSelect.classList.remove('border-red-400'), 1000);
+                return;
+            }
+            if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') {
+                return;
+            }
+
+            const validation = validatePresenceTime(currentPresenceMode);
+            if (!validation.valid) {
+                setValidationMessage(validation.message);
+                return;
+            }
+            if (isLocationChecking) return;
+            isDragging = true;
+            startX = (e.type === 'touchstart') ? e.touches[0].clientX : e.clientX;
+            handle.style.transition = "none";
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+
+            const currentX = (e.type === 'touchmove') ? e.touches[0].clientX : e.clientX;
+            let moveX = currentX - startX;
+
+            if (moveX < 0) moveX = 0;
+            if (moveX > maxSlide) moveX = maxSlide;
+
+            handle.style.left = (moveX + 5) + 'px';
+
+            let opacity = 1 - (moveX / maxSlide);
+            text.style.opacity = opacity;
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const currentLeft = parseInt(handle.style.left);
+
+            if (currentLeft >= maxSlide - 10) {
+                handle.style.left = (maxSlide + 5) + 'px';
+                completeAttendance();
+            } else {
+                handle.style.transition = "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                handle.style.left = '5px';
+                text.style.opacity = 1;
+            }
+        }
+
+        async function completeAttendance() {
+            if (currentPresenceMode === 'done' || currentPresenceMode === 'locked-logout') return;
+
+            setValidationMessage('Memvalidasi lokasi sebelum menyimpan presensi...', 'info');
+            const locationValidation = await validatePresenceLocation(false);
+            if (!locationValidation.ok) {
+                alert(locationValidation.message);
+                setValidationMessage(locationValidation.message, 'error');
+                const handle = document.getElementById('sliderHandle');
+                const sliderText = document.getElementById('sliderText');
+                handle.style.transition = "all 0.3s ease";
+                handle.style.left = '5px';
+                sliderText.style.opacity = 1;
+                return;
+            }
+
+            const selectedOption = nameSelect.options[nameSelect.selectedIndex];
+            if (selectedOption && selectedOption.textContent) {
+                confirmedUser.innerText = selectedOption.textContent;
+            }
+
+            const confirmedType = document.getElementById('confirmedType');
+            if (currentPresenceMode === 'login') {
+                confirmedType.textContent = '? Clock In Berhasil';
+                confirmedType.style.color = '#1e40af';
+                workDurationInfo.textContent = '';
+            } else {
+                confirmedType.textContent = '? Clock Out Berhasil';
+                confirmedType.style.color = '#92400e';
+                workDurationInfo.textContent = '';
+            }
+
+            const attendanceResult = await recordAttendance(locationValidation);
+            if (attendanceResult && attendanceResult.error) {
+                alert(attendanceResult.error);
+                const handle = document.getElementById('sliderHandle');
+                const sliderText = document.getElementById('sliderText');
+                handle.style.transition = "all 0.3s ease";
+                handle.style.left = '5px';
+                sliderText.style.opacity = 1;
+                await onUserSelected();
+                return;
+            }
+            setValidationMessage('', 'info');
+            successOverlay.style.display = 'flex';
+            if (currentPresenceMode === 'logout' && attendanceResult.workDurationText) {
+                workDurationInfo.textContent = `Durasi kerja hari ini: ${attendanceResult.workDurationText}`;
+            }
+            if (window.navigator.vibrate) window.navigator.vibrate(40);
+        }
+
+        window.addEventListener('resize', () => {
+            maxSlide = wrapper.offsetWidth - handle.offsetWidth - 10;
+        });
+    </script>
+</body>
+
+</html>

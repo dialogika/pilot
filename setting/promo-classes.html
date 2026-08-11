@@ -1,0 +1,2295 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Promo Classes - Team Dialogika</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+      body {
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+      }
+
+      .page-shell {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .hero-card,
+      .content-card,
+      .metric-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 24px;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+      }
+
+      .hero-card {
+        padding: 32px;
+      }
+
+      .content-card {
+        padding: 24px;
+      }
+
+      .metric-card {
+        padding: 22px;
+        height: 100%;
+      }
+
+      .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+      }
+
+      .metric-icon.blue {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .metric-icon.green {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .metric-icon.purple {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .metric-label {
+        color: #64748b;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .metric-value {
+        color: #0f172a;
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      /* -------------------- Batch selector -------------------- */
+      .batch-scroller {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+
+      .batch-scroller::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .batch-scroller::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+
+      .batch-pill {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 10px 18px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        cursor: pointer;
+        min-width: 190px;
+        transition: all 0.15s ease;
+      }
+
+      .batch-pill:hover {
+        border-color: var(--dlg-blue, #0b2b6a);
+        transform: translateY(-1px);
+      }
+
+      .batch-pill.active {
+        background: var(--dlg-blue, #0b2b6a);
+        border-color: var(--dlg-blue, #0b2b6a);
+        box-shadow: 0 8px 20px rgba(11, 43, 106, 0.25);
+      }
+
+      .batch-pill .batch-pill-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #0f172a;
+        white-space: nowrap;
+      }
+
+      .batch-pill.active .batch-pill-label {
+        color: #fff;
+      }
+
+      .batch-pill .batch-pill-count {
+        font-size: 0.76rem;
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .batch-pill.active .batch-pill-count {
+        color: #cfe0ff;
+      }
+
+      .batch-pill-add {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 150px;
+        border-radius: 16px;
+        border: 1.5px dashed #94a3b8;
+        background: transparent;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      .batch-pill-add:hover {
+        border-color: var(--dlg-blue, #0b2b6a);
+        color: var(--dlg-blue, #0b2b6a);
+      }
+
+      .batch-info-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+      }
+
+      .batch-info-bar .batch-info-title {
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .batch-info-bar .batch-info-sub {
+        color: #64748b;
+        font-size: 0.82rem;
+      }
+
+      .batch-empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: #64748b;
+      }
+
+      .batch-empty-state i {
+        font-size: 3.2rem;
+        color: #cbd5e1;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .toolbar .form-control,
+      .toolbar .form-select {
+        min-height: 46px;
+        border-radius: 14px;
+        border-color: #dbe2ea;
+      }
+
+      .toolbar .form-control:focus,
+      .toolbar .form-select:focus,
+      .modal .form-control:focus,
+      .modal .form-select:focus {
+        border-color: var(--dlg-blue);
+        box-shadow: 0 0 0 0.2rem rgba(11, 43, 106, 0.12);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      .table-modern {
+        min-width: 920px;
+        margin-bottom: 0;
+      }
+
+      .table-modern thead th {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f8fafc;
+        border-bottom-width: 1px;
+        white-space: nowrap;
+      }
+
+      .table-modern tbody td {
+        vertical-align: middle;
+        border-color: #eef2f7;
+      }
+
+      .table-modern tbody tr.row-selected {
+        background: #eff6ff;
+      }
+
+      .row-checkbox,
+      #selectAllCheckbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .price-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.78rem;
+      }
+
+      .price-chip.normal {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .price-chip.promo {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .location-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .location-badge.online {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .location-badge.offline {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .location-badge.other {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #64748b;
+      }
+
+      .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+      }
+
+      .table-action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .table-action-btn:hover {
+        background: #f8fafc;
+        color: #0f172a;
+      }
+
+      .table-action-btn.danger:hover {
+        color: #dc2626;
+        border-color: #fecaca;
+        background: #fef2f2;
+      }
+
+      .pagination-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .pagination-info {
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+
+      .pagination-modern {
+        margin: 0;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .pagination-modern .page-link {
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        min-width: 42px;
+        text-align: center;
+        border-radius: 12px !important;
+        padding: 8px 12px;
+        box-shadow: none;
+      }
+
+      .pagination-modern .page-item.active .page-link {
+        background: var(--dlg-blue);
+        border-color: var(--dlg-blue);
+        color: #fff;
+      }
+
+      .pagination-modern .page-item.disabled .page-link {
+        background: #f8fafc;
+        color: #94a3b8;
+      }
+
+      .modal-content {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+      }
+
+      .modal-header,
+      .modal-footer {
+        border-color: #eef2f7;
+        padding: 20px 24px;
+      }
+
+      .modal-body {
+        padding: 24px;
+      }
+
+      .toast-stack {
+        position: fixed;
+        top: 90px;
+        right: 20px;
+        z-index: 5000;
+      }
+
+      .modal-body input[type="date"] {
+        z-index: 5050;
+      }
+
+      .custom-toast {
+        min-width: 280px;
+        max-width: 360px;
+        color: #fff;
+        border-radius: 16px;
+        padding: 14px 16px;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+      }
+
+      .custom-toast.success {
+        background: #16a34a;
+      }
+
+      .custom-toast.error {
+        background: #dc2626;
+      }
+
+      .custom-toast.warning {
+        background: #d97706;
+      }
+
+      .bulk-action-bar {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: #0b2b6a;
+        color: #fff;
+        border-radius: 16px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+      }
+
+      .bulk-action-bar.active {
+        display: flex;
+      }
+
+      .bulk-action-bar .bulk-count {
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bulk-action-bar .btn-bulk-clear {
+        color: #cfe0ff;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+      }
+
+      .bulk-action-bar .btn-bulk-clear:hover {
+        color: #fff;
+        border-color: #fff;
+      }
+
+      .batch-static-field {
+        background: #f1f5f9;
+        border-radius: 14px;
+        padding: 10px 14px;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      @media (max-width: 767.98px) {
+        .hero-card,
+        .content-card,
+        .metric-card {
+          border-radius: 20px;
+        }
+
+        .hero-card,
+        .content-card {
+          padding: 20px;
+        }
+      }
+    </style>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+
+  <body>
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="page-shell">
+          <section class="hero-card mb-4">
+            <div
+              class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4"
+            >
+              <div>
+                <div
+                  class="text-uppercase fw-bold small text-primary mb-2"
+                  style="letter-spacing: 0.12em"
+                >
+                  Marketing Division
+                </div>
+                <div
+                  class="d-flex align-items-center gap-2 text-muted small mb-2"
+                >
+                  <a href="../home.html" class="text-decoration-none">Home</a>
+                  <span>/</span>
+                  <span>Promo Classes</span>
+                </div>
+                <h1 class="fw-bold mb-2">Promo Classes</h1>
+                <p class="text-muted mb-0">
+                  Data dikelompokkan per batch berdasarkan rentang tanggal
+                  promo. Tanggal batch tidak bisa diubah per data, cukup tambah
+                  atau hapus data di dalam batch yang sesuai.
+                </p>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary rounded-pill px-4"
+                  onclick="refreshAll()"
+                >
+                  <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-dlg-blue rounded-pill px-4"
+                  onclick="openNewBatchModal()"
+                >
+                  <i class="bi bi-calendar-plus me-2"></i>Buat Batch Baru
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="content-card mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0">Pilih Batch</h6>
+              <span class="text-muted small" id="batchCountLabel">0 batch</span>
+            </div>
+            <div class="batch-scroller" id="batchScroller">
+              <div class="text-muted small py-2">Memuat batch...</div>
+            </div>
+          </section>
+
+          <section class="row g-4 mb-4">
+            <div class="col-md-4">
+              <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="metric-label mb-2">Total di Batch Ini</div>
+                    <div class="metric-value" id="metricTotal">0</div>
+                  </div>
+                  <div class="metric-icon blue">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="metric-label mb-2">Online Class</div>
+                    <div class="metric-value" id="metricOnline">0</div>
+                  </div>
+                  <div class="metric-icon green">
+                    <i class="bi bi-broadcast-pin"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="metric-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="metric-label mb-2">Dengan Maps Link</div>
+                    <div class="metric-value" id="metricMaps">0</div>
+                  </div>
+                  <div class="metric-icon purple">
+                    <i class="bi bi-geo-alt-fill"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="content-card">
+            <div class="batch-info-bar" id="batchInfoBar" style="display: none">
+              <div>
+                <div class="batch-info-title">
+                  <i class="bi bi-calendar-range"></i>
+                  <span id="batchInfoLabel">-</span>
+                </div>
+                <div class="batch-info-sub" id="batchInfoSub">
+                  0 data dalam batch ini
+                </div>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="btn btn-dlg-blue rounded-pill px-4"
+                  id="addToBatchBtn"
+                  onclick="openAddModal()"
+                >
+                  <i class="bi bi-plus-circle me-2"></i>Tambah ke Batch Ini
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger rounded-pill px-4"
+                  id="deleteBatchBtn"
+                  style="display: none"
+                  onclick="openDeleteBatchModal()"
+                >
+                  <i class="bi bi-trash3 me-2"></i>Hapus Batch
+                </button>
+              </div>
+            </div>
+
+            <div id="batchContentArea">
+              <div class="batch-empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <h6 class="fw-bold mt-3 mb-2">Belum ada batch dipilih</h6>
+                <p class="mb-3">
+                  Buat batch baru untuk mulai mengelompokkan promo class
+                  berdasarkan rentang tanggal.
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-dlg-blue rounded-pill px-4"
+                  onclick="openNewBatchModal()"
+                >
+                  <i class="bi bi-calendar-plus me-2"></i>Buat Batch Baru
+                </button>
+              </div>
+            </div>
+
+            <div id="batchTableWrap" style="display: none">
+              <div class="toolbar mb-4">
+                <div class="d-flex flex-wrap gap-2 flex-grow-1">
+                  <div style="min-width: 260px; flex: 1 1 320px">
+                    <div class="input-group">
+                      <span
+                        class="input-group-text bg-white border-end-0 rounded-start-4"
+                      >
+                        <i class="bi bi-search"></i>
+                      </span>
+                      <input
+                        id="searchInput"
+                        type="text"
+                        class="form-control border-start-0 rounded-end-4"
+                        placeholder="Cari product, location, atau harga..."
+                      />
+                    </div>
+                  </div>
+                  <div style="min-width: 180px">
+                    <select id="locationFilter" class="form-select rounded-4">
+                      <option value="all">Semua Lokasi</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="text-muted small" id="resultSummary">0 data</div>
+              </div>
+
+              <div class="bulk-action-bar" id="bulkActionBar">
+                <div class="bulk-count">
+                  <i class="bi bi-check2-square"></i>
+                  <span id="bulkSelectedCount">0</span> data dipilih
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-light btn-sm rounded-pill px-3 fw-semibold text-danger"
+                    onclick="openBulkDeleteModal()"
+                  >
+                    <i class="bi bi-trash3 me-1"></i>Hapus Terpilih
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-bulk-clear btn-sm rounded-pill px-3"
+                    onclick="clearSelection()"
+                  >
+                    Batal Pilih
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="table table-modern align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 44px">
+                        <input
+                          type="checkbox"
+                          id="selectAllCheckbox"
+                          onchange="toggleSelectAll(this.checked)"
+                          title="Pilih semua di halaman ini"
+                        />
+                      </th>
+                      <th>Product</th>
+                      <th>Location</th>
+                      <th>Location Name</th>
+                      <th>Normal Price</th>
+                      <th>Promo Price</th>
+                      <th>Maps</th>
+                      <th>Updated</th>
+                      <th class="text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="promoClassTableBody"></tbody>
+                </table>
+              </div>
+              <div class="pagination-toolbar">
+                <div class="pagination-info" id="paginationInfo">
+                  Menampilkan 0-0 dari 0 data
+                </div>
+                <nav aria-label="Promo Classes Pagination">
+                  <ul
+                    class="pagination pagination-modern"
+                    id="paginationContainer"
+                  ></ul>
+                </nav>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Add / Edit Promo Class Modal -->
+    <div
+      class="modal fade"
+      id="promoClassModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title fw-bold mb-1" id="promoClassModalTitle">
+                Tambah Promo Class
+              </h5>
+              <div class="text-muted small">
+                Isi data promo class untuk collection `promo_classes`.
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="promoClassForm">
+              <input type="hidden" id="promoClassId" />
+              <input type="hidden" id="promoDurationInput" />
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Batch</label>
+                  <div class="batch-static-field">
+                    <i class="bi bi-calendar-range"></i>
+                    <span id="formBatchLabel">-</span>
+                  </div>
+                  <small class="text-muted"
+                    >Tanggal promo mengikuti batch yang sedang dipilih dan tidak
+                    bisa diubah per data.</small
+                  >
+                </div>
+                <div class="col-md-6">
+                  <label for="productInput" class="form-label fw-semibold"
+                    >Product</label
+                  >
+                  <input
+                    id="productInput"
+                    type="text"
+                    class="form-control rounded-4"
+                    placeholder="Contoh: Private Basic Plus"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="locationInput" class="form-label fw-semibold"
+                    >Location</label
+                  >
+                  <select id="locationInput" class="form-select rounded-4">
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="locationNameInput" class="form-label fw-semibold"
+                    >Location Name</label
+                  >
+                  <input
+                    id="locationNameInput"
+                    type="text"
+                    class="form-control rounded-4"
+                    placeholder="Contoh: Zoom / Jakarta Selatan"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="mapsLinkInput" class="form-label fw-semibold"
+                    >Maps Link</label
+                  >
+                  <input
+                    id="mapsLinkInput"
+                    type="url"
+                    class="form-control rounded-4"
+                    placeholder="https://maps.google.com/..."
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="normalPriceInput" class="form-label fw-semibold"
+                    >Normal Price</label
+                  >
+                  <input
+                    id="normalPriceInput"
+                    type="text"
+                    class="form-control rounded-4"
+                    placeholder="Contoh: Rp 2.000.000"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="promoPriceInput" class="form-label fw-semibold"
+                    >Promo Price</label
+                  >
+                  <input
+                    id="promoPriceInput"
+                    type="text"
+                    class="form-control rounded-4"
+                    placeholder="Contoh: Rp 987.000"
+                    required
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-dlg-blue rounded-pill px-4"
+              id="savePromoClassBtn"
+              onclick="savePromoClass()"
+            >
+              <span id="savePromoClassLabel">Simpan</span>
+              <span
+                id="savePromoClassSpinner"
+                class="spinner-border spinner-border-sm ms-2"
+                style="display: none"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete single item modal -->
+    <div
+      class="modal fade"
+      id="deletePromoClassModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-danger mb-0">
+              Hapus Promo Class
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="deletePromoClassId" />
+            <p class="mb-0">
+              Yakin ingin menghapus promo class
+              <strong id="deletePromoClassName">-</strong>?
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              onclick="confirmDeletePromoClass()"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk delete modal -->
+    <div
+      class="modal fade"
+      id="bulkDeleteModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-danger mb-0">
+              Hapus Data Terpilih
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">
+              Yakin ingin menghapus
+              <strong><span id="bulkDeleteCount">0</span> data</strong> yang
+              dipilih dari batch ini? Tindakan ini tidak bisa dibatalkan.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              id="confirmBulkDeleteBtn"
+              onclick="confirmBulkDelete()"
+            >
+              <span id="confirmBulkDeleteLabel">Hapus Semua</span>
+              <span
+                id="confirmBulkDeleteSpinner"
+                class="spinner-border spinner-border-sm ms-2"
+                style="display: none"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New batch modal -->
+    <div class="modal fade" id="newBatchModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title fw-bold mb-1">Buat Batch Baru</h5>
+              <div class="text-muted small">
+                Batch adalah kumpulan promo class dalam rentang tanggal
+                tertentu.
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label fw-semibold">Rentang Tanggal Batch</label>
+            <div class="input-group">
+              <div
+                class="input-group-text bg-white border-end-0 rounded-start-4"
+              >
+                <i class="bi bi-calendar-range"></i>
+              </div>
+              <input
+                id="newBatchStartDate"
+                type="date"
+                class="form-control border-start-0 rounded-end-0"
+              />
+              <input
+                id="newBatchEndDate"
+                type="date"
+                class="form-control border-start-0 rounded-start-0"
+              />
+              <div
+                class="input-group-text bg-white border-start-0 rounded-start-4"
+              >
+                -
+              </div>
+            </div>
+            <small class="text-muted d-block mt-2"
+              >Preview: <strong id="newBatchPreview">-</strong></small
+            >
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-dlg-blue rounded-pill px-4"
+              id="saveNewBatchBtn"
+              onclick="saveNewBatch()"
+            >
+              <span id="saveNewBatchLabel">Buat Batch</span>
+              <span
+                id="saveNewBatchSpinner"
+                class="spinner-border spinner-border-sm ms-2"
+                style="display: none"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete batch modal -->
+    <div
+      class="modal fade"
+      id="deleteBatchModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-danger mb-0">Hapus Batch</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">
+              Yakin ingin menghapus batch
+              <strong id="deleteBatchLabel">-</strong>? Batch hanya bisa dihapus
+              jika tidak berisi data promo class.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border rounded-pill px-4"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              onclick="confirmDeleteBatch()"
+            >
+              Hapus Batch
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        onSnapshot,
+        doc,
+        deleteDoc,
+        updateDoc,
+        serverTimestamp,
+        writeBatch,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      renderTopBar(document.getElementById("topbarContainer"));
+      renderSidebar(document.getElementById("sidebarContainer"));
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentUser = null;
+
+      // Raw caches from Firestore
+      let promoClassesCache = [];
+      let promoBatchesCache = []; // formal batch docs: {id, label, startDate, endDate, ...}
+      let unsubscribePromoClasses = null;
+      let unsubscribePromoBatches = null;
+
+      // Derived: merged batch list with counts, sorted by startDate.
+      let batchListCache = [];
+      let activeBatchLabel = null;
+
+      let currentPage = 1;
+      const ITEMS_PER_PAGE = 10;
+      const migratingLabels = new Set();
+
+      // Bulk selection state: holds the ids of currently-selected rows (within active batch).
+      const selectedIds = new Set();
+
+      const searchInput = document.getElementById("searchInput");
+      const locationFilter = document.getElementById("locationFilter");
+      const tableBody = document.getElementById("promoClassTableBody");
+      const resultSummary = document.getElementById("resultSummary");
+      const paginationInfo = document.getElementById("paginationInfo");
+      const paginationContainer = document.getElementById(
+        "paginationContainer",
+      );
+      const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+      const bulkActionBar = document.getElementById("bulkActionBar");
+      const bulkSelectedCount = document.getElementById("bulkSelectedCount");
+      const batchScroller = document.getElementById("batchScroller");
+      const batchCountLabel = document.getElementById("batchCountLabel");
+      const batchInfoBar = document.getElementById("batchInfoBar");
+      const batchInfoLabel = document.getElementById("batchInfoLabel");
+      const batchInfoSub = document.getElementById("batchInfoSub");
+      const batchContentArea = document.getElementById("batchContentArea");
+      const batchTableWrap = document.getElementById("batchTableWrap");
+      const deleteBatchBtn = document.getElementById("deleteBatchBtn");
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "../index.html";
+          return;
+        }
+
+        currentUser = user;
+        const localData = safeParse(localStorage.getItem("userData"));
+        const userName = localData?.name || user.email || "User";
+        const userPhoto = localData?.photo || "https://i.pravatar.cc/300";
+        const userRole = localData?.position || "Staff";
+
+        const userNameNode = document.getElementById("user-name-display");
+        const userPhotoNode = document.getElementById("user-photo-display");
+        const userRoleNode = document.getElementById("user-role-display");
+        if (userNameNode) userNameNode.innerText = userName;
+        if (userPhotoNode) userPhotoNode.src = userPhoto;
+        if (userRoleNode) userRoleNode.innerText = userRole;
+
+        listenToPromoBatches();
+        listenToPromoClasses();
+      });
+
+      /* ---------------------------------------------------------------- */
+      /* Firestore listeners                                              */
+      /* ---------------------------------------------------------------- */
+
+      function listenToPromoBatches() {
+        if (unsubscribePromoBatches) unsubscribePromoBatches();
+        unsubscribePromoBatches = onSnapshot(
+          collection(db, "promo_batches"),
+          (snapshot) => {
+            const rows = [];
+            snapshot.forEach((docSnap) => {
+              rows.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            promoBatchesCache = rows;
+            rebuildBatchList();
+          },
+          (error) => {
+            console.error("Failed to load promo batches:", error);
+            showToast("Gagal memuat data batch.", "error");
+          },
+        );
+      }
+
+      function listenToPromoClasses() {
+        if (unsubscribePromoClasses) unsubscribePromoClasses();
+        unsubscribePromoClasses = onSnapshot(
+          collection(db, "promo_classes"),
+          (snapshot) => {
+            const rows = [];
+            const validIds = new Set();
+            snapshot.forEach((docSnap) => {
+              rows.push({ id: docSnap.id, ...docSnap.data() });
+              validIds.add(docSnap.id);
+            });
+
+            for (const id of Array.from(selectedIds)) {
+              if (!validIds.has(id)) selectedIds.delete(id);
+            }
+
+            promoClassesCache = rows.sort(
+              (a, b) => getRecordSortMs(b) - getRecordSortMs(a),
+            );
+            rebuildBatchList();
+          },
+          (error) => {
+            console.error("Failed to load promo classes:", error);
+            showToast("Gagal memuat promo classes.", "error");
+          },
+        );
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Batch list derivation & legacy migration                         */
+      /* ---------------------------------------------------------------- */
+
+      function rebuildBatchList() {
+        const byLabel = new Map();
+
+        promoBatchesCache.forEach((batchDoc) => {
+          if (!batchDoc.label) return;
+          byLabel.set(batchDoc.label, {
+            id: batchDoc.id,
+            label: batchDoc.label,
+            startDate: batchDoc.startDate || null,
+            endDate: batchDoc.endDate || null,
+            count: 0,
+          });
+        });
+
+        const legacyLabelsMissing = new Set();
+
+        promoClassesCache.forEach((item) => {
+          const label = String(item.promoDuration || "").trim();
+          if (!label) return;
+          if (byLabel.has(label)) {
+            byLabel.get(label).count += 1;
+          } else {
+            legacyLabelsMissing.add(label);
+            // Still show it in the list (count-only) while migration completes.
+            if (!byLabel.has(label)) {
+              const range = parseDurationDateRange(label);
+              byLabel.set(label, {
+                id: null,
+                label,
+                startDate: range ? formatDateToISO(range.start) : null,
+                endDate: range ? formatDateToISO(range.end) : null,
+                count: 0,
+              });
+            }
+            byLabel.get(label).count += 1;
+          }
+        });
+
+        batchListCache = Array.from(byLabel.values()).sort((a, b) => {
+          const aTime = a.startDate ? new Date(a.startDate).getTime() : 0;
+          const bTime = b.startDate ? new Date(b.startDate).getTime() : 0;
+          return aTime - bTime;
+        });
+
+        migrateLegacyBatches(legacyLabelsMissing);
+
+        if (!activeBatchLabel && batchListCache.length > 0) {
+          activeBatchLabel = pickDefaultBatchLabel();
+        }
+        if (
+          activeBatchLabel &&
+          !batchListCache.some((b) => b.label === activeBatchLabel)
+        ) {
+          activeBatchLabel = batchListCache.length
+            ? batchListCache[0].label
+            : null;
+        }
+
+        renderBatchScroller();
+        renderLocationFilterOptions();
+        renderActiveBatchView();
+      }
+
+      function pickDefaultBatchLabel() {
+        const now = Date.now();
+        const containing = batchListCache.find((b) => {
+          if (!b.startDate || !b.endDate) return false;
+          const s = new Date(b.startDate).getTime();
+          const e = new Date(b.endDate).getTime();
+          return now >= s && now <= e;
+        });
+        if (containing) return containing.label;
+
+        const upcoming = batchListCache
+          .filter((b) => b.startDate && new Date(b.startDate).getTime() >= now)
+          .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
+        if (upcoming) return upcoming.label;
+
+        return batchListCache[batchListCache.length - 1].label;
+      }
+
+      async function migrateLegacyBatches(legacyLabelsMissing) {
+        if (!currentUser) return;
+        for (const label of legacyLabelsMissing) {
+          if (migratingLabels.has(label)) continue;
+          const range = parseDurationDateRange(label);
+          if (!range) continue;
+          migratingLabels.add(label);
+          try {
+            await addDoc(collection(db, "promo_batches"), {
+              label,
+              startDate: formatDateToISO(range.start),
+              endDate: formatDateToISO(range.end),
+              created_at: serverTimestamp(),
+              created_at_ms: Date.now(),
+              created_by: currentUser?.email || currentUser?.uid || "",
+              migrated: true,
+            });
+          } catch (error) {
+            console.error("Failed to migrate legacy batch:", label, error);
+            migratingLabels.delete(label);
+          }
+        }
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Batch scroller rendering                                         */
+      /* ---------------------------------------------------------------- */
+
+      function renderBatchScroller() {
+        batchCountLabel.textContent = `${batchListCache.length} batch`;
+
+        const pills = batchListCache
+          .map((batch) => {
+            const isActive = batch.label === activeBatchLabel;
+            return `
+              <div class="batch-pill ${isActive ? "active" : ""}" onclick="selectBatch('${escapeAttribute(batch.label)}')">
+                <span class="batch-pill-label">${escapeHtml(batch.label)}</span>
+                <span class="batch-pill-count">${batch.count} data</span>
+              </div>
+            `;
+          })
+          .join("");
+
+        const addPill = `
+          <div class="batch-pill batch-pill-add" onclick="openNewBatchModal()">
+            <i class="bi bi-plus-lg"></i> Batch Baru
+          </div>
+        `;
+
+        batchScroller.innerHTML = batchListCache.length
+          ? pills + addPill
+          : `<div class="text-muted small py-2">Belum ada batch.</div>` +
+            addPill;
+      }
+
+      window.selectBatch = function (label) {
+        activeBatchLabel = label;
+        currentPage = 1;
+        clearSelection();
+        renderBatchScroller();
+        renderActiveBatchView();
+      };
+
+      function getActiveBatch() {
+        return batchListCache.find((b) => b.label === activeBatchLabel) || null;
+      }
+
+      function getItemsForActiveBatch() {
+        if (!activeBatchLabel) return [];
+        return promoClassesCache.filter(
+          (item) =>
+            String(item.promoDuration || "").trim() === activeBatchLabel,
+        );
+      }
+
+      function renderActiveBatchView() {
+        const batch = getActiveBatch();
+
+        if (!batch) {
+          batchInfoBar.style.display = "none";
+          batchContentArea.style.display = "block";
+          batchTableWrap.style.display = "none";
+          return;
+        }
+
+        batchInfoBar.style.display = "flex";
+        batchContentArea.style.display = "none";
+        batchTableWrap.style.display = "block";
+
+        batchInfoLabel.textContent = batch.label;
+        batchInfoSub.textContent = `${batch.count} data dalam batch ini`;
+        deleteBatchBtn.style.display =
+          batch.count === 0 ? "inline-flex" : "none";
+
+        updateMetrics();
+        renderPromoClassTable();
+        updateBulkActionBar();
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Metrics                                                          */
+      /* ---------------------------------------------------------------- */
+
+      function updateMetrics() {
+        const items = getItemsForActiveBatch();
+        const total = items.length;
+        const online = items.filter(
+          (item) => normalizeText(item.location) === "online",
+        ).length;
+        const withMaps = items.filter((item) =>
+          String(item.mapsLink || "").trim(),
+        ).length;
+
+        document.getElementById("metricTotal").textContent = String(total);
+        document.getElementById("metricOnline").textContent = String(online);
+        document.getElementById("metricMaps").textContent = String(withMaps);
+      }
+
+      function renderLocationFilterOptions() {
+        const currentValue = locationFilter.value || "all";
+        const items = getItemsForActiveBatch();
+        const uniqueLocations = Array.from(
+          new Set(
+            items
+              .map((item) => String(item.location || "").trim())
+              .filter(Boolean),
+          ),
+        ).sort((a, b) => a.localeCompare(b));
+
+        locationFilter.innerHTML = '<option value="all">Semua Lokasi</option>';
+        uniqueLocations.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item;
+          option.textContent = item;
+          locationFilter.appendChild(option);
+        });
+
+        locationFilter.value =
+          uniqueLocations.includes(currentValue) || currentValue === "all"
+            ? currentValue
+            : "all";
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Table rendering (scoped to active batch)                         */
+      /* ---------------------------------------------------------------- */
+
+      function renderPromoClassTable() {
+        const filteredRows = getFilteredPromoClasses();
+        const totalItems = filteredRows.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex =
+          totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+        const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+        const paginatedRows = filteredRows.slice(
+          startIndex > 0 ? startIndex - 1 : 0,
+          endIndex,
+        );
+
+        resultSummary.textContent = `${totalItems} data`;
+        paginationInfo.textContent = `Menampilkan ${startIndex}-${endIndex} dari ${totalItems} data`;
+
+        if (!totalItems) {
+          tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <i class="bi bi-inboxes"></i>
+                                <h6 class="fw-bold mt-3 mb-2">Belum ada promo class di batch ini</h6>
+                                <p class="mb-0">Coba ubah pencarian, atau tambahkan data promo class baru ke batch ini.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+          renderPagination(totalItems, totalPages);
+          updateSelectAllState(paginatedRows);
+          return;
+        }
+
+        tableBody.innerHTML = paginatedRows
+          .map((item) => {
+            const locationValue = String(item.location || "").trim();
+            const locationClass = getLocationClass(locationValue);
+            const locationName = item.locationName
+              ? escapeHtml(item.locationName)
+              : '<span class="text-muted">-</span>';
+            const mapsLink = String(item.mapsLink || "").trim();
+            const mapsHtml = mapsLink
+              ? `<a href="${escapeAttribute(mapsLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                       </a>`
+              : '<span class="text-muted">-</span>';
+            const isChecked = selectedIds.has(item.id);
+
+            return `
+                    <tr class="${isChecked ? "row-selected" : ""}">
+                        <td>
+                            <input type="checkbox" class="row-checkbox" ${isChecked ? "checked" : ""} onchange="toggleRowSelection('${escapeAttribute(item.id)}', this.checked)" />
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">${escapeHtml(item.product || "-")}</div>
+                        </td>
+                        <td>
+                            <span class="location-badge ${locationClass}">
+                                <i class="bi bi-geo-alt-fill"></i>${escapeHtml(locationValue || "-")}
+                            </span>
+                        </td>
+                        <td>${locationName}</td>
+                        <td><span class="price-chip normal">${escapeHtml(item.normalPrice || "-")}</span></td>
+                        <td><span class="price-chip promo">${escapeHtml(item.promoPrice || "-")}</span></td>
+                        <td>${mapsHtml}</td>
+                        <td class="text-muted small">${formatDateTime(item.updated_at || item.created_at, item.updated_at_ms || item.created_at_ms)}</td>
+                        <td class="text-center">
+                            <div class="d-inline-flex gap-2">
+                                <button type="button" class="table-action-btn" title="Edit" onclick="openEditModal('${escapeAttribute(item.id)}')">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" class="table-action-btn danger" title="Hapus" onclick="openDeleteModal('${escapeAttribute(item.id)}')">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+          })
+          .join("");
+
+        renderPagination(totalItems, totalPages);
+        updateSelectAllState(paginatedRows);
+      }
+
+      function getFilteredPromoClasses() {
+        const searchTerm = normalizeText(searchInput.value);
+        const selectedLocation = locationFilter.value;
+        const items = getItemsForActiveBatch();
+
+        return items.filter((item) => {
+          const matchesLocation =
+            selectedLocation === "all" ||
+            String(item.location || "").trim() === selectedLocation;
+          if (!matchesLocation) return false;
+          if (!searchTerm) return true;
+
+          const haystack = [
+            item.product,
+            item.location,
+            item.locationName,
+            item.normalPrice,
+            item.promoPrice,
+            item.mapsLink,
+          ]
+            .map((value) => String(value || ""))
+            .join(" ");
+
+          return normalizeText(haystack).includes(searchTerm);
+        });
+      }
+
+      function parseDurationDateRange(durationStr) {
+        if (!durationStr || !durationStr.includes("-")) return null;
+
+        const parts = durationStr.split("-").map((s) => s.trim());
+        if (parts.length < 2) return null;
+
+        const startDate = parseIndonesianDate(parts[0]);
+        const endDate = parseIndonesianDate(parts[1]);
+
+        if (!startDate || !endDate) return null;
+
+        return { start: startDate, end: endDate };
+      }
+
+      function renderPagination(totalItems, totalPages) {
+        if (!paginationContainer) return;
+
+        if (totalItems === 0) {
+          paginationContainer.innerHTML = "";
+          return;
+        }
+
+        const items = [];
+        items.push(
+          createPaginationItem(
+            "Prev",
+            currentPage - 1,
+            currentPage === 1,
+            false,
+          ),
+        );
+
+        for (let page = 1; page <= totalPages; page += 1) {
+          items.push(
+            createPaginationItem(
+              String(page),
+              page,
+              false,
+              page === currentPage,
+            ),
+          );
+        }
+
+        items.push(
+          createPaginationItem(
+            "Next",
+            currentPage + 1,
+            currentPage === totalPages,
+            false,
+          ),
+        );
+        paginationContainer.innerHTML = items.join("");
+      }
+
+      function createPaginationItem(label, page, disabled, active) {
+        const classes = ["page-item"];
+        if (disabled) classes.push("disabled");
+        if (active) classes.push("active");
+        const safePage = Math.max(1, page);
+        return `
+                <li class="${classes.join(" ")}">
+                    <button type="button" class="page-link" ${disabled ? "disabled" : ""} onclick="goToPage(${safePage})">${escapeHtml(label)}</button>
+                </li>
+            `;
+      }
+
+      function getRecordSortMs(item) {
+        return (
+          getTimestampMs(item.updated_at, item.updated_at_ms) ||
+          getTimestampMs(item.created_at, item.created_at_ms) ||
+          0
+        );
+      }
+
+      function getTimestampMs(timestampValue, numericValue) {
+        if (typeof numericValue === "number" && Number.isFinite(numericValue)) {
+          return numericValue;
+        }
+        if (timestampValue && typeof timestampValue.toDate === "function") {
+          return timestampValue.toDate().getTime();
+        }
+        const parsed = new Date(timestampValue || "").getTime();
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function formatDateTime(timestampValue, numericValue) {
+        const ms = getTimestampMs(timestampValue, numericValue);
+        if (!ms) return "-";
+        return new Date(ms).toLocaleString("id-ID", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function getLocationClass(locationValue) {
+        const normalized = normalizeText(locationValue);
+        if (normalized === "online") return "online";
+        if (normalized === "offline") return "offline";
+        return "other";
+      }
+
+      function normalizeText(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase();
+      }
+
+      function safeParse(value) {
+        try {
+          return JSON.parse(value || "null");
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function escapeAttribute(value) {
+        return escapeHtml(value).replace(/`/g, "&#96;");
+      }
+
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `custom-toast ${type} mb-2`;
+        toast.innerHTML = `<i class="bi bi-${type === "success" ? "check-circle-fill" : type === "error" ? "x-circle-fill" : "exclamation-triangle-fill"} me-2"></i>${escapeHtml(message)}`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transition = "opacity 0.3s ease";
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Date helpers                                                     */
+      /* ---------------------------------------------------------------- */
+
+      const monthNames = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+
+      function formatDateToIndonesian(dateStr) {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day} ${month} ${year}`;
+      }
+
+      function parseIndonesianDate(dateStr) {
+        if (!dateStr) return null;
+
+        const parts = dateStr.split(" ");
+        if (parts.length < 3) return null;
+
+        const day = parseInt(parts[0], 10);
+        const monthName = parts[1];
+        const year = parseInt(parts[2], 10);
+
+        if (!day || !monthName || !year) return null;
+
+        const monthIndex = monthNames.indexOf(monthName);
+        if (monthIndex === -1) return null;
+
+        return new Date(year, monthIndex, day);
+      }
+
+      function formatDateToISO(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Add / Edit / Delete promo class (fields other than date only)     */
+      /* ---------------------------------------------------------------- */
+
+      function resetForm() {
+        document.getElementById("promoClassForm").reset();
+        document.getElementById("promoClassId").value = "";
+        document.getElementById("locationInput").value = "Online";
+        document.getElementById("promoDurationInput").value =
+          activeBatchLabel || "";
+        document.getElementById("formBatchLabel").textContent =
+          activeBatchLabel || "-";
+      }
+
+      window.openAddModal = function () {
+        if (!activeBatchLabel) {
+          showToast("Pilih atau buat batch terlebih dahulu.", "error");
+          return;
+        }
+        resetForm();
+        document.getElementById("promoClassModalTitle").textContent =
+          "Tambah Promo Class";
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("promoClassModal"),
+        ).show();
+      };
+
+      window.openEditModal = function (id) {
+        const item = promoClassesCache.find((row) => row.id === id);
+        if (!item) return;
+
+        document.getElementById("promoClassModalTitle").textContent =
+          "Edit Promo Class";
+        document.getElementById("promoClassId").value = item.id || "";
+        document.getElementById("productInput").value = item.product || "";
+        document.getElementById("locationInput").value =
+          item.location || "Online";
+        document.getElementById("locationNameInput").value =
+          item.locationName || "";
+        document.getElementById("mapsLinkInput").value = item.mapsLink || "";
+        document.getElementById("normalPriceInput").value =
+          item.normalPrice || "";
+        document.getElementById("promoPriceInput").value =
+          item.promoPrice || "";
+        document.getElementById("promoDurationInput").value =
+          item.promoDuration || activeBatchLabel || "";
+        document.getElementById("formBatchLabel").textContent =
+          item.promoDuration || activeBatchLabel || "-";
+
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("promoClassModal"),
+        ).show();
+      };
+
+      window.openDeleteModal = function (id) {
+        const item = promoClassesCache.find((row) => row.id === id);
+        if (!item) return;
+
+        document.getElementById("deletePromoClassId").value = item.id || "";
+        document.getElementById("deletePromoClassName").textContent =
+          item.product || "-";
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("deletePromoClassModal"),
+        ).show();
+      };
+
+      window.savePromoClass = async function () {
+        const id = document.getElementById("promoClassId").value.trim();
+        const product = document.getElementById("productInput").value.trim();
+        const classLocation = document
+          .getElementById("locationInput")
+          .value.trim();
+        const locationName = document
+          .getElementById("locationNameInput")
+          .value.trim();
+        const mapsLink = document.getElementById("mapsLinkInput").value.trim();
+        const normalPrice = document
+          .getElementById("normalPriceInput")
+          .value.trim();
+        const promoPrice = document
+          .getElementById("promoPriceInput")
+          .value.trim();
+        // Duration is fixed by the batch — never editable per record.
+        const promoDuration = document
+          .getElementById("promoDurationInput")
+          .value.trim();
+
+        if (!product) {
+          showToast("Product wajib diisi.", "error");
+          return;
+        }
+        if (!classLocation) {
+          showToast("Location wajib diisi.", "error");
+          return;
+        }
+        if (!normalPrice) {
+          showToast("Normal price wajib diisi.", "error");
+          return;
+        }
+        if (!promoPrice) {
+          showToast("Promo price wajib diisi.", "error");
+          return;
+        }
+        if (!promoDuration) {
+          showToast(
+            "Batch tidak ditemukan, pilih batch terlebih dahulu.",
+            "error",
+          );
+          return;
+        }
+
+        const saveBtn = document.getElementById("savePromoClassBtn");
+        const saveLabel = document.getElementById("savePromoClassLabel");
+        const saveSpinner = document.getElementById("savePromoClassSpinner");
+        saveBtn.disabled = true;
+        saveLabel.textContent = "Menyimpan...";
+        saveSpinner.style.display = "inline-block";
+
+        const nowMs = Date.now();
+        const actor = currentUser
+          ? currentUser.email || currentUser.uid || ""
+          : "";
+        const payload = {
+          product,
+          location: classLocation,
+          locationName,
+          mapsLink,
+          normalPrice,
+          promoPrice,
+          promoDuration,
+          updated_at: serverTimestamp(),
+          updated_at_ms: nowMs,
+          updated_by: actor,
+        };
+
+        try {
+          if (id) {
+            await updateDoc(doc(db, "promo_classes", id), payload);
+            showToast(
+              `Promo class "${product}" berhasil diperbarui.`,
+              "success",
+            );
+          } else {
+            await addDoc(collection(db, "promo_classes"), {
+              ...payload,
+              created_at: serverTimestamp(),
+              created_at_ms: nowMs,
+              created_by: actor,
+            });
+            showToast(
+              `Promo class "${product}" berhasil ditambahkan ke batch.`,
+              "success",
+            );
+          }
+
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("promoClassModal"),
+          ).hide();
+          resetForm();
+        } catch (error) {
+          console.error("Failed to save promo class:", error);
+          showToast("Gagal menyimpan promo class.", "error");
+        } finally {
+          saveBtn.disabled = false;
+          saveLabel.textContent = "Simpan";
+          saveSpinner.style.display = "none";
+        }
+      };
+
+      window.confirmDeletePromoClass = async function () {
+        const id = document.getElementById("deletePromoClassId").value.trim();
+        if (!id) return;
+
+        const item = promoClassesCache.find((row) => row.id === id);
+        try {
+          await deleteDoc(doc(db, "promo_classes", id));
+          selectedIds.delete(id);
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("deletePromoClassModal"),
+          ).hide();
+          showToast(
+            `Promo class "${item?.product || ""}" berhasil dihapus.`,
+            "success",
+          );
+        } catch (error) {
+          console.error("Failed to delete promo class:", error);
+          showToast("Gagal menghapus promo class.", "error");
+        }
+      };
+
+      window.refreshAll = function () {
+        listenToPromoBatches();
+        listenToPromoClasses();
+        showToast("Data sedang disegarkan.", "warning");
+      };
+
+      window.goToPage = function (page) {
+        const filteredRows = getFilteredPromoClasses();
+        const totalPages = Math.max(
+          1,
+          Math.ceil(filteredRows.length / ITEMS_PER_PAGE),
+        );
+        currentPage = Math.min(Math.max(1, page), totalPages);
+        renderPromoClassTable();
+      };
+
+      window.logout = async function () {
+        await signOut(auth);
+        localStorage.removeItem("userData");
+        window.location.href = "../index.html";
+      };
+
+      window.toggleSidebar = function () {
+        const sidebar = document.getElementById("sidebarNav");
+        if (!sidebar) return;
+        const isMobile = window.innerWidth <= 991;
+        if (isMobile) {
+          sidebar.classList.toggle("show");
+        } else {
+          document.body.classList.toggle("sidebar-collapsed");
+        }
+      };
+
+      searchInput.addEventListener("input", () => {
+        currentPage = 1;
+        renderPromoClassTable();
+      });
+      locationFilter.addEventListener("change", () => {
+        currentPage = 1;
+        renderPromoClassTable();
+      });
+
+      /* ---------------------------------------------------------------- */
+      /* Bulk selection & bulk delete (add/remove data per batch only)     */
+      /* ---------------------------------------------------------------- */
+
+      function updateBulkActionBar() {
+        const count = selectedIds.size;
+        bulkSelectedCount.textContent = String(count);
+        bulkActionBar.classList.toggle("active", count > 0);
+      }
+
+      function updateSelectAllState(visibleRows) {
+        if (!selectAllCheckbox) return;
+        if (!visibleRows.length) {
+          selectAllCheckbox.checked = false;
+          selectAllCheckbox.indeterminate = false;
+          return;
+        }
+        const selectedOnPage = visibleRows.filter((row) =>
+          selectedIds.has(row.id),
+        ).length;
+        selectAllCheckbox.checked = selectedOnPage === visibleRows.length;
+        selectAllCheckbox.indeterminate =
+          selectedOnPage > 0 && selectedOnPage < visibleRows.length;
+      }
+
+      window.toggleRowSelection = function (id, isChecked) {
+        if (isChecked) {
+          selectedIds.add(id);
+        } else {
+          selectedIds.delete(id);
+        }
+        updateBulkActionBar();
+        renderPromoClassTable();
+      };
+
+      window.toggleSelectAll = function (isChecked) {
+        const filteredRows = getFilteredPromoClasses();
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const visibleRows = filteredRows.slice(
+          startIndex,
+          startIndex + ITEMS_PER_PAGE,
+        );
+
+        visibleRows.forEach((row) => {
+          if (isChecked) {
+            selectedIds.add(row.id);
+          } else {
+            selectedIds.delete(row.id);
+          }
+        });
+
+        updateBulkActionBar();
+        renderPromoClassTable();
+      };
+
+      window.clearSelection = function () {
+        selectedIds.clear();
+        updateBulkActionBar();
+        renderPromoClassTable();
+      };
+
+      window.openBulkDeleteModal = function () {
+        if (selectedIds.size === 0) {
+          showToast("Pilih minimal satu data terlebih dahulu.", "error");
+          return;
+        }
+        document.getElementById("bulkDeleteCount").textContent = String(
+          selectedIds.size,
+        );
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("bulkDeleteModal"),
+        ).show();
+      };
+
+      window.confirmBulkDelete = async function () {
+        if (selectedIds.size === 0) return;
+
+        const btn = document.getElementById("confirmBulkDeleteBtn");
+        const label = document.getElementById("confirmBulkDeleteLabel");
+        const spinner = document.getElementById("confirmBulkDeleteSpinner");
+        btn.disabled = true;
+        label.textContent = "Menghapus...";
+        spinner.style.display = "inline-block";
+
+        const idsToDelete = Array.from(selectedIds);
+
+        try {
+          const batch = writeBatch(db);
+          idsToDelete.forEach((id) => {
+            batch.delete(doc(db, "promo_classes", id));
+          });
+          await batch.commit();
+
+          showToast(
+            `${idsToDelete.length} data berhasil dihapus dari batch.`,
+            "success",
+          );
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("bulkDeleteModal"),
+          ).hide();
+          clearSelection();
+        } catch (error) {
+          console.error("Failed to bulk delete promo classes:", error);
+          showToast("Gagal menghapus data secara bulk.", "error");
+        } finally {
+          btn.disabled = false;
+          label.textContent = "Hapus Semua";
+          spinner.style.display = "none";
+        }
+      };
+
+      /* ---------------------------------------------------------------- */
+      /* Batch management: create / delete                                */
+      /* ---------------------------------------------------------------- */
+
+      const newBatchStartDate = document.getElementById("newBatchStartDate");
+      const newBatchEndDate = document.getElementById("newBatchEndDate");
+      const newBatchPreview = document.getElementById("newBatchPreview");
+
+      function updateNewBatchPreview() {
+        const start = newBatchStartDate.value;
+        const end = newBatchEndDate.value;
+        if (start && end) {
+          newBatchPreview.textContent = `${formatDateToIndonesian(start)} - ${formatDateToIndonesian(end)}`;
+        } else {
+          newBatchPreview.textContent = "-";
+        }
+      }
+
+      newBatchStartDate.addEventListener("change", updateNewBatchPreview);
+      newBatchEndDate.addEventListener("change", updateNewBatchPreview);
+      newBatchStartDate.addEventListener("click", function () {
+        this.showPicker?.();
+      });
+      newBatchEndDate.addEventListener("click", function () {
+        this.showPicker?.();
+      });
+
+      window.openNewBatchModal = function () {
+        const today = new Date();
+        newBatchStartDate.value = formatDateToISO(today);
+        const end = new Date(today);
+        end.setDate(end.getDate() + 30);
+        newBatchEndDate.value = formatDateToISO(end);
+        updateNewBatchPreview();
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("newBatchModal"),
+        ).show();
+      };
+
+      window.saveNewBatch = async function () {
+        const start = newBatchStartDate.value;
+        const end = newBatchEndDate.value;
+
+        if (!start || !end) {
+          showToast("Pilih tanggal mulai dan tanggal selesai.", "error");
+          return;
+        }
+        if (new Date(end) < new Date(start)) {
+          showToast(
+            "Tanggal selesai tidak boleh sebelum tanggal mulai.",
+            "error",
+          );
+          return;
+        }
+
+        const label = `${formatDateToIndonesian(start)} - ${formatDateToIndonesian(end)}`;
+
+        const existing = batchListCache.find((b) => b.label === label);
+        if (existing) {
+          showToast("Batch dengan rentang tanggal ini sudah ada.", "warning");
+          activeBatchLabel = label;
+          renderBatchScroller();
+          renderActiveBatchView();
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("newBatchModal"),
+          ).hide();
+          return;
+        }
+
+        const btn = document.getElementById("saveNewBatchBtn");
+        const btnLabel = document.getElementById("saveNewBatchLabel");
+        const spinner = document.getElementById("saveNewBatchSpinner");
+        btn.disabled = true;
+        btnLabel.textContent = "Menyimpan...";
+        spinner.style.display = "inline-block";
+
+        const actor = currentUser
+          ? currentUser.email || currentUser.uid || ""
+          : "";
+
+        try {
+          await addDoc(collection(db, "promo_batches"), {
+            label,
+            startDate: start,
+            endDate: end,
+            created_at: serverTimestamp(),
+            created_at_ms: Date.now(),
+            created_by: actor,
+          });
+
+          activeBatchLabel = label;
+          showToast(`Batch "${label}" berhasil dibuat.`, "success");
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("newBatchModal"),
+          ).hide();
+        } catch (error) {
+          console.error("Failed to create batch:", error);
+          showToast("Gagal membuat batch baru.", "error");
+        } finally {
+          btn.disabled = false;
+          btnLabel.textContent = "Buat Batch";
+          spinner.style.display = "none";
+        }
+      };
+
+      window.openDeleteBatchModal = function () {
+        const batch = getActiveBatch();
+        if (!batch) return;
+        if (batch.count > 0) {
+          showToast(
+            "Batch tidak bisa dihapus karena masih berisi data.",
+            "error",
+          );
+          return;
+        }
+        document.getElementById("deleteBatchLabel").textContent = batch.label;
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById("deleteBatchModal"),
+        ).show();
+      };
+
+      window.confirmDeleteBatch = async function () {
+        const batch = getActiveBatch();
+        if (!batch) return;
+        if (batch.count > 0) {
+          showToast(
+            "Batch tidak bisa dihapus karena masih berisi data.",
+            "error",
+          );
+          return;
+        }
+        if (!batch.id) {
+          showToast("Batch ini belum tersimpan sebagai dokumen.", "error");
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "promo_batches", batch.id));
+          activeBatchLabel = null;
+          showToast(`Batch "${batch.label}" berhasil dihapus.`, "success");
+          bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("deleteBatchModal"),
+          ).hide();
+        } catch (error) {
+          console.error("Failed to delete batch:", error);
+          showToast("Gagal menghapus batch.", "error");
+        }
+      };
+    </script>
+  </body>
+</html>

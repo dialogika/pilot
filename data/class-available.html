@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Availability - Team Dialogika</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
+        .modal-body { padding: 30px; }
+        .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
+        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-control, .form-select {
+            padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus { border-color: var(--dlg-blue); box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1); }
+        body { font-family: 'Inter', sans-serif; letter-spacing: -0.01em; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        [x-cloak] { display: none !important; }
+        .row-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900">
+
+    <div id="topbarContainer"></div>
+    
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" x-data="classManager()" x-init="init()">
+            
+
+            <main class="max-w-7xl mx-auto px-6 py-6">
+                <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+                    <div>
+                        <nav class="flex gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">
+                            <a href="../home.html"><span><i class="bi bi-house-fill"></i></span></a>
+                            <span>/</span>
+                            <span>Rebuy</span>
+                            <span>/</span>
+                            <span class="text-slate-400">Quota Class</span>
+                        </nav>
+                        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Class Availability</h1>
+                        <p class="text-slate-500 mt-1 font-medium text-lg">Cek ketersediaan kursi real-time untuk penutupan penjualan.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <button 
+                            type="button"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition font-bold text-sm text-slate-700"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editCapacityModal"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit Capacity
+                        </button>
+                        <button 
+                            type="button"
+                            class="flex items-center gap-2 px-5 py-2.5 btn-dlg-blue text-white rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition font-bold text-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addBatchModal"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                            Add Batch
+                        </button>
+                        <button 
+                            type="button"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition font-bold text-sm"
+                            :disabled="selectedClasses.length === 0"
+                            :class="{'opacity-50 cursor-not-allowed': selectedClasses.length === 0}"
+                            @click="openPlanModal()"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                            Tambah ke Perencanaan
+                        </button>
+                    </div>
+                </header>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-2">
+                    <div class="relative flex-grow group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                        <input x-model="search" type="text" placeholder="Cari nama kelas atau mentor..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-500 transition-all outline-none font-medium text-slate-600 shadow-sm">
+                    </div>
+                    
+                    <div class="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                        <select x-model="filterType" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none">
+                            <option value="All">All Types</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Online">Online</option>
+                            <option value="Private">Private</option>
+                        </select>
+                        <div class="w-[1px] h-6 bg-slate-200"></div>
+                        <select x-model="filterStatus" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none">
+                            <option value="All">All Status</option>
+                            <option value="Open">Available</option>
+                            <option value="Almost Full">Almost Full</option>
+                            <option value="Full">Sold Out</option>
+                            <option value="Closed">Kelas Ditutup</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                        <select x-model="sortBy" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none">
+                            <option value="priority_sales">Sort: Prioritas Penjualan</option>
+                            <option value="name">Sort: Nama Kelas</option>
+                            <option value="schedule">Sort: Jadwal</option>
+                            <option value="seats_left">Sort: Kursi Tersisa</option>
+                            <option value="mentor">Sort: Mentor</option>
+                            <option value="product">Sort: Product</option>
+                        </select>
+                        <button
+                            type="button"
+                            @click="toggleSortDirection()"
+                            class="w-10 h-10 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition flex items-center justify-center"
+                            :title="sortDirection === 'asc' ? 'Urutan naik (A-Z, terdekat, kecil-besar)' : 'Urutan turun (Z-A, terjauh, besar-kecil)'"
+                        >
+                            <svg x-show="sortDirection === 'asc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 17V7m0 0l-3 3m3-3l3 3M17 7v10m0 0l3-3m-3 3l-3-3"/></svg>
+                            <svg x-show="sortDirection === 'desc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7v10m0 0l-3-3m3 3l3-3M17 17V7m0 0l3 3m-3-3l-3 3"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-6">
+                    Default sorting menggunakan <span class="font-bold text-slate-700">Prioritas Penjualan</span>:
+                    kursi tersisa paling sedikit ditampilkan lebih dulu, sedangkan kelas sold out/closed dipindah ke bawah agar tim cepat fokus ke batch yang hampir penuh.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <!-- Loading State -->
+                    <div x-show="loading" class="text-center py-12" style="display: none;">
+                        <div class="spinner-border text-indigo-600" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-slate-500 font-medium">Sedang memuat data dari Firebase...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div x-show="!loading && filteredClasses.length === 0" class="text-center py-12 bg-white rounded-[24px] border-2 border-dashed border-slate-200" style="display: none;">
+                        <div class="mb-3">
+                            <svg class="w-12 h-12 text-slate-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                        </div>
+                        <p class="text-slate-500 font-medium">Belum ada data kelas yang tersedia.</p>
+                        <p class="text-slate-400 text-sm mb-4">Silakan tambahkan batch baru untuk memulai.</p>
+                    </div>
+
+                    <div class="px-4 py-3 flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-slate-400" x-show="!loading && filteredClasses.length > 0">
+                        <div class="w-8 flex justify-center">
+                            <input type="checkbox" :checked="selectAll" @change="toggleSelectAll" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                        </div>
+                        <div class="w-32 text-center">Available</div>
+                        <div class="flex-grow ml-4">Class Details</div>
+                        <div class="w-32 text-center">Type</div>
+                        <div class="w-48 text-center">Registration</div>
+                        <div class="w-32 text-right">Status</div>
+                        <div class="w-24 text-center">Action</div>
+                    </div>
+
+                    <template x-for="item in filteredClasses" :key="item.id">
+                        <div 
+                            class="row-transition bg-white border border-slate-200 rounded-[24px] p-2 flex items-center shadow-sm hover:shadow-xl hover:border-indigo-200 group"
+                            :class="(isBatchClosed(item) || item.current_joined >= item.max_seat) ? 'opacity-50 grayscale bg-slate-50' : ''"
+                        >
+                            <div class="w-10 flex justify-center pl-2">
+                                <input type="checkbox" :value="item.id" x-model="selectedClasses" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" :disabled="item.is_planned">
+                            </div>
+                            <div class="w-32 h-24 flex flex-col items-center justify-center rounded-[20px] transition group-hover:scale-105"
+                                :class="{
+                                    'bg-emerald-50 text-emerald-600': (item.max_seat - item.current_joined) > 2 && !isBatchClosed(item),
+                                    'bg-rose-50 text-rose-600': (item.max_seat - item.current_joined) <= 2 && (item.max_seat - item.current_joined) > 0 && !isBatchClosed(item),
+                                    'bg-slate-100 text-slate-400': (item.max_seat - item.current_joined) <= 0 || isBatchClosed(item)
+                                }">
+                                <span class="mono text-5xl leading-none font-bold" x-text="item.max_seat - item.current_joined"></span>
+                                <span class="text-[10px] font-black uppercase mt-1 tracking-widest">Seats</span>
+                            </div>
+
+                            <div class="flex-grow px-6">
+                                <div class="text-xl font-extrabold text-slate-800 mb-1 group-hover:text-indigo-600 transition" x-text="item.name"></div>
+                                <div class="flex items-center gap-4 text-sm font-semibold">
+                                    <div class="flex items-center gap-1.5 text-slate-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        <span x-text="formatDate(item.start_date)"></span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-indigo-500/80">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <span x-text="item.mentor_name"></span>
+                                    </div>
+                                </div>
+                                <div class="mt-1 text-[11px] font-semibold text-slate-400 flex items-center gap-1.5" x-show="item.product_name || item.product_id">
+                                    <span class="uppercase tracking-[0.16em]">Product</span>
+                                    <span class="mono text-[10px] text-slate-500" x-text="item.product_name || item.product_id"></span>
+                                </div>
+                                <div class="mt-2" x-show="item.is_planned">
+                                    <span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold uppercase tracking-widest border border-indigo-100">Sudah Masuk Perencanaan</span>
+                                </div>
+                            </div>
+
+                            <div class="w-32 text-center">
+                                <span class="px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm border"
+                                    :class="{
+                                        'bg-orange-50 text-orange-600 border-orange-100': item.type === 'Offline',
+                                        'bg-blue-50 text-blue-600 border-blue-100': item.type === 'Online',
+                                        'bg-purple-50 text-purple-600 border-purple-100': item.type === 'Private'
+                                    }" x-text="item.type"></span>
+                            </div>
+
+                            <div class="w-48 px-4 flex flex-col items-center gap-2">
+                                <div class="flex items-center bg-slate-100 p-1 rounded-xl">
+                                    <button @click="updateJoined(item.id, -1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm hover:bg-rose-500 hover:text-white transition group/btn">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/></svg>
+                                    </button>
+                                    <div class="px-4 text-center">
+                                        <span class="mono font-bold text-slate-800" x-text="item.current_joined"></span>
+                                        <span class="text-slate-400 font-bold">/</span>
+                                        <span class="text-slate-400 font-bold text-xs" x-text="item.max_seat"></span>
+                                    </div>
+                                    <button @click="updateJoined(item.id, 1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm hover:bg-emerald-500 hover:text-white transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="w-32 pr-8 text-right">
+                                <template x-if="isBatchClosed(item)">
+                                    <div class="flex flex-col items-end uppercase leading-tight">
+                                        <span class="text-[10px] font-black text-slate-400 tracking-[0.15em]">Closed</span>
+                                        <span class="text-[11px] font-black text-slate-500 tracking-widest">Kelas Ditutup</span>
+                                    </div>
+                                </template>
+                                <template x-if="!isBatchClosed(item) && (item.max_seat - item.current_joined) <= 0">
+                                    <div class="text-xs font-black text-slate-400 uppercase tracking-widest leading-tight">Sold Out</div>
+                                </template>
+                                <template x-if="!isBatchClosed(item) && (item.max_seat - item.current_joined) > 0 && (item.max_seat - item.current_joined) <= 2">
+                                    <div class="flex flex-col items-end uppercase leading-tight">
+                                        <span class="text-[10px] font-black text-rose-500 tracking-[0.15em] animate-pulse italic">Hot Alert</span>
+                                        <span class="text-[11px] font-black text-slate-800 tracking-widest">Hampir Habis</span>
+                                    </div>
+                                </template>
+                                <template x-if="!isBatchClosed(item) && (item.max_seat - item.current_joined) > 2">
+                                    <div class="flex flex-col items-end uppercase leading-tight">
+                                        <span class="text-[10px] font-black text-emerald-500 tracking-[0.15em]">Ready to Sell</span>
+                                        <span class="text-[11px] font-black text-slate-800 tracking-widest">Open Batch</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="w-24 flex items-center justify-center gap-2 border-l border-slate-100 pl-2">
+                                <button @click="editBatch(item)" class="p-2 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition" title="Edit Batch">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <button @click="deleteBatch(item)" class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Delete Batch">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Edit Batch Modal -->
+                <div class="modal fade" id="editCapacityModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Batch</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Class</label>
+                                        <input type="text" class="form-control" x-model="editBatchName">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Product</label>
+                                        <select class="form-select" x-model="editBatchProductId">
+                                            <option value="">Pilih product</option>
+                                            <template x-for="p in products" :key="'edit-product-'+p.id">
+                                                <option :value="p.productId" x-text="p.name || p.productId"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Type</label>
+                                        <select class="form-select" x-model="editBatchType">
+                                            <option value="Offline">Offline</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Private">Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Max Seat</label>
+                                        <input type="number" class="form-control" min="1" x-model.number="editBatchMaxSeat">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kota</label>
+                                        <select class="form-select" x-model="editBatchLocation">
+                                            <option value="">Pilih Kota</option>
+                                            <option value="Yogyakarta">Yogyakarta</option>
+                                            <option value="Jakarta">Jakarta</option>
+                                            <option value="Surabaya">Surabaya</option>
+                                            <option value="Pontianak">Pontianak</option>
+                                            <option value="Tangsel">Tangsel</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mentor</label>
+                                        <select class="form-select" x-model="editBatchMentor">
+                                            <option value="Unknown">Unknown (Pilih Nanti)</option>
+                                            <template x-for="m in mentors" :key="'edit-mentor-'+m.id">
+                                                <option :value="m.name" x-text="m.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="datetime-local" class="form-control" x-model="editBatchStartDate">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Down Payment (IDR)</label>
+                                        <input type="text" class="form-control text-primary fw-bold" 
+                                            :value="formatCurrency(editBatchDp)"
+                                            @input="editBatchDp = parseCurrency($event.target.value)"
+                                            placeholder="e.g. 500.000">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-primary" @click="confirmEditBatch()">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Batch Modal -->
+                <div class="modal fade" id="deleteBatchModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Konfirmasi Hapus Batch</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p x-text="selectedBatch ? `Apakah Anda yakin ingin menghapus batch '${selectedBatch.name}'?` : 'Apakah Anda yakin ingin menghapus batch ini?'"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-danger" @click="confirmDeleteBatch()">Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Batch Modal -->
+                <div class="modal fade" id="addBatchModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add New Batch</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Class</label>
+                                        <input type="text" class="form-control" placeholder="Contoh: First Class Offline - Jakarta" x-model="newBatchName">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Product</label>
+                                        <select class="form-select" x-model="newBatchProductId">
+                                            <option value="">Pilih product</option>
+                                            <option value="__custom__">Custom (Input Manual)</option>
+                                            <template x-for="p in products" :key="p.id">
+                                                <option :value="p.productId" x-text="p.name || p.productId"></option>
+                                            </template>
+                                        </select>
+                                        <input
+                                            x-show="newBatchProductId === '__custom__'"
+                                            x-model="newBatchCustomProduct"
+                                            type="text"
+                                            class="form-control mt-2"
+                                            placeholder="Masukkan nama / kode product custom"
+                                        >
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Type</label>
+                                        <select class="form-select" x-model="newBatchType">
+                                            <option value="Offline">Offline</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Private">Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Max Seat</label>
+                                        <input type="number" class="form-control" min="1" placeholder="Kapasitas" x-model.number="newBatchMaxSeat">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kota</label>
+                                        <select class="form-select" x-model="newBatchLocation">
+                                            <option value="">Pilih Kota</option>
+                                            <option value="Yogyakarta">Yogyakarta</option>
+                                            <option value="Jakarta">Jakarta</option>
+                                            <option value="Surabaya">Surabaya</option>
+                                            <option value="Bandung">Tangsel</option>
+                                            <option value="Bali">Pontianak</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mentor</label>
+                                        <select class="form-select" x-model="newBatchMentor">
+                                            <option value="Unknown">Unknown (Pilih Nanti)</option>
+                                            <template x-for="m in mentors" :key="'new-mentor-'+m.id">
+                                                <option :value="m.name" x-text="m.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="datetime-local" class="form-control" x-model="newBatchStartDate">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Down Payment (IDR)</label>
+                                        <input type="text" class="form-control text-primary fw-bold" 
+                                            :value="formatCurrency(newBatchDp)"
+                                            @input="newBatchDp = parseCurrency($event.target.value)"
+                                            placeholder="e.g. 500.000">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" @click="addBatch()">Add Batch</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Confirmation Modal -->
+                <div class="modal fade" id="planConfirmModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Konfirmasi Perencanaan Kelas</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-info mb-4" x-show="planSummary.valid.length > 0">
+                                    <strong><span x-text="planSummary.valid.length"></span> Kelas Valid</strong> siap untuk dipindahkan ke Perencanaan Kelas.
+                                </div>
+                                <div class="alert alert-danger mb-4" x-show="planSummary.invalid.length > 0">
+                                    <strong><span x-text="planSummary.invalid.length"></span> Kelas Tidak Valid</strong> dan tidak dapat dipindahkan. Pastikan Data Mentor, Tanggal Mulai (bukan Flexible), dan Kapasitas (Max Seat) sudah terisi dengan benar.
+                                </div>
+                                <div class="max-h-60 overflow-y-auto border rounded-xl p-3">
+                                    <h6 class="font-bold text-sm mb-2 text-emerald-700" x-show="planSummary.valid.length > 0">Valid:</h6>
+                                    <ul class="list-disc pl-5 text-sm mb-3" x-show="planSummary.valid.length > 0">
+                                        <template x-for="c in planSummary.valid" :key="c.id">
+                                            <li x-text="c.name + ' (' + c.mentor_name + ')'"></li>
+                                        </template>
+                                    </ul>
+                                    <h6 class="font-bold text-sm mb-2 text-rose-700" x-show="planSummary.invalid.length > 0">Invalid:</h6>
+                                    <ul class="list-disc pl-5 text-sm" x-show="planSummary.invalid.length > 0">
+                                        <template x-for="c in planSummary.invalid" :key="c.id">
+                                            <li x-text="c.name + ' - Alasan: ' + c.reason" class="text-rose-600"></li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-primary" :disabled="planSummary.valid.length === 0" @click="confirmPlanMove()">Pindahkan <span x-text="planSummary.valid.length"></span> Kelas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { broadcastMessage, destroySyncResources } from "../assets/js/class-sync.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.serverTimestamp = serverTimestamp;
+        window.broadcastMessage = broadcastMessage;
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem("userData");
+            } catch (e) {}
+            window.location.href = "/index.html";
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+        });
+    </script>
+
+    <script>
+        window.classManager = function () {
+            return {
+                search: "",
+                filterType: "All",
+                filterStatus: "All",
+                sortBy: "priority_sales",
+                sortDirection: "asc",
+                loading: false,
+                newBatchName: "",
+                newBatchProductId: "",
+                newBatchCustomProduct: "",
+                newBatchType: "Offline",
+                newBatchMaxSeat: 1,
+                newBatchMentor: "",
+                newBatchStartDate: "",
+                newBatchLocation: "",
+                selectedBatch: null,
+                editBatchId: null,
+                editBatchName: "",
+                editBatchProductId: "",
+                editBatchType: "Offline",
+                editBatchMaxSeat: 1,
+                editBatchMentor: "",
+                editBatchStartDate: "",
+                editBatchLocation: "",
+                newBatchDp: 0,
+                editBatchDp: 0,
+                selectedClasses: [],
+                planSummary: { valid: [], invalid: [] },
+                classes: [],
+                products: [],
+                mentors: [],
+                async init() {
+                    // Tunggu Firebase siap (polling 10x @ 500ms)
+                    let attempts = 0;
+                    while (!(window.db && window.collection && window.getDocs) && attempts < 10) {
+                        console.log("Menunggu inisialisasi Firebase...", attempts + 1);
+                        await new Promise(r => setTimeout(r, 500));
+                        attempts++;
+                    }
+
+                    // Cek dependensi
+                    if (!(window.db && window.collection && window.getDocs)) {
+                        console.error("Firebase tidak tersedia setelah menunggu.");
+                        this.useFallbackData();
+                        return;
+                    }
+
+                    this.loading = true;
+                    try {
+                        console.log("Memulai pengambilan data Firestore...");
+                        const snap = await window.getDocs(window.collection(window.db, "class_availability"));
+                        console.log("Data Firestore berhasil diambil. Jumlah dokumen:", snap.size);
+                        
+                        if (snap.empty) {
+                            console.warn("Firestore terhubung tapi collection 'class_availability' kosong.");
+                        }
+
+                        const items = [];
+                        let idx = 1;
+                        snap.forEach(function (docSnap) {
+                            const d = docSnap.data() || {};
+                            console.log("Loaded doc:", d);
+                            items.push({
+                                id: String(d.id || idx++),
+                                docId: docSnap.id,
+                                name: d.name || "Unnamed Class",
+                                type: d.type || "Offline",
+                                max_seat: Number(d.max_seat || 0),
+                                current_joined: Number(d.current_joined || 0),
+                                start_date: d.start_date || "Flexible",
+                                mentor_name: d.mentor_name || "Unknown",
+                                product_id: d.productId || d.product_id || null,
+                                product_name: d.productName || d.product_name || null,
+                                location: d.location || "",
+                                down_payment: Number(d.down_payment || 0),
+                                is_planned: d.is_planned || false
+                            });
+                        });
+                        this.classes = items;
+
+                        await this.loadProducts();
+                        await this.loadMentors();
+                    } catch (e) {
+                        console.error("Gagal memuat class_availability dari Firestore (Network Error/Aborted):", e);
+                        this.useFallbackData();
+                        console.log("Menggunakan data fallback/local karena koneksi Firestore terputus.");
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                get selectAll() {
+                    const availableToSelect = this.filteredClasses.filter(c => !c.is_planned);
+                    return availableToSelect.length > 0 && this.selectedClasses.length === availableToSelect.length;
+                },
+                toggleSelectAll() {
+                    const availableToSelect = this.filteredClasses.filter(c => !c.is_planned);
+                    if (this.selectedClasses.length === availableToSelect.length) {
+                        this.selectedClasses = [];
+                    } else {
+                        this.selectedClasses = availableToSelect.map(c => c.id);
+                    }
+                },
+                openPlanModal() {
+                    this.planSummary = { valid: [], invalid: [] };
+                    this.selectedClasses.forEach(id => {
+                        const c = this.classes.find(cls => cls.id === id);
+                        if (!c) return;
+                        let invalidReasons = [];
+                        if (!c.name || c.name.trim() === "" || c.name === "Unnamed Class") invalidReasons.push("Nama kelas kosong");
+                        if (!c.mentor_name || c.mentor_name.trim() === "") invalidReasons.push("Mentor tidak valid");
+                        if (!c.start_date || c.start_date === "Flexible" || c.start_date.trim() === "") invalidReasons.push("Jadwal Flexible/Kosong");
+                        if (!c.max_seat || c.max_seat <= 0) invalidReasons.push("Kapasitas kelas <= 0");
+                        
+                        if (invalidReasons.length > 0) {
+                            this.planSummary.invalid.push({ ...c, reason: invalidReasons.join(", ") });
+                        } else {
+                            this.planSummary.valid.push(c);
+                        }
+                    });
+                    const modalEl = document.getElementById("planConfirmModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    }
+                },
+                async confirmPlanMove() {
+                    if (this.planSummary.valid.length === 0) return;
+                    
+                    for (const c of this.planSummary.valid) {
+                        try {
+                            const dateStr = String(c.start_date).trim();
+                            const parts = dateStr.split("T");
+                            let dateKey = "";
+                            let timeKey = "";
+                            if (parts.length > 1) {
+                                const dObj = new Date(parts[0]);
+                                if (!isNaN(dObj.getTime())) {
+                                    dateKey = dObj.getFullYear() + "-" + String(dObj.getMonth() + 1).padStart(2, "0") + "-" + String(dObj.getDate()).padStart(2, "0");
+                                }
+                                timeKey = parts[1].slice(0, 5);
+                            } else {
+                                const parsed = new Date(dateStr);
+                                if (!isNaN(parsed.getTime())) {
+                                    dateKey = parsed.getFullYear() + "-" + String(parsed.getMonth() + 1).padStart(2, "0") + "-" + String(parsed.getDate()).padStart(2, "0");
+                                    timeKey = String(parsed.getHours()).padStart(2, "0") + ":" + String(parsed.getMinutes()).padStart(2, "0");
+                                }
+                            }
+                            
+                            const payload = {
+                                availabilityId: c.docId || "",
+                                name: c.name,
+                                mentor: c.mentor_name,
+                                type: c.type,
+                                max_seat: c.max_seat,
+                                current_joined: c.current_joined,
+                                duration: 1.5,
+                                room: "",
+                                note: "",
+                                date: dateKey,
+                                time: timeKey,
+                                productId: c.product_id || "",
+                                productName: c.product_name || "",
+                                location: c.location || "",
+                                down_payment: c.down_payment || 0,
+                                createdAt: window.serverTimestamp()
+                            };
+                            await window.addDoc(window.collection(window.db, "class_planning"), payload);
+                            
+                            // Mark as planned in class_availability
+                            if (c.docId) {
+                                await window.updateDoc(window.doc(window.db, "class_availability", c.docId), {
+                                    is_planned: true
+                                });
+                                c.is_planned = true;
+                            }
+                        } catch (e) {
+                            console.error("Failed to move class to planning:", c.name, e);
+                        }
+                    }
+                    
+                    alert("Berhasil memindahkan " + this.planSummary.valid.length + " kelas ke Perencanaan.");
+                    this.selectedClasses = [];
+                    const modalEl = document.getElementById("planConfirmModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    }
+                },
+                
+                useFallbackData() {
+                    // Data dummy agar tabel tidak kosong saat Preview/Offline
+                    this.classes = [
+                        { id: 1, name: "First Class Offline - Jakarta (Preview Mode)", type: "Offline", max_seat: 7, current_joined: 6, start_date: "10 Nov 2023", mentor_name: "Coach Aris" },
+                        { id: 2, name: "Basic Plus Online - Batch 42 (Preview Mode)", type: "Online", max_seat: 10, current_joined: 10, start_date: "12 Nov 2023", mentor_name: "Coach Devi" },
+                        { id: 3, name: "Private Class - Public Speaking", type: "Private", max_seat: 1, current_joined: 0, start_date: "Flexible", mentor_name: "Coach Taufan" },
+                        { id: 4, name: "Advanced Presentation - Online", type: "Online", max_seat: 12, current_joined: 4, start_date: "15 Nov 2023", mentor_name: "Coach Aris" },
+                        { id: 5, name: "Kids Public Speaking - Offline", type: "Offline", max_seat: 7, current_joined: 2, start_date: "20 Nov 2023", mentor_name: "Coach Susi" }
+                    ];
+                },
+                async loadProducts() {
+                    if (!(window.db && window.collection && window.getDocs)) {
+                        this.products = [];
+                        return;
+                    }
+                    try {
+                        const snap = await window.getDocs(window.collection(window.db, "products"));
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            const d = docSnap.data() || {};
+                            const id = docSnap.id;
+                            list.push({
+                                id,
+                                productId: d.productId || id,
+                                name: d.name || d.internalName || id
+                            });
+                        });
+                        list.sort((a, b) => {
+                            const left = String(a.name || a.productId || "").toLowerCase();
+                            const right = String(b.name || b.productId || "").toLowerCase();
+                            return left.localeCompare(right, "id");
+                        });
+                        this.products = list;
+                        console.log("Loaded products for batch dropdown:", list.length);
+                    } catch (e) {
+                        console.error("Gagal memuat products untuk dropdown batch:", e);
+                        this.products = [];
+                    }
+                },
+                async loadMentors() {
+                    if (!(window.db && window.collection && window.getDocs)) {
+                        this.mentors = [];
+                        return;
+                    }
+                    try {
+                        const snap = await window.getDocs(window.collection(window.db, "mentor"));
+                        const list = [];
+                        snap.forEach((docSnap) => {
+                            const d = docSnap.data() || {};
+                            const id = docSnap.id;
+                            if (d.fullName) {
+                                list.push({
+                                    id,
+                                    name: d.fullName
+                                });
+                            }
+                        });
+                        list.sort((a, b) => a.name.localeCompare(b.name, "id"));
+                        this.mentors = list;
+                    } catch (e) {
+                        console.error("Gagal memuat mentors:", e);
+                        this.mentors = [];
+                    }
+                },
+                formatCurrency(val) {
+                    if (!val && val !== 0) return "";
+                    return new Intl.NumberFormat('id-ID').format(val);
+                },
+                parseCurrency(val) {
+                    if (!val) return 0;
+                    const digits = val.replace(/[^\d]/g, '');
+                    return digits ? parseInt(digits, 10) : 0;
+                },
+                formatDate(dateStr) {
+                    if (!dateStr || dateStr === 'Flexible') return dateStr;
+                    try {
+                        const date = new Date(dateStr);
+                        if (isNaN(date.getTime())) return dateStr;
+                        
+                        // Format: 25 Jan, 15:30 PM
+                        const day = date.getDate();
+                        const month = date.toLocaleString('id-ID', { month: 'short' });
+                        const hour = date.getHours();
+                        const minute = date.getMinutes().toString().padStart(2, '0');
+                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        // Convert to 12-hour format if needed, but request was 15:30 PM (24h with PM suffix is unusual, 
+                        // assuming user wants 24h + AM/PM or 12h + AM/PM. 
+                        // Example "15:30 PM" is contradictory (15:30 is 24h). 
+                        // Let's follow "25 Jan, 15:30" (24h) or "03:30 PM".
+                        // User request literal: "15:30 PM". This usually means 24h format but with AM/PM indicator redundantly, or just standard 12h.
+                        // Let's standard 12h format "3:30 PM" or 24h "15:30".
+                        // "15:30 PM" -> 15 is 3 PM. 
+                        // Let's stick to a clean format: "25 Jan, 15:30" (Common in ID) or "25 Jan, 03:30 PM".
+                        // User said "15:30 PM". I will use 24-hour format for the time number but append AM/PM for clarity as requested.
+                        
+                        const hourStr = hour.toString().padStart(2, '0');
+                        return `${day} ${month}, ${hourStr}:${minute} ${ampm}`;
+                    } catch (e) {
+                        return dateStr;
+                    }
+                },
+                isBatchClosed(item) {
+                    if (!item || !item.start_date || item.start_date === 'Flexible') return false;
+                    try {
+                        const date = new Date(item.start_date);
+                        if (isNaN(date.getTime())) return false;
+                        const now = new Date();
+                        return date.getTime() < now.getTime();
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                getSeatsLeft(item) {
+                    const max = Number(item && item.max_seat ? item.max_seat : 0);
+                    const joined = Number(item && item.current_joined ? item.current_joined : 0);
+                    return max - joined;
+                },
+                getScheduleTimestamp(item) {
+                    if (!item || !item.start_date) return Number.POSITIVE_INFINITY;
+                    if (item.start_date === "Flexible") {
+                        const anchor = new Date();
+                        anchor.setHours(12, 0, 0, 0);
+                        return anchor.getTime();
+                    }
+                    const ts = new Date(item.start_date).getTime();
+                    return Number.isFinite(ts) ? ts : Number.POSITIVE_INFINITY;
+                },
+                getBatchStatus(item) {
+                    if (!item) return "Open";
+                    if (this.isBatchClosed(item)) return "Closed";
+                    const seatsLeft = this.getSeatsLeft(item);
+                    if (seatsLeft <= 0) return "Full";
+                    if (seatsLeft <= 2) return "Almost Full";
+                    return "Open";
+                },
+                compareText(a, b) {
+                    return String(a || "").localeCompare(String(b || ""), "id", { sensitivity: "base" });
+                },
+                compareNumber(a, b) {
+                    return Number(a || 0) - Number(b || 0);
+                },
+                toggleSortDirection() {
+                    this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+                },
+                async updateJoined(id, delta) {
+                    const cls = this.classes.find(c => c.id === id);
+                    if (!cls) return;
+                    const nextVal = cls.current_joined + delta;
+                    if (nextVal < 0 || nextVal > cls.max_seat) return;
+                    cls.current_joined = nextVal;
+
+                    if (cls.docId && window.db && window.doc && window.updateDoc) {
+                        try {
+                            await window.updateDoc(
+                                window.doc(window.db, "class_availability", cls.docId),
+                                { current_joined: cls.current_joined }
+                            );
+                        } catch (e) {
+                            console.error("Gagal mengupdate current_joined di Firestore:", e);
+                        }
+                    }
+                },
+                async deleteBatch(item) {
+                    this.selectedBatch = item;
+                    const modalEl = document.getElementById("deleteBatchModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    }
+                },
+                async confirmDeleteBatch() {
+                    if (!this.selectedBatch) return;
+                    const item = this.selectedBatch;
+
+                    const modalEl = document.getElementById("deleteBatchModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    }
+
+                    try {
+                        this.classes = this.classes.filter(c => c.id !== item.id);
+
+                        if (item.docId && window.db && window.deleteDoc && window.doc) {
+                            await window.deleteDoc(window.doc(window.db, "class_availability", item.docId));
+                            console.log("Deleted doc:", item.docId);
+                        } else {
+                            console.warn("Delete skipped (no docId or Firebase not ready)");
+                        }
+                    } catch (e) {
+                        console.error("Error deleting batch:", e);
+                        alert("Gagal menghapus data dari server.");
+                    } finally {
+                        this.selectedBatch = null;
+                    }
+                },
+                editBatch(item) {
+                    this.selectedBatch = item;
+                    this.editBatchId = item.id;
+                    this.editBatchName = item.name || "";
+                    this.editBatchProductId = item.product_id || "";
+                    this.editBatchType = item.type || "Offline";
+                    this.editBatchMaxSeat = Number(item.max_seat || 1);
+                    this.editBatchMentor = item.mentor_name || "";
+                    this.editBatchStartDate = item.start_date && item.start_date !== "Flexible" ? item.start_date : "";
+                    this.editBatchLocation = item.location || "";
+                    this.editBatchDp = Number(item.down_payment || 0);
+
+                    const modalEl = document.getElementById("editCapacityModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    }
+                },
+                async confirmEditBatch() {
+                    if (!this.selectedBatch) return;
+
+                    const name = (this.editBatchName || "").trim();
+                    const productId = (this.editBatchProductId || "").trim();
+                    const type = this.editBatchType || "Offline";
+                    const maxSeat = Number(this.editBatchMaxSeat) || 0;
+                    const mentor = (this.editBatchMentor || "").trim();
+                    const startDate = (this.editBatchStartDate || "").trim() || "Flexible";
+                    const location = (this.editBatchLocation || "").trim();
+                    const downPayment = Number(this.editBatchDp) || 0;
+
+                    if (!name || maxSeat <= 0) {
+                        alert("Nama class dan Max Seat wajib diisi.");
+                        return;
+                    }
+
+                    if (!productId) {
+                        alert("Product wajib dipilih.");
+                        return;
+                    }
+
+                    const productRef = this.products.find(p => p.productId === productId);
+
+                    this.selectedBatch.name = name;
+                    this.selectedBatch.type = type;
+                    this.selectedBatch.max_seat = maxSeat;
+                    if (this.selectedBatch.current_joined > maxSeat) {
+                        this.selectedBatch.current_joined = maxSeat;
+                    }
+                    this.selectedBatch.start_date = startDate;
+                    this.selectedBatch.mentor_name = mentor || "Unknown";
+                    this.selectedBatch.product_id = productId;
+                    this.selectedBatch.product_name = productRef ? productRef.name : null;
+                    this.selectedBatch.location = location;
+                    this.selectedBatch.down_payment = downPayment;
+
+                    if (this.selectedBatch.docId && window.db && window.doc && window.updateDoc) {
+                        try {
+                            await window.updateDoc(
+                                window.doc(window.db, "class_availability", this.selectedBatch.docId),
+                                {
+                                    name: this.selectedBatch.name,
+                                    type: this.selectedBatch.type,
+                                    max_seat: this.selectedBatch.max_seat,
+                                    current_joined: this.selectedBatch.current_joined,
+                                    start_date: this.selectedBatch.start_date,
+                                    mentor_name: this.selectedBatch.mentor_name,
+                                    productId: this.selectedBatch.product_id,
+                                    productName: this.selectedBatch.product_name,
+                                    location: this.selectedBatch.location || "",
+                                    down_payment: this.selectedBatch.down_payment || 0
+                                }
+                            );
+                        } catch (e) {
+                            console.error("Gagal mengupdate batch di Firestore:", e);
+                            alert("Perubahan gagal disimpan ke server.\nCek console untuk detail error.");
+                        }
+                    } else {
+                        console.warn("Update batch diabaikan (docId atau Firebase belum siap).");
+                    }
+
+                    const modalEl = document.getElementById("editCapacityModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    }
+
+                    this.editBatchId = null;
+                    this.editBatchName = "";
+                    this.editBatchProductId = "";
+                    this.editBatchType = "Offline";
+                    this.editBatchMaxSeat = 1;
+                    this.editBatchMentor = "";
+                    this.editBatchStartDate = "";
+                    this.editBatchLocation = "";
+                    this.editBatchDp = 0;
+                    this.selectedBatch = null;
+                },
+                async addBatch() {
+                    const name = (this.newBatchName || "").trim();
+                    const selectedProduct = (this.newBatchProductId || "").trim();
+                    const customProduct = (this.newBatchCustomProduct || "").trim();
+                    const productId = selectedProduct === "__custom__" ? customProduct : selectedProduct;
+                    const type = this.newBatchType || "Offline";
+                    const maxSeat = Number(this.newBatchMaxSeat) || 0;
+                    const mentor = (this.newBatchMentor || "").trim();
+                    const startDate = (this.newBatchStartDate || "").trim() || "Flexible";
+                    const location = (this.newBatchLocation || "").trim();
+                    const downPayment = Number(this.newBatchDp) || 0;
+
+                    if (!name || maxSeat <= 0) {
+                        alert("Nama class dan Max Seat wajib diisi.");
+                        return;
+                    }
+
+                    if (!productId) {
+                        alert("Product wajib dipilih.");
+                        return;
+                    }
+
+                    if (selectedProduct === "__custom__" && !customProduct) {
+                        alert("Isi product custom terlebih dahulu.");
+                        return;
+                    }
+
+                    const nextId = this.classes.length
+                        ? Math.max.apply(null, this.classes.map(c => Number(c.id) || 0)) + 1
+                        : 1;
+
+                    const productRef = this.products.find(p => p.productId === productId);
+                    const resolvedProductName = selectedProduct === "__custom__"
+                        ? customProduct
+                        : (productRef ? productRef.name : null);
+
+                    const newItem = {
+                        id: String(nextId),
+                        name,
+                        type,
+                        max_seat: maxSeat,
+                        current_joined: 0,
+                        start_date: startDate,
+                        mentor_name: mentor || "Unknown",
+                        product_id: productId,
+                        product_name: resolvedProductName,
+                        location,
+                        down_payment: downPayment
+                    };
+
+                    this.classes.push(newItem);
+
+                    if (window.db && window.collection && window.addDoc) {
+                        try {
+                            const docRef = await window.addDoc(
+                                window.collection(window.db, "class_availability"),
+                                {
+                                    name: newItem.name,
+                                    type: newItem.type,
+                                    max_seat: newItem.max_seat,
+                                    current_joined: newItem.current_joined,
+                                    start_date: newItem.start_date,
+                                    mentor_name: newItem.mentor_name,
+                                    productId: newItem.product_id,
+                                    productName: newItem.product_name,
+                                    location: newItem.location || "",
+                                    down_payment: newItem.down_payment || 0,
+                                    created_at: window.serverTimestamp()
+                                }
+                            );
+                            // Store the Firestore doc ID back onto the local item
+                            // so delete/edit can reference it
+                            newItem.docId = docRef.id;
+                            // Broadcast to other tabs for instant sync
+                            window.broadcastMessage({
+                                type: "CLASS_ADDED",
+                                docId: docRef.id,
+                                className: newItem.name,
+                                timestamp: Date.now()
+                            });
+                        } catch (e) {
+                            console.error("Gagal menyimpan batch ke Firestore:", e);
+                            alert("Data batch sudah muncul di tabel, tapi gagal disimpan ke Firebase.\nCek console untuk detail error (misal rules / network).");
+                        }
+                    } else {
+                        console.error("Firestore belum terinisialisasi dengan benar (db/collection/addDoc tidak tersedia).");
+                    }
+
+                    this.newBatchName = "";
+                    this.newBatchProductId = "";
+                    this.newBatchCustomProduct = "";
+                    this.newBatchType = "Offline";
+                    this.newBatchMaxSeat = 1;
+                    this.newBatchMentor = "";
+                    this.newBatchStartDate = "";
+                    this.newBatchLocation = "";
+                    this.newBatchDp = 0;
+
+                    const modalEl = document.getElementById("addBatchModal");
+                    if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    }
+                },
+                get filteredClasses() {
+                    return this.classes
+                        .filter(c => {
+                            const status = this.getBatchStatus(c);
+                            const typeMatch = this.filterType === "All" || c.type === this.filterType;
+                            const statusMatch = this.filterStatus === "All" || status === this.filterStatus;
+                            const searchMatch = c.name.toLowerCase().includes(this.search.toLowerCase()) ||
+                                c.mentor_name.toLowerCase().includes(this.search.toLowerCase());
+                            return typeMatch && statusMatch && searchMatch;
+                        })
+                        .sort((a, b) => {
+                            let result = 0;
+                            const seatsA = this.getSeatsLeft(a);
+                            const seatsB = this.getSeatsLeft(b);
+
+                            if (this.sortBy === "name") {
+                                result = this.compareText(a.name, b.name);
+                            } else if (this.sortBy === "schedule") {
+                                result = this.compareNumber(this.getScheduleTimestamp(a), this.getScheduleTimestamp(b));
+                                if (result === 0) result = this.compareText(a.name, b.name);
+                            } else if (this.sortBy === "seats_left") {
+                                result = this.compareNumber(seatsA, seatsB);
+                                if (result === 0) result = this.compareText(a.name, b.name);
+                            } else if (this.sortBy === "mentor") {
+                                result = this.compareText(a.mentor_name, b.mentor_name);
+                                if (result === 0) result = this.compareText(a.name, b.name);
+                            } else if (this.sortBy === "product") {
+                                const productA = a.product_name || a.product_id || "";
+                                const productB = b.product_name || b.product_id || "";
+                                result = this.compareText(productA, productB);
+                                if (result === 0) result = this.compareText(a.name, b.name);
+                            } else {
+                                const soldOutA = seatsA <= 0 || this.isBatchClosed(a);
+                                const soldOutB = seatsB <= 0 || this.isBatchClosed(b);
+                                if (soldOutA !== soldOutB) result = soldOutA ? 1 : -1;
+                                else result = this.compareNumber(seatsA, seatsB);
+                                if (result === 0) result = this.compareNumber(this.getScheduleTimestamp(a), this.getScheduleTimestamp(b));
+                                if (result === 0) result = this.compareText(a.name, b.name);
+                            }
+
+                            return this.sortDirection === "asc" ? result : -result;
+                        });
+                }
+            };
+        };
+    </script>
+</body>
+</html>

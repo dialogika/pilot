@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peta Sistem — Team Internal Dialogika (team.dialogika.co)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14336E; --blue:#1958A5; --blue2:#1C79C7; --yellow:#F8D91D;
+  --ink:#0d1b34; --muted:#5b6b86; --line:#e4e9f2; --bg:#f4f7fc; --card:#ffffff;
+  --green:#1a9e6a; --amber:#e08a00; --red:#d64541; --violet:#6b4fbb;
+  --shadow:0 6px 22px rgba(20,51,110,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;font-size:14px}
+.wrap{max-width:1220px;margin:0 auto;padding:0 20px 80px}
+a{color:var(--blue)}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+/* Header */
+header{background:linear-gradient(135deg,var(--navy),var(--blue) 70%,var(--blue2));color:#fff;padding:34px 0 30px;box-shadow:var(--shadow)}
+header .wrap{padding-bottom:0}
+.hbadge{display:inline-block;background:var(--yellow);color:var(--navy);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px}
+header h1{font-size:28px;font-weight:800;letter-spacing:-.02em}
+header p{opacity:.9;margin-top:6px;max-width:760px}
+.hmeta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.hmeta span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:6px 12px;border-radius:10px;font-size:12px}
+.hmeta b{color:var(--yellow)}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:-26px;margin-bottom:26px;position:relative;z-index:2}
+.stat{background:var(--card);border-radius:16px;padding:18px 18px 16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.stat .n{font-size:30px;font-weight:800;color:var(--navy);line-height:1}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.stat .s{font-size:11px;color:var(--blue2);margin-top:4px;font-weight:500}
+
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 22px;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:20;border-bottom:1px solid var(--line)}
+.tab{border:1px solid var(--line);background:#fff;color:var(--muted);padding:9px 16px;border-radius:30px;cursor:pointer;font-weight:600;font-size:13px;transition:.15s}
+.tab:hover{border-color:var(--blue2);color:var(--blue)}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.panel{display:none;animation:fade .25s}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h2.sec{font-size:19px;font-weight:700;color:var(--navy);margin:6px 0 4px}
+p.lead{color:var(--muted);margin-bottom:18px;max-width:840px}
+
+/* Module cards */
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);border-top:4px solid var(--c)}
+.mod .top{padding:16px 18px 12px;display:flex;align-items:flex-start;gap:12px}
+.mod .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:color-mix(in srgb,var(--c) 14%,#fff);flex-shrink:0}
+.mod h3{font-size:15px;font-weight:700;color:var(--ink)}
+.mod .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.mod .body{padding:0 18px 16px}
+.mod .row{font-size:12.5px;color:var(--muted);margin:9px 0}
+.mod .row b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-size:10.5px;font-family:'JetBrains Mono',monospace;background:#eef3fb;color:var(--blue);padding:3px 8px;border-radius:6px;border:1px solid #dfe8f5}
+.chip.pg{background:#fff8e6;color:#8a6d00;border-color:#f0e2b0}
+.pagcount{font-size:11px;color:var(--muted);margin-top:10px;display:block}
+
+/* Search + table */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.toolbar input,.toolbar select{font-family:inherit;font-size:13px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.toolbar input{flex:1;min-width:220px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);font-size:12.5px}
+th{background:var(--navy);color:#fff;text-align:left;padding:11px 14px;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;position:sticky;top:64px}
+td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:top}
+tr:hover td{background:#f8fbff}
+td .fp{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--navy);font-weight:500}
+.tags-td{display:flex;flex-wrap:wrap;gap:4px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* Collection reference */
+.col{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.col .ch{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.col .ch .name{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--navy)}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.b-core{background:#e3f0ff;color:var(--blue)}
+.b-sub{background:#efe9fb;color:var(--violet)}
+.b-legacy{background:#fdeceb;color:var(--red)}
+.b-cfg{background:#e9f7f0;color:var(--green)}
+.col .fields{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.9}
+.col .fields code{background:#f2f5fa;padding:2px 7px;border-radius:5px;color:var(--ink);font-size:11.5px}
+.col .used{font-size:11.5px;color:var(--muted);margin-top:8px}
+.tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;color:var(--ink);background:#0d1b34;color:#cfe0ff;padding:18px 20px;border-radius:14px;overflow-x:auto}
+.tree .k{color:var(--yellow)}
+.tree .c{color:#79b8ff}
+.tree .m{color:#8fa3c4}
+
+/* Callout */
+.note{border-left:4px solid var(--c,var(--blue));background:color-mix(in srgb,var(--c,var(--blue)) 6%,#fff);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:13px}
+.note b{color:var(--c,var(--blue))}
+.warn{--c:var(--amber)} .danger{--c:var(--red)} .ok{--c:var(--green)} .info{--c:var(--blue)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}th{position:static}}
+/* Page detail cards */
+.dcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;border-left:4px solid var(--c)}
+.dcard .dh{padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+.dcard .dh .fp{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--navy);word-break:break-all}
+.dcard .dh .dm{font-size:10.5px;color:#fff;background:var(--c);display:inline-block;padding:2px 9px;border-radius:20px;margin-top:6px;font-weight:600}
+.dcard .dnote{font-size:11.5px;color:var(--muted);padding:8px 16px 0;line-height:1.5}
+.dcard .io{padding:10px 16px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.io-col .lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.io-r{color:var(--blue)} .io-w{color:var(--amber)}
+.io-col .clist{display:flex;flex-wrap:wrap;gap:4px}
+.iochip{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:6px;border:1px solid}
+.iochip.r{background:#eef4fd;color:var(--blue);border-color:#d8e6fa}
+.iochip.w{background:#fff5e6;color:#9a6a00;border-color:#f2e2bd}
+.iochip.sub{opacity:.7;font-style:italic}
+.io-col .empty{font-size:11px;color:#aeb8c9;font-style:italic}
+.dcard.uio{--c:#aeb8c9}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+.node{background:color-mix(in srgb,var(--c) 12%,#fff);border:1.5px solid var(--c);color:var(--ink);border-radius:12px;padding:12px 16px;font-size:12.5px;font-weight:600;text-align:center;min-width:120px}
+.node small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;margin-top:3px}
+.arrow{color:var(--muted);font-size:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="hbadge">Peta Sistem Internal · Dialogika</span>
+    <h1>Website Team Internal — team.dialogika.co</h1>
+    <p>Pemetaan halaman, fungsi, dan database untuk mencegah penumpukan & data berantakan. Referensi tunggal untuk kamu dan siapa pun (termasuk AI) yang melanjutkan koding besok.</p>
+    <div class="hmeta">
+      <span>Firebase Project: <b>pre-dialogika</b></span>
+      <span>Auth Domain: <b>pre-dialogika.firebaseapp.com</b></span>
+      <span>Stack: <b>Firebase Web SDK 10.7.1</b></span>
+      <span>Hosting: <b>GitHub Pages (CNAME)</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="n">75</div><div class="l">Halaman HTML</div><div class="s">+ 17 modul JS</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">Modul Fungsional</div><div class="s">domain kerja</div></div>
+    <div class="stat"><div class="n">40+</div><div class="l">Koleksi Firestore</div><div class="s">+ subkoleksi bertingkat</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">Lapis Backend</div><div class="s">Firestore + Apps Script</div></div>
+    <div class="stat"><div class="n">7</div><div class="l">Titik Redundansi</div><div class="s">perlu dibereskan</div></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-t="modules">🧩 Modul</div>
+    <div class="tab" data-t="pages">📄 Halaman → Database</div>
+    <div class="tab" data-t="detail">🔍 Detail Halaman (IN/OUT)</div>
+    <div class="tab" data-t="data">🗄️ Model Data</div>
+    <div class="tab" data-t="arch">🏗️ Arsitektur</div>
+    <div class="tab" data-t="hygiene">⚠️ Data Hygiene</div>
+  </div>
+
+  <!-- ===================== MODULES ===================== -->
+  <section class="panel active" id="modules">
+    <h2 class="sec">8 Modul Fungsional</h2>
+    <p class="lead">Setiap modul mengelompokkan halaman + koleksi Firestore yang saling terkait. Klik tab "Halaman → Database" untuk detail per halaman.</p>
+    <div class="mods" id="modWrap"></div>
+  </section>
+
+  <!-- ===================== PAGES ===================== -->
+  <section class="panel" id="pages">
+    <h2 class="sec">Peta Halaman → Fungsi → Database</h2>
+    <p class="lead">Setiap halaman dan koleksi Firestore yang dibaca/ditulisnya. Gunakan pencarian untuk cek cepat "halaman ini nyimpen data ke mana".</p>
+    <div class="toolbar">
+      <input id="pgSearch" placeholder="🔍 Cari halaman, fungsi, atau koleksi…">
+      <select id="pgFilter"><option value="">Semua Modul</option></select>
+    </div>
+    <table><thead><tr><th style="width:24%">Halaman</th><th style="width:20%">Modul</th><th style="width:28%">Fungsi</th><th style="width:28%">Koleksi Firestore</th></tr></thead>
+    <tbody id="pgBody"></tbody></table>
+    <p class="pagcount" id="pgCount"></p>
+  </section>
+
+  <!-- ===================== PAGE DETAIL (IN/OUT) ===================== -->
+  <section class="panel" id="detail">
+    <h2 class="sec">Detail Per Halaman — Data Masuk & Keluar</h2>
+    <p class="lead">Untuk tiap halaman: koleksi mana yang <b>ditampilkan</b> (dibaca) dan koleksi mana yang <b>disimpan input-nya</b> (ditulis). Pakai ini saat mau menambah field/tampilan: cek dulu halaman ini sudah baca/tulis ke mana, supaya tidak bikin koleksi dobel.</p>
+    <div class="note info" style="margin-top:0">
+      <b>Cara baca:</b>
+      <span class="io-r" style="margin:0 4px">📥 READ</span> = data yang <b>dimunculkan</b> di halaman (ambil dari sini) ·
+      <span class="io-w" style="margin:0 4px">📤 WRITE</span> = tujuan <b>simpan input</b> (form/tombol simpan menulis ke sini) ·
+      <code>(sub)</code> = subkoleksi di bawah dokumen (mis. <code>projects/{id}/lists</code>).
+    </div>
+    <div class="toolbar">
+      <input id="dtSearch" placeholder="🔍 Cari halaman atau koleksi… (mis. 'leads', 'form izin')">
+      <select id="dtFilter"><option value="">Semua Modul</option></select>
+      <select id="dtIO"><option value="">Semua</option><option value="w">Hanya yang menyimpan (WRITE)</option><option value="r">Read-only</option><option value="none">Tanpa Firestore langsung</option></select>
+    </div>
+    <div class="dcards" id="dtWrap"></div>
+    <p class="pagcount" id="dtCount"></p>
+  </section>
+
+  <!-- ===================== DATA MODEL ===================== -->
+  <section class="panel" id="data">
+    <h2 class="sec">Model Data Firestore</h2>
+    <p class="lead">Koleksi utama, field intinya, dan halaman yang memakainya. Badge menandai jenis: <span class="badge b-core">core</span> koleksi utama · <span class="badge b-sub">subcollection</span> di bawah dokumen lain · <span class="badge b-legacy">redundant</span> perlu ditinjau.</p>
+    <div class="toolbar"><input id="colSearch" placeholder="🔍 Cari koleksi atau field…"></div>
+    <div id="colWrap"></div>
+
+    <h2 class="sec" style="margin-top:26px">Struktur Bertingkat — <code>projects</code></h2>
+    <p class="lead">Modul Project/Quest paling dalam. Semua turunan proyek disimpan sebagai subkoleksi di bawah dokumen proyek.</p>
+    <div class="tree">
+<span class="c">projects/</span> <span class="m">{projectId}</span>  <span class="k">name, description, owner_id, status, department, members[], is_pinned, created_at</span>
+  ├─ <span class="c">lists/</span> <span class="m">{listId}</span>
+  │    ├─ <span class="c">comments/</span>
+  │    └─ <span class="c">subscribers/</span>
+  ├─ <span class="c">files/</span> <span class="m">{fileId}</span>
+  │    ├─ <span class="c">comments/</span>
+  │    ├─ <span class="c">subscribers/</span>
+  │    └─ <span class="c">boosts/</span>
+  ├─ <span class="c">messages/</span> <span class="m">{messageId}</span>
+  │    └─ <span class="c">comments/</span>
+  ├─ <span class="c">message_drafts/</span>
+  └─ <span class="c">message_subscribers/</span>
+
+<span class="c">tasks/</span> <span class="m">{taskId}</span>  <span class="k">project_id, list_id, title, status, priority, due_date, points, assign_to, tags[], created_by</span>
+  └─ <span class="c">logs/</span>   <span class="m">← audit trail per task</span>
+    </div>
+  </section>
+
+  <!-- ===================== ARCHITECTURE ===================== -->
+  <section class="panel" id="arch">
+    <h2 class="sec">Arsitektur & Alur Data</h2>
+    <p class="lead">Aplikasi berjalan sepenuhnya di sisi klien (static HTML + Firebase Web SDK via ESM CDN). Tidak ada server sendiri; ada satu lapis backend tambahan lewat Google Apps Script sebagai mirror ke Google Sheets/Drive untuk modul Project.</p>
+    <div class="flow">
+      <div class="node info">Browser<small>75 halaman HTML statis</small></div>
+      <div class="arrow">→</div>
+      <div class="node ok">Firebase Web SDK<small>v10.7.1 (ESM CDN)</small></div>
+      <div class="arrow">→</div>
+      <div class="node" style="--c:var(--navy)">Firebase<small>Auth · Firestore · Storage</small></div>
+      <div class="arrow">⇄</div>
+      <div class="node warn">Google Apps Script<small>appscript.js → Sheets/Drive</small></div>
+    </div>
+
+    <div class="grid2" style="margin-top:18px">
+      <div class="col">
+        <div class="ch"><span class="name">🔐 Authentication</span><span class="badge b-cfg">flow</span></div>
+        <div class="fields">
+          Login via <code>Firebase Auth</code> (email/password) di <code>index.html</code>.<br>
+          Data user disimpan di <code>localStorage.userData</code> untuk fast-path.<br>
+          <code>assets/js/auth-guard.js</code> jaga tiap halaman: kalau tidak ada session → redirect ke index.<br>
+          Registrasi (<code>register.html</code>) → tulis ke <code>pending_users</code> → admin approve → pindah ke <code>users</code>.
+        </div>
+      </div>
+      <div class="col">
+        <div class="ch"><span class="name">📦 Storage & Presence</span><span class="badge b-cfg">infra</span></div>
+        <div class="fields">
+          <code>Firebase Storage</code>: foto profil (<code>users/{uid}/profile_photo</code>), lampiran izin (<code>permits/{uid}/…</code>).<br>
+          <code>user_presence</code> (Firestore): status online/last-seen tiap user.<br>
+          Backend Apps Script: mirror project/task/tag/list ke Sheets + upload file ke Drive (lihat <code>appscript.js</code>).
+        </div>
+      </div>
+    </div>
+
+    <div class="note info">
+      <b>Elemen bersama (element/*.js):</b> sidebar, topbar, rightbar-recruit, template-manager, candidate-management, recruitment-interview-utils, whatsapp-message-builder/encoding, register-candidate-lookup, team-management-sync. Ini komponen reusable yang di-inject ke banyak halaman — jangan duplikat logikanya per halaman.
+    </div>
+  </section>
+
+  <!-- ===================== HYGIENE ===================== -->
+  <section class="panel" id="hygiene">
+    <h2 class="sec">Data Hygiene — Titik Rawan Penumpukan</h2>
+    <p class="lead">Temuan dari scan kode. Ini yang paling mungkin bikin data berantakan / dobel. Rekomendasi: standarkan sebelum menambah fitur baru.</p>
+
+    <div class="note danger">
+      <b>1. Koleksi kembar (singular vs plural).</b> Kode memakai keduanya secara campur — sumber utama duplikasi:
+      <div class="chips" style="margin-top:8px">
+        <span class="chip">positions</span><span class="chip">position</span>
+        <span class="chip">departments</span><span class="chip">department</span>
+        <span class="chip">mentor</span><span class="chip">mentors</span>
+        <span class="chip">team_management</span><span class="chip">teams</span>
+      </div>
+      <span style="display:block;margin-top:8px;color:var(--muted)">→ Pilih satu bentuk kanonik per entitas, migrasikan, lalu hapus yang lain.</span>
+    </div>
+
+    <div class="note warn">
+      <b>2. Field boolean redundan di <code>projects</code>.</b> Ditemukan <code>is_pinned</code> DAN <code>pinned</code> ditulis bersamaan dengan nilai sama. Cukup satu.
+    </div>
+
+    <div class="note warn">
+      <b>3. Dua sumber kebenaran untuk Project/Task.</b> Data ditulis ke Firestore <i>dan</i> di-mirror ke Google Sheets via Apps Script (<code>appscript.js</code>). Rawan tidak sinkron. Tentukan mana yang jadi <i>source of truth</i> (disarankan Firestore) dan jadikan Sheets read-only/ekspor saja.
+    </div>
+
+    <div class="note danger">
+      <b>4. API key berbeda dari yang kamu berikan.</b> Kode di repo memakai <code class="mono">AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0</code> (project <b>pre-dialogika</b>), sedangkan key yang kamu kirim <code class="mono">AIzaSyBaO-…nDuG0</code> berbeda. Pastikan sebelum deploy: apakah pindah project, atau salah satu key sudah tidak dipakai? (Detail di catatan markdown.)
+    </div>
+
+    <div class="note info">
+      <b>5. Field task tersimpan sebagai string kosong, bukan null.</b> <code>assign_to</code>, <code>due_date</code>, <code>start_date</code> default <code>""</code>. Query "yang belum di-assign" jadi tidak konsisten. Standarkan null/empty.
+    </div>
+
+    <div class="note ok">
+      <b>Yang sudah rapi:</b> struktur subkoleksi <code>projects</code> konsisten dan bersih; auth-guard terpusat di satu file; komponen UI di <code>element/*.js</code> sudah reusable. Pertahankan pola ini.
+    </div>
+  </section>
+
+  <footer>
+    Dibuat otomatis dari scan kode repo <b>team</b> · Firebase <b>pre-dialogika</b> · untuk Dialogika Team Internal.<br>
+    File pendamping: <code>ANALISA-Website-Team-Internal.md</code> (di folder yang sama).
+  </footer>
+</div>
+
+<script>
+// ---------- DATA ----------
+const MODULES=[
+ {id:"identity",c:"#1958A5",ic:"👤",name:"Identity & Access",sub:"User, role, jabatan, kehadiran online",
+  cols:["users","pending_users","roles","positions","departments","user_presence","team_management"],
+  pages:["index.html","register.html","home.html","setting/users-management.html","data/company-position.html","personal/profile.html"]},
+ {id:"project",c:"#14336E",ic:"🗂️",name:"Project & Task (Quest)",sub:"Manajemen proyek, list, task, file, pesan",
+  cols:["projects","tasks","trash"],
+  pages:["home.html","project/project.html","project/list.html","project/list-detail.html","project/item-details.html","project/message.html","project/files.html","quest/quest-edit.html"]},
+ {id:"recruit",c:"#6b4fbb",ic:"🎯",name:"Recruitment & People Dev",sub:"Kandidat, screening, intern, mentor, talent",
+  cols:["talents","interns_screening","mentors_screening","interns_resume","intern_dailyreport","recruitment_positions","recruitment_dashboard_notes","team_management"],
+  pages:["quest/dashboard-recruitment.html","quest/dashboard-people-dev.html","data/scouting-candidate.html","data/candidate-management.html","data/team-candidate-detail.html","data/internship-candidate-detail.html","data/mentor-candidate-detail.html","data/kandidat-nonaktif.html","setting/internship-management.html"]},
+ {id:"hr",c:"#1a9e6a",ic:"🧾",name:"Attendance & HR",sub:"Presensi, izin, reimburse, piket, appraisal",
+  cols:["user_attendance","permits","reimburse","operational_expenses","duty_schedules","duty_types"],
+  pages:["presence.html","data/presence-team.html","data/intern-presence.html","data/permit-reimburse-management.html","personal/form-permit.html","personal/form-reimburse.html","data/piket-branding.html","data/performance-appraisal-form.html","data/performance-appraisal-intern.html","data/office-inventory.html"]},
+ {id:"sales",c:"#e08a00",ic:"💰",name:"Sales & CRM",sub:"Leads, invoice, produk, enrollment",
+  cols:["leads","leads_settings_interests","leads_settings_ads_channels","invoices","products","enrollments"],
+  pages:["setting/leads-management.html","data/leads-inbox.html","data/leads-agent.html","setting/invoice-management.html","setting/product-management.html","setting/referral-dashboard.html"]},
+ {id:"class",c:"#1C79C7",ic:"🎓",name:"Class & Product",sub:"Kelas, jadwal, mentor, promo, webinar, member",
+  cols:["class_planning","class_availability","mentor","promo_classes","promo_batches","schedule_logs","webinars","data_member","subscription_email"],
+  pages:["setting/class-management.html","setting/class-planning.html","setting/class-detail.html","setting/class-checkup.html","setting/mentor-management.html","setting/promo-classes.html","setting/webinar.html","setting/generate-certificate.html","data/class-available.html","data/member-data.html","data/mailing-list.html"]},
+ {id:"brand",c:"#d64541",ic:"📣",name:"Branding & Content",sub:"Jadwal & konten branding",
+  cols:["branding_content"],
+  pages:["data/branding-schedule.html"]},
+ {id:"office",c:"#5b6b86",ic:"🏢",name:"Office & Ops",sub:"Inventaris & biaya operasional",
+  cols:["inventory","operational_expenses"],
+  pages:["data/office-inventory.html","setting/operational-expenses.html"]}
+];
+
+const PAGES=[
+ ["index.html","identity","Login + set presence","users, user_presence"],
+ ["register.html","identity","Registrasi calon user","pending_users"],
+ ["home.html","project","Dashboard proyek + approve user","projects, tasks, users, user_presence, trash"],
+ ["personal/profile.html","identity","Profil & upload foto","departments, positions"],
+ ["setting/users-management.html","identity","Kelola user, role, jabatan","users, positions, position, roles"],
+ ["data/company-position.html","identity","Struktur jabatan & divisi","departments, positions, department, position"],
+ ["project/project.html","project","Detail proyek + anggota","projects, tasks, users, departments"],
+ ["project/list.html","project","List & task per proyek","projects, tasks, users, trash"],
+ ["project/list-detail.html","project","Detail satu list","projects, tasks, users"],
+ ["project/item-details.html","project","Detail item/task","projects, tasks, users"],
+ ["project/files.html","project","File proyek","projects"],
+ ["project/message.html","project","Pesan proyek","projects, tasks"],
+ ["quest/quest-edit.html","project","Editor quest/task","(via elemen bersama)"],
+ ["quest/dashboard-recruitment.html","recruit","Dashboard rekrutmen","positions, position, users"],
+ ["quest/dashboard-people-dev.html","recruit","Dashboard people dev","user_attendance, users"],
+ ["data/scouting-candidate.html","recruit","Scouting kandidat","talents, roles, positions, users"],
+ ["data/candidate-management.html","recruit","Kelola kandidat","(via candidate-management.js)"],
+ ["data/team-candidate-detail.html","recruit","Detail kandidat tim","departments, positions, users"],
+ ["data/internship-candidate-detail.html","recruit","Detail kandidat magang","departments, positions, users"],
+ ["data/mentor-candidate-detail.html","recruit","Detail kandidat mentor","departments, positions, users"],
+ ["data/kandidat-nonaktif.html","recruit","Arsip kandidat nonaktif","(via elemen bersama)"],
+ ["setting/internship-management.html","recruit","Kelola program magang","team_management, departments, positions, users"],
+ ["presence.html","hr","Presensi tim","user_attendance"],
+ ["data/presence-team.html","hr","Rekap presensi tim","user_attendance, users"],
+ ["data/intern-presence.html","hr","Presensi intern","user_attendance"],
+ ["data/permit-reimburse-management.html","hr","Kelola izin & reimburse","permits, reimburse, user_attendance"],
+ ["personal/form-permit.html","hr","Form izin (+lampiran)","permits"],
+ ["personal/form-reimburse.html","hr","Form reimburse","operational_expenses"],
+ ["data/piket-branding.html","hr","Jadwal piket branding","duty_schedules, duty_types, users"],
+ ["data/performance-appraisal-form.html","hr","Form penilaian kinerja","positions"],
+ ["data/performance-appraisal-intern.html","hr","Penilaian kinerja intern","interns_resume, positions"],
+ ["setting/leads-management.html","sales","Kelola leads + invoice","leads, invoices, products, users, leads_settings_*"],
+ ["data/leads-inbox.html","sales","Inbox leads masuk","leads, users, leads_settings_*"],
+ ["data/leads-agent.html","sales","Leads per agen","(via elemen bersama)"],
+ ["setting/invoice-management.html","sales","Kelola invoice","(invoices via komponen)"],
+ ["setting/product-management.html","sales","Kelola produk","(products via komponen)"],
+ ["setting/referral-dashboard.html","sales","Dashboard referral","products"],
+ ["setting/class-management.html","class","Kelola kelas","class_planning, mentor"],
+ ["setting/class-planning.html","class","Perencanaan kelas","mentor"],
+ ["setting/class-detail.html","class","Detail kelas","mentor, users"],
+ ["setting/class-checkup.html","class","Cek jadwal kelas","mentor, schedule_logs, users"],
+ ["setting/mentor-management.html","class","Kelola mentor","mentor"],
+ ["setting/promo-classes.html","class","Promo kelas per batch","promo_batches, promo_classes"],
+ ["setting/webinar.html","class","Kelola webinar","webinars"],
+ ["setting/generate-certificate.html","class","Generate sertifikat","(client-side)"],
+ ["data/class-available.html","class","Kelas tersedia","(via komponen)"],
+ ["data/member-data.html","class","Data member","data_member"],
+ ["data/mailing-list.html","class","Mailing list","subscription_email"],
+ ["setting/operational-expenses.html","office","Biaya operasional","operational_expenses, class_availability, mentor, users"],
+ ["data/office-inventory.html","office","Inventaris kantor","inventory"],
+ ["data/branding-schedule.html","brand","Jadwal konten branding","branding_content"]
+];
+
+const COLLECTIONS=[
+ {n:"users",t:"core",f:"name, email, phone, birth, photo, employment{position,department,joined_at}, socials{instagram,linkedin}, access{role_id,level_order}, is_approved, status, approved_by",u:"Hampir semua halaman (identity, project, recruit, hr, sales)"},
+ {n:"pending_users",t:"core",f:"struktur sama dengan users, is_approved:false, registered_at",u:"register.html → di-approve di home.html"},
+ {n:"user_presence",t:"core",f:"status online/offline, last-seen (per uid)",u:"index.html, home.html"},
+ {n:"roles",t:"core",f:"nama role, level akses",u:"users-management.html, scouting-candidate.html"},
+ {n:"positions",t:"core",f:"nama jabatan, department terkait",u:"users-management, company-position, appraisal, recruitment"},
+ {n:"departments",t:"core",f:"nama divisi, warna",u:"company-position, profile, internship-management, project"},
+ {n:"projects",t:"core",f:"name, description, owner_id, status, department, department_color, members[], is_pinned/pinned, created_at  → subkoleksi: lists, files, messages, message_drafts, message_subscribers",u:"home.html, semua project/*"},
+ {n:"tasks",t:"core",f:"project_id, list_id, title, description, status, priority, start_date, due_date, points, assign_to, notify_to, tags[], position, created_by  → subkoleksi: logs",u:"project/list, item-details, message-craft"},
+ {n:"trash",t:"core",f:"item terhapus (soft-delete) dari proyek/task",u:"home.html, project/list.html"},
+ {n:"lists",t:"sub",f:"di bawah projects/{id}/lists — subkoleksi: comments, subscribers",u:"project/list.html"},
+ {n:"files",t:"sub",f:"di bawah projects/{id}/files — subkoleksi: comments, subscribers, boosts",u:"project/files*.html"},
+ {n:"messages",t:"sub",f:"di bawah projects/{id}/messages — subkoleksi: comments",u:"project/message*.html"},
+ {n:"leads",t:"core",f:"data prospek: nama, kontak, interest, channel iklan, status, agen",u:"leads-management, leads-inbox"},
+ {n:"leads_settings_interests",t:"core",f:"master minat/interest untuk leads",u:"leads-management, leads-inbox"},
+ {n:"leads_settings_ads_channels",t:"core",f:"master channel iklan",u:"leads-management, leads-inbox"},
+ {n:"invoices",t:"core",f:"tagihan terkait leads/produk",u:"leads-management (invoice-management)"},
+ {n:"products",t:"core",f:"katalog produk/kelas untuk penjualan",u:"leads-management, product-management, referral-dashboard"},
+ {n:"enrollments",t:"core",f:"pendaftaran peserta ke kelas/produk",u:"export/enrollment.html"},
+ {n:"user_attendance",t:"core",f:"presensi harian (user_id, date, status, lokasi_kode)",u:"presence, presence-team, intern-presence, permit-reimburse"},
+ {n:"permits",t:"core",f:"pengajuan izin (requester, tipe, tanggal, lampiran, is_approved)",u:"form-permit, permit-reimburse-management"},
+ {n:"reimburse",t:"core",f:"pengajuan reimburse (reimburse_id, kategori_kode)",u:"permit-reimburse-management, form-reimburse"},
+ {n:"operational_expenses",t:"core",f:"biaya operasional / pengeluaran kelas",u:"operational-expenses, form-reimburse"},
+ {n:"duty_schedules",t:"core",f:"jadwal piket (user, tanggal, tipe)",u:"piket-branding.html"},
+ {n:"duty_types",t:"core",f:"master jenis piket",u:"piket-branding.html"},
+ {n:"class_planning",t:"core",f:"rencana kelas & jadwal",u:"class-management, class-planning"},
+ {n:"class_availability",t:"core",f:"ketersediaan slot kelas",u:"operational-expenses.html"},
+ {n:"mentor",t:"core",f:"data mentor/pengajar kelas",u:"mentor-management, class-*, operational-expenses"},
+ {n:"promo_classes",t:"core",f:"kelas yang dipromosikan",u:"promo-classes.html"},
+ {n:"promo_batches",t:"core",f:"batch promo (per angkatan)",u:"promo-classes.html"},
+ {n:"schedule_logs",t:"core",f:"log perubahan jadwal kelas",u:"class-checkup.html"},
+ {n:"webinars",t:"core",f:"data & pendaftaran webinar",u:"webinar.html"},
+ {n:"data_member",t:"core",f:"data member/alumni",u:"member-data.html"},
+ {n:"subscription_email",t:"core",f:"daftar email mailing list",u:"mailing-list.html"},
+ {n:"branding_content",t:"core",f:"jadwal & konten branding sosmed",u:"branding-schedule.html"},
+ {n:"inventory",t:"core",f:"inventaris kantor",u:"office-inventory.html"},
+ {n:"talents",t:"core",f:"pool talent/kandidat scouting",u:"scouting-candidate.html"},
+ {n:"interns_screening",t:"core",f:"proses screening intern",u:"recruitment (elemen bersama)"},
+ {n:"mentors_screening",t:"core",f:"proses screening mentor",u:"recruitment (elemen bersama)"},
+ {n:"interns_resume",t:"core",f:"resume/CV intern + appraisal",u:"performance-appraisal-intern.html"},
+ {n:"intern_dailyreport",t:"core",f:"laporan harian intern",u:"recruitment/people-dev"},
+ {n:"recruitment_positions",t:"core",f:"lowongan/posisi rekrutmen",u:"recruitment dashboard"},
+ {n:"recruitment_dashboard_notes",t:"core",f:"catatan dashboard rekrutmen",u:"dashboard-recruitment.html"},
+ {n:"team_management",t:"core",f:"pemetaan tim/anggota (⚠ tumpang tindih dgn 'teams')",u:"internship-management, team-management-sync.js"},
+ {n:"position",t:"legacy",f:"= duplikat singular dari 'positions'",u:"beberapa halaman lama"},
+ {n:"department",t:"legacy",f:"= duplikat singular dari 'departments'",u:"beberapa halaman lama"},
+ {n:"mentors",t:"legacy",f:"= duplikat plural dari 'mentor'",u:"referensi doc()"},
+ {n:"teams",t:"legacy",f:"= tumpang tindih dgn 'team_management'",u:"referensi doc()"}
+];
+
+// ---------- RENDER ----------
+const modName=id=>(MODULES.find(m=>m.id===id)||{}).name||id;
+const modColor=id=>(MODULES.find(m=>m.id===id)||{}).c||"#888";
+
+// modules
+document.getElementById('modWrap').innerHTML=MODULES.map(m=>`
+ <div class="mod" style="--c:${m.c}">
+   <div class="top"><div class="ic">${m.ic}</div><div><h3>${m.name}</h3><div class="sub">${m.sub}</div></div></div>
+   <div class="body">
+     <div class="row"><b>${m.cols.length}</b> koleksi Firestore</div>
+     <div class="chips">${m.cols.map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+     <span class="pagcount">📄 ${m.pages.length} halaman terkait</span>
+     <div class="chips">${m.pages.slice(0,4).map(p=>`<span class="chip pg">${p.split('/').pop()}</span>`).join('')}${m.pages.length>4?`<span class="chip pg">+${m.pages.length-4}</span>`:''}</div>
+   </div>
+ </div>`).join('');
+
+// pages filter select
+const sel=document.getElementById('pgFilter');
+MODULES.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o)});
+
+function renderPages(){
+ const q=document.getElementById('pgSearch').value.toLowerCase();
+ const fm=sel.value;
+ const rows=PAGES.filter(p=>{
+   const hay=(p[0]+' '+modName(p[1])+' '+p[2]+' '+p[3]).toLowerCase();
+   return hay.includes(q)&&(!fm||p[1]===fm);
+ });
+ document.getElementById('pgBody').innerHTML=rows.map(p=>`
+   <tr>
+     <td><span class="fp">${p[0]}</span></td>
+     <td><span class="dot" style="background:${modColor(p[1])}"></span>${modName(p[1])}</td>
+     <td>${p[2]}</td>
+     <td class="tags-td">${p[3].split(', ').map(c=>`<span class="chip">${c}</span>`).join('')}</td>
+   </tr>`).join('');
+ document.getElementById('pgCount').textContent=`${rows.length} dari ${PAGES.length} halaman ditampilkan`;
+}
+document.getElementById('pgSearch').addEventListener('input',renderPages);
+sel.addEventListener('change',renderPages);
+renderPages();
+
+// collections
+function renderCols(){
+ const q=document.getElementById('colSearch').value.toLowerCase();
+ const list=COLLECTIONS.filter(c=>(c.n+' '+c.f).toLowerCase().includes(q));
+ const bmap={core:'b-core',sub:'b-sub',legacy:'b-legacy'};
+ const bl={core:'core',sub:'subcollection',legacy:'redundant'};
+ document.getElementById('colWrap').innerHTML=list.map(c=>`
+   <div class="col">
+     <div class="ch"><span class="name">${c.n}</span><span class="badge ${bmap[c.t]}">${bl[c.t]}</span></div>
+     <div class="fields"><b>Field:</b> ${c.f.replace(/`/g,'')}</div>
+     <div class="used">📄 Dipakai: ${c.u}</div>
+   </div>`).join('');
+}
+document.getElementById('colSearch').addEventListener('input',renderCols);
+renderCols();
+
+// ---------- PAGE DETAIL (IN/OUT) ----------
+const PAGEDETAIL=[{"p":"data/branding-schedule.html","read":["branding_content"],"write":["branding_content"],"note":""},{"p":"data/candidate-management.html","read":["users","mentors_screening","mentor","recruitment_positions"],"write":["team_management","mentor","recruitment_positions"],"note":"Kelola kandidat (via candidate-management.js): baca users, simpan ke mentor/recruitment_positions/team_management."},{"p":"data/class-available.html","read":["class_availability","class_planning"],"write":[],"note":""},{"p":"data/company-position.html","read":["position","positions","department","departments"],"write":[],"note":""},{"p":"data/intern-presence.html","read":[],"write":[],"note":""},{"p":"data/internship-candidate-detail.html","read":["position","positions","users","department","departments"],"write":[],"note":""},{"p":"data/kandidat-nonaktif.html","read":[],"write":[],"note":""},{"p":"data/leads-agent.html","read":[],"write":[],"note":""},{"p":"data/leads-inbox.html","read":["leads_settings_ads_channels","leads_settings_interests","users","leads"],"write":["leads"],"note":"Inbox leads masuk: tampilkan leads + master, tandai/update leads."},{"p":"data/mailing-list.html","read":["subscription_email"],"write":[],"note":""},{"p":"data/member-data.html","read":["data_member"],"write":["data_member"],"note":""},{"p":"data/mentor-candidate-detail.html","read":["position","positions","users","department","departments"],"write":["mentor"],"note":""},{"p":"data/office-inventory.html","read":["inventory"],"write":["inventory"],"note":""},{"p":"data/performance-appraisal-form.html","read":["position","positions","interns_resume"],"write":["interns_resume"],"note":""},{"p":"data/performance-appraisal-intern.html","read":["position","positions","interns_resume"],"write":[],"note":""},{"p":"data/permit-reimburse-management.html","read":["users","reimburse"],"write":["permits","reimburse","user_attendance"],"note":""},{"p":"data/piket-branding.html","read":["users","duty_types","duty_schedules"],"write":["duty_types","duty_schedules"],"note":"Jadwal piket: tampilkan & simpan duty_schedules + duty_types, baca users."},{"p":"data/presence-team.html","read":["users","user_attendance"],"write":[],"note":""},{"p":"data/scouting-candidate.html","read":["roles","position","positions","talents","users"],"write":["talents"],"note":""},{"p":"data/team-candidate-detail.html","read":["position","positions","users","department","departments"],"write":[],"note":""},{"p":"home.html","read":["users","departments","tasks","branding_content","class_planning","pending_users","user_presence"],"write":["users","trash","projects","intern_dailyreport","pending_users","user_presence"],"note":"Dashboard utama: tampilkan proyek/task, approve pending_users→users, kelola presence."},{"p":"index.html","read":["users","pending_users"],"write":[],"note":"Form login. Baca users utk validasi, set user_presence saat berhasil."},{"p":"personal/form-permit.html","read":[],"write":["permits"],"note":"Form izin → tulis permits (+lampiran ke Storage)."},{"p":"personal/form-reimburse.html","read":[],"write":["operational_expenses"],"note":"Form reimburse → tulis operational_expenses."},{"p":"personal/profile.html","read":["users","departments","positions"],"write":["users"],"note":"Tampilkan & edit profil user; dropdown dari departments & positions."},{"p":"presence.html","read":[],"write":["user_attendance"],"note":"Absen masuk/keluar → tulis user_attendance."},{"p":"project/files-craft.html","read":["projects","users"],"write":["projects"],"note":""},{"p":"project/files-doc.html","read":["projects","users"],"write":["projects","projects (sub)"],"note":""},{"p":"project/files-draft.html","read":[],"write":[],"note":""},{"p":"project/files-folder.html","read":["projects"],"write":[],"note":""},{"p":"project/files-link.html","read":["projects"],"write":["projects"],"note":""},{"p":"project/files.html","read":["projects"],"write":["projects"],"note":""},{"p":"project/item-details.html","read":["users","tasks"],"write":["projects","tasks","projects (sub)","tasks (sub)"],"note":""},{"p":"project/list-detail.html","read":["projects","users"],"write":["projects","tasks","projects (sub)"],"note":""},{"p":"project/list.html","read":["projects","users"],"write":["projects","tasks","projects (sub)","tasks (sub)"],"note":"List & task proyek: tampilkan projects/tasks, buat/edit/hapus task + subkoleksi lists."},{"p":"project/message-craft.html","read":["projects","users"],"write":["projects","tasks"],"note":""},{"p":"project/message-detail.html","read":["projects","users"],"write":["projects","projects (sub)"],"note":""},{"p":"project/message-draft.html","read":["projects"],"write":[],"note":""},{"p":"project/message.html","read":["projects","users"],"write":["projects","tasks"],"note":""},{"p":"project/project.html","read":["users","departments","projects"],"write":["projects","tasks"],"note":""},{"p":"quest/dashboard-people-dev.html","read":["user_attendance","users"],"write":[],"note":""},{"p":"quest/dashboard-recruitment.html","read":["users","positions","position","recruitment_dashboard_notes"],"write":["recruitment_dashboard_notes"],"note":""},{"p":"quest/quest-edit.html","read":["tasks"],"write":["tasks"],"note":""},{"p":"register.html","read":["positions"],"write":["pending_users"],"note":"Form pendaftaran → tulis ke pending_users (menunggu approve). Baca positions utk dropdown jabatan."},{"p":"setting/class-checkup.html","read":["schedule_logs","users","mentor"],"write":["schedule_logs","operational_expenses"],"note":""},{"p":"setting/class-detail.html","read":["users","mentor","class_availability"],"write":["class_availability"],"note":""},{"p":"setting/class-management.html","read":["class_planning","mentor"],"write":["class_planning"],"note":""},{"p":"setting/class-planning.html","read":["mentor"],"write":[],"note":""},{"p":"setting/generate-certificate.html","read":[],"write":[],"note":""},{"p":"setting/internship-management.html","read":["position","positions","department","departments","team_management"],"write":["team_management","users"],"note":"Kelola magang: tampilkan struktur jabatan, simpan team_management, bisa buat users."},{"p":"setting/invoice-management.html","read":[],"write":[],"note":""},{"p":"setting/leads-management.html","read":["leads_settings_ads_channels","leads_settings_interests","users","leads","products","invoices"],"write":["leads_settings_ads_channels","leads_settings_interests","leads","invoices"],"note":"Pusat CRM: tampilkan & simpan leads, invoices, master interest/channel, baca products."},{"p":"setting/mentor-management.html","read":["mentor"],"write":["mentor"],"note":""},{"p":"setting/operational-expenses.html","read":["users","mentor","class_availability"],"write":["operational_expenses"],"note":""},{"p":"setting/product-management.html","read":[],"write":[],"note":""},{"p":"setting/promo-classes.html","read":["promo_batches","promo_classes"],"write":["promo_batches","promo_classes"],"note":"Promo per batch: tampilkan & simpan promo_batches + promo_classes."},{"p":"setting/referral-dashboard.html","read":["products"],"write":[],"note":""},{"p":"setting/team-management.html","read":[],"write":[],"note":""},{"p":"setting/users-management.html","read":["roles","users","position","positions"],"write":["users"],"note":"Kelola user & role: tampilkan users+roles+positions, edit/simpan users."},{"p":"setting/webinar.html","read":[],"write":["webinars"],"note":""}];
+// resolve module for a page: first via MODULES.pages, else via its collections
+const colToMod={}; MODULES.forEach(m=>m.cols.forEach(c=>{if(!colToMod[c])colToMod[c]=m.id}));
+function pageMod(p){
+  const direct=MODULES.find(m=>m.pages.includes(p.p));
+  if(direct)return direct.id;
+  const all=[...p.write,...p.read].map(c=>c.replace(' (sub)','').replace('_settings_','_'));
+  for(const c of all){ if(colToMod[c])return colToMod[c]; }
+  // path-based fallback
+  if(p.p.startsWith('project/'))return 'project';
+  if(p.p.startsWith('quest/'))return 'recruit';
+  return 'office';
+}
+const dtSel=document.getElementById('dtFilter');
+MODULES.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;dtSel.appendChild(o)});
+
+function renderDetail(){
+  const q=document.getElementById('dtSearch').value.toLowerCase();
+  const fm=dtSel.value, io=document.getElementById('dtIO').value;
+  const list=PAGEDETAIL.filter(p=>{
+    const mod=pageMod(p);
+    const hay=(p.p+' '+p.note+' '+p.read.join(' ')+' '+p.write.join(' ')+' '+modName(mod)).toLowerCase();
+    if(!hay.includes(q))return false;
+    if(fm&&mod!==fm)return false;
+    if(io==='w'&&!p.write.length)return false;
+    if(io==='r'&&(p.write.length||!p.read.length))return false;
+    if(io==='none'&&(p.read.length||p.write.length))return false;
+    return true;
+  });
+  document.getElementById('dtWrap').innerHTML=list.map(p=>{
+    const mod=pageMod(p), col=modColor(mod);
+    const uio=(!p.read.length&&!p.write.length);
+    const chip=(c,cls)=>`<span class="iochip ${cls}${c.includes('(sub)')?' sub':''}">${c}</span>`;
+    return `<div class="dcard${uio?' uio':''}" style="--c:${col}">
+      <div class="dh"><div class="fp">${p.p}</div><span class="dm">${modName(mod)}</span></div>
+      ${p.note?`<div class="dnote">${p.note}</div>`:''}
+      <div class="io">
+        <div class="io-col"><div class="lbl io-r">📥 Menampilkan (READ)</div>
+          <div class="clist">${p.read.length?p.read.map(c=>chip(c,'r')).join(''):'<span class="empty">— tidak baca Firestore —</span>'}</div></div>
+        <div class="io-col"><div class="lbl io-w">📤 Simpan input (WRITE)</div>
+          <div class="clist">${p.write.length?p.write.map(c=>chip(c,'w')).join(''):'<span class="empty">— tidak menyimpan —</span>'}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('dtCount').textContent=`${list.length} dari ${PAGEDETAIL.length} halaman`;
+}
+['dtSearch'].forEach(id=>document.getElementById(id).addEventListener('input',renderDetail));
+['dtFilter','dtIO'].forEach(id=>document.getElementById(id).addEventListener('change',renderDetail));
+renderDetail();
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ t.classList.add('active');
+ document.getElementById(t.dataset.t).classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

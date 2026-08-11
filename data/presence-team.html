@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Presensi Team - Team Dialogika</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: #fdfeff;
+        color: #0f172a;
+      }
+      .premium-shadow {
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .active-pulse {
+        position: relative;
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+      }
+      .active-pulse::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        opacity: 0.5;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(3);
+          opacity: 0;
+        }
+      }
+
+      /* ── scrollbar helper ── */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-x {
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .scrollbar-x::-webkit-scrollbar {
+        height: 4px;
+      }
+      .scrollbar-x::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 99px;
+      }
+      .scrollbar-x::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 99px;
+      }
+
+      .badge-status {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 6px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .row-warning {
+        background: #fff7f7;
+      }
+
+      /* ── unified table wrapper ── */
+      .tbl-outer {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tbl-outer::-webkit-scrollbar {
+        height: 4px;
+      }
+      .tbl-outer::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .tbl-outer::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 99px;
+      }
+
+      /* sticky header inside scrollable body */
+      .tbl-scroll-body {
+        max-height: 420px;
+        overflow-y: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tbl-scroll-body::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      .tbl-scroll-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 99px;
+      }
+
+      .tbl-base {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        background: #fff;
+        /* let the table size by content so it scrolls on small screens */
+        min-width: max-content;
+      }
+
+      .tbl-base th {
+        background: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        box-shadow: 0 1px 0 #e2e8f0;
+        white-space: nowrap;
+      }
+      .tbl-base td {
+        background: #fff;
+        white-space: nowrap;
+      }
+      .row-warning td {
+        background: #fff7f7 !important;
+      }
+
+      /* name cell can wrap */
+      .tbl-base td.cell-name,
+      .tbl-base th.cell-name {
+        white-space: normal;
+        min-width: 180px;
+      }
+
+      .avatar-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        background-size: cover;
+        background-position: center;
+        background-color: #e2e8f0;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+        flex-shrink: 0;
+      }
+
+      /* ── gamification ── */
+      .gami-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .gami-tab {
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.15s;
+      }
+      .gami-tab.active {
+        background: #0b2b6a;
+        color: #fff;
+        border-color: #0b2b6a;
+      }
+      .gami-tab:hover:not(.active) {
+        background: #f1f5f9;
+      }
+
+      .intern-gami-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 10px;
+      }
+      .progress-track {
+        height: 10px;
+        background: #f1f5f9;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.6s ease;
+        background: #185fa5;
+      }
+      .progress-fill.on-streak {
+        background: #e24b4a;
+      }
+      .progress-markers {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: #94a3b8;
+        margin-top: 3px;
+      }
+
+      .badge-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid;
+        margin: 2px;
+      }
+      .badge-chip.early-bgn {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #f59e0b;
+      }
+      .badge-chip.early-nov {
+        background: #fde68a;
+        color: #78350f;
+        border-color: #d97706;
+      }
+      .badge-chip.early-mas {
+        background: #fbbf24;
+        color: #451a03;
+        border-color: #b45309;
+      }
+      .badge-chip.step-rookie {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #3b82f6;
+      }
+      .badge-chip.step-strider {
+        background: #bfdbfe;
+        color: #1e3a8a;
+        border-color: #2563eb;
+      }
+      .badge-chip.step-sprint {
+        background: #1e40af;
+        color: #fff;
+        border-color: #1e3a8a;
+      }
+      .badge-chip.locked {
+        background: #f8fafc;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+      }
+
+      .ldr-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .ldr-row:last-child {
+        border-bottom: none;
+      }
+      .ldr-rank {
+        font-size: 13px;
+        font-weight: 600;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 640px) {
+        .gami-tabs {
+          gap: 6px;
+        }
+        .gami-tab {
+          font-size: 11px;
+          padding: 5px 12px;
+        }
+      }
+    </style>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+
+  <body class="antialiased" style="background-color: #f1f7fd">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="ml-20 p-8 md:p-12 lg:p-16 max-w-[1700px] mx-auto">
+          <!-- Header -->
+          <header
+            class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6"
+          >
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="active-pulse"></span>
+                <span
+                  class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase"
+                  >Rekap Kehadiran Team</span
+                >
+              </div>
+              <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
+                Presensi Team
+                <span
+                  class="text-[#0B2B6A] text-base align-middle"
+                  id="subtitleText"
+                  >Live realtime</span
+                >
+              </h1>
+            </div>
+          </header>
+
+          <div class="mb-6">
+            <span id="summaryText" class="text-xs text-slate-400 font-medium"
+              >Memuat data presensi...</span
+            >
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+            <div class="glass p-5 rounded-3xl premium-shadow">
+              <p
+                class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+              >
+                Total Team
+              </p>
+              <p class="text-3xl font-extrabold" id="totalInternDisplay">0</p>
+            </div>
+            <div class="glass p-5 rounded-3xl premium-shadow">
+              <p
+                class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+              >
+                Present
+              </p>
+              <p
+                class="text-3xl font-extrabold text-emerald-600"
+                id="presentCountDisplay"
+              >
+                0
+              </p>
+            </div>
+            <div class="glass p-5 rounded-3xl premium-shadow">
+              <p
+                class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+              >
+                Belum Clock Out
+              </p>
+              <p
+                class="text-3xl font-extrabold text-red-600"
+                id="pendingLogoutDisplay"
+              >
+                0
+              </p>
+            </div>
+            <div class="glass p-5 rounded-3xl premium-shadow">
+              <p
+                class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+              >
+                Tidak Hadir
+              </p>
+              <p class="text-3xl font-extrabold" id="absentCountDisplay">0</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-8">
+            <!-- ① Tabel Presensi Harian -->
+            <section
+              class="glass rounded-[28px] premium-shadow overflow-hidden"
+            >
+              <div
+                class="px-6 py-5 flex flex-col sm:flex-row gap-3 justify-between sm:items-center border-b border-slate-100/80"
+              >
+                <h2 class="text-lg font-bold text-slate-900">
+                  Tabel Presensi Team
+                </h2>
+                <div class="flex items-center gap-2 sm:ml-auto flex-wrap">
+                  <input
+                    type="date"
+                    id="filterDate"
+                    class="min-w-[160px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
+                  />
+                  <button
+                    id="btnExportXlsx"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition whitespace-nowrap"
+                  >
+                    <i class="bi bi-download me-1"></i>Export XLSX
+                  </button>
+                  <div
+                    id="loadingSpinner"
+                    class="w-5 h-5 border-2 border-[#0B2B6A] border-t-transparent rounded-full animate-spin"
+                  ></div>
+                </div>
+              </div>
+              <!-- scrollable horizontally + vertically -->
+              <div class="tbl-outer">
+                <div class="tbl-scroll-body">
+                  <table class="tbl-base">
+                    <thead>
+                      <tr
+                        class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
+                      >
+                        <th class="px-4 py-3 cell-name">Nama Team</th>
+                        <th class="px-4 py-3" style="min-width: 100px">
+                          Clock In
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 100px">
+                          Clock Out
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 150px">
+                          Total Jam Kerja
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 140px">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="attendanceBody"
+                      class="text-slate-700 text-sm"
+                    ></tbody>
+                  </table>
+                  <p
+                    id="emptyState"
+                    class="text-xs text-slate-400 hidden px-4 py-4"
+                  >
+                    Belum ada data intern/presensi pada tanggal ini.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ② Tabel Rekap Bulanan -->
+            <section
+              class="glass rounded-[28px] premium-shadow overflow-hidden"
+            >
+              <div
+                class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
+              >
+                <h3 class="text-lg font-bold text-[#0B2B6A]">
+                  Tabel Rekap Bulanan Team
+                </h3>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="month"
+                    id="recapMonthFilter"
+                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
+                  />
+                  <button
+                    id="btnExportMonthlyRecapXlsx"
+                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition whitespace-nowrap"
+                  >
+                    <i class="bi bi-download me-1"></i>Export XLSX
+                  </button>
+                </div>
+              </div>
+              <div class="tbl-outer">
+                <div class="tbl-scroll-body">
+                  <table class="tbl-base">
+                    <thead>
+                      <tr
+                        class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
+                      >
+                        <th class="px-4 py-3 cell-name">Nama Team</th>
+                        <th class="px-4 py-3" style="min-width: 120px">
+                          Hari Hadir
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 160px">
+                          Total Jam Kerja
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="internRecapBody"
+                      class="text-slate-700 text-sm"
+                    ></tbody>
+                  </table>
+                  <p
+                    id="internRecapEmpty"
+                    class="text-xs text-slate-400 hidden px-4 py-4"
+                  >
+                    Belum ada data rekap bulanan.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ③ Tabel Total Jam -->
+            <section
+              class="glass rounded-[28px] premium-shadow overflow-hidden"
+            >
+              <div
+                class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
+              >
+                <h3 class="text-lg font-bold text-[#0B2B6A]">
+                  Tabel Total Jam Team
+                </h3>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    id="btnExportInternshipTotalXlsx"
+                    class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition whitespace-nowrap"
+                  >
+                    <i class="bi bi-download me-1"></i>Export XLSX
+                  </button>
+                </div>
+              </div>
+              <div class="tbl-outer">
+                <div class="tbl-scroll-body">
+                  <table class="tbl-base">
+                    <thead>
+                      <tr
+                        class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
+                      >
+                        <th class="px-4 py-3 cell-name">Nama Team</th>
+                        <th class="px-4 py-3" style="min-width: 160px">
+                          Total Jam Team
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 150px">
+                          Jumlah Hari Hadir
+                        </th>
+                        <th class="px-4 py-3" style="min-width: 160px">
+                          Rata-rata per Hari
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="internshipTotalBody"
+                      class="text-slate-700 text-sm"
+                    ></tbody>
+                  </table>
+                  <p
+                    id="internshipTotalEmpty"
+                    class="text-xs text-slate-400 hidden px-4 py-4"
+                  >
+                    Belum ada data total jam team.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ④ Gamifikasi -->
+            <section
+              class="glass rounded-[28px] premium-shadow overflow-hidden"
+            >
+              <div
+                class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
+              >
+                <div>
+                  <h3 class="text-lg font-bold text-[#0B2B6A]">
+                    Gamifikasi Kehadiran Team
+                  </h3>
+                  <p class="text-xs text-slate-400 mt-0.5">
+                    Streak, progress bulanan &amp; achievement
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="month"
+                    id="gamiMonthFilter"
+                    class="px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
+                  />
+                </div>
+              </div>
+
+              <div class="p-6">
+                <!-- legend -->
+                <div class="flex flex-wrap gap-3 mb-5 text-xs text-slate-500">
+                  <span class="flex items-center gap-1.5"
+                    ><span
+                      class="inline-block w-3 h-3 rounded-full bg-[#185FA5]"
+                    ></span
+                    >Progress normal</span
+                  >
+                  <span class="flex items-center gap-1.5"
+                    ><span
+                      class="inline-block w-3 h-3 rounded-full bg-red-500"
+                    ></span
+                    >Streak aktif
+                  </span>
+                </div>
+
+                <!-- tabs -->
+                <div class="gami-tabs">
+                  <button class="gami-tab active" data-tab="progress">
+                    Progress Bulanan
+                  </button>
+                  <button class="gami-tab" data-tab="leaderboard">
+                    Leaderboard
+                  </button>
+                  <button class="gami-tab" data-tab="legend">
+                    Panduan Achievement
+                  </button>
+                </div>
+
+                <!-- tab: progress -->
+                <div id="gamiTabProgress">
+                  <div id="gamiCards"></div>
+                  <p id="gamiEmpty" class="text-xs text-slate-400 hidden py-4">
+                    Belum ada data gamifikasi bulan ini.
+                  </p>
+                </div>
+
+                <!-- tab: leaderboard -->
+                <div id="gamiTabLeaderboard" class="hidden">
+                  <div class="bg-white border border-slate-100 rounded-2xl p-5">
+                    <p
+                      class="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 mb-3"
+                    >
+                      Peringkat Bulan Ini
+                    </p>
+                    <div id="gamiLeaderboard"></div>
+                    <p
+                      id="gamiLdrEmpty"
+                      class="text-xs text-slate-400 hidden py-2"
+                    >
+                      Belum ada data.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- tab: legend -->
+                <div id="gamiTabLegend" class="hidden">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      class="bg-white border border-slate-100 rounded-2xl p-5"
+                    >
+                      <p class="font-semibold text-slate-800 mb-1">
+                        ☀️ Early Attend
+                      </p>
+                      <p class="text-xs text-slate-500 mb-3">
+                        Diberikan untuk staff yang datang ke kantor paling awal
+                        berdasarkan total paling awal pada bulan aktif.
+                      </p>
+                      <div class="flex flex-col gap-2">
+                        <span class="badge-chip early-bgn w-fit"
+                          >☀️ Beginner — total 2× paling awal</span
+                        >
+                        <span class="badge-chip early-nov w-fit"
+                          >☀️ Novice — total 4× paling awal</span
+                        >
+                        <span class="badge-chip early-mas w-fit"
+                          >☀️ Mastery — total 10× paling awal</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="bg-white border border-slate-100 rounded-2xl p-5"
+                    >
+                      <p class="font-semibold text-slate-800 mb-1">
+                        🔥 Step-in Master
+                      </p>
+                      <p class="text-xs text-slate-500 mb-3">
+                        Diberikan untuk staff yang hadir streak setiap hari WFO!
+                      </p>
+                      <div class="flex flex-col gap-2">
+                        <span class="badge-chip step-rookie w-fit"
+                          >🔥 Rookie — 3 hari berturut-turut</span
+                        >
+                        <span class="badge-chip step-strider w-fit"
+                          >🔥 Strider — 7 hari berturut-turut</span
+                        >
+                        <span class="badge-chip step-sprint w-fit"
+                          >🔥 Sprinter — 14 hari berturut-turut</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+          <!-- /grid -->
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        query,
+        where,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const topbarTarget = document.getElementById("topbarContainer");
+      if (topbarTarget) renderTopBar(topbarTarget);
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      if (sidebarTarget) renderSidebar(sidebarTarget);
+
+      // ── element refs ──────────────────────────────────────────────
+      const filterDateInput = document.getElementById("filterDate");
+      const btnExportXlsx = document.getElementById("btnExportXlsx");
+      const summaryText = document.getElementById("summaryText");
+      const subtitleText = document.getElementById("subtitleText");
+      const attendanceBody = document.getElementById("attendanceBody");
+      const emptyState = document.getElementById("emptyState");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const totalInternDisplay = document.getElementById("totalInternDisplay");
+      const presentCountDisplay = document.getElementById(
+        "presentCountDisplay",
+      );
+      const pendingLogoutDisplay = document.getElementById(
+        "pendingLogoutDisplay",
+      );
+      const absentCountDisplay = document.getElementById("absentCountDisplay");
+      const recapMonthFilter = document.getElementById("recapMonthFilter");
+      const btnExportMonthlyRecapXlsx = document.getElementById(
+        "btnExportMonthlyRecapXlsx",
+      );
+      const btnExportInternshipTotalXlsx = document.getElementById(
+        "btnExportInternshipTotalXlsx",
+      );
+      const internRecapBody = document.getElementById("internRecapBody");
+      const internRecapEmpty = document.getElementById("internRecapEmpty");
+      const internshipTotalBody = document.getElementById(
+        "internshipTotalBody",
+      );
+      const internshipTotalEmpty = document.getElementById(
+        "internshipTotalEmpty",
+      );
+      const gamiMonthFilter = document.getElementById("gamiMonthFilter");
+      const gamiCards = document.getElementById("gamiCards");
+      const gamiEmpty = document.getElementById("gamiEmpty");
+      const gamiLeaderboard = document.getElementById("gamiLeaderboard");
+      const gamiLdrEmpty = document.getElementById("gamiLdrEmpty");
+
+      let allInterns = [];
+      let selectedDateRecords = [];
+      let unsubscribeAttendance = null;
+      let unsubscribeInternshipTotal = null;
+      let internshipTotalCache = [];
+      let monthlyRecapCache = [];
+      // raw attendance records for gamification (all-time)
+      let allAttendanceRecords = [];
+
+      // ── helpers ───────────────────────────────────────────────────
+      function getTodayKey() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      }
+
+      function getMonthKeyFromDate(dateKey) {
+        const d = new Date(dateKey + "T00:00:00");
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      }
+
+      function getMonthRangeFromMonthKey(monthKey) {
+        const [y, m] = monthKey.split("-").map(Number);
+        const start = new Date(y, m - 1, 1);
+        const end = new Date(y, m, 0);
+        const f = (x) =>
+          `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+        return { startKey: f(start), endKey: f(end) };
+      }
+
+      function parseTimeToSeconds(t) {
+        if (!t) return null;
+        const [h, m, s] = String(t).split(":").map(Number);
+        if ([h, m, s].some(Number.isNaN)) return null;
+        return h * 3600 + m * 60 + s;
+      }
+
+      function formatMinutes(sec) {
+        if (sec == null || sec < 0) return "-";
+        const mins = Math.floor(sec / 60);
+        return `${Math.floor(mins / 60)} Jam ${mins % 60} Menit`;
+      }
+
+      function getInternPhoto(uid) {
+        const f = allInterns.find((u) => u.id === uid);
+        return f ? f.photo || "" : "";
+      }
+
+      function getInternName(uid) {
+        const f = allInterns.find((u) => u.id === uid);
+        return f ? f.name : "Tanpa Nama";
+      }
+
+      function exportToXlsx(rows, sheetName, fileName) {
+        if (!window.XLSX) return;
+        const ws = window.XLSX.utils.json_to_sheet(rows);
+        const wb = window.XLSX.utils.book_new();
+        window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        window.XLSX.writeFile(wb, fileName);
+      }
+
+      function avatarHtml(photo, name, size = 36) {
+        const initials = name
+          .split(" ")
+          .slice(0, 2)
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase();
+        if (photo) {
+          return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:url('${photo}') center/cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.08);flex-shrink:0"></div>`;
+        }
+        return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:${Math.round(size * 0.36)}px;font-weight:600;color:#1e40af;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.08);flex-shrink:0">${initials}</div>`;
+      }
+
+      // ── load users ────────────────────────────────────────────────
+      async function loadInterns() {
+        const snap = await getDocs(query(collection(db, "users")));
+        const users = [];
+        snap.forEach((docSnap) => {
+          const d = docSnap.data() || {};
+          const access = d.access || {};
+          const roleCand = [
+            d.role_id,
+            access.role_id,
+            d.role,
+            access.role,
+            d.roleId,
+            access.roleId,
+            d.role_name,
+            access.role_name,
+            d.roleName,
+            access.roleName,
+          ].find((v) => v !== undefined && v !== null && v !== "");
+          const roleValue = roleCand
+            ? String(roleCand).trim().toLowerCase()
+            : "";
+          const statusRaw = d.status;
+          const status =
+            typeof statusRaw === "string"
+              ? statusRaw.trim().toLowerCase()
+              : statusRaw;
+          const isStatusOk =
+            status === undefined || status === null || status === "active";
+          const isRoleOk = ["staff", "sub_team"].includes(roleValue);
+          if (!isStatusOk || !isRoleOk) return;
+          users.push({
+            id: docSnap.id,
+            name: d.name || d.email || "Tanpa Nama",
+            photo: d.photo || "",
+          });
+        });
+        users.sort((a, b) => a.name.localeCompare(b.name));
+        allInterns = users;
+      }
+
+      // ── daily attendance ──────────────────────────────────────────
+      function aggregateSelectedDateRows(dateKey) {
+        const map = new Map();
+        selectedDateRecords.forEach((r) => {
+          if (!r.user_id) return;
+          if (!map.has(r.user_id))
+            map.set(r.user_id, {
+              loginTime: null,
+              logoutTime: null,
+              loginSec: null,
+              logoutSec: null,
+            });
+          const row = map.get(r.user_id);
+          const sec = parseTimeToSeconds(r.time);
+          if (
+            r.type === "login" &&
+            (row.loginSec == null || sec < row.loginSec)
+          ) {
+            row.loginSec = sec;
+            row.loginTime = r.time || "-";
+          }
+          if (
+            r.type === "logout" &&
+            (row.logoutSec == null || sec > row.logoutSec)
+          ) {
+            row.logoutSec = sec;
+            row.logoutTime = r.time || "-";
+          }
+        });
+        const merged = allInterns.map((intern) => {
+          const hit = map.get(intern.id);
+          let status = "Tidak Hadir",
+            totalSeconds = null,
+            loginLabel = "-",
+            logoutLabel = "-",
+            isValidPair = false;
+          if (hit && hit.loginTime) {
+            loginLabel = hit.loginTime;
+            if (hit.logoutTime) {
+              logoutLabel = hit.logoutTime;
+              if (
+                hit.logoutSec != null &&
+                hit.loginSec != null &&
+                hit.logoutSec >= hit.loginSec
+              ) {
+                totalSeconds = hit.logoutSec - hit.loginSec;
+                isValidPair = true;
+                status = "Present";
+              } else {
+                status = "Tidak Valid";
+              }
+            } else {
+              status = "Tidak Valid (Belum Clock Out)";
+            }
+          }
+          return {
+            ...intern,
+            date: dateKey,
+            loginTime: loginLabel,
+            logoutTime: logoutLabel,
+            totalSeconds,
+            totalLabel:
+              totalSeconds != null ? formatMinutes(totalSeconds) : "-",
+            status,
+            isValidPair,
+            sortValue: hit?.loginSec ?? -1,
+          };
+        });
+        merged.sort((a, b) => b.sortValue - a.sortValue);
+        return merged;
+      }
+
+      function statusBadge(status) {
+        if (status === "Present")
+          return '<span class="badge-status bg-emerald-100 text-emerald-700">Present</span>';
+        if (
+          status === "Tidak Valid" ||
+          status === "Tidak Valid (Belum Clock Out)"
+        )
+          return '<span class="badge-status bg-red-100 text-red-700">Belum Clock Out</span>';
+        return '<span class="badge-status bg-slate-100 text-slate-600">Tidak Hadir</span>';
+      }
+
+      function renderAttendanceTable(rows) {
+        attendanceBody.innerHTML = "";
+        if (!rows.length) {
+          emptyState.classList.remove("hidden");
+          return;
+        }
+        emptyState.classList.add("hidden");
+        rows.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.className = `border-b border-slate-100 ${r.status.startsWith("Tidak Valid") ? "row-warning" : ""}`;
+          tr.innerHTML = `
+            <td class="px-4 py-3 cell-name">
+              <div class="flex items-center gap-3">
+                ${avatarHtml(r.photo, r.name)}
+                <span class="font-semibold text-slate-800">${r.name}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 font-medium">${r.loginTime}</td>
+            <td class="px-4 py-3 font-medium">${r.logoutTime}</td>
+            <td class="px-4 py-3">${r.totalLabel}</td>
+            <td class="px-4 py-3">${statusBadge(r.status)}</td>`;
+          attendanceBody.appendChild(tr);
+        });
+      }
+
+      function updateKpi(rows, dateKey) {
+        const present = rows.filter((r) => r.status === "Present").length;
+        const pending = rows.filter((r) =>
+          r.status.startsWith("Tidak Valid"),
+        ).length;
+        const absent = rows.filter((r) => r.status === "Tidak Hadir").length;
+        totalInternDisplay.textContent = String(rows.length);
+        presentCountDisplay.textContent = String(present);
+        pendingLogoutDisplay.textContent = String(pending);
+        absentCountDisplay.textContent = String(absent);
+        subtitleText.textContent = `Rekap ${dateKey}`;
+        summaryText.textContent = `${present} present, ${pending} belum clock out, ${absent} tidak hadir.`;
+      }
+
+      function setupAttendanceRealtime(dateKey) {
+        if (unsubscribeAttendance) {
+          unsubscribeAttendance();
+          unsubscribeAttendance = null;
+        }
+        loadingSpinner.classList.remove("hidden");
+        const q = query(
+          collection(db, "user_attendance"),
+          where("date", "==", dateKey),
+        );
+        unsubscribeAttendance = onSnapshot(
+          q,
+          (snap) => {
+            const rows = [];
+            snap.forEach((d) => {
+              const v = d.data() || {};
+              const source = v.source || "manual";
+              if (source !== "manual") return;
+              rows.push({
+                id: d.id,
+                user_id: v.user_id || "",
+                name: v.name || "",
+                photo: v.photo || "",
+                date: v.date || "",
+                time: v.time || "",
+                type: v.type || "",
+              });
+            });
+            selectedDateRecords = rows;
+            const tableRows = aggregateSelectedDateRows(dateKey);
+            renderAttendanceTable(tableRows);
+            updateKpi(tableRows, dateKey);
+            loadingSpinner.classList.add("hidden");
+          },
+          () => {
+            summaryText.textContent = "Gagal memuat realtime presensi.";
+            loadingSpinner.classList.add("hidden");
+          },
+        );
+      }
+
+      // ── monthly recap ─────────────────────────────────────────────
+      async function loadMonthlyRecap(monthKey) {
+        const { startKey, endKey } = getMonthRangeFromMonthKey(monthKey);
+        const snap = await getDocs(
+          query(
+            collection(db, "user_attendance"),
+            where("date", ">=", startKey),
+            where("date", "<=", endKey),
+          ),
+        );
+        const allowed = new Set(allInterns.map((u) => u.id));
+        const byUD = new Map();
+        snap.forEach((docSnap) => {
+          const d = docSnap.data() || {};
+          if (!d.user_id || !d.date || !d.type || !allowed.has(d.user_id))
+            return;
+          const key = `${d.user_id}__${d.date}`;
+          if (!byUD.has(key))
+            byUD.set(key, {
+              user_id: d.user_id,
+              name: d.name || "Tanpa Nama",
+              loginSec: null,
+              logoutSec: null,
+            });
+          const row = byUD.get(key);
+          const sec = parseTimeToSeconds(d.time);
+          if (
+            d.type === "login" &&
+            (row.loginSec == null || sec < row.loginSec)
+          )
+            row.loginSec = sec;
+          if (
+            d.type === "logout" &&
+            (row.logoutSec == null || sec > row.logoutSec)
+          )
+            row.logoutSec = sec;
+        });
+        const perIntern = new Map();
+        byUD.forEach((v) => {
+          if (
+            v.loginSec == null ||
+            v.logoutSec == null ||
+            v.logoutSec < v.loginSec
+          )
+            return;
+          const dur = v.logoutSec - v.loginSec;
+          const ex = perIntern.get(v.user_id) || {
+            name: v.name,
+            total: 0,
+            days: 0,
+          };
+          ex.total += dur;
+          ex.days++;
+          perIntern.set(v.user_id, ex);
+        });
+        const recapRows = Array.from(perIntern.entries())
+          .map(([uid, v]) => ({
+            userId: uid,
+            name: v.name,
+            photo: getInternPhoto(uid),
+            total: v.total,
+            attendanceDays: v.days,
+          }))
+          .sort((a, b) => b.total - a.total);
+        monthlyRecapCache = recapRows;
+        internRecapBody.innerHTML = "";
+        if (!recapRows.length) {
+          internRecapEmpty.classList.remove("hidden");
+          return;
+        }
+        internRecapEmpty.classList.add("hidden");
+        recapRows.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.className = "border-b border-slate-100";
+          tr.innerHTML = `
+            <td class="px-4 py-3 cell-name">
+              <div class="flex items-center gap-3">
+                ${avatarHtml(r.photo, r.name)}
+                <span class="font-semibold">${r.name}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3">${r.attendanceDays} hari</td>
+            <td class="px-4 py-3">${formatMinutes(r.total)}</td>`;
+          internRecapBody.appendChild(tr);
+        });
+      }
+
+      // ── internship total (realtime) ───────────────────────────────
+      function buildInternshipTotalFromRecords(records) {
+        const allowed = new Set(allInterns.map((u) => u.id));
+        const byUD = new Map();
+        records.forEach((d) => {
+          if (!d.user_id || !d.date || !d.type || !allowed.has(d.user_id))
+            return;
+          const key = `${d.user_id}__${d.date}`;
+          if (!byUD.has(key))
+            byUD.set(key, {
+              user_id: d.user_id,
+              name: d.name || "Tanpa Nama",
+              loginSec: null,
+              logoutSec: null,
+            });
+          const row = byUD.get(key);
+          const sec = parseTimeToSeconds(d.time);
+          if (
+            d.type === "login" &&
+            (row.loginSec == null || sec < row.loginSec)
+          )
+            row.loginSec = sec;
+          if (
+            d.type === "logout" &&
+            (row.logoutSec == null || sec > row.logoutSec)
+          )
+            row.logoutSec = sec;
+        });
+        const perIntern = new Map();
+        byUD.forEach((v) => {
+          if (
+            v.loginSec == null ||
+            v.logoutSec == null ||
+            v.logoutSec < v.loginSec
+          )
+            return;
+          const dur = v.logoutSec - v.loginSec;
+          const ex = perIntern.get(v.user_id) || {
+            name: v.name,
+            total: 0,
+            days: 0,
+          };
+          ex.total += dur;
+          ex.days++;
+          perIntern.set(v.user_id, ex);
+        });
+        internshipTotalCache = Array.from(perIntern.entries())
+          .map(([uid, v]) => ({
+            userId: uid,
+            name: v.name,
+            photo: getInternPhoto(uid),
+            total: v.total,
+            days: v.days,
+          }))
+          .sort((a, b) => b.total - a.total);
+
+        // also save for gamification
+        allAttendanceRecords = records;
+      }
+
+      function renderInternshipTotalTable() {
+        internshipTotalBody.innerHTML = "";
+        if (!internshipTotalCache.length) {
+          internshipTotalEmpty.classList.remove("hidden");
+          return;
+        }
+        internshipTotalEmpty.classList.add("hidden");
+        const frag = document.createDocumentFragment();
+        internshipTotalCache.forEach((r, idx) => {
+          const avg = r.days > 0 ? Math.floor(r.total / r.days) : 0;
+          const tr = document.createElement("tr");
+          tr.className =
+            "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
+          tr.innerHTML = `
+            <td class="px-4 py-3 cell-name">
+              <div class="flex items-center gap-3">
+                <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}</span>
+                ${avatarHtml(r.photo, r.name)}
+                <span class="font-semibold text-slate-800">${r.name}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 font-semibold text-[#0B2B6A]">${formatMinutes(r.total)}</td>
+            <td class="px-4 py-3">${r.days} hari</td>
+            <td class="px-4 py-3">${formatMinutes(avg)}</td>`;
+          frag.appendChild(tr);
+        });
+        internshipTotalBody.appendChild(frag);
+      }
+
+      function setupInternshipTotalRealtime() {
+        if (unsubscribeInternshipTotal) {
+          unsubscribeInternshipTotal();
+          unsubscribeInternshipTotal = null;
+        }
+        unsubscribeInternshipTotal = onSnapshot(
+          collection(db, "user_attendance"),
+          (snap) => {
+            const rows = [];
+            snap.forEach((d) => {
+              const v = d.data() || {};
+              rows.push({
+                user_id: v.user_id || "",
+                name: v.name || "",
+                date: v.date || "",
+                time: v.time || "",
+                type: v.type || "",
+              });
+            });
+            buildInternshipTotalFromRecords(rows);
+            renderInternshipTotalTable();
+            renderGamification(
+              gamiMonthFilter.value || getMonthKeyFromDate(getTodayKey()),
+            );
+          },
+          () => {
+            internshipTotalEmpty.classList.remove("hidden");
+          },
+        );
+      }
+
+      // ── gamification ──────────────────────────────────────────────
+      function getWorkDaysInMonth(monthKey) {
+        // Count Tue, Thu, Sat, Sun as work days (sesuaikan jika perlu)
+        const [y, m] = monthKey.split("-").map(Number);
+        const days = [];
+        const d = new Date(y, m - 1, 1);
+        while (d.getMonth() === m - 1) {
+          const dow = d.getDay(); // 0=Sun,1=Mon,...,6=Sat
+          if ([0, 2, 4, 6].includes(dow)) {
+            // Sun, Tue, Thu, Sat
+            days.push(
+              `${y}-${String(m).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+            );
+          }
+          d.setDate(d.getDate() + 1);
+        }
+        return days;
+      }
+
+      // ── helper streak ─────────────────────────────────────────────────
+      function computeStreakSegs(att) {
+        const segs = [];
+        let i = 0;
+        while (i < att.length) {
+          if (att[i] !== 1) {
+            segs.push({
+              start: i,
+              end: i,
+              type: att[i] === -1 ? "future" : "absent",
+              len: 1,
+            });
+            i++;
+          } else {
+            let j = i;
+            while (j < att.length && att[j] === 1) j++;
+            const len = j - i;
+            segs.push({
+              start: i,
+              end: j - 1,
+              type: len >= 2 ? "streak" : "present",
+              len,
+            });
+            i = j;
+          }
+        }
+        return segs;
+      }
+
+      function calcBestStreak(att) {
+        let best = 0,
+          cur = 0;
+        att.forEach((v) => {
+          cur = v === 1 ? cur + 1 : 0;
+          best = Math.max(best, cur);
+        });
+        return best;
+      }
+
+      function calcCurrentStreak(att) {
+        let c = 0,
+          i = att.length - 1;
+        while (i >= 0 && att[i] === -1) i--;
+        while (i >= 0 && att[i] === 1) {
+          c++;
+          i--;
+        }
+        return c;
+      }
+
+      function earlyBadge(earlyCount) {
+        if (earlyCount >= 10) return ["early-mas", "☀️ Early Mastery"];
+        if (earlyCount >= 4) return ["early-nov", "☀️ Early Novice"];
+        if (earlyCount >= 2) return ["early-bgn", "☀️ Early Beginner"];
+        return null;
+      }
+
+      function stepBadge(streak) {
+        if (streak >= 14) return ["step-sprint", "🔥 Step-in Sprinter"];
+        if (streak >= 7) return ["step-strider", "🔥 Step-in Strider"];
+        if (streak >= 3) return ["step-rookie", "🔥 Step-in Rookie"];
+        return null;
+      }
+
+      // ── gamification utama ────────────────────────────────────────────
+      function renderGamification(monthKey) {
+        if (!allInterns.length) return;
+
+        const { startKey, endKey } = getMonthRangeFromMonthKey(monthKey);
+        const workDays = getWorkDaysInMonth(monthKey); // array dateKey string, urut
+        const totalDays = workDays.length;
+        const todayKey = getTodayKey();
+        const allowed = new Set(allInterns.map((u) => u.id));
+
+        // aggregate valid pairs per user per date
+        const presentMap = new Map(); // uid -> Set<dateKey>
+        const byUD = new Map();
+        allAttendanceRecords.forEach((d) => {
+          if (!d.user_id || !d.date || !d.type || !allowed.has(d.user_id))
+            return;
+          if (d.date < startKey || d.date > endKey) return;
+          const key = `${d.user_id}__${d.date}`;
+          if (!byUD.has(key))
+            byUD.set(key, {
+              user_id: d.user_id,
+              loginSec: null,
+              logoutSec: null,
+            });
+          const row = byUD.get(key);
+          const sec = parseTimeToSeconds(d.time);
+          if (
+            d.type === "login" &&
+            (row.loginSec == null || sec < row.loginSec)
+          )
+            row.loginSec = sec;
+          if (
+            d.type === "logout" &&
+            (row.logoutSec == null || sec > row.logoutSec)
+          )
+            row.logoutSec = sec;
+        });
+        byUD.forEach((v, key) => {
+          const [uid, date] = key.split("__");
+          if (
+            v.loginSec == null ||
+            v.logoutSec == null ||
+            v.logoutSec < v.loginSec
+          )
+            return;
+          if (!presentMap.has(uid)) presentMap.set(uid, new Set());
+          presentMap.get(uid).add(date);
+        });
+
+        // earliest login per date (untuk earlyStreak)
+        const dateEarliest = new Map(); // dateKey -> {uid, loginSec}[]
+        byUD.forEach((v, key) => {
+          const [uid, date] = key.split("__");
+          if (
+            v.loginSec == null ||
+            v.logoutSec == null ||
+            v.logoutSec < v.loginSec
+          )
+            return;
+          if (!dateEarliest.has(date)) dateEarliest.set(date, []);
+          dateEarliest.get(date).push({ uid, loginSec: v.loginSec });
+        });
+
+        // hitung earlyStreak per user (streak datang paling awal berturut-turut)
+        const earlyStreakMap = new Map();
+        const earlyCountMap = new Map();
+        allInterns.forEach((u) => earlyStreakMap.set(u.id, 0));
+        allInterns.forEach((u) => earlyCountMap.set(u.id, 0));
+        const pastWorkDays = workDays.filter((d) => d <= todayKey).sort();
+        const earlyConsec = new Map();
+        allInterns.forEach((u) => earlyConsec.set(u.id, 0));
+        pastWorkDays.forEach((date) => {
+          const attendees = dateEarliest.get(date) || [];
+          if (!attendees.length) {
+            allInterns.forEach((u) => earlyConsec.set(u.id, 0));
+            return;
+          }
+          const minSec = Math.min(...attendees.map((a) => a.loginSec));
+          const earliestUids = new Set(
+            attendees.filter((a) => a.loginSec === minSec).map((a) => a.uid),
+          );
+          allInterns.forEach((u) => {
+            if (earliestUids.has(u.id)) {
+              earlyConsec.set(u.id, earlyConsec.get(u.id) + 1);
+              earlyStreakMap.set(u.id, earlyConsec.get(u.id));
+              earlyCountMap.set(u.id, (earlyCountMap.get(u.id) || 0) + 1);
+            } else {
+              earlyConsec.set(u.id, 0);
+            }
+          });
+        });
+
+        const dayNames = { 0: "Min", 2: "Sel", 4: "Kam", 6: "Sat" };
+
+        const userData = allInterns.map((u) => {
+          const myPresent = presentMap.get(u.id) || new Set();
+          const att = workDays.map((d) => {
+            if (d > todayKey) return -1;
+            return myPresent.has(d) ? 1 : 0;
+          });
+          const segs = computeStreakSegs(att);
+          const bs = calcBestStreak(att);
+          const cs = calcCurrentStreak(att);
+          const tp = att.filter((v) => v === 1).length;
+          const pc = att.filter((v) => v !== -1).length;
+          const es = earlyStreakMap.get(u.id) || 0;
+          const ec = earlyCountMap.get(u.id) || 0;
+          return { ...u, att, segs, bs, cs, tp, pc, es, ec };
+        });
+
+        const sorted = [...userData].sort((a, b) => b.tp - a.tp || b.bs - a.bs);
+
+        gamiCards.innerHTML = "";
+        gamiLeaderboard.innerHTML = "";
+
+        if (!sorted.length) {
+          gamiEmpty.classList.remove("hidden");
+          return;
+        }
+        gamiEmpty.classList.add("hidden");
+
+        sorted.forEach((u) => {
+          const { att, segs, bs, cs, tp, pc, es, ec } = u;
+          const pct = pc > 0 ? Math.round((tp / pc) * 100) : 0;
+
+          // ── flame pins (di atas bar, di ujung kanan tiap streak) ──────
+          const flameSegs = segs.filter((s) => s.type === "streak");
+          let flameRowHTML = "";
+          flameSegs.forEach((seg) => {
+            const leftPct = (((seg.end + 1) / totalDays) * 100).toFixed(3);
+            flameRowHTML += `<div style="position:absolute;left:${leftPct}%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0">
+        <span style="font-size:13px;line-height:1">🔥</span>
+        <span style="font-size:8px;font-weight:700;color:#A32D2D;line-height:1.2">${seg.len}x</span>
+      </div>`;
+          });
+
+          // ── bar segments (terhubung satu bar, beda warna) ─────────────
+          const segColors = {
+            streak: "#E24B4A",
+            present: "#185FA5",
+            absent: "#e2e8f0",
+            future: "#f1f5f9",
+          };
+          let barInnerHTML = "";
+          segs.forEach((seg) => {
+            const wPct = ((seg.len / totalDays) * 100).toFixed(4);
+            const isFuture = seg.type === "future";
+            const label = workDays
+              .slice(seg.start, seg.end + 1)
+              .map((d) => {
+                const dt = new Date(d + "T00:00:00");
+                return (
+                  (dayNames[dt.getDay()] || "") +
+                  " " +
+                  dt.getDate() +
+                  ": " +
+                  (isFuture
+                    ? "Belum"
+                    : seg.type === "absent"
+                      ? "Tidak Hadir"
+                      : "Hadir")
+                );
+              })
+              .join("\n");
+            barInnerHTML += `<div style="width:${wPct}%;height:100%;background:${segColors[seg.type]};cursor:${isFuture ? "default" : "pointer"};flex-shrink:0" title="${label}" data-start="${seg.start}" data-end="${seg.end}" data-uid="${u.id}"></div>`;
+          });
+
+          // ── day labels ────────────────────────────────────────────────
+          const labelIdxs = [
+            0,
+            Math.round(totalDays / 4) - 1,
+            Math.round(totalDays / 2) - 1,
+            Math.round((totalDays * 3) / 4) - 1,
+            totalDays - 1,
+          ];
+          let labelsHTML = "";
+          new Set(labelIdxs.filter((i) => i >= 0 && i < totalDays)).forEach(
+            (idx) => {
+              const d = new Date(workDays[idx] + "T00:00:00");
+              const lp = (((idx + 0.5) / totalDays) * 100).toFixed(2);
+              labelsHTML += `<div style="position:absolute;left:${lp}%;transform:translateX(-50%);font-size:8px;color:#94a3b8;white-space:nowrap">${(dayNames[d.getDay()] || "") + d.getDate()}</div>`;
+            },
+          );
+
+          const progressScaleHTML = `
+            <div class="flex items-center justify-between mt-1 px-[1px]">
+              <span class="text-[10px] text-slate-400 font-medium">0</span>
+              <span class="text-[10px] text-slate-400 font-medium">${totalDays}</span>
+            </div>
+           
+          `;
+
+          // ── badge chips ───────────────────────────────────────────────
+          const ebadge = earlyBadge(ec);
+          const sbadge = stepBadge(bs);
+          const badgeClassMap = {
+            "early-bgn": "badge-chip early-bgn",
+            "early-nov": "badge-chip early-nov",
+            "early-mas": "badge-chip early-mas",
+            "step-rookie": "badge-chip step-rookie",
+            "step-strider": "badge-chip step-strider",
+            "step-sprint": "badge-chip step-sprint",
+          };
+          let badgesHTML = "";
+          if (ebadge)
+            badgesHTML += `<span class="${badgeClassMap[ebadge[0]]}">${ebadge[1]}</span>`;
+          else
+            badgesHTML += `<span class="badge-chip locked">🔒 Early Beginner (total 2× paling awal)</span>`;
+          if (sbadge)
+            badgesHTML += `<span class="${badgeClassMap[sbadge[0]]}">${sbadge[1]}</span>`;
+          else
+            badgesHTML += `<span class="badge-chip locked">🔒 Step-in Rookie (3 hari)</span>`;
+
+          const card = document.createElement("div");
+          card.className = "intern-gami-card";
+          card.innerHTML = `
+      <div class="flex items-center gap-3 mb-3">
+        ${avatarHtml(u.photo, u.name, 38)}
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-slate-800 text-sm truncate">${u.name}</p>
+          <p class="text-xs text-slate-400">${tp}/${pc} hari hadir (${pct}%)</p>
+          <p class="text-xs text-slate-400 mb-0">Berangkat paling awal: ${ec}x bulan ini</p>
+        </div>
+        ${
+          bs >= 2
+            ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#FEF2F2;color:#A32D2D;border:1px solid #F09595;white-space:nowrap;flex-shrink:0">Best streak: ${bs}x</span>`
+            : `<span class="text-xs text-slate-400 flex-shrink-0">Streak terbaik: ${bs}</span>`
+        }
+      </div>
+      <div style="position:relative;margin-bottom:4px">
+        <div style="position:relative;height:22px;margin-bottom:2px">${flameRowHTML}</div>
+        <div style="width:100%;height:13px;border-radius:99px;overflow:hidden;background:#e2e8f0;display:flex" id="btrack-${u.id.replace(/[^a-z0-9]/gi, "_")}">${barInnerHTML}</div>
+        <div style="position:relative;height:14px;margin-top:2px">${labelsHTML}</div>
+        ${progressScaleHTML}
+      </div>
+      <div class="flex flex-wrap mt-3" style="gap:4px">${badgesHTML}</div>`;
+          gamiCards.appendChild(card);
+
+          // click handler per segmen
+          const trackEl = card.querySelector(`[id^="btrack-"]`);
+          trackEl.querySelectorAll("[data-uid]").forEach((el) => {
+            if (el.style.cursor === "default") return;
+            el.addEventListener("click", () => {
+              const start = +el.dataset.start;
+              const end = +el.dataset.end;
+              const uid = el.dataset.uid;
+              // toggle: jika semua hadir → jadi absen, jika ada absen → jadi hadir
+              const intern = sorted.find((x) => x.id === uid);
+              if (!intern) return;
+              const allPresent = intern.att
+                .slice(start, end + 1)
+                .every((v) => v === 1);
+              // update allAttendanceRecords tidak praktis di sini,
+              // tapi untuk preview kita bisa rebuild att sementara
+              // (di implementasi asli, edit Firestore)
+            });
+          });
+        });
+
+        // ── leaderboard ───────────────────────────────────────────────
+        const medals = ["🥇", "🥈", "🥉"];
+        sorted.forEach((u, i) => {
+          const row = document.createElement("div");
+          row.className = "ldr-row";
+          row.innerHTML = `
+      <span class="ldr-rank">${medals[i] || i + 1}</span>
+      ${avatarHtml(u.photo, u.name, 32)}
+      <span class="flex-1 text-sm font-semibold text-slate-800">${u.name}</span>
+      <div class="text-right">
+        <p class="text-sm font-semibold text-slate-800">${u.tp} hari</p>
+        <p class="text-xs" style="color:${u.bs >= 2 ? "#E24B4A" : "#94a3b8"}">
+          ${u.bs >= 2 ? "🔥 Best streak: " + u.bs + "x" : "streak: " + u.bs}
+        </p>
+      </div>`;
+          gamiLeaderboard.appendChild(row);
+        });
+
+        if (!sorted.length) gamiLdrEmpty.classList.remove("hidden");
+      }
+      // ── tab switching ─────────────────────────────────────────────
+      document.querySelectorAll(".gami-tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".gami-tab")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("gamiTabProgress").classList.add("hidden");
+          document.getElementById("gamiTabLeaderboard").classList.add("hidden");
+          document.getElementById("gamiTabLegend").classList.add("hidden");
+          document
+            .getElementById(
+              `gamiTab${btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)}`,
+            )
+            .classList.remove("hidden");
+        });
+      });
+
+      // ── export helpers ────────────────────────────────────────────
+      function exportPresenceXlsx() {
+        const dateKey = filterDateInput.value || getTodayKey();
+        const rows = aggregateSelectedDateRows(dateKey)
+          .filter((r) => r.isValidPair)
+          .map((r) => ({
+            Tanggal: dateKey,
+            Nama_Intern: r.name,
+            Clock_In: r.loginTime,
+            Clock_Out: r.logoutTime,
+            Total_Jam_Kerja: r.totalLabel,
+            Status: r.status,
+          }));
+        exportToXlsx(
+          rows,
+          "Presensi Harian",
+          `presensi-intern-${dateKey}.xlsx`,
+        );
+      }
+      function exportMonthlyRecapXlsx() {
+        const mk = recapMonthFilter.value || getMonthKeyFromDate(getTodayKey());
+        const rows = monthlyRecapCache.map((r) => ({
+          Bulan: mk,
+          Nama_Intern: r.name,
+          Hari_Hadir: r.attendanceDays,
+          Total_Jam_Kerja: formatMinutes(r.total),
+        }));
+        exportToXlsx(rows, "Rekap Bulanan", `rekap-bulanan-intern-${mk}.xlsx`);
+      }
+      function exportInternshipTotalXlsx() {
+        const rows = internshipTotalCache.map((r) => ({
+          Nama_Intern: r.name,
+          Total_Hari_Hadir: r.days,
+          Total_Jam_Kerja: formatMinutes(r.total),
+        }));
+        exportToXlsx(rows, "Total Internship", "total-jam-internship.xlsx");
+      }
+
+      // ── init ──────────────────────────────────────────────────────
+      async function init() {
+        const todayKey = getTodayKey();
+        filterDateInput.value = todayKey;
+        recapMonthFilter.value = getMonthKeyFromDate(todayKey);
+        gamiMonthFilter.value = getMonthKeyFromDate(todayKey);
+        await loadInterns();
+        setupAttendanceRealtime(todayKey);
+        await loadMonthlyRecap(recapMonthFilter.value);
+        setupInternshipTotalRealtime(); // also triggers gamification via allAttendanceRecords
+      }
+
+      filterDateInput.addEventListener("change", () =>
+        setupAttendanceRealtime(filterDateInput.value || getTodayKey()),
+      );
+      recapMonthFilter.addEventListener("change", () =>
+        loadMonthlyRecap(
+          recapMonthFilter.value || getMonthKeyFromDate(getTodayKey()),
+        ),
+      );
+      gamiMonthFilter.addEventListener("change", () =>
+        renderGamification(
+          gamiMonthFilter.value || getMonthKeyFromDate(getTodayKey()),
+        ),
+      );
+      btnExportXlsx.addEventListener("click", exportPresenceXlsx);
+      btnExportMonthlyRecapXlsx.addEventListener(
+        "click",
+        exportMonthlyRecapXlsx,
+      );
+      btnExportInternshipTotalXlsx.addEventListener(
+        "click",
+        exportInternshipTotalXlsx,
+      );
+
+      init().catch((e) => {
+        console.error("Init gagal:", e);
+        summaryText.textContent = "Gagal inisialisasi data presensi.";
+        loadingSpinner.classList.add("hidden");
+      });
+    </script>
+  </body>
+</html>

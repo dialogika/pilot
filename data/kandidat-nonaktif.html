@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kandidat Nonaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+        }
+
+        .layout-shell {
+            display: flex;
+            min-height: 100vh;
+            padding-top: var(--topbar-height, 70px);
+        }
+
+        .main-content {
+            width: 100%;
+            padding-top: 1rem;
+        }
+
+        .trash-hero {
+            margin-bottom: 1.5rem;
+            padding: 1.75rem;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at top right, rgba(191, 219, 254, 0.8), transparent 28%),
+                linear-gradient(135deg, #ffffff 0%, #f8fbff 48%, #f1f5f9 100%);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08);
+        }
+
+        .trash-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #c2410c;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .trash-title {
+            margin: 0.9rem 0 0.45rem;
+            font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+        }
+
+        .trash-subtitle {
+            margin: 0;
+            color: #64748b;
+            max-width: 760px;
+            line-height: 1.7;
+        }
+
+        .trash-toolbar {
+            margin-bottom: 1.35rem;
+            padding: 1rem;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .trash-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.35rem;
+        }
+
+        .trash-summary-card {
+            padding: 1rem 1.1rem;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .trash-summary-label {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #94a3b8;
+            margin-bottom: 0.45rem;
+        }
+
+        .trash-summary-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .trash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .trash-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 26px;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+        }
+
+        .trash-card:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-color: rgba(148, 163, 184, 0.5);
+            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.14);
+        }
+
+        .trash-card:focus-visible {
+            outline: 3px solid rgba(59, 130, 246, 0.45);
+            outline-offset: 2px;
+        }
+
+        .trash-card-head {
+            padding: 1.35rem 1.35rem 1rem;
+            background:
+                radial-gradient(circle at top right, rgba(254, 215, 170, 0.45), transparent 28%),
+                linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+        }
+
+        .trash-card-body {
+            padding: 1.1rem 1.35rem 1.3rem;
+        }
+
+        .trash-card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .trash-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 22px;
+            object-fit: cover;
+            background: #e2e8f0;
+            border: 3px solid rgba(255, 255, 255, 0.96);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .trash-card-name {
+            margin: 0;
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+
+        .trash-card-role {
+            display: inline-flex;
+            margin-top: 0.55rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .trash-card-status {
+            display: inline-flex;
+            margin-top: 0.55rem;
+            margin-left: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .trash-meta-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .trash-meta-item {
+            padding: 0.9rem 0.95rem;
+            border-radius: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .trash-meta-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #94a3b8;
+            margin-bottom: 0.35rem;
+        }
+
+        .trash-meta-value {
+            font-size: 0.92rem;
+            color: #0f172a;
+            font-weight: 700;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .trash-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .trash-empty-state {
+            padding: 3rem 1.5rem;
+            border-radius: 26px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+        }
+
+        @media (max-width: 767px) {
+            .trash-hero {
+                padding: 1.35rem;
+            }
+
+            .trash-card-top {
+                align-items: center;
+            }
+        }
+
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 30%;
+            z-index: 1000;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1f2933;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: #0B2B6A;
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
+            border-color: #0B2B6A;
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="layout-fixed">
+    <div id="topbarContainer"></div>
+    <div class="layout-shell">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="container-fluid">
+                <div class="container">
+                    <section class="trash-hero">
+                        <span class="trash-kicker"><i class="fa-solid fa-trash-can"></i> Menu Sampah Kandidat</span>
+                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mt-3">
+                            <div>
+                                <h1 class="trash-title">Kandidat Nonaktif</h1>
+                                <p class="trash-subtitle">Daftar ini menampilkan kandidat internship yang sudah dipindahkan dari halaman utama. Data tetap tersimpan dan bisa dipulihkan kapan saja bila masih dibutuhkan.</p>
+                            </div>
+                            <a href="./candidate-management.html" class="btn btn-outline-primary rounded-pill px-4">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Kembali ke Kandidat Aktif
+                            </a>
+                        </div>
+                    </section>
+
+                    <section class="trash-toolbar">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-lg-6">
+                                <label for="inactiveSearchInput" class="form-label fw-semibold small text-muted">Cari Kandidat Nonaktif</label>
+                                <input type="text" id="inactiveSearchInput" class="form-control rounded-pill px-4" placeholder="Cari nama, posisi, email, atau kampus...">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="inactiveSummary" class="trash-summary-grid">
+                        <div class="trash-summary-card">
+                            <div class="trash-summary-label">Total Nonaktif</div>
+                            <div class="trash-summary-value">0</div>
+                        </div>
+                        <div class="trash-summary-card">
+                            <div class="trash-summary-label">Baru Dipindahkan</div>
+                            <div class="trash-summary-value">0</div>
+                        </div>
+                    </section>
+
+                    <section id="inactiveGrid" class="trash-grid"></section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            doc,
+            updateDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const INTERNSHIP_CANDIDATES_COLLECTION = "interns_screening";
+        let inactivePageLoadInFlight = false;
+
+        function safeRenderLayout() {
+            try {
+                renderTopBar(document.getElementById("topbarContainer"));
+            } catch (error) {
+                console.error("Gagal render topbar", error);
+            }
+            try {
+                renderSidebar(document.getElementById("sidebarContainer"));
+            } catch (error) {
+                console.error("Gagal render sidebar", error);
+            }
+            try {
+                renderRightbarRecruit();
+            } catch (error) {
+                console.error("Gagal render rightbar", error);
+            }
+        }
+
+        safeRenderLayout();
+
+        function escapeHtml(str) {
+            return (str || "").toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function parseDateValue(raw) {
+            if (!raw) return null;
+            if (typeof raw.toDate === "function") return raw.toDate();
+            if (raw instanceof Date) return raw;
+            const parsed = new Date(raw);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        function formatDateTime(raw) {
+            const dateObj = parseDateValue(raw);
+            if (!dateObj) return "-";
+            return dateObj.toLocaleString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        function normalizeStatus(value) {
+            const normalized = (value || "").toString().trim().toLowerCase();
+            if (normalized === "interview scheduled") return "interview";
+            if (normalized === "accepted") return "onboarding";
+            if (normalized === "declined") return "rejected";
+            if (["screening", "interview", "onboarding", "rejected"].includes(normalized)) return normalized;
+            return "screening";
+        }
+
+        function getStatusLabel(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "interview") return "Interview";
+            if (normalized === "onboarding") return "Onboarding";
+            if (normalized === "rejected") return "Rejected";
+            return "Screening";
+        }
+
+        function resolveDisplayStatus(recruitment) {
+            const state = recruitment || {};
+            return normalizeStatus(state.final_decision === "rejected" ? "rejected" : (state.current || "screening"));
+        }
+
+        function isInactiveCandidateRecord(data) {
+            if (!data) return false;
+            const recordStatus = (data.record_status || data.recordStatus || data.status || "").toString().trim().toLowerCase();
+            const deletedValue = (data.is_deleted ?? data.isDeleted ?? "").toString().trim().toLowerCase();
+            const sourcePage = (data.deleted_source_page || data.deletedSourcePage || "").toString().trim().toLowerCase();
+            return (
+                data.is_deleted === true ||
+                data.isDeleted === true ||
+                deletedValue === "true" ||
+                recordStatus === "inactive" ||
+                recordStatus === "nonaktif" ||
+                recordStatus === "deleted" ||
+                !!data.deleted_at ||
+                !!data.deletedAt ||
+                sourcePage === "candidate-internship"
+            );
+        }
+
+        function renderInactiveCandidateCard(candidate) {
+            const talentId = (candidate.talentId || "").toString().trim();
+            if (!talentId) return "";
+
+            const name = escapeHtml(candidate.name || "Tanpa Nama");
+            const position = escapeHtml(candidate.position || "-");
+            const email = escapeHtml(candidate.email || "-");
+            const campus = escapeHtml(candidate.campus || "-");
+            const deletedBy = escapeHtml(candidate.deletedBy || "-");
+            const lastStatus = escapeHtml(candidate.lastStatus || "Screening");
+            const avatarUrl = candidate.avatarUrl || "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800";
+            const deletedAt = candidate.deletedAt || null;
+            const safeTalentId = encodeURIComponent(talentId);
+            const detailUrl = buildCandidateDetailUrl(talentId);
+
+            return (
+                '<article class="trash-card" id="trash-card-' + safeTalentId + '" data-talent-id="' + escapeHtml(talentId) + '" data-detail-url="' + escapeHtml(detailUrl) + '" data-name="' + name.toLowerCase() + '" data-role="' + position.toLowerCase() + '" data-email="' + email.toLowerCase() + '" data-campus="' + campus.toLowerCase() + '" role="link" tabindex="0">' +
+                    '<div class="trash-card-head">' +
+                        '<div class="trash-card-top">' +
+                            '<img src="' + avatarUrl + '" alt="' + name + '" class="trash-avatar">' +
+                            '<div>' +
+                                '<h2 class="trash-card-name">' + name + '</h2>' +
+                                '<span class="trash-card-role">' + position + '</span>' +
+                                '<span class="trash-card-status">Status Terakhir: ' + lastStatus + '</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="trash-card-body">' +
+                        '<div class="trash-meta-list">' +
+                            '<div class="trash-meta-item">' +
+                                '<div class="trash-meta-label">Email</div>' +
+                                '<div class="trash-meta-value">' + email + '</div>' +
+                            '</div>' +
+                            '<div class="trash-meta-item">' +
+                                '<div class="trash-meta-label">Kampus</div>' +
+                                '<div class="trash-meta-value">' + campus + '</div>' +
+                            '</div>' +
+                            '<div class="trash-meta-item">' +
+                                '<div class="trash-meta-label">Dipindahkan Ke Sampah</div>' +
+                                '<div class="trash-meta-value">' + escapeHtml(formatDateTime(deletedAt)) + '</div>' +
+                            '</div>' +
+                            '<div class="trash-meta-item">' +
+                                '<div class="trash-meta-label">Dipindahkan Oleh</div>' +
+                                '<div class="trash-meta-value">' + deletedBy + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="trash-actions">' +
+                            '<button type="button" class="btn btn-success rounded-pill px-3 restore-candidate-btn" data-talent-id="' + talentId + '" data-name="' + name + '">' +
+                                '<i class="fa-solid fa-rotate-left me-2"></i>Pulihkan' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</article>'
+            );
+        }
+
+        function buildCandidateDetailUrl(talentId) {
+            const params = new URLSearchParams();
+            params.set("talentId", (talentId || "").toString().trim());
+            params.set("source", "trash");
+            return "./internship-candidate-detail.html?" + params.toString();
+        }
+
+        function getQueryHighlightedTalentId() {
+            const params = new URLSearchParams(window.location.search);
+            return (params.get("talentId") || "").toString().trim();
+        }
+
+        function focusHighlightedTrashCandidate() {
+            const highlightedTalentId = getQueryHighlightedTalentId();
+            if (!highlightedTalentId) return;
+            const cards = Array.from(document.querySelectorAll("#inactiveGrid .trash-card"));
+            const selectedCard = cards.find((card) => (card.getAttribute("data-talent-id") || "") === highlightedTalentId);
+            if (!selectedCard) return;
+            selectedCard.classList.add("border", "border-warning", "border-2");
+            selectedCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        function navigateToInactiveCandidateDetail(cardElement) {
+            if (!cardElement) return;
+            const detailUrl = cardElement.getAttribute("data-detail-url") || "";
+            if (!detailUrl) return;
+            window.location.href = detailUrl;
+        }
+
+        function updateSummary(totalCount, freshCount) {
+            const summary = document.getElementById("inactiveSummary");
+            if (!summary) return;
+            summary.innerHTML =
+                '<div class="trash-summary-card">' +
+                    '<div class="trash-summary-label">Total Nonaktif</div>' +
+                    '<div class="trash-summary-value">' + totalCount + '</div>' +
+                '</div>' +
+                '<div class="trash-summary-card">' +
+                    '<div class="trash-summary-label">Baru Dipindahkan</div>' +
+                    '<div class="trash-summary-value">' + freshCount + '</div>' +
+                '</div>';
+        }
+
+        async function restoreCandidate(talentId) {
+            const user = auth.currentUser;
+            await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), {
+                is_deleted: false,
+                record_status: "active",
+                deleted_at: null,
+                deleted_by_uid: null,
+                deleted_by_name: null,
+                deleted_by_email: null,
+                restored_at: serverTimestamp(),
+                restored_by_uid: user ? user.uid : "",
+                restored_by_name: user ? (user.displayName || user.email || "Recruitment Team") : "Recruitment Team"
+            });
+        }
+
+        function renderInactiveCandidatesList(candidates) {
+            const grid = document.getElementById("inactiveGrid");
+            if (!grid) return;
+            grid.innerHTML = "";
+            let totalCount = 0;
+            let freshCount = 0;
+            (Array.isArray(candidates) ? candidates : []).forEach(candidate => {
+                totalCount += 1;
+                const deletedDate = parseDateValue(candidate.deletedAt);
+                if (deletedDate) {
+                    const diff = Date.now() - deletedDate.getTime();
+                    if (diff <= 3 * 24 * 60 * 60 * 1000) {
+                        freshCount += 1;
+                    }
+                }
+                grid.insertAdjacentHTML("beforeend", renderInactiveCandidateCard({
+                    talentId: candidate.talentId,
+                    name: candidate.name,
+                    position: candidate.position,
+                    email: candidate.email,
+                    campus: candidate.campus,
+                    deletedBy: candidate.deletedBy,
+                    lastStatus: candidate.lastStatus,
+                    avatarUrl: candidate.avatarUrl,
+                    deletedAt: candidate.deletedAt
+                }));
+            });
+
+            if (!totalCount) {
+                grid.innerHTML =
+                    '<div class="trash-empty-state">' +
+                        '<div class="fs-4 fw-bold text-slate-700 mb-2">Belum ada kandidat nonaktif</div>' +
+                        '<div>Setelah kandidat dipindahkan dari halaman utama, datanya akan muncul di sini.</div>' +
+                    '</div>';
+            }
+
+            updateSummary(totalCount, freshCount);
+            applySearchFilter();
+            focusHighlightedTrashCandidate();
+        }
+
+        function renderInactiveCandidatesError(error) {
+            const grid = document.getElementById("inactiveGrid");
+            console.error("Gagal memuat kandidat nonaktif", error);
+            if (!grid) return;
+            grid.innerHTML =
+                '<div class="trash-empty-state">' +
+                    '<div class="fs-5 fw-bold mb-2">Gagal memuat data</div>' +
+                    '<div>Silakan refresh halaman atau cek koneksi ke Firebase.</div>' +
+                '</div>';
+        }
+
+        function renderInactiveCandidatesLoading() {
+            const grid = document.getElementById("inactiveGrid");
+            if (!grid) return;
+            grid.innerHTML =
+                '<div class="trash-empty-state">' +
+                    '<div class="fs-5 fw-bold mb-2">Memuat kandidat nonaktif...</div>' +
+                    '<div>Sedang mengambil data kandidat nonaktif dari sistem.</div>' +
+                '</div>';
+        }
+
+        async function loadInactiveCandidates() {
+            try {
+                const sourceSnap = await getDocs(collection(db, INTERNSHIP_CANDIDATES_COLLECTION));
+                const mergedMap = new Map();
+
+                sourceSnap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    if (!isInactiveCandidateRecord(data) || mergedMap.has(docSnap.id)) return;
+
+                    const basic = data.basic_info || {};
+                    const scouting = data.scouting_info || {};
+                    const internship = data.internship || data.internship_info || {};
+                    const contact = data.contact_info || {};
+                    const education = data.education || {};
+                    const recruitment = data.recruitment_status || data.recruitment_system || {};
+
+                    mergedMap.set(docSnap.id, {
+                        talentId: docSnap.id,
+                        name: basic.full_name || scouting.full_name || data.full_name || "Tanpa Nama",
+                        position: scouting.position_name || internship.position || "-",
+                        email: internship.email || contact.email || basic.email || "-",
+                        campus: internship.campus || education.campus || education.university || "-",
+                        deletedBy: data.deleted_by_name || data.deleted_by_email || "-",
+                        lastStatus: getStatusLabel(resolveDisplayStatus(recruitment)),
+                        avatarUrl: basic.avatar_url || "",
+                        deletedAt: data.deleted_at || data.deletedAt || null
+                    });
+                });
+
+                const candidates = Array.from(mergedMap.values()).sort((a, b) => {
+                    const aTime = parseDateValue(a.deletedAt)?.getTime() || 0;
+                    const bTime = parseDateValue(b.deletedAt)?.getTime() || 0;
+                    return bTime - aTime;
+                });
+
+                renderInactiveCandidatesList(candidates);
+            } catch (error) {
+                renderInactiveCandidatesError(error);
+            }
+        }
+
+        async function initializeInactiveCandidatesPage() {
+            if (inactivePageLoadInFlight) return;
+            inactivePageLoadInFlight = true;
+            renderInactiveCandidatesLoading();
+            try {
+                await loadInactiveCandidates();
+            } catch (error) {
+                renderInactiveCandidatesError(error);
+            } finally {
+                inactivePageLoadInFlight = false;
+            }
+        }
+
+        function applySearchFilter() {
+            const input = document.getElementById("inactiveSearchInput");
+            const keyword = (input ? input.value : "").toLowerCase().trim();
+            document.querySelectorAll("#inactiveGrid .trash-card").forEach(card => {
+                const haystack = [
+                    card.dataset.name || "",
+                    card.dataset.role || "",
+                    card.dataset.email || "",
+                    card.dataset.campus || ""
+                ].join(" ");
+                card.style.display = !keyword || haystack.includes(keyword) ? "" : "none";
+            });
+        }
+
+        document.addEventListener("click", async (event) => {
+            const restoreBtn = event.target.closest(".restore-candidate-btn");
+            if (restoreBtn) {
+                event.stopPropagation();
+            }
+            if (!restoreBtn) {
+                const card = event.target.closest("#inactiveGrid .trash-card");
+                if (!card) return;
+                navigateToInactiveCandidateDetail(card);
+                return;
+            }
+            const talentId = restoreBtn.getAttribute("data-talent-id") || "";
+            const name = restoreBtn.getAttribute("data-name") || "kandidat ini";
+            if (!talentId) return;
+
+            const ok = window.confirm('Pulihkan ' + name + ' ke daftar kandidat aktif?');
+            if (!ok) return;
+
+            try {
+                restoreBtn.disabled = true;
+                await restoreCandidate(talentId);
+                await loadInactiveCandidates();
+            } catch (error) {
+                console.error("Gagal memulihkan kandidat", error);
+                restoreBtn.disabled = false;
+                window.alert("Gagal memulihkan kandidat.");
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            const card = event.target.closest("#inactiveGrid .trash-card");
+            if (!card) return;
+            event.preventDefault();
+            navigateToInactiveCandidateDetail(card);
+        });
+
+        document.getElementById("inactiveSearchInput").addEventListener("input", applySearchFilter);
+
+        initializeInactiveCandidatesPage();
+        window.setTimeout(() => {
+            initializeInactiveCandidatesPage();
+        }, 1200);
+        window.setTimeout(() => {
+            initializeInactiveCandidatesPage();
+        }, 3200);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            initializeInactiveCandidatesPage();
+        });
+    </script>
+</body>
+</html>

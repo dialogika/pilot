@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Management Dashboard</title>
+    <!-- Bootstrap & Icons (Sesuai layout utama) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Fonts & Global CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <!-- Tailwind (opsional, untuk utility kelas yang masih terpakai) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk Icon tambahan -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff5b37;
+            --secondary-color: #64748b;
+            --bg-body: #f8fafc;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: #1e293b;
+            letter-spacing: -0.01em;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before { content: "•"; color: #cbd5e1; }
+        .breadcrumb { font-size: 13px; font-weight: 500; }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #ff7b5f 0%, #ff5b37 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 91, 55, 0.2);
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 91, 55, 0.3);
+            color: white;
+        }
+
+        .stats-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover { transform: translateY(-5px); }
+        
+        .icon-shape {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .main-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            background: white;
+        }
+        .table { margin-bottom: 0; }
+        .table thead th {
+            background-color: #fcfdfe;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table tbody td {
+            padding: 18px 24px;
+            vertical-align: middle;
+            color: #475569;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .table tbody tr:hover { background-color: #fbfcfe; }
+
+        .avatar-ring {
+            padding: 2px;
+            border: 2px solid #f1f5f9;
+            border-radius: 50%;
+        }
+
+        .badge-soft {
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-soft-success { background: #ecfdf5; color: #10b981; }
+        .badge-soft-danger { background: #fef2f2; color: #ef4444; }
+        .badge-soft-warning { background: #fefce8; color: #b45309; }
+
+        .form-select-custom, .form-control-custom {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            padding: 8px 16px;
+            background-color: #f8fafc;
+        }
+        .form-select-custom:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(255, 91, 55, 0.1);
+        }
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border: 1px solid #f1f5f9;
+            color: #64748b;
+            background: white;
+        }
+        .btn-action:hover { background: #f8fafc; color: var(--primary-color); }
+
+        .internship-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .internship-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .internship-table-wrapper {
+            overflow-x: auto;
+        }
+        .internship-table {
+            min-width: 1200px;
+        }
+        .internship-table th,
+        .internship-table td {
+            white-space: nowrap;
+        }
+        .internship-col-name {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background-color: #ffffff;
+        }
+        .internship-col-status {
+            position: sticky;
+            left: 220px;
+            z-index: 3;
+            background-color: #ffffff;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8">
+
+    <!-- 1. TOP BAR FIXED -->
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <div class="container-fluid">
+                <!-- Header -->
+                <div class="row align-items-end mb-5">
+                    <div class="col-md-6">
+                        <h2 class="fw-bold mb-1">Internship Management</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <a href="../home.html"><li class="breadcrumb-item text-muted"><i class="fas fa-home me-2"></i></li></a>
+                                <li class="breadcrumb-item text-muted">Setting</li>
+                                <li class="breadcrumb-item active text-dark">Internship Directory</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-md-end gap-3 mt-3 mt-md-0">
+                        <button class="btn btn-light border bg-white rounded-3 px-3 fw-semibold text-muted">
+                            <i class="fas fa-download me-2"></i> Export
+                        </button>
+                        <button class="btn btn-dlg-green" id="internshipAddBtn">
+                            <i class="fas fa-plus me-2"></i> New Intern
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stats-card" id="internshipCardTotal">
+                            <div class="icon-shape bg-dark text-white"><i class="fas fa-users"></i></div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h3 class="fw-bold mb-0 stats-card-total-count">0</h3>
+                                    <small class="text-muted fw-semibold">Total Internships</small>
+                                </div>
+                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success p-2 px-3 fw-bold stats-card-total-delta" style="font-size: 10px;">
+                                    0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stats-card" id="internshipCardActive">
+                            <div class="icon-shape bg-success bg-opacity-10 text-success"><i class="fas fa-user-check"></i></div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h3 class="fw-bold mb-0 stats-card-active-count">0</h3>
+                                    <small class="text-muted fw-semibold">Active Internships</small>
+                                </div>
+                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning p-2 px-3 fw-bold" style="font-size: 10px;">
+                                    Steady
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stats-card" id="internshipCardOnLeave">
+                            <div class="icon-shape bg-danger bg-opacity-10 text-danger"><i class="fas fa-user-clock"></i></div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h3 class="fw-bold mb-0 stats-card-onleave-count">0</h3>
+                                    <small class="text-muted fw-semibold">On Leave</small>
+                                </div>
+                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger p-2 px-3 fw-bold stats-card-onleave-pct" style="font-size: 10px;">
+                                    0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stats-card" id="internshipCardLeft">
+                            <div class="icon-shape bg-warning bg-opacity-10 text-primary"><i class="fas fa-door-open" style="color: #f7b12c;"></i></div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <h3 class="fw-bold mb-0 stats-card-left-count">0</h3>
+                                    <small class="text-muted fw-semibold">Left Early</small>
+                                </div>
+                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-dark p-2 px-3 fw-bold stats-card-left-pct" style="font-size: 10px;">
+                                    0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table Card -->
+                <div class="main-card">
+                    <!-- Filter Bar -->
+                    <div class="p-4 border-bottom d-flex flex-wrap justify-content-between align-items-center bg-white gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small">Rows per page</span>
+                            <select id="internshipRowsPerPage" class="form-select form-select-custom border-0 shadow-none" style="width:auto; min-width: 80px;">
+                                <option value="10">10 entries</option>
+                                <option value="20">20 entries</option>
+                                <option value="50">50 entries</option>
+                                <option value="100">100 entries</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="position-relative">
+                                <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="font-size: 12px;"></i>
+                                <input id="internshipSearchInput" type="text" placeholder="Quick search..." class="form-control form-control-custom ps-5 border-0 shadow-none" style="width: 280px; background: #f1f5f9;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive internship-table-wrapper">
+                        <table class="table internship-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4 internship-col-name">Name</th>
+                                    <th class="internship-col-status">Status</th>
+                                    <th>End Date</th>
+                                    <th>Position</th>
+                                    <th>Department</th>
+                                    <th>Mode</th>
+                                    <th>Address</th>
+                                    <th>Birth Date</th>
+                                    <th>Campus</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Instagram</th>
+                                    <th>LinkedIn</th>
+                                    <th class="text-end pe-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="internshipTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Modern Pagination -->
+                    <div class="p-4 bg-white d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <div id="internshipPaginationInfo" class="text-muted small fw-medium">
+                            Showing 0 entries
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0 gap-1">
+                                <li class="page-item">
+                                    <button id="internshipPrevPage" class="page-link border-0 rounded-3 px-3 py-2 text-dark bg-light">
+                                        <i class="fas fa-chevron-left me-2"></i> Prev
+                                    </button>
+                                </li>
+                                <li class="page-item">
+                                    <button id="internshipNextPage" class="page-link border-0 rounded-3 px-3 py-2 text-dark bg-light">
+                                        Next <i class="fas fa-chevron-right ms-2"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="modal fade" id="internshipEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Internship</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="internshipEditForm">
+                    <input type="hidden" id="internshipEditUserId">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">Name</label>
+                                <input type="text" id="internshipEditName" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Status</label>
+                                <select id="internshipEditStatus" class="form-select form-select-custom">
+                                    <option value="Active">Active</option>
+                                    <option value="Left">Left</option>
+                                    <option value="Graduate">Graduate</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Start Date</label>
+                                <input type="date" id="internshipEditStartDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">End Date</label>
+                                <input type="date" id="internshipEditEndDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Position</label>
+                                <select id="internshipEditPosition" class="form-select form-select-custom"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Department</label>
+                                <select id="internshipEditDepartment" class="form-select form-select-custom"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Mode</label>
+                                <select id="internshipEditMode" class="form-select form-select-custom">
+                                    <option value="">Select mode</option>
+                                    <option value="WFO">WFO</option>
+                                    <option value="WFH">WFH</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Address</label>
+                                <input type="text" id="internshipEditAddress" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Birth Date</label>
+                                <input type="date" id="internshipEditBirthDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Campus</label>
+                                <input type="text" id="internshipEditCampus" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Phone</label>
+                                <input type="text" id="internshipEditPhone" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Email</label>
+                                <input type="email" id="internshipEditEmail" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Instagram</label>
+                                <input type="text" id="internshipEditInstagram" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">LinkedIn</label>
+                                <input type="text" id="internshipEditLinkedin" class="form-control form-control-custom">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-custom">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="internshipAddModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Internship</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="internshipAddForm">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">Name</label>
+                                <input type="text" id="internshipAddName" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Status</label>
+                                <select id="internshipAddStatus" class="form-select form-select-custom">
+                                    <option value="Active">Active</option>
+                                    <option value="Left">Left</option>
+                                    <option value="Graduate">Graduate</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Start Date</label>
+                                <input type="date" id="internshipAddStartDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">End Date</label>
+                                <input type="date" id="internshipAddEndDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Position</label>
+                                <select id="internshipAddPosition" class="form-select form-select-custom"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Department</label>
+                                <select id="internshipAddDepartment" class="form-select form-select-custom"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Mode</label>
+                                <select id="internshipAddMode" class="form-select form-select-custom">
+                                    <option value="">Select mode</option>
+                                    <option value="WFO">WFO</option>
+                                    <option value="WFH">WFH</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Address</label>
+                                <input type="text" id="internshipAddAddress" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Birth Date</label>
+                                <input type="date" id="internshipAddBirthDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Campus</label>
+                                <input type="text" id="internshipAddCampus" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Phone</label>
+                                <input type="text" id="internshipAddPhone" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Email</label>
+                                <input type="email" id="internshipAddEmail" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Instagram</label>
+                                <input type="text" id="internshipAddInstagram" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">LinkedIn</label>
+                                <input type="text" id="internshipAddLinkedin" class="form-control form-control-custom">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-custom">Add Intern</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="promoteToTeamModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Promosikan ke Team</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="promoteToTeamForm">
+                    <input type="hidden" id="promoteUserId">
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">Pilih divisi tujuan untuk mempromosikan peserta internship ke tim.</p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Divisi Tujuan</label>
+                            <select id="promoteDivisionSelect" class="form-select form-select-custom" required>
+                                <option value="">-- Pilih Divisi --</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Client & Product">Client & Product</option>
+                                <option value="Branding">Branding</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary-custom">Promosikan ke Team</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            getDocs,
+            collection,
+            query,
+            where,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com", 
+            projectId: "pre-dialogika", 
+            storageBucket: "pre-dialogika.firebasestorage.app", 
+            messagingSenderId: "343771410480", 
+            appId: "1:343771410480:web:32881c9868522090237df5", 
+            measurementId: "G-SXN811P3N0" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+
+        function normalizeInternshipDate(value) {
+            if (!value) return "";
+            let dateObj = null;
+            if (typeof value.toDate === "function") {
+                dateObj = value.toDate();
+            } else if (value instanceof Date) {
+                dateObj = value;
+            } else if (typeof value === "string" || typeof value === "number") {
+                const tmp = new Date(value);
+                if (!isNaN(tmp.getTime())) {
+                    dateObj = tmp;
+                }
+            }
+            if (!dateObj || isNaN(dateObj.getTime())) return "";
+            return dateObj;
+        }
+
+        function formatDateValue(value) {
+            const dateObj = normalizeInternshipDate(value);
+            if (!dateObj) return "";
+            const day = String(dateObj.getDate()).padStart(2, "0");
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = monthNames[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+
+        let internshipPositionsCache = null;
+        let internshipDepartmentsCache = null;
+        let internshipUsersAll = [];
+        let internshipState = {
+            search: "",
+            statusFilter: "",
+            rowsPerPage: 10,
+            page: 1
+        };
+
+        function internshipTruncate(text, maxLen) {
+            if (!text) return "";
+            if (text.length <= maxLen) return text;
+            return text.slice(0, maxLen) + "...";
+        }
+
+        async function ensureInternshipPositionsCache() {
+            if (internshipPositionsCache) return;
+            let snap = await getDocs(collection(db, "position"));
+            if (snap.empty) {
+                try {
+                    const altSnap = await getDocs(collection(db, "positions"));
+                    snap = altSnap;
+                } catch (e) {
+                    console.warn("Fallback positions collection 'positions' not readable", e);
+                }
+            }
+            const map = {};
+            snap.forEach(d => {
+                const r = d.data() || {};
+                const key = d.id;
+                const label = r.name || r.label || r.title || r.position || key;
+                map[key] = label;
+            });
+            internshipPositionsCache = map;
+        }
+
+        async function ensureInternshipDepartmentsCache() {
+            if (internshipDepartmentsCache) return;
+            let snap = await getDocs(collection(db, "department"));
+            if (snap.empty) {
+                try {
+                    const altSnap = await getDocs(collection(db, "departments"));
+                    snap = altSnap;
+                } catch (e) {
+                    console.warn("Fallback departments collection 'departments' not readable", e);
+                }
+            }
+            const map = {};
+            snap.forEach(d => {
+                const r = d.data() || {};
+                const key = d.id;
+                const label = r.name || r.label || r.title || r.department || key;
+                map[key] = label;
+            });
+            internshipDepartmentsCache = map;
+        }
+
+        async function loadInternshipUsers() {
+            try {
+                await ensureInternshipPositionsCache();
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("role", "in", ["Internship", "internship"]));
+                const snap = await getDocs(q);
+                const list = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const employment = data.employment || {};
+                    const socials = data.socials || {};
+                    const name = data.name || data.fullName || data.username || data.email || "";
+                    const status = data.status || data.internshipStatus || "";
+                    const startDateRaw = data.internshipStartDate || (data.internship && data.internship.startDate) || employment.startDate || employment.start_date || null;
+                    const endDateRaw = data.endDate || data.internshipEndDate || (data.internship && data.internship.endDate) || employment.endDate || employment.end_date || null;
+                    const startDateObj = normalizeInternshipDate(startDateRaw);
+                    const endDateObj = normalizeInternshipDate(endDateRaw);
+                    const startDate = formatDateValue(startDateRaw);
+                    const endDate = formatDateValue(endDateRaw);
+                    const rawPositionKey = data.position || employment.position || "";
+                    let resolvedPosition = rawPositionKey;
+                    if (rawPositionKey && internshipPositionsCache && internshipPositionsCache[rawPositionKey]) {
+                        resolvedPosition = internshipPositionsCache[rawPositionKey];
+                    }
+                    const department = data.department || employment.department || "";
+                    const mode = data.mode || data.internshipMode || "";
+                    const address = data.address || data.location || "";
+                    const birthRaw = data.birth || data.birthDate || data.dateOfBirth || null;
+                    const birthDate = formatDateValue(birthRaw);
+                    const campus = data.campus || data.university || "";
+                    const phone = data.phone || data.phoneNumber || "";
+                    const email = data.email || "";
+                    const instagram = (socials.instagram || "").trim();
+                    const linkedin = (socials.linkedin || "").trim();
+                    const avatar = data.photo || `https://i.pravatar.cc/150?u=${docSnap.id}`;
+
+                    list.push({
+                        id: docSnap.id,
+                        name,
+                        status,
+                        startDate,
+                        startDateObj,
+                        endDate,
+                        endDateObj,
+                        positionKey: rawPositionKey,
+                        position: resolvedPosition,
+                        department,
+                        mode,
+                        address,
+                        birthDate,
+                        campus,
+                        phone,
+                        email,
+                        instagram,
+                        linkedin,
+                        avatar
+                    });
+                });
+                internshipUsersAll = list;
+                internshipState.page = 1;
+                updateInternshipStats();
+                renderInternshipTable();
+            } catch (e) {
+                console.error("Error loading internship users", e);
+            }
+        }
+
+        function updateInternshipStats() {
+            const totalEl = document.querySelector(".stats-card-total-count");
+            const totalDeltaEl = document.querySelector(".stats-card-total-delta");
+            const activeEl = document.querySelector(".stats-card-active-count");
+            const onLeaveEl = document.querySelector(".stats-card-onleave-count");
+            const onLeavePctEl = document.querySelector(".stats-card-onleave-pct");
+            const leftEl = document.querySelector(".stats-card-left-count");
+            const leftPctEl = document.querySelector(".stats-card-left-pct");
+            if (!totalEl || !totalDeltaEl || !activeEl || !onLeaveEl || !onLeavePctEl || !leftEl || !leftPctEl) return;
+
+            const now = new Date();
+            const total = internshipUsersAll.length;
+            let activeCount = 0;
+            let onLeaveCount = 0;
+            let leftCount = 0;
+            let newLast3Months = 0;
+            let newPrev3Months = 0;
+
+            const threeMonthsMs = 90 * 24 * 60 * 60 * 1000;
+            const last3Start = new Date(now.getTime() - threeMonthsMs);
+            const prev3Start = new Date(now.getTime() - 2 * threeMonthsMs);
+
+            internshipUsersAll.forEach(u => {
+                const s = getInternshipDisplayStatus(u).label;
+                if (s === "Active") activeCount += 1;
+                else if (s === "On Leave") onLeaveCount += 1;
+                else if (s === "Left") leftCount += 1;
+
+                if (u.startDateObj instanceof Date && !isNaN(u.startDateObj.getTime())) {
+                    const t = u.startDateObj.getTime();
+                    if (t >= last3Start.getTime() && t <= now.getTime()) {
+                        newLast3Months += 1;
+                    } else if (t >= prev3Start.getTime() && t < last3Start.getTime()) {
+                        newPrev3Months += 1;
+                    }
+                }
+            });
+
+            totalEl.textContent = total.toString();
+
+            let totalDeltaText = "0%";
+            let totalDeltaIcon = "";
+            if (newPrev3Months === 0 && newLast3Months > 0) {
+                totalDeltaText = "+100%";
+                totalDeltaIcon = '<i class="fas fa-arrow-up ms-1"></i>';
+            } else if (newPrev3Months > 0) {
+                const diff = ((newLast3Months - newPrev3Months) / newPrev3Months) * 100;
+                const rounded = Math.round(diff * 10) / 10;
+                if (rounded > 0) {
+                    totalDeltaText = `+${rounded}%`;
+                    totalDeltaIcon = '<i class="fas fa-arrow-up ms-1"></i>';
+                } else if (rounded < 0) {
+                    totalDeltaText = `${rounded}%`;
+                    totalDeltaIcon = '<i class="fas fa-arrow-down ms-1"></i>';
+                } else {
+                    totalDeltaText = "0%";
+                    totalDeltaIcon = "";
+                }
+            }
+            totalDeltaEl.innerHTML = `${totalDeltaText} ${totalDeltaIcon}`.trim();
+
+            activeEl.textContent = activeCount.toString();
+
+            onLeaveEl.textContent = onLeaveCount.toString();
+            const onLeavePct = total > 0 ? Math.round((onLeaveCount / total) * 1000) / 10 : 0;
+            const onLeaveSign = onLeavePct >= 0 ? "+" : "";
+            onLeavePctEl.innerHTML = `${onLeaveSign}${onLeavePct}% <i class="fas fa-arrow-${
+                onLeavePct >= 0 ? "up" : "down"
+            } ms-1"></i>`;
+
+            leftEl.textContent = leftCount.toString();
+            const leftPct = total > 0 ? Math.round((leftCount / total) * 1000) / 10 : 0;
+            const leftSign = leftPct >= 0 ? "+" : "";
+            leftPctEl.innerHTML = `${leftSign}${leftPct}% <i class="fas fa-arrow-${
+                leftPct >= 0 ? "up" : "down"
+            } ms-1"></i>`;
+        }
+
+        function getFilteredInternshipUsers() {
+            let data = [...internshipUsersAll];
+            if (internshipState.search) {
+                const q = internshipState.search.toLowerCase();
+                data = data.filter(u => {
+                    return (
+                        (u.name || "").toLowerCase().includes(q) ||
+                        (u.email || "").toLowerCase().includes(q) ||
+                        (u.position || "").toLowerCase().includes(q)
+                    );
+                });
+            }
+            if (internshipState.statusFilter) {
+                const target = internshipState.statusFilter;
+                data = data.filter(u => {
+                    const info = getInternshipDisplayStatus(u);
+                    return info.label === target;
+                });
+            }
+            return data;
+        }
+
+        function getInternshipDisplayStatus(u) {
+            const base = (u.status || "").toLowerCase();
+            const end = u.endDateObj instanceof Date && !isNaN(u.endDateObj.getTime()) ? u.endDateObj : null;
+            const today = new Date();
+            const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            let label = u.status || "-";
+            let type = "success";
+
+            if (base === "inactive") {
+                label = "Inactive";
+                type = "danger";
+                return { label, type };
+            }
+            if (base === "left") {
+                label = "Left";
+                type = "danger";
+                return { label, type };
+            }
+
+            if (base === "graduate") {
+                label = "Graduate";
+                type = "success";
+                return { label, type };
+            }
+
+            if (!end) {
+                label = u.status || "Active";
+                type = "success";
+                return { label, type };
+            }
+
+            const endMid = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            const diffDays = Math.round((endMid - todayMid) / 86400000);
+            if (diffDays < 0) {
+                label = "Graduate";
+                type = "success";
+            } else if (diffDays <= 20) {
+                label = "On Leave";
+                type = "warning";
+            } else {
+                label = "Active";
+                type = "success";
+            }
+            return { label, type };
+        }
+
+        function renderInternshipTable() {
+            const tbody = document.getElementById("internshipTableBody");
+            const paginationInfo = document.getElementById("internshipPaginationInfo");
+            const prevBtn = document.getElementById("internshipPrevPage");
+            const nextBtn = document.getElementById("internshipNextPage");
+            if (!tbody || !paginationInfo || !prevBtn || !nextBtn) return;
+
+            const filtered = getFilteredInternshipUsers();
+            const statusOrderPriority = (u) => {
+                const info = getInternshipDisplayStatus(u);
+                const v = (info.label || "").toLowerCase();
+                if (v === "active") return 0;
+                if (v === "on leave") return 1;
+                if (v === "graduate") return 2;
+                // push others (inactive, left, unknown) to bottom
+                return 3;
+            };
+            filtered.sort((a, b) => {
+                const pa = statusOrderPriority(a);
+                const pb = statusOrderPriority(b);
+                if (pa !== pb) return pa - pb;
+                // secondary: name ascending to keep rows tidy
+                const na = (a.name || "").toLowerCase();
+                const nb = (b.name || "").toLowerCase();
+                return na.localeCompare(nb, "id");
+            });
+            const total = filtered.length;
+            const perPage = internshipState.rowsPerPage;
+            const totalPages = Math.max(1, Math.ceil(total / perPage));
+            if (internshipState.page > totalPages) internshipState.page = totalPages;
+            const startIndex = (internshipState.page - 1) * perPage;
+            const endIndex = Math.min(startIndex + perPage, total);
+            const pageItems = filtered.slice(startIndex, endIndex);
+
+            tbody.innerHTML = "";
+            pageItems.forEach(u => {
+                const statusInfo = getInternshipDisplayStatus(u);
+                const statusClass =
+                    statusInfo.type === "danger"
+                        ? "badge-soft-danger"
+                        : statusInfo.type === "warning"
+                        ? "badge-soft-warning"
+                        : "badge-soft-success";
+                const tr = document.createElement("tr");
+                const igShort = internshipTruncate(u.instagram || "-", 17);
+                const liShort = internshipTruncate(u.linkedin || "-", 17);
+                const addressShort = internshipTruncate(u.address || "-", 20);
+                const positionBadgeClass = "badge-soft-primary";
+                const departmentBadgeClass = "badge-soft-secondary";
+                
+                // Check if promoted to team
+                const isPromotedToTeam = u.promotedToTeam === true || u.promotedToTeam === "true";
+                const promoteButtonHtml = isPromotedToTeam 
+                    ? '<span class="badge bg-success" style="font-size: 0.75rem;"><i class="fas fa-check me-1"></i>Team Member</span>'
+                    : '<button class="btn-action shadow-sm internship-promote-btn" data-user-id="' + u.id + '" title="Promosikan ke Team"><i class="fas fa-arrow-up"></i></button>';
+                
+                tr.innerHTML = `
+                    <td class="ps-4 internship-col-name">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="internship-avatar">
+                                <img src="${u.avatar}" alt="">
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark mb-0">${u.name || "-"}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="internship-col-status">
+                        <span class="badge-soft ${statusClass}">
+                            <i class="fas fa-circle" style="font-size: 6px;"></i> ${statusInfo.label}
+                        </span>
+                    </td>
+                    <td>${u.endDate || "-"}</td>
+                    <td>
+                        <span class="badge-soft ${positionBadgeClass}">
+                            ${u.position || "-"}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge-soft ${departmentBadgeClass}">
+                            ${u.department || "-"}
+                        </span>
+                    </td>
+                    <td>${u.mode || "-"}</td>
+                    <td>${addressShort || "-"}</td>
+                    <td>${u.birthDate || "-"}</td>
+                    <td>${u.campus || "-"}</td>
+                    <td>${u.phone || "-"}</td>
+                    <td>${u.email || "-"}</td>
+                    <td>${igShort}</td>
+                    <td>${liShort}</td>
+                    <td class="text-end pe-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            ${promoteButtonHtml}
+                            <button class="btn-action shadow-sm internship-edit-btn" data-user-id="${u.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-action shadow-sm text-danger internship-delete-btn" data-user-id="${u.id}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (total === 0) {
+                paginationInfo.textContent = "Showing 0 entries";
+            } else {
+                paginationInfo.textContent = `Showing ${startIndex + 1} - ${endIndex} of ${total} entries`;
+            }
+
+            prevBtn.disabled = internshipState.page <= 1;
+            nextBtn.disabled = internshipState.page >= totalPages;
+            prevBtn.classList.toggle("opacity-50", prevBtn.disabled);
+            nextBtn.classList.toggle("opacity-50", nextBtn.disabled);
+        }
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            loadInternshipUsers();
+        });
+
+        function toInputDateValue(dateObj) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return "";
+            return dateObj.toISOString().slice(0, 10);
+        }
+
+        let internshipEditingId = null;
+
+        async function openInternshipEditModal(userId) {
+            const user = internshipUsersAll.find(u => u.id === userId);
+            if (!user) return;
+            await ensureInternshipPositionsCache();
+            await ensureInternshipDepartmentsCache();
+
+            const modalEl = document.getElementById("internshipEditModal");
+            const idInput = document.getElementById("internshipEditUserId");
+            const nameInput = document.getElementById("internshipEditName");
+            const statusSelect = document.getElementById("internshipEditStatus");
+            const startInput = document.getElementById("internshipEditStartDate");
+            const endInput = document.getElementById("internshipEditEndDate");
+            const positionSelect = document.getElementById("internshipEditPosition");
+            const departmentSelect = document.getElementById("internshipEditDepartment");
+            const modeInput = document.getElementById("internshipEditMode");
+            const addressInput = document.getElementById("internshipEditAddress");
+            const birthInput = document.getElementById("internshipEditBirthDate");
+            const campusInput = document.getElementById("internshipEditCampus");
+            const phoneInput = document.getElementById("internshipEditPhone");
+            const emailInput = document.getElementById("internshipEditEmail");
+            const instagramInput = document.getElementById("internshipEditInstagram");
+            const linkedinInput = document.getElementById("internshipEditLinkedin");
+            if (!modalEl || !idInput || !nameInput || !statusSelect || !startInput || !endInput || !positionSelect || !departmentSelect || !modeInput || !addressInput || !birthInput || !campusInput || !phoneInput || !emailInput || !instagramInput || !linkedinInput) {
+                return;
+            }
+
+            positionSelect.innerHTML = "";
+            const posDefault = document.createElement("option");
+            posDefault.value = "";
+            posDefault.textContent = "Select position";
+            positionSelect.appendChild(posDefault);
+            Object.keys(internshipPositionsCache || {}).forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.textContent = internshipPositionsCache[key];
+                positionSelect.appendChild(opt);
+            });
+
+            departmentSelect.innerHTML = "";
+            const depDefault = document.createElement("option");
+            depDefault.value = "";
+            depDefault.textContent = "Select department";
+            departmentSelect.appendChild(depDefault);
+            Object.values(internshipDepartmentsCache || {}).forEach(label => {
+                const opt = document.createElement("option");
+                opt.value = label;
+                opt.textContent = label;
+                departmentSelect.appendChild(opt);
+            });
+
+            internshipEditingId = userId;
+            idInput.value = userId;
+            nameInput.value = user.name || "";
+            statusSelect.value = user.status || "Active";
+            startInput.value = toInputDateValue(user.startDateObj);
+            endInput.value = toInputDateValue(user.endDateObj);
+            positionSelect.value = user.positionKey || "";
+            departmentSelect.value = user.department || "";
+            modeInput.value = user.mode || "";
+            addressInput.value = user.address || "";
+            birthInput.value = toInputDateValue(user.birthDateObj);
+            campusInput.value = user.campus || "";
+            phoneInput.value = user.phone || "";
+            emailInput.value = user.email || "";
+            instagramInput.value = user.instagram || "";
+            linkedinInput.value = user.linkedin || "";
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        async function openInternshipAddModal() {
+            await ensureInternshipPositionsCache();
+            await ensureInternshipDepartmentsCache();
+
+            const modalEl = document.getElementById("internshipAddModal");
+            const nameInput = document.getElementById("internshipAddName");
+            const statusSelect = document.getElementById("internshipAddStatus");
+            const startInput = document.getElementById("internshipAddStartDate");
+            const endInput = document.getElementById("internshipAddEndDate");
+            const positionSelect = document.getElementById("internshipAddPosition");
+            const departmentSelect = document.getElementById("internshipAddDepartment");
+            const modeInput = document.getElementById("internshipAddMode");
+            const addressInput = document.getElementById("internshipAddAddress");
+            const birthInput = document.getElementById("internshipAddBirthDate");
+            const campusInput = document.getElementById("internshipAddCampus");
+            const phoneInput = document.getElementById("internshipAddPhone");
+            const emailInput = document.getElementById("internshipAddEmail");
+            const instagramInput = document.getElementById("internshipAddInstagram");
+            const linkedinInput = document.getElementById("internshipAddLinkedin");
+            if (!modalEl || !nameInput || !statusSelect || !startInput || !endInput || !positionSelect || !departmentSelect || !modeInput || !addressInput || !birthInput || !campusInput || !phoneInput || !emailInput || !instagramInput || !linkedinInput) {
+                return;
+            }
+
+            positionSelect.innerHTML = "";
+            const posDefault = document.createElement("option");
+            posDefault.value = "";
+            posDefault.textContent = "Select position";
+            positionSelect.appendChild(posDefault);
+            Object.keys(internshipPositionsCache || {}).forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.textContent = internshipPositionsCache[key];
+                positionSelect.appendChild(opt);
+            });
+
+            departmentSelect.innerHTML = "";
+            const depDefault = document.createElement("option");
+            depDefault.value = "";
+            depDefault.textContent = "Select department";
+            departmentSelect.appendChild(depDefault);
+            Object.values(internshipDepartmentsCache || {}).forEach(label => {
+                const opt = document.createElement("option");
+                opt.value = label;
+                opt.textContent = label;
+                departmentSelect.appendChild(opt);
+            });
+
+            nameInput.value = "";
+            statusSelect.value = "Active";
+            startInput.value = "";
+            endInput.value = "";
+            positionSelect.value = "";
+            departmentSelect.value = "";
+            modeInput.value = "";
+            addressInput.value = "";
+            birthInput.value = "";
+            campusInput.value = "";
+            phoneInput.value = "";
+            emailInput.value = "";
+            instagramInput.value = "";
+            linkedinInput.value = "";
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        async function saveInternshipAdd(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById("internshipAddName");
+            const statusSelect = document.getElementById("internshipAddStatus");
+            const startInput = document.getElementById("internshipAddStartDate");
+            const endInput = document.getElementById("internshipAddEndDate");
+            const positionSelect = document.getElementById("internshipAddPosition");
+            const departmentInput = document.getElementById("internshipAddDepartment");
+            const modeInput = document.getElementById("internshipAddMode");
+            const addressInput = document.getElementById("internshipAddAddress");
+            const birthInput = document.getElementById("internshipAddBirthDate");
+            const campusInput = document.getElementById("internshipAddCampus");
+            const phoneInput = document.getElementById("internshipAddPhone");
+            const emailInput = document.getElementById("internshipAddEmail");
+            const instagramInput = document.getElementById("internshipAddInstagram");
+            const linkedinInput = document.getElementById("internshipAddLinkedin");
+
+            if (!nameInput || !statusSelect || !startInput || !endInput || !positionSelect || !departmentInput || !modeInput || !addressInput || !birthInput || !campusInput || !phoneInput || !emailInput || !instagramInput || !linkedinInput) {
+                return;
+            }
+
+            const payload = {};
+            payload.name = nameInput.value.trim();
+            payload.role = "Internship";
+            payload.internshipStatus = statusSelect.value;
+
+            const startVal = startInput.value ? new Date(startInput.value) : null;
+            const endVal = endInput.value ? new Date(endInput.value) : null;
+            if (startVal && !isNaN(startVal.getTime())) payload.internshipStartDate = startVal;
+            if (endVal && !isNaN(endVal.getTime())) payload.internshipEndDate = endVal;
+
+            const posKey = positionSelect.value || "";
+            const department = departmentInput.value.trim();
+            if (posKey) payload.position = posKey;
+            if (department) payload.department = department;
+            if (posKey || department) {
+                payload.employment = {
+                    position: posKey || null,
+                    department: department || null
+                };
+            }
+
+            const mode = modeInput.value.trim();
+            if (mode) payload.mode = mode;
+
+            const address = addressInput.value.trim();
+            if (address) payload.address = address;
+
+            const birthVal = birthInput.value ? new Date(birthInput.value) : null;
+            if (birthVal && !isNaN(birthVal.getTime())) payload.birth = birthVal;
+
+            const campus = campusInput.value.trim();
+            if (campus) payload.campus = campus;
+
+            const phone = phoneInput.value.trim();
+            if (phone) payload.phone = phone;
+
+            const email = emailInput.value.trim();
+            if (email) payload.email = email;
+
+            const instagram = instagramInput.value.trim();
+            const linkedin = linkedinInput.value.trim();
+            if (instagram || linkedin) {
+                payload.socials = {
+                    instagram: instagram || "",
+                    linkedin: linkedin || ""
+                };
+            }
+
+            try {
+                const usersRef = collection(db, "users");
+                await addDoc(usersRef, payload);
+                await loadInternshipUsers();
+                const modalEl = document.getElementById("internshipAddModal");
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error("Error adding internship user", e);
+            }
+        }
+
+        async function saveInternshipEdit(event) {
+            event.preventDefault();
+            if (!internshipEditingId) return;
+            const id = internshipEditingId;
+            const nameInput = document.getElementById("internshipEditName");
+            const statusSelect = document.getElementById("internshipEditStatus");
+            const startInput = document.getElementById("internshipEditStartDate");
+            const endInput = document.getElementById("internshipEditEndDate");
+            const positionSelect = document.getElementById("internshipEditPosition");
+            const departmentInput = document.getElementById("internshipEditDepartment");
+            const modeInput = document.getElementById("internshipEditMode");
+            const addressInput = document.getElementById("internshipEditAddress");
+            const birthInput = document.getElementById("internshipEditBirthDate");
+            const campusInput = document.getElementById("internshipEditCampus");
+            const phoneInput = document.getElementById("internshipEditPhone");
+            const emailInput = document.getElementById("internshipEditEmail");
+            const instagramInput = document.getElementById("internshipEditInstagram");
+            const linkedinInput = document.getElementById("internshipEditLinkedin");
+
+            const updates = {};
+            updates.name = nameInput.value.trim();
+            updates.internshipStatus = statusSelect.value;
+
+            const startVal = startInput.value ? new Date(startInput.value) : null;
+            const endVal = endInput.value ? new Date(endInput.value) : null;
+            if (startVal && !isNaN(startVal.getTime())) updates.internshipStartDate = startVal;
+            else updates.internshipStartDate = null;
+            if (endVal && !isNaN(endVal.getTime())) updates.internshipEndDate = endVal;
+            else updates.internshipEndDate = null;
+
+            const posKey = positionSelect.value || "";
+            const department = departmentInput.value.trim();
+            updates.position = posKey || null;
+            updates.department = department || null;
+            updates["employment.position"] = posKey || null;
+            updates["employment.department"] = department || null;
+
+            updates.mode = modeInput.value.trim() || null;
+            updates.address = addressInput.value.trim() || null;
+
+            const birthVal = birthInput.value ? new Date(birthInput.value) : null;
+            if (birthVal && !isNaN(birthVal.getTime())) updates.birth = birthVal;
+
+            updates.campus = campusInput.value.trim() || null;
+            updates.phone = phoneInput.value.trim() || null;
+            updates.email = emailInput.value.trim() || null;
+            updates["socials.instagram"] = instagramInput.value.trim() || "";
+            updates["socials.linkedin"] = linkedinInput.value.trim() || "";
+
+            try {
+                const userRef = doc(db, "users", id);
+                await updateDoc(userRef, updates);
+                await loadInternshipUsers();
+                const modalEl = document.getElementById("internshipEditModal");
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            } catch (e) {
+                console.error("Error updating internship user", e);
+            }
+        }
+
+        async function promoteInternshipToTeam(userId, division) {
+            if (!userId || !division) {
+                alert("Data tidak lengkap untuk promosi.");
+                return;
+            }
+
+            const user = internshipUsersAll.find(u => u.id === userId);
+            if (!user) {
+                alert("Data peserta internship tidak ditemukan.");
+                return;
+            }
+
+            try {
+                // Check if already promoted
+                const teamSnapshot = await getDocs(
+                    query(collection(db, "team_management"), where("userId", "==", userId))
+                );
+                if (!teamSnapshot.empty) {
+                    alert("Peserta internship ini sudah menjadi anggota tim.");
+                    return;
+                }
+
+                // Prepare team management document
+                const teamData = {
+                    name: user.name || "",
+                    email: user.email || "",
+                    whatsapp: user.phone || "",
+                    instagram: user.instagram || "",
+                    linkedin: user.linkedin || "",
+                    address: user.address || "",
+                    birthDate: user.birthDateObj instanceof Date && !isNaN(user.birthDateObj.getTime()) 
+                        ? user.birthDateObj.toISOString().split('T')[0] 
+                        : "",
+                    division: division,
+                    originalDivision: division,
+                    status: "Active",
+                    startDate: user.startDateObj instanceof Date && !isNaN(user.startDateObj.getTime()) 
+                        ? user.startDateObj.toISOString().split('T')[0] 
+                        : "",
+                    endDate: "",
+                    bank: "",
+                    accountNumber: "",
+                    fee: "",
+                    pkwtFileName: "",
+                    pkwtFileUrl: "",
+                    source: "internship",
+                    internshipId: userId,
+                    userId: userId,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                // Create team management record
+                await addDoc(collection(db, "team_management"), teamData);
+
+                // Update user role from internship to staff
+                await updateDoc(doc(db, "users", userId), {
+                    role_id: "staff",
+                    promotedToTeam: true,
+                    promotedAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                alert("Peserta internship berhasil dipromosikan menjadi anggota tim!");
+                await loadInternshipUsers();
+                renderInternshipTable();
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById("promoteToTeamModal"));
+                if (modal) modal.hide();
+            } catch (error) {
+                console.error("Error promoting internship user to team", error);
+                alert("Gagal mempromosikan peserta internship: " + error.message);
+            }
+        }
+
+        function openPromoteToTeamModal(userId) {
+            const user = internshipUsersAll.find(u => u.id === userId);
+            if (!user) return;
+
+            const modalEl = document.getElementById("promoteToTeamModal");
+            const userIdInput = document.getElementById("promoteUserId");
+            const divisionSelect = document.getElementById("promoteDivisionSelect");
+            const form = document.getElementById("promoteToTeamForm");
+
+            if (!modalEl || !userIdInput || !divisionSelect || !form) return;
+
+            userIdInput.value = userId;
+            divisionSelect.value = "";
+
+            // Update form submit handler
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const selectedDivision = divisionSelect.value;
+                if (!selectedDivision) {
+                    alert("Pilih divisi tujuan!");
+                    return;
+                }
+                await promoteInternshipToTeam(userId, selectedDivision);
+            };
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const rowsSelect = document.getElementById("internshipRowsPerPage");
+            const searchInput = document.getElementById("internshipSearchInput");
+            const prevBtn = document.getElementById("internshipPrevPage");
+            const nextBtn = document.getElementById("internshipNextPage");
+            const editForm = document.getElementById("internshipEditForm");
+            const addForm = document.getElementById("internshipAddForm");
+            const addBtn = document.getElementById("internshipAddBtn");
+            const table = document.querySelector(".internship-table");
+            const cardTotal = document.getElementById("internshipCardTotal");
+            const cardActive = document.getElementById("internshipCardActive");
+            const cardOnLeave = document.getElementById("internshipCardOnLeave");
+            const cardLeft = document.getElementById("internshipCardLeft");
+
+            if (rowsSelect) {
+                rowsSelect.value = String(internshipState.rowsPerPage);
+                rowsSelect.addEventListener("change", () => {
+                    const v = parseInt(rowsSelect.value, 10);
+                    if (!isNaN(v) && [10, 20, 50, 100].includes(v)) {
+                        internshipState.rowsPerPage = v;
+                        internshipState.page = 1;
+                        renderInternshipTable();
+                    }
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    internshipState.search = searchInput.value || "";
+                    internshipState.page = 1;
+                    renderInternshipTable();
+                });
+            }
+
+            function setStatusFilter(value) {
+                internshipState.statusFilter = value || "";
+                internshipState.page = 1;
+                renderInternshipTable();
+            }
+
+            if (cardTotal) {
+                cardTotal.style.cursor = "pointer";
+                cardTotal.addEventListener("click", () => {
+                    setStatusFilter("");
+                });
+            }
+            if (cardActive) {
+                cardActive.style.cursor = "pointer";
+                cardActive.addEventListener("click", () => {
+                    setStatusFilter("Active");
+                });
+            }
+            if (cardOnLeave) {
+                cardOnLeave.style.cursor = "pointer";
+                cardOnLeave.addEventListener("click", () => {
+                    setStatusFilter("On Leave");
+                });
+            }
+            if (cardLeft) {
+                cardLeft.style.cursor = "pointer";
+                cardLeft.addEventListener("click", () => {
+                    setStatusFilter("Left");
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener("click", () => {
+                    if (internshipState.page > 1) {
+                        internshipState.page -= 1;
+                        renderInternshipTable();
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener("click", () => {
+                    const filtered = getFilteredInternshipUsers();
+                    const total = filtered.length;
+                    const perPage = internshipState.rowsPerPage;
+                    const totalPages = Math.max(1, Math.ceil(total / perPage));
+                    if (internshipState.page < totalPages) {
+                        internshipState.page += 1;
+                        renderInternshipTable();
+                    }
+                });
+            }
+
+            if (editForm) {
+                editForm.addEventListener("submit", saveInternshipEdit);
+            }
+
+            if (addForm) {
+                addForm.addEventListener("submit", saveInternshipAdd);
+            }
+
+            if (addBtn) {
+                addBtn.addEventListener("click", () => {
+                    openInternshipAddModal();
+                });
+            }
+
+            if (table) {
+                table.addEventListener("click", async (e) => {
+                    const editBtn = e.target.closest(".internship-edit-btn");
+                    const deleteBtn = e.target.closest(".internship-delete-btn");
+                    const promoteBtn = e.target.closest(".internship-promote-btn");
+                    
+                    if (promoteBtn) {
+                        const userId = promoteBtn.getAttribute("data-user-id");
+                        if (userId) {
+                            openPromoteToTeamModal(userId);
+                        }
+                        return;
+                    }
+                    
+                    if (editBtn) {
+                        const userId = editBtn.getAttribute("data-user-id");
+                        if (userId) {
+                            openInternshipEditModal(userId);
+                        }
+                        return;
+                    }
+                    
+                    if (deleteBtn) {
+                        const userId = deleteBtn.getAttribute("data-user-id");
+                        if (!userId) return;
+                        const ok = confirm("Hapus data intern ini dari Intern Management?");
+                        if (!ok) return;
+                        try {
+                            await deleteDoc(doc(db, "users", userId));
+                            await loadInternshipUsers();
+                        } catch (e) {
+                            console.error("Error deleting internship user", e);
+                            alert("Gagal menghapus data intern.");
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

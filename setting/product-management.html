@@ -1,0 +1,1631 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Management Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      [v-cloak] {
+        display: none;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05);
+      }
+      .rich-editor {
+        border: 1px solid #e2e8f0;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        background: #f9fafb;
+      }
+      .rich-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .rich-btn {
+        border: none;
+        background: transparent;
+        padding: 4px 6px;
+        border-radius: 6px;
+        color: #6b7280;
+        font-size: 0.85rem;
+      }
+      .rich-btn:hover {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      .rich-editor-body {
+        min-height: 120px;
+        padding: 10px 12px;
+        background: #ffffff;
+        outline: none;
+        font-size: 0.85rem;
+      }
+      .rich-editor-body[contenteditable="true"]:empty:before {
+        content: attr(data-placeholder);
+        color: #9ca3af;
+      }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+  <body class="p-8">
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+              Product Management
+            </h1>
+            <nav class="text-sm text-slate-500 flex items-center gap-2 mt-1">
+              <a href="../home.html"><i class="fas fa-home text-xs"></i></a>
+              <span>/ Settings /</span>
+              <span class="font-medium text-slate-800">Product</span>
+            </nav>
+          </div>
+        </div>
+
+        <div id="productApp" v-cloak class="min-h-screen antialiased">
+          <main class="max-w-7xl mx-auto px-8 py-10">
+            <div v-if="!showForm" class="flex justify-end mb-6">
+              <button
+                @click="openCreateForm"
+                class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-xl shadow-slate-200"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                New Product
+              </button>
+            </div>
+
+            <div v-if="!showForm" class="space-y-6">
+              <div
+                class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"
+              >
+                <div class="relative w-full md:w-96">
+                  <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="Search by ID or product name..."
+                    class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all focus:bg-white"
+                  />
+                  <svg
+                    class="absolute left-4 top-3 w-4 h-4 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span
+                    class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2"
+                    >Status:</span
+                  >
+                  <button
+                    v-for="s in ['all', 'active', 'archived']"
+                    @click="filterStatus = s"
+                    class="px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all"
+                    :class="filterStatus === s ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'"
+                  >
+                    {{ s }}
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="bg-white rounded-[2rem] border border-slate-200 shadow-sm min-h-[360px] flex flex-col"
+              >
+                <div class="overflow-x-auto">
+                  <table class="min-w-max w-full text-left border-collapse">
+                    <thead>
+                      <tr
+                        class="bg-slate-50/50 text-slate-400 text-[10px] uppercase tracking-[0.15em] font-black border-b border-slate-100"
+                      >
+                        <th class="px-8 py-5">Product Identity</th>
+                        <th class="px-8 py-5">Type</th>
+                        <th class="px-8 py-5">Price Strategy</th>
+                        <th class="px-8 py-5">Sessions</th>
+                        <th class="px-8 py-5">Attribute</th>
+                        <th class="px-8 py-5 text-right">Settings</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      v-if="filteredProducts.length"
+                      class="divide-y divide-slate-50"
+                    >
+                      <tr
+                        v-for="product in filteredProducts"
+                        :key="product.product_id"
+                        class="group hover:bg-slate-50/50 transition-all"
+                      >
+                        <td class="px-8 py-6 align-top">
+                          <div class="flex items-start gap-4">
+                            <div
+                              class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs uppercase group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors"
+                            >
+                              {{ product.name.charAt(0) }}
+                            </div>
+                            <div class="space-y-2">
+                              <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                  <span class="text-sm font-bold text-slate-900"
+                                    >{{ product.name }}</span
+                                  >
+                                  <span
+                                    v-if="product.status === 'active'"
+                                    class="w-1.5 h-1.5 bg-emerald-500 rounded-full"
+                                  ></span>
+                                </div>
+                                <span
+                                  class="mono text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
+                                  >{{ product.product_id }}</span
+                                >
+                              </div>
+                              <div
+                                v-if="product.curriculum && product.curriculum.length"
+                                class="pt-1 border-t border-slate-100"
+                              >
+                                <div
+                                  class="text-[9px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1"
+                                >
+                                  Curriculum
+                                </div>
+                                <div
+                                  class="space-y-1 max-h-32 overflow-y-auto pr-1 max-w-xs"
+                                >
+                                  <div
+                                    v-for="(item, idx) in product.curriculum"
+                                    :key="idx"
+                                    class="flex items-start gap-2"
+                                  >
+                                    <span
+                                      class="mono text-[10px] font-bold text-slate-500 min-w-[1.75rem]"
+                                    >
+                                      {{ item.order || (idx + 1) }}
+                                    </span>
+                                    <div class="text-[10px] leading-snug">
+                                      <div class="font-semibold text-slate-700">
+                                        {{ truncateText(item.title, 40) }}
+                                      </div>
+                                      <div
+                                        v-if="item.description"
+                                        class="text-slate-500"
+                                      >
+                                        {{ truncateText(item.description, 80) }}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-8 py-6">
+                          <span
+                            class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-black text-slate-600 uppercase"
+                          >
+                            {{ product.type || 'Online' }}
+                          </span>
+                        </td>
+                        <td class="px-8 py-6">
+                          <div class="text-sm font-bold text-slate-900">
+                            Rp {{ formatNumber(product.base_price) }}
+                          </div>
+                          <div class="text-[10px] text-slate-400 font-medium">
+                            Standard Retail Price
+                          </div>
+                        </td>
+                        <td class="px-8 py-6">
+                          <span
+                            class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-black text-slate-600 italic"
+                          >
+                            {{ product.total_sessions }} SESSIONS
+                          </span>
+                        </td>
+                        <td class="px-8 py-6">
+                          <span
+                            :style="{ backgroundColor: product.visual.badge_color + '15', color: product.visual.badge_color }"
+                            class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-current/10"
+                          >
+                            {{ product.visual.badge_text }}
+                          </span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                          <button
+                            @click="openEditForm(product)"
+                            class="p-2 hover:bg-indigo-50 text-slate-300 hover:text-indigo-600 rounded-xl transition-all"
+                          >
+                            <svg
+                              class="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tbody v-else>
+                      <tr>
+                        <td
+                          colspan="6"
+                          class="px-8 py-12 text-center text-sm text-slate-400"
+                        >
+                          Data produk belum tersedia atau belum berhasil diambil
+                          dari Firestore.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="max-w-5xl mx-auto space-y-8">
+              <div class="flex justify-between items-end mb-4">
+                <div>
+                  <button
+                    @click="showForm = false"
+                    class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-2 mb-2"
+                  >
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="3"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                    BACK TO INVENTORY
+                  </button>
+                  <h2 class="text-3xl font-black tracking-tighter">
+                    {{ isEditMode ? 'Modify Product' : 'Establish New Product'
+                    }}
+                  </h2>
+                </div>
+                <div class="flex gap-3">
+                  <button
+                    v-if="isEditMode"
+                    @click="openDeleteModal"
+                    class="px-5 py-3 rounded-2xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 transition-all active:scale-95"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    type="button"
+                    @click="saveProduct"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-xl shadow-indigo-100 transition-all active:scale-95"
+                  >
+                    {{ isEditMode ? 'Push Changes' : 'Register Product' }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                  <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm space-y-8"
+                  >
+                    <div
+                      class="flex items-center gap-3 border-b border-slate-50 pb-4"
+                    >
+                      <div
+                        class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs"
+                      >
+                        01
+                      </div>
+                      <h3
+                        class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                      >
+                        Core Specifications
+                      </h3>
+                      <div
+                        class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest"
+                      >
+                        Public URL
+                        <a
+                          v-if="publicProductUrl"
+                          :href="publicProductUrl"
+                          target="_blank"
+                          class="ml-2 mono text-slate-700 normal-case tracking-normal hover:text-indigo-600"
+                          >{{ publicProductUrl }}</a
+                        >
+                        <span
+                          v-else
+                          class="ml-2 mono text-slate-300 normal-case tracking-normal"
+                          >Belum tersedia</span
+                        >
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                      <div class="col-span-2 md:col-span-1">
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                          >Product Unique ID</label
+                        >
+                        <input
+                          type="text"
+                          v-model="form.product_id"
+                          :disabled="isEditMode"
+                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold mono disabled:opacity-50"
+                          placeholder="e.g. PUB-SPE-01"
+                        />
+                      </div>
+                      <div class="col-span-2 md:col-span-1">
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                          >Internal Name</label
+                        >
+                        <input
+                          type="text"
+                          v-model="form.name"
+                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold"
+                          placeholder="Public Speaking Mastery"
+                        />
+                      </div>
+                      <div class="col-span-2 md:col-span-1">
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                          >Standard Price (IDR)</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formattedBasePrice"
+                          inputmode="numeric"
+                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-indigo-600"
+                        />
+                      </div>
+                      <div class="col-span-2 md:col-span-1">
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                          >Session Count</label
+                        >
+                        <input
+                          type="number"
+                          v-model="form.total_sessions"
+                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold"
+                        />
+                      </div>
+                      <div class="col-span-2">
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                          >Internal Description</label
+                        >
+                        <div class="rich-editor">
+                          <div class="rich-toolbar">
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('bold')"
+                            >
+                              <i class="bi bi-type-bold"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('italic')"
+                            >
+                              <i class="bi bi-type-italic"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('underline')"
+                            >
+                              <i class="bi bi-type-underline"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('insertUnorderedList')"
+                            >
+                              <i class="bi bi-list-ul"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('insertOrderedList')"
+                            >
+                              <i class="bi bi-list-ol"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('formatBlock', 'H1')"
+                            >
+                              <i class="bi bi-type-h1"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('formatBlock', 'H2')"
+                            >
+                              <i class="bi bi-type-h2"></i>
+                            </button>
+                            <button
+                              type="button"
+                              class="rich-btn"
+                              @click="formatDescription('formatBlock', 'blockquote')"
+                            >
+                              <i class="bi bi-chat-right-quote"></i>
+                            </button>
+                          </div>
+                          <div
+                            ref="descriptionEditor"
+                            class="rich-editor-body"
+                            contenteditable="true"
+                            data-placeholder="Add short internal notes about this product..."
+                            @input="onDescriptionInput"
+                            @blur="onDescriptionInput"
+                          ></div>
+                        </div>
+                        <textarea
+                          v-model="form.description"
+                          class="hidden"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-8">
+                    <div
+                      class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm min-h-[220px]"
+                    >
+                      <div class="flex justify-between items-center mb-6">
+                        <h3
+                          class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                        >
+                          Curriculum
+                        </h3>
+                        <button
+                          @click="addMaterial"
+                          class="w-6 h-6 bg-slate-900 text-white rounded-lg flex items-center justify-center font-bold text-lg"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div class="space-y-3">
+                        <div
+                          v-for="(item, idx) in form.curriculum"
+                          :key="idx"
+                          class="space-y-2 bg-slate-50 border border-slate-100 rounded-xl p-3"
+                          draggable="true"
+                          @dragstart="onRowDragStart('curriculum', idx, $event)"
+                          @dragover.prevent
+                          @drop="onRowDrop('curriculum', idx, $event)"
+                        >
+                          <div class="flex items-center gap-2">
+                            <input
+                              type="text"
+                              v-model="item.order"
+                              placeholder="01"
+                              class="w-16 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 text-center"
+                            />
+                            <input
+                              type="text"
+                              v-model="item.title"
+                              placeholder="Profiling"
+                              class="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium"
+                            />
+                            <button
+                              @click="form.curriculum.splice(idx, 1)"
+                              class="text-slate-300 hover:text-red-500 transition-colors"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            v-model="item.description"
+                            placeholder="Peserta mengenal seperti apa dirinya sendiri dan cara dia yang tepat berbicara dengan orang lain."
+                            class="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm min-h-[220px]"
+                    >
+                      <div class="flex justify-between items-center mb-6">
+                        <h3
+                          class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                        >
+                          Benefit
+                        </h3>
+                        <button
+                          @click="addFeature"
+                          class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg font-bold text-[10px]"
+                        >
+                          + ADD
+                        </button>
+                      </div>
+                      <div class="space-y-4">
+                        <div
+                          v-for="(feat, idx) in form.features"
+                          :key="idx"
+                          class="p-4 bg-slate-50 rounded-2xl border border-slate-100"
+                          draggable="true"
+                          @dragstart="onRowDragStart('features', idx, $event)"
+                          @dragover.prevent
+                          @drop="onRowDrop('features', idx, $event)"
+                        >
+                          <div
+                            class="flex justify-between items-start mb-3 gap-3"
+                          >
+                            <div class="flex-1">
+                              <label
+                                class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1"
+                                >Label Benefit</label
+                              >
+                              <input
+                                type="text"
+                                v-model="feat.label"
+                                class="w-full bg-white px-3 py-2 rounded-lg border border-slate-100 font-bold text-xs outline-none focus:border-indigo-300"
+                                placeholder="Contoh: Dapat E-Book"
+                              />
+                            </div>
+                            <button
+                              @click="removeFeature(idx)"
+                              class="text-slate-300 hover:text-red-500 mt-5"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                          <div class="flex gap-2">
+                            <select
+                              v-model="feat.type"
+                              class="bg-white px-2 py-1 rounded text-[10px] font-bold outline-none border border-slate-100 flex-1"
+                            >
+                              <option value="boolean">Ya / Tidak</option>
+
+                              <option value="text">Tulisan Bebas</option>
+                            </select>
+                            <div
+                              v-if="feat.type === 'boolean'"
+                              class="flex-1 flex items-center justify-center"
+                            >
+                              <input
+                                type="checkbox"
+                                v-model="feat.value"
+                                class="w-4 h-4 rounded text-indigo-600"
+                              />
+                            </div>
+                            <input
+                              v-else
+                              type="text"
+                              v-model="feat.value"
+                              class="flex-1 bg-white px-2 py-1 rounded text-[10px] outline-none border border-slate-100"
+                              placeholder="Contoh: 1 kali"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm min-h-[220px]"
+                    >
+                      <div class="flex justify-between items-center mb-6">
+                        <h3
+                          class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                        >
+                          Outcomes
+                        </h3>
+                        <button
+                          @click="addOutcome"
+                          class="w-6 h-6 bg-slate-900 text-white rounded-lg flex items-center justify-center font-bold text-lg"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div class="space-y-3">
+                        <div
+                          v-for="(item, idx) in form.outcomes"
+                          :key="idx"
+                          class="flex items-center gap-2"
+                          draggable="true"
+                          @dragstart="onRowDragStart('outcomes', idx, $event)"
+                          @dragover.prevent
+                          @drop="onRowDrop('outcomes', idx, $event)"
+                        >
+                          <input
+                            type="text"
+                            v-model="form.outcomes[idx]"
+                            class="flex-1 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium focus:bg-white"
+                          />
+                          <button
+                            @click="form.outcomes.splice(idx, 1)"
+                            class="text-slate-300 hover:text-red-500 transition-colors"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-8">
+                  <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm"
+                  >
+                    <h3
+                      class="font-bold text-slate-800 uppercase text-xs tracking-widest mb-6"
+                    >
+                      Product Status
+                    </h3>
+                    <div class="flex p-1 bg-slate-100 rounded-2xl">
+                      <button
+                        @click="form.status = 'active'"
+                        class="flex-1 py-3 rounded-xl text-xs font-bold transition-all"
+                        :class="form.status === 'active' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'"
+                      >
+                        ACTIVE
+                      </button>
+                      <button
+                        @click="form.status = 'archived'"
+                        class="flex-1 py-3 rounded-xl text-xs font-bold transition-all"
+                        :class="form.status === 'archived' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-400'"
+                      >
+                        ARCHIVED
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm space-y-6"
+                  >
+                    <h3
+                      class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                    >
+                      Visual Identity
+                    </h3>
+                    <div>
+                      <label
+                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                        >Badge Label</label
+                      >
+                      <input
+                        type="text"
+                        v-model="form.visual.badge_text"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold mb-4"
+                        placeholder="e.g. Intensive"
+                      />
+
+                      <label
+                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                        >Brand Color</label
+                      >
+                      <div class="flex items-center gap-4">
+                        <div class="relative inline-flex items-center">
+                          <input
+                            type="color"
+                            v-model="form.visual.badge_color"
+                            class="w-12 h-12 rounded-xl border-none cursor-pointer bg-transparent"
+                          />
+                          <span
+                            class="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-700"
+                          >
+                            <i class="bi bi-eyedropper"></i>
+                          </span>
+                        </div>
+                        <span
+                          class="mono text-xs font-bold text-slate-500 uppercase"
+                          >{{ form.visual.badge_color }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm min-h-[220px]"
+                  >
+                    <div class="flex justify-between items-center mb-6">
+                      <h3
+                        class="font-bold text-slate-800 uppercase text-xs tracking-widest"
+                      >
+                        Specification
+                      </h3>
+                      <button
+                        @click="addSpecification"
+                        class="w-6 h-6 bg-slate-900 text-white rounded-lg flex items-center justify-center font-bold text-lg"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <div class="mb-4">
+                      <label
+                        class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"
+                        >Class Type</label
+                      >
+
+                      <div class="flex gap-2">
+                        <button
+                          type="button"
+                          @click="setClassType('Online')"
+                          class="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all"
+                          :class="form.type === 'Online' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-600 border-slate-200'"
+                        >
+                          Online
+                        </button>
+                        <button
+                          type="button"
+                          @click="setClassType('Offline')"
+                          class="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all"
+                          :class="form.type === 'Offline' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-600 border-slate-200'"
+                        >
+                          Offline
+                        </button>
+                        <button
+                          type="button"
+                          @click="setClassType('Hybrid')"
+                          class="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all"
+                          :class="form.type === 'Hybrid' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-600 border-slate-200'"
+                        >
+                          Hybrid
+                        </button>
+                      </div>
+                    </div>
+                    <div class="space-y-3">
+                      <div
+                        v-for="(item, idx) in form.specifications"
+                        :key="idx"
+                        class="flex items-center gap-2"
+                        draggable="true"
+                        @dragstart="onRowDragStart('specifications', idx, $event)"
+                        @dragover.prevent
+                        @drop="onRowDrop('specifications', idx, $event)"
+                      >
+                        <input
+                          type="text"
+                          v-model="form.specifications[idx]"
+                          class="flex-1 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium focus:bg-white"
+                        />
+                        <button
+                          @click="form.specifications.splice(idx, 1)"
+                          class="text-slate-300 hover:text-red-500 transition-colors"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+
+          <transition name="fade">
+            <div
+              v-if="toast"
+              class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-[100]"
+            >
+              <div
+                class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-xs font-bold"
+              >
+                ✓
+              </div>
+              <p class="text-sm font-bold tracking-tight">{{ toast }}</p>
+            </div>
+          </transition>
+
+          <transition name="fade">
+            <div
+              v-if="showDeleteModal"
+              class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40"
+            >
+              <div
+                class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 space-y-4"
+              >
+                <div class="flex items-start gap-3">
+                  <div
+                    class="w-9 h-9 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg"
+                  >
+                    !
+                  </div>
+                  <div class="space-y-1">
+                    <h3 class="text-base font-bold text-slate-900">
+                      Delete this product?
+                    </h3>
+                    <p class="text-xs text-slate-500">
+                      {{ form.name || 'Unnamed Product' }} ({{ form.product_id
+                      || '-' }}) akan dihapus permanen dari database.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    @click="closeDeleteModal"
+                    :disabled="deleting"
+                    class="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    @click="deleteCurrentProduct"
+                    :disabled="deleting"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {{ deleting ? 'Deleting...' : 'Delete Product' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        initializeFirestore,
+        collection,
+        getDocs,
+        setDoc,
+        doc,
+        deleteDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const firebaseApp = initializeApp(firebaseConfig);
+      const auth = getAuth(firebaseApp);
+      const db = initializeFirestore(firebaseApp, {
+        experimentalForceLongPolling: true,
+        useFetchStreams: false,
+      });
+
+      const topbarTarget = document.getElementById("topbarContainer");
+      renderTopBar(topbarTarget);
+
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      renderSidebar(sidebarTarget);
+
+      window.toggleSidebar = () => {
+        const sidebar = document.getElementById("sidebarNav");
+        if (!sidebar) return;
+        const isMobile = window.innerWidth <= 991;
+        if (isMobile) {
+          sidebar.classList.toggle("show");
+        } else {
+          document.body.classList.toggle("sidebar-collapsed");
+        }
+      };
+
+      window.__authReady = false;
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "../index.html";
+          return;
+        }
+        window.__authReady = true;
+        window.dispatchEvent(new Event("auth-ready"));
+      });
+
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.setDoc = setDoc;
+      window.doc = doc;
+      window.deleteDoc = deleteDoc;
+      window.serverTimestamp = serverTimestamp;
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+      createApp({
+        setup() {
+          const showForm = ref(false);
+          const isEditMode = ref(false);
+          const toast = ref(null);
+          const showDeleteModal = ref(false);
+          const deleting = ref(false);
+          const searchQuery = ref("");
+          const filterStatus = ref("all");
+
+          const products = ref([]);
+          const form = ref({});
+          const dragState = ref({ section: null, index: null });
+          const descriptionEditor = ref(null);
+
+          let fallbackUsed = false;
+          const useFallbackData = () => {
+            if (fallbackUsed) return;
+            fallbackUsed = true;
+            products.value = [
+              {
+                product_id: "FALLBACK-001",
+                name: "Fallback Product A",
+                description:
+                  "This is a fallback product description for product A.",
+                type: "Online",
+                base_price: 1500000,
+                total_sessions: 10,
+                visual: {
+                  badge_text: "DRAFT",
+                  badge_color: "#f97316",
+                  thumbnail_url: null,
+                },
+                features: ["Feature A1", "Feature A2"],
+                curriculum: [
+                  {
+                    order: "01",
+                    title: "Introduction to Fallback",
+                    description: "Understanding why fallback data is used.",
+                  },
+                  {
+                    order: "02",
+                    title: "Fallback Implementation",
+                    description: "How to implement fallback mechanisms.",
+                  },
+                ],
+                outcomes: ["Outcome A1", "Outcome A2"],
+                status: "active",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              {
+                product_id: "FALLBACK-002",
+                name: "Fallback Product B",
+                description:
+                  "This is a fallback product description for product B.",
+                type: "Offline",
+                base_price: 2000000,
+                total_sessions: 15,
+                visual: {
+                  badge_text: "NEW",
+                  badge_color: "#6366f1",
+                  thumbnail_url: null,
+                },
+                features: ["Feature B1", "Feature B2", "Feature B3"],
+                curriculum: [
+                  {
+                    order: "01",
+                    title: "Advanced Fallback",
+                    description: "Deep dive into fallback strategies.",
+                  },
+                  {
+                    order: "02",
+                    title: "Error Handling",
+                    description:
+                      "Best practices for handling errors gracefully.",
+                  },
+                ],
+                outcomes: ["Outcome B1", "Outcome B2", "Outcome B3"],
+                status: "archived",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            ];
+            console.warn(
+              "[ProductManagement] Using fallback data due to Firestore connection issues.",
+            );
+          };
+
+          const withTimeout = (promise, ms) =>
+            Promise.race([
+              promise,
+              new Promise((_, reject) =>
+                setTimeout(
+                  () => reject(new Error("Firestore request timeout")),
+                  ms,
+                ),
+              ),
+            ]);
+
+          const loadProductsFromFirestore = async ({
+            useFallback = true,
+          } = {}) => {
+            if (!window.db || !window.getDocs || !window.collection)
+              return false;
+            try {
+              const snap = await withTimeout(
+                window.getDocs(window.collection(window.db, "products")),
+                8000,
+              );
+              const list = [];
+              console.log(
+                "[ProductManagement] Loaded products from Firestore:",
+                snap.size,
+              );
+              snap.forEach((docSnap) => {
+                const d = docSnap.data() || {};
+                const id = docSnap.id;
+                const materials = Array.isArray(d.materials) ? d.materials : [];
+                const curriculum = materials.map((item) => ({
+                  order: item.order || "",
+                  title: item.title || "",
+                  description: item.description || "",
+                }));
+                list.push({
+                  product_id: d.productId || id,
+                  name: d.name || "",
+                  description: d.description || "",
+                  type: d.type || "Online",
+                  base_price: d.basePrice || 0,
+                  total_sessions: d.totalSessions || 0,
+                  visual: {
+                    badge_text: d.badgeText || "NEW",
+                    badge_color: d.badgeColor || "#6366f1",
+                    thumbnail_url: d.thumbnailUrl || null,
+                  },
+                  features: Array.isArray(d.features) ? d.features : [],
+                  curriculum,
+                  specifications: Array.isArray(d.specifications)
+                    ? d.specifications
+                    : [],
+                  outcomes: Array.isArray(d.targetOutcomes)
+                    ? d.targetOutcomes
+                    : [],
+                  status: d.status || "active",
+                  createdAt: d.createdAt || null,
+                  updatedAt: d.updatedAt || null,
+                });
+              });
+              products.value = list;
+              if (!list.length) {
+                console.warn(
+                  "[ProductManagement] Firestore terhubung, tapi collection 'products' kosong atau field tidak sesuai mapping.",
+                );
+              }
+              return true;
+            } catch (e) {
+              console.error(
+                "[ProductManagement] Failed to load products from Firestore",
+                e,
+              );
+              if (useFallback) {
+                useFallbackData();
+              }
+              return false;
+            }
+          };
+
+          const waitForAuthReady = () => {
+            if (window.__authReady) return Promise.resolve();
+            return new Promise((resolve) => {
+              const handler = () => {
+                window.removeEventListener("auth-ready", handler);
+                resolve();
+              };
+              window.addEventListener("auth-ready", handler);
+            });
+          };
+
+          const loadProductsWithRetry = async (
+            attempts = 3,
+            baseDelay = 1500,
+          ) => {
+            for (let i = 0; i < attempts; i += 1) {
+              const ok = await loadProductsFromFirestore({
+                useFallback: false,
+              });
+              if (ok) return true;
+              await new Promise((resolve) =>
+                setTimeout(resolve, baseDelay * (i + 1)),
+              );
+            }
+            useFallbackData();
+            return false;
+          };
+
+          const truncateText = (text, maxLength = 80) => {
+            if (!text) return "";
+            const str = String(text);
+            if (str.length <= maxLength) return str;
+            return str.slice(0, maxLength - 1) + "…";
+          };
+
+          const filteredProducts = computed(() => {
+            return products.value.filter((p) => {
+              const matchSearch =
+                p.name
+                  .toLowerCase()
+                  .includes(searchQuery.value.toLowerCase()) ||
+                p.product_id
+                  .toLowerCase()
+                  .includes(searchQuery.value.toLowerCase());
+              const matchStatus =
+                filterStatus.value === "all" || p.status === filterStatus.value;
+              return matchSearch && matchStatus;
+            });
+          });
+
+          const formatNumber = (val) =>
+            new Intl.NumberFormat("id-ID").format(val);
+
+          const publicUrlMap = {
+            fk_lvl1: "https://dialogika.co/program/first-kids.html",
+            kp_lvl1: "https://dialogika.co/program/kids-play.html",
+            bp_lvl1: "https://dialogika.co/program/basic-class.html",
+            fc_lvl1: "https://dialogika.co/program/first-class.html",
+          };
+
+          const publicProductUrl = computed(() => {
+            const id = String(form.value.product_id || "")
+              .trim()
+              .toLowerCase();
+            if (!id) return "";
+            return publicUrlMap[id] || "";
+          });
+
+          const formattedBasePrice = computed({
+            get() {
+              const raw = Number(form.value.base_price || 0);
+              if (!raw) return "";
+              return new Intl.NumberFormat("id-ID").format(raw);
+            },
+            set(val) {
+              if (typeof val !== "string") {
+                form.value.base_price = 0;
+                return;
+              }
+              const digits = val.replace(/[^\d]/g, "");
+              form.value.base_price = digits ? parseInt(digits, 10) : 0;
+            },
+          });
+
+          const syncDescriptionEditorFromForm = () => {
+            if (!descriptionEditor.value) return;
+            descriptionEditor.value.innerHTML = form.value.description || "";
+          };
+
+          const onDescriptionInput = () => {
+            if (!descriptionEditor.value) return;
+            form.value.description = descriptionEditor.value.innerHTML.trim();
+          };
+
+          const formatDescription = (command, value = null) => {
+            if (!descriptionEditor.value) return;
+            descriptionEditor.value.focus();
+            document.execCommand(command, false, value);
+            onDescriptionInput();
+          };
+
+          const openCreateForm = () => {
+            isEditMode.value = false;
+            form.value = {
+              product_id: "",
+              name: "",
+              description: "",
+              type: "Online",
+              base_price: 0,
+              total_sessions: 0,
+              visual: {
+                badge_text: "NEW",
+                badge_color: "#6366f1",
+                thumbnail_url: null,
+              },
+              features: [],
+              curriculum: [],
+              specifications: [],
+              outcomes: [],
+              status: "active",
+            };
+            showForm.value = true;
+            nextTick(() => {
+              syncDescriptionEditorFromForm();
+            });
+          };
+
+          const openEditForm = (product) => {
+            isEditMode.value = true;
+            form.value = JSON.parse(JSON.stringify(product));
+            if (!Array.isArray(form.value.curriculum))
+              form.value.curriculum = [];
+            if (!Array.isArray(form.value.features)) form.value.features = [];
+            if (!Array.isArray(form.value.outcomes)) form.value.outcomes = [];
+            if (!Array.isArray(form.value.specifications))
+              form.value.specifications = [];
+            if (!form.value.type) form.value.type = "Online";
+            // The class type is auto-synced into specifications[0] on save.
+            // Strip it back out here so it isn't shown twice as an editable row.
+            if (
+              form.value.specifications.length &&
+              form.value.specifications[0] === form.value.type
+            ) {
+              form.value.specifications = form.value.specifications.slice(1);
+            }
+            showForm.value = true;
+            nextTick(() => {
+              syncDescriptionEditorFromForm();
+            });
+          };
+
+          const setClassType = (value) => {
+            form.value.type = value;
+          };
+
+          const addFeature = () => {
+            if (!form.value.features) form.value.features = [];
+            form.value.features.push({
+              label: "",
+              type: "boolean",
+              value: false,
+            });
+          };
+
+          const removeFeature = (idx) => {
+            if (!form.value.features) return;
+            form.value.features.splice(idx, 1);
+          };
+
+          const addMaterial = () => {
+            if (!form.value.curriculum) form.value.curriculum = [];
+            form.value.curriculum.push({
+              order: "",
+              title: "",
+              description: "",
+            });
+          };
+
+          const addOutcome = () => {
+            if (!form.value.outcomes) form.value.outcomes = [];
+            form.value.outcomes.push("");
+          };
+
+          const addSpecification = () => {
+            if (!form.value.specifications) form.value.specifications = [];
+            form.value.specifications.push("");
+          };
+
+          const onRowDragStart = (section, index, event) => {
+            dragState.value = { section, index };
+            if (event && event.dataTransfer) {
+              event.dataTransfer.effectAllowed = "move";
+              event.dataTransfer.setData("text/html", "");
+            }
+          };
+
+          const onRowDrop = (section, index, event) => {
+            if (event) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            if (!dragState.value || dragState.value.section !== section) {
+              dragState.value = { section: null, index: null };
+              return;
+            }
+            const from = dragState.value.index;
+            if (from === index || from == null) {
+              dragState.value = { section: null, index: null };
+              return;
+            }
+            const list = form.value[section];
+            if (!Array.isArray(list)) {
+              dragState.value = { section: null, index: null };
+              return;
+            }
+            const item = list.splice(from, 1)[0];
+            list.splice(index, 0, item);
+            dragState.value = { section: null, index: null };
+          };
+
+          const saveProduct = async () => {
+            if (form.value.product_id === undefined) {
+              alert("Product ID is required to save.");
+              return;
+            }
+            if (
+              !isEditMode.value &&
+              products.value.some((p) => p.product_id === form.value.product_id)
+            ) {
+              alert("Product ID already exists!");
+              return;
+            }
+
+            const normalizedCurriculum = Array.isArray(form.value.curriculum)
+              ? form.value.curriculum
+                  .map((item) => ({
+                    order: String(item.order || "").trim(),
+                    title: String(item.title || "").trim(),
+                    description: String(item.description || "").trim(),
+                  }))
+                  .filter((item) => item.title)
+              : [];
+
+            const normalizedFeatures = Array.isArray(form.value.features)
+              ? form.value.features.map((feat) => ({
+                  label: String(feat.label || "").trim(),
+                  type: feat.type || "boolean",
+                  value:
+                    feat.type === "boolean"
+                      ? !!feat.value
+                      : String(feat.value ?? "").trim(),
+                }))
+              : [];
+
+            const classType = form.value.type || "Online";
+
+            const manualSpecifications = Array.isArray(
+              form.value.specifications,
+            )
+              ? form.value.specifications.filter((item) =>
+                  String(item || "").trim(),
+                )
+              : [];
+            const finalSpecifications = [
+              classType,
+              ...manualSpecifications,
+            ].filter((s) => String(s || "").trim());
+
+            const normalizedOutcomes = Array.isArray(form.value.outcomes)
+              ? form.value.outcomes.filter((o) => String(o || "").trim())
+              : [];
+
+            const payload = {
+              productId: form.value.product_id,
+              name: form.value.name,
+              description: form.value.description || "",
+              type: classType,
+              basePrice: Number(form.value.base_price) || 0,
+              currency: "IDR",
+              totalSessions: Number(form.value.total_sessions) || 0,
+              badgeText:
+                form.value.visual && form.value.visual.badge_text
+                  ? form.value.visual.badge_text
+                  : "NEW",
+              badgeColor:
+                form.value.visual && form.value.visual.badge_color
+                  ? form.value.visual.badge_color
+                  : "#6366f1",
+              thumbnailUrl: form.value.visual
+                ? form.value.visual.thumbnail_url || null
+                : null,
+              features: normalizedFeatures,
+              materials: normalizedCurriculum,
+              specifications: finalSpecifications,
+              targetOutcomes: normalizedOutcomes,
+              status: form.value.status || "active",
+              updatedAt: window.serverTimestamp
+                ? window.serverTimestamp()
+                : null,
+            };
+
+            console.log("[SaveProduct] Payload prepared:", {
+              productId: payload.productId,
+              specCount: finalSpecifications.length,
+              outcomeCount: normalizedOutcomes.length,
+              specs: finalSpecifications,
+            });
+
+            try {
+              if (!window.db || !window.setDoc || !window.doc) {
+                alert("Database not initialized");
+                return;
+              }
+
+              await window.setDoc(
+                window.doc(window.db, "products", form.value.product_id),
+                payload,
+                { merge: true },
+              );
+
+              console.log("[SaveProduct] Document saved successfully");
+              await loadProductsWithRetry(2, 1000);
+
+              if (isEditMode.value) {
+                showToast("Data Synced with Database");
+              } else {
+                showToast("New Product Registered");
+              }
+
+              showForm.value = false;
+            } catch (e) {
+              console.error("[SaveProduct] Failed to save product:", {
+                productId: form.value.product_id,
+                error: e.message || e.toString(),
+                errorCode: e.code,
+              });
+              alert("Gagal menyimpan produk: " + (e.message || e.toString()));
+            }
+          };
+
+          const openDeleteModal = () => {
+            if (!isEditMode.value || !form.value.product_id) return;
+            showDeleteModal.value = true;
+          };
+
+          const closeDeleteModal = () => {
+            if (deleting.value) return;
+            showDeleteModal.value = false;
+          };
+
+          const deleteCurrentProduct = async () => {
+            if (!isEditMode.value || !form.value.product_id) {
+              console.warn("[Delete] Edit mode or product_id not set");
+              return;
+            }
+
+            const productIdToDelete = String(form.value.product_id).trim();
+            if (!productIdToDelete) {
+              alert("Product ID tidak valid untuk dihapus.");
+              return;
+            }
+
+            if (!window.db || !window.doc || !window.deleteDoc) {
+              console.error("[Delete] Firestore not initialized", {
+                hasDb: !!window.db,
+                hasDoc: !!window.doc,
+                hasDeleteDoc: !!window.deleteDoc,
+              });
+              alert("Database tidak terinisialisasi dengan benar.");
+              return;
+            }
+
+            deleting.value = true;
+            try {
+              console.log(
+                "[Delete] Starting delete for product:",
+                productIdToDelete,
+              );
+              const docRef = window.doc(
+                window.db,
+                "products",
+                productIdToDelete,
+              );
+              await window.deleteDoc(docRef);
+              console.log(
+                "[Delete] Successfully deleted document from Firestore",
+              );
+
+              await loadProductsWithRetry(2, 1000);
+              showDeleteModal.value = false;
+              showForm.value = false;
+              showToast("Product Deleted");
+            } catch (e) {
+              console.error("[Delete] Failed to delete product:", {
+                productId: productIdToDelete,
+                error: e.message || e.toString(),
+                errorCode: e.code,
+              });
+              alert("Gagal menghapus produk: " + (e.message || e.toString()));
+            } finally {
+              deleting.value = false;
+            }
+          };
+
+          const showToast = (msg) => {
+            toast.value = msg;
+            setTimeout(() => {
+              toast.value = null;
+            }, 3000);
+          };
+
+          onMounted(() => {
+            waitForAuthReady().then(() => {
+              loadProductsWithRetry(3, 1500);
+            });
+          });
+
+          return {
+            products,
+            form,
+            dragState,
+            showForm,
+            isEditMode,
+            toast,
+            showDeleteModal,
+            deleting,
+            searchQuery,
+            filterStatus,
+            filteredProducts,
+            truncateText,
+            formatNumber,
+            formattedBasePrice,
+            publicProductUrl,
+            descriptionEditor,
+            onDescriptionInput,
+            formatDescription,
+            openCreateForm,
+            openEditForm,
+            openDeleteModal,
+            closeDeleteModal,
+            deleteCurrentProduct,
+            setClassType,
+            addFeature,
+            removeFeature,
+            addMaterial,
+            addOutcome,
+            addSpecification,
+            onRowDragStart,
+            onRowDrop,
+            saveProduct,
+          };
+        },
+      }).mount("#productApp");
+    </script>
+  </body>
+</html>

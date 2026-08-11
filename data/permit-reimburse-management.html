@@ -1,0 +1,3094 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Permit-Reimburse Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #fcfdfe;
+      }
+      .glass-header {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+      }
+      .card-elite {
+        background: #ffffff;
+        border: 1px solid #f1f5f9;
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.02),
+          0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      }
+      .input-focus {
+        transition: all 0.2s;
+        border: 1.5px solid #e2e8f0;
+      }
+      .input-focus:focus {
+        border-color: #4f46e5;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      }
+      .tab-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 6px;
+      }
+      .tab-btn {
+        position: relative;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        background: transparent;
+        border: 0;
+        transition: all 0.2s ease;
+      }
+      .tab-btn.active {
+        color: #0f172a;
+        background: #ffffff;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+      }
+      .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 4px;
+        height: 2px;
+        background: #4f46e5;
+        border-radius: 999px;
+      }
+      .tab-panel.hidden {
+        display: none;
+      }
+      .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .table-modern thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: center;
+      }
+      .table-modern tbody td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        font-size: 13px;
+        color: #0f172a;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: center;
+      }
+      .table-modern tbody tr {
+        height: 64px;
+      }
+      .table-zebra tbody tr:nth-child(even) {
+        background: #f8fafc;
+      }
+      /* Status row colors must override zebra striping */
+      .table-zebra tbody tr:nth-child(even).bg-emerald-50 {
+        background: #ecfdf5;
+      }
+      .table-zebra tbody tr:nth-child(even).bg-amber-50 {
+        background: #fffbeb;
+      }
+      .table-zebra tbody tr:nth-child(even).bg-rose-50 {
+        background: #fff1f2;
+      }
+      .table-row {
+        transition: background-color 0.18s ease;
+      }
+      .name-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .name-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        text-align: center;
+      }
+      .name-text .primary {
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f172a;
+        line-height: 1.2;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+      }
+      .status-approved {
+        background: #ecfdf3;
+        color: #0f9d58;
+        border-color: #d1fadf;
+      }
+      .status-rejected {
+        background: #fff1f2;
+        color: #e11d48;
+        border-color: #fecdd3;
+      }
+      .status-pending {
+        background: #fffbeb;
+        color: #d97706;
+        border-color: #fde68a;
+      }
+      .action-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .table-modern .text-right {
+        text-align: center;
+      }
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        transition:
+          background-color 0.18s ease,
+          color 0.18s ease,
+          border-color 0.18s ease;
+      }
+      .action-btn.approve {
+        color: #059669;
+      }
+      .action-btn.reject {
+        color: #e11d48;
+      }
+      .action-btn.delete {
+        color: #64748b;
+      }
+      .action-btn.approve:hover {
+        background: #ecfdf3;
+        border-color: #d1fadf;
+      }
+      .action-btn.reject:hover {
+        background: #fff1f2;
+        border-color: #fecdd3;
+      }
+      .action-btn.delete:hover {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+      }
+      .action-menu {
+        position: relative;
+        display: inline-flex;
+      }
+      .menu-trigger {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        transition:
+          background-color 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease;
+      }
+      .menu-trigger:hover {
+        background: #f8fafc;
+        border-color: #cbd5f5;
+        color: #1f2937;
+      }
+      .menu-panel {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        min-width: 190px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 6px;
+        box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.35);
+        z-index: 40;
+        transform: translateY(-4px) scale(0.98);
+        opacity: 0;
+        transition:
+          transform 0.16s ease,
+          opacity 0.16s ease;
+      }
+      .menu-panel.open {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      .menu-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        background: transparent;
+        border: none;
+        text-align: left;
+      }
+      .menu-item:hover {
+        background: #f1f5f9;
+      }
+      .menu-item.danger {
+        color: #dc2626;
+      }
+      .menu-item.disabled {
+        color: #94a3b8;
+        cursor: not-allowed;
+      }
+      .menu-item.disabled:hover {
+        background: transparent;
+      }
+      @media (max-width: 768px) {
+        .table-modern thead th,
+        .table-modern tbody td {
+          padding: 10px 12px;
+        }
+        .action-group {
+          justify-content: flex-start;
+        }
+      }
+      .modal-backdrop {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px) saturate(120%);
+      }
+      .modal-panel {
+        transform: translateY(6px) scale(0.99);
+        opacity: 0;
+        transition:
+          transform 0.22s ease,
+          opacity 0.22s ease;
+      }
+      .modal-open .modal-panel {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      .modal-panel {
+        position: relative;
+        z-index: 70;
+      }
+      .modal-backdrop {
+        pointer-events: auto;
+      }
+      .modal-panel button {
+        cursor: pointer;
+      }
+      .modal-panel button:active {
+        transform: translateY(1px);
+      }
+      .avatar-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+      }
+      .toast-wrap {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 60;
+      }
+      .toast-item {
+        transform: translateY(-6px) scale(0.98);
+        opacity: 0;
+        transition:
+          transform 0.24s ease,
+          opacity 0.24s ease;
+      }
+      .toast-item.toast-enter {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      .toast-item.toast-leave {
+        transform: translateY(-8px) scale(0.98);
+        opacity: 0;
+      }
+      @media (max-width: 640px) {
+        .tab-bar {
+          border-radius: 16px;
+        }
+        .tab-btn {
+          width: 100%;
+          text-align: center;
+        }
+        .tab-btn.active::after {
+          left: 30%;
+          right: 30%;
+        }
+      }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+  <body class="text-slate-800 pb-20">
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <nav
+          class="sticky top-0 z-50 glass-header border-b border-slate-100 px-6 md:px-8 py-5 mb-8"
+        >
+          <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+              <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+                Permit & Reimburse Management
+              </h1>
+              <!-- <p class="text-xs text-slate-500 font-medium">Kelola izin dan reimburse dalam satu halaman</p> -->
+            </div>
+          </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 md:px-8 space-y-6">
+          <div
+            class="tab-bar"
+            role="tablist"
+            aria-label="Permit Reimburse Tabs"
+          >
+            <button
+              class="tab-btn active"
+              data-tab-target="permit"
+              role="tab"
+              aria-selected="true"
+              aria-controls="permitTabPanel"
+              id="permitTab"
+            >
+              Permit Management
+            </button>
+            <button
+              class="tab-btn"
+              data-tab-target="reimburse"
+              role="tab"
+              aria-selected="false"
+              aria-controls="reimburseTabPanel"
+              id="reimburseTab"
+            >
+              Reimburse
+            </button>
+          </div>
+
+          <section
+            id="permitTabPanel"
+            class="tab-panel"
+            data-tab-panel="permit"
+            role="tabpanel"
+            aria-labelledby="permitTab"
+          >
+            <section class="card-elite rounded-[2rem] overflow-hidden">
+              <div
+                class="p-6 md:p-8 border-b border-slate-50 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+              >
+                <div class="flex items-center gap-3">
+                  <h2
+                    class="text-xl font-bold text-slate-900 flex items-center gap-2"
+                  >
+                    <i data-lucide="list" class="w-5 h-5 text-indigo-600"></i>
+                    Daftar Pengajuan Izin
+                  </h2>
+                  <!-- <span id="summaryText" class="px-4 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">Total Izin: 0</span> -->
+                </div>
+                <div
+                  class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                >
+                  <div class="relative">
+                    <i
+                      data-lucide="search"
+                      class="w-4 h-4 absolute left-3 top-3 text-slate-400"
+                    ></i>
+                    <input
+                      id="permitSearchInput"
+                      type="text"
+                      placeholder="Cari nama atau posisi..."
+                      class="pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64"
+                    />
+                  </div>
+                  <select
+                    id="permitStatusFilter"
+                    class="text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 font-medium text-slate-600 cursor-pointer w-full sm:w-auto"
+                  >
+                    <option value="">Semua Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="table-modern text-left">
+                  <thead>
+                    <tr>
+                      <th>Tanggal Pengajuan</th>
+                      <th>Nama</th>
+                      <th>Tanggal Izin</th>
+                      <th>Jenis Izin</th>
+                      <th>Alasan</th>
+                      <th>Status</th>
+                      <th class="text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="permitTableBody"
+                    class="divide-y divide-slate-50"
+                  ></tbody>
+                </table>
+              </div>
+              <div class="bg-slate-50/50 p-4 text-center">
+                <p
+                  class="text-[10px] text-slate-400 font-medium uppercase tracking-widest"
+                >
+                  End of data
+                </p>
+              </div>
+            </section>
+          </section>
+
+          <section
+            id="reimburseTabPanel"
+            class="tab-panel hidden"
+            data-tab-panel="reimburse"
+            role="tabpanel"
+            aria-labelledby="reimburseTab"
+          >
+            <section class="card-elite rounded-[2rem] overflow-hidden">
+              <div
+                class="p-6 md:p-8 border-b border-slate-50 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+              >
+                <div class="flex items-center gap-3">
+                  <h2
+                    class="text-xl font-bold text-slate-900 flex items-center gap-2"
+                  >
+                    <i data-lucide="wallet" class="w-5 h-5 text-indigo-600"></i>
+                    Daftar Reimburse
+                  </h2>
+                </div>
+                <div
+                  class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                >
+                  <div class="relative">
+                    <i
+                      data-lucide="search"
+                      class="w-4 h-4 absolute left-3 top-3 text-slate-400"
+                    ></i>
+                    <input
+                      id="reimburseSearch"
+                      type="text"
+                      placeholder="Cari nama karyawan..."
+                      class="pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="table-modern table-zebra text-left">
+                  <thead>
+                    <tr>
+                      <th>Foto</th>
+                      <th>Nama</th>
+                      <th>Total Hari</th>
+                      <th>Total Jam</th>
+                      <th class="text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="reimburseTableBody"
+                    class="divide-y divide-slate-50"
+                  ></tbody>
+                </table>
+              </div>
+              <div class="bg-slate-50/50 p-4 text-center">
+                <p
+                  class="text-[10px] text-slate-400 font-medium uppercase tracking-widest"
+                >
+                  End of data
+                </p>
+              </div>
+            </section>
+          </section>
+        </div>
+
+        <!-- Reject Email Modal -->
+        <div
+          id="rejectEmailModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-4 w-full max-w-lg mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold">Kirim Email Penolakan</h3>
+              <button
+                id="rejectEmailModalClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <textarea
+              id="rejectEmailTextarea"
+              class="w-full mt-3 p-3 border border-slate-200 rounded-lg h-48 text-sm"
+            ></textarea>
+            <div class="mt-3 flex justify-end gap-2">
+              <button
+                id="rejectEmailCancel"
+                class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm"
+              >
+                Batalkan
+              </button>
+              <button
+                id="rejectEmailSend"
+                class="bg-rose-600 text-white px-4 py-2 rounded-xl text-sm"
+              >
+                Kirimkan Email Penolakan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approve Reimburse Modal -->
+        <div
+          id="approveReimburseModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold">Reimburse</h3>
+              <button
+                id="approveReimburseClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <p class="mt-3 text-sm text-slate-700">
+              Apakah pengajuan ini mendapatkan reimburse?
+            </p>
+            <div class="mt-4 flex gap-3 justify-end">
+              <button
+                id="approveReimburseNo"
+                class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm"
+              >
+                Tidak
+              </button>
+              <button
+                id="approveReimburseYes"
+                class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm"
+              >
+                Ya
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change to Rejected Modal -->
+        <div
+          id="changeToRejectedModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold">Ubah Status Izin</h3>
+              <button
+                id="changeToRejectedClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <p class="mt-3 text-sm text-slate-700">
+              Apakah reimburse yang sebelumnya tercatat ingin dihapus?
+            </p>
+            <div class="mt-4 flex gap-3 justify-end">
+              <button
+                id="changeToRejectedKeep"
+                class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm"
+              >
+                Biarkan reimburse
+              </button>
+              <button
+                id="changeToRejectedDelete"
+                class="bg-rose-600 text-white px-4 py-2 rounded-xl text-sm"
+              >
+                Hapus reimburse
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permit Reimburse Detail Modal -->
+        <div
+          id="permitReimburseDetailModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold">Detail Reimburse</h3>
+              <button
+                id="permitReimburseDetailClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <p class="mt-2 text-sm text-slate-600">
+              Sesuaikan total hari dan jam reimburse.
+            </p>
+            <div class="mt-4 space-y-3">
+              <div>
+                <label
+                  for="permitReimburseDaysInput"
+                  class="text-xs font-semibold text-slate-600"
+                  >Jumlah Hari</label
+                >
+                <input
+                  id="permitReimburseDaysInput"
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                />
+              </div>
+              <div>
+                <label
+                  for="permitReimburseHoursInput"
+                  class="text-xs font-semibold text-slate-600"
+                  >Jumlah Jam</label
+                >
+                <input
+                  id="permitReimburseHoursInput"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                />
+              </div>
+            </div>
+            <div class="mt-5 flex gap-3 justify-end">
+              <button
+                id="permitReimburseDetailCancel"
+                class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm"
+              >
+                Batal
+              </button>
+              <button
+                id="permitReimburseDetailSave"
+                class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm"
+              >
+                Lanjutkan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approve Email Modal -->
+        <div
+          id="approveEmailModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-4 w-full max-w-lg mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold">Kirim Email Persetujuan</h3>
+              <button
+                id="approveEmailModalClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <textarea
+              id="approveEmailTextarea"
+              class="w-full mt-3 p-3 border border-slate-200 rounded-lg h-48 text-sm"
+            ></textarea>
+            <div class="mt-3 flex justify-end gap-2">
+              <button
+                id="approveEmailCancel"
+                class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm"
+              >
+                Batalkan
+              </button>
+              <button
+                id="approveEmailSend"
+                class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm"
+              >
+                Kirim Email
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reimburse Detail Modal -->
+        <div
+          id="reimburseDetailModal"
+          class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden"
+        >
+          <div
+            class="bg-white/90 rounded-2xl p-6 w-full max-w-3xl mx-4 shadow-2xl border border-white/70 transform transition-transform duration-200 modal-panel"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 id="detailModalTitle" class="text-lg font-bold">
+                  Detail Reimburse
+                </h3>
+                <p id="detailModalSubtitle" class="text-xs text-slate-500 mt-1">
+                  Ringkasan akumulasi
+                </p>
+              </div>
+              <button
+                id="detailModalClose"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                &times;
+              </button>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+              <div
+                class="bg-white/80 rounded-2xl border border-slate-100 px-4 py-3"
+              >
+                <p
+                  class="text-[11px] uppercase tracking-widest text-slate-400 font-semibold"
+                >
+                  Total Hari
+                </p>
+                <p
+                  id="detailTotalDays"
+                  class="text-xl font-bold text-slate-800"
+                >
+                  0
+                </p>
+              </div>
+              <div
+                class="bg-white/80 rounded-2xl border border-slate-100 px-4 py-3"
+              >
+                <p
+                  class="text-[11px] uppercase tracking-widest text-slate-400 font-semibold"
+                >
+                  Total Jam
+                </p>
+                <p
+                  id="detailTotalHours"
+                  class="text-xl font-bold text-slate-800"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+            <div
+              class="mt-5 max-h-[55vh] overflow-y-auto pr-1"
+              id="detailTimeline"
+            ></div>
+            <div class="mt-5 flex justify-end">
+              <button
+                id="detailModalOk"
+                class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div
+      class="toast-wrap"
+      id="toastWrap"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      lucide.createIcons();
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        query,
+        where,
+        orderBy,
+        updateDoc,
+        doc,
+        getDoc,
+        deleteDoc,
+        onSnapshot,
+        addDoc,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      window.db = db;
+      window.auth = auth;
+      window.collection = collection;
+      window.getDoc = getDoc;
+      window.getDocs = getDocs;
+      window.updateDoc = updateDoc;
+      window.deleteDoc = deleteDoc;
+      window.doc = doc;
+      window.addDoc = addDoc;
+
+      function parseDateForCalc(val) {
+        if (!val) return new Date();
+        if (typeof val === "object" && typeof val.toDate === "function")
+          return val.toDate();
+        if (typeof val === "number") return new Date(val);
+        const parts = String(val).split("-");
+        if (parts.length === 3)
+          return new Date(
+            parseInt(parts[0], 10),
+            parseInt(parts[1], 10) - 1,
+            parseInt(parts[2], 10),
+          );
+        const d = new Date(String(val));
+        if (isNaN(d.getTime())) return new Date();
+        return d;
+      }
+
+      const WORK_DAYS = new Set([0, 2, 4, 6]); // 0=Minggu, 2=Selasa, 4=Kamis, 6=Sabtu
+
+      function generateDailyEntries(startDate, endDate) {
+        const start = parseDateForCalc(startDate);
+        const end = parseDateForCalc(endDate || startDate);
+        const entries = [];
+        const current = new Date(
+          start.getFullYear(),
+          start.getMonth(),
+          start.getDate(),
+        );
+        const last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+        while (current <= last) {
+          if (WORK_DAYS.has(current.getDay())) {
+            const y = current.getFullYear();
+            const m = String(current.getMonth() + 1).padStart(2, "0");
+            const d = String(current.getDate()).padStart(2, "0");
+            entries.push({ date: `${y}-${m}-${d}`, status: "pending" });
+          }
+          current.setDate(current.getDate() + 1);
+        }
+        return entries;
+      }
+
+      /**
+       * Generate exactly `count` daily entries starting from startDate.
+       * The source of truth for reimbursement count is the admin's popup input,
+       * NOT the permit date range.
+       */
+      function generateDailyEntriesCount(startDate, count) {
+        const n = Math.max(0, Math.floor(Number(count) || 0));
+        if (n === 0 || !startDate) return [];
+        const start = parseDateForCalc(startDate);
+        const entries = [];
+        const current = new Date(
+          start.getFullYear(),
+          start.getMonth(),
+          start.getDate(),
+        );
+        // Safety limit to avoid infinite loop
+        const maxIterations = n * 10 + 30;
+        let iterations = 0;
+        while (entries.length < n && iterations < maxIterations) {
+          if (WORK_DAYS.has(current.getDay())) {
+            const y = current.getFullYear();
+            const m = String(current.getMonth() + 1).padStart(2, "0");
+            const d = String(current.getDate()).padStart(2, "0");
+            entries.push({ date: `${y}-${m}-${d}`, status: "pending" });
+          }
+          current.setDate(current.getDate() + 1);
+          iterations++;
+        }
+        return entries;
+      }
+
+      const topbarTarget = document.getElementById("topbarContainer");
+      if (topbarTarget) renderTopBar(topbarTarget);
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      if (sidebarTarget) renderSidebar(sidebarTarget);
+
+      const tabButtons = Array.from(
+        document.querySelectorAll("[data-tab-target]"),
+      );
+      const tabPanels = Array.from(
+        document.querySelectorAll("[data-tab-panel]"),
+      );
+
+      function setActiveTab(key) {
+        tabButtons.forEach((btn) => {
+          const isActive = btn.dataset.tabTarget === key;
+          btn.classList.toggle("active", isActive);
+          btn.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+        tabPanels.forEach((panel) => {
+          panel.classList.toggle("hidden", panel.dataset.tabPanel !== key);
+        });
+      }
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener("click", () =>
+          setActiveTab(btn.dataset.tabTarget),
+        );
+      });
+
+      setActiveTab("permit");
+
+      function showToast(msg, type = "info", ttl = 4000) {
+        try {
+          const wrap = document.getElementById("toastWrap");
+          if (!wrap) return;
+          const el = document.createElement("div");
+          const base =
+            "toast-item rounded-xl px-4 py-2 mt-2 text-sm shadow-lg border";
+          const theme =
+            type === "error"
+              ? "bg-rose-600 text-white border-rose-500/40"
+              : "bg-white text-slate-900 border-slate-200";
+          el.className = `${base} ${theme}`;
+          el.textContent = msg;
+          wrap.appendChild(el);
+          setTimeout(() => {
+            el.classList.add("toast-enter");
+          }, 10);
+          setTimeout(() => {
+            el.classList.remove("toast-enter");
+            el.classList.add("toast-leave");
+            setTimeout(() => el.remove(), 300);
+          }, ttl);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function closeAnyOpenModal() {
+        const open = document.querySelector(".modal-backdrop:not(.hidden)");
+        if (open) {
+          const closeBtn =
+            open.querySelector("[id$='Close']") ||
+            open.querySelector("[id$='Cancel']");
+          if (closeBtn) closeBtn.click();
+          else open.classList.add("hidden");
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAnyOpenModal();
+      });
+
+      const PermitModule = (() => {
+        const summaryText = document.getElementById("summaryText");
+        const permitTableBody = document.getElementById("permitTableBody");
+        const permitSearchInput = document.getElementById("permitSearchInput");
+        const permitStatusFilter =
+          document.getElementById("permitStatusFilter");
+        const userPhotoCache = {};
+        const userEmailCache = {};
+        let currentUser = null;
+        let currentUserData = null;
+        let allPermits = [];
+        let currentSearchTerm = "";
+        let currentStatusFilter = "";
+        let listenToPermitsRetryCount = 0;
+        let unsubscribePermits = null;
+        let currentActionPermitId = null;
+        let reimburseChosen = false;
+        let pendingReimburseData = null;
+        let approveFlowMode = "normal";
+        let statusChangeReimburseData = null;
+
+        function getDirectPhotoUrl(url, uid) {
+          if (!url) return "";
+          if (url.includes("drive.google.com")) {
+            let id = "";
+            if (url.includes("id=")) {
+              id = url.split("id=")[1].split("&")[0];
+            } else if (url.includes("/d/")) {
+              id = url.split("/d/")[1].split("/")[0];
+            }
+            if (id) return "https://lh3.googleusercontent.com/u/0/d/" + id;
+          }
+          return url;
+        }
+
+        function renderStatusBadge(statusRaw) {
+          const value = String(statusRaw || "pending").toLowerCase();
+          if (value === "approved") {
+            return '<span class="status-badge status-approved">Approved</span>';
+          }
+          if (value === "rejected") {
+            return '<span class="status-badge status-rejected">Rejected</span>';
+          }
+          return '<span class="status-badge status-pending">Pending</span>';
+        }
+
+        function formatFullDate(value) {
+          if (!value) return "";
+          try {
+            let d;
+            if (value && typeof value.toDate === "function") {
+              d = value.toDate();
+            } else if (typeof value === "number") {
+              d = new Date(value);
+            } else {
+              d = new Date(String(value));
+            }
+            if (isNaN(d.getTime())) return "";
+            const namaBulan = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "Mei",
+              "Jun",
+              "Jul",
+              "Agu",
+              "Sep",
+              "Okt",
+              "Nov",
+              "Des",
+            ];
+            const day = String(d.getDate()).padStart(2, "0");
+            const month = namaBulan[d.getMonth()];
+            const year = d.getFullYear();
+            return `${day} ${month} ${year}`;
+          } catch (e) {
+            return "";
+          }
+        }
+
+        function formatDateSlash(value) {
+          if (!value) return "";
+          try {
+            let d;
+            if (value && typeof value.toDate === "function") {
+              d = value.toDate();
+            } else if (typeof value === "number") {
+              d = new Date(value);
+            } else if (String(value).includes("-")) {
+              const parts = String(value).split("-");
+              if (parts.length === 3) {
+                d = new Date(
+                  parseInt(parts[0], 10),
+                  parseInt(parts[1], 10) - 1,
+                  parseInt(parts[2], 10),
+                );
+              } else {
+                d = new Date(String(value));
+              }
+            } else {
+              d = new Date(String(value));
+            }
+            if (isNaN(d.getTime())) return "";
+            const day = String(d.getDate()).padStart(2, "0");
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+          } catch (e) {
+            return "";
+          }
+        }
+
+        function getActorName() {
+          const localName =
+            currentUserData && currentUserData.name ? currentUserData.name : "";
+          if (localName) return localName;
+          if (currentUser && currentUser.displayName)
+            return currentUser.displayName;
+          if (currentUser && currentUser.email) return currentUser.email;
+          return "";
+        }
+
+        function escapeHtml(str) {
+          if (!str) return "";
+          return String(str).replace(/[&<>"']/g, function (s) {
+            return {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[s];
+          });
+        }
+
+        function normalizePermitType(value) {
+          const raw = String(value || "")
+            .toLowerCase()
+            .trim();
+          if (
+            raw === "setengah-hari" ||
+            raw === "half-day" ||
+            raw === "half day"
+          )
+            return "half-day";
+          return "full-day";
+        }
+
+        function formatTimeToken(value) {
+          return String(value || "")
+            .trim()
+            .replace(/\./g, ":");
+        }
+
+        function formatPermitHoursLabel(permit) {
+          const hoursRaw = String(
+            permit && (permit.permit_hours || permit.permit_time_range || ""),
+          ).trim();
+          if (!hoursRaw) {
+            const start = formatTimeToken(permit && permit.permit_start_hour);
+            const end = formatTimeToken(permit && permit.permit_end_hour);
+            if (start && end) return start + " - " + end;
+            return "";
+          }
+          const cleaned = hoursRaw.replace(/\./g, ":");
+          const parts = cleaned
+            .split(/\s*-\s*/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+          if (parts.length >= 2) {
+            return (
+              formatTimeToken(parts[0]) + " - " + formatTimeToken(parts[1])
+            );
+          }
+          return cleaned;
+        }
+
+        function getPermitJenisLabel(permit) {
+          const hours = formatPermitHoursLabel(permit);
+          const type = normalizePermitType(
+            permit && (permit.permit_type || permit.type),
+          );
+          if (type === "half-day" || hours) {
+            return hours ? "Half Day (" + hours + ")" : "Half Day";
+          }
+          return "Full Day";
+        }
+
+        function buildApproveEmailTemplate(permit, includeReimburse) {
+          const p = permit || {};
+          const name = p.user_name || "";
+          const alasan = p.reason || "-";
+          const jenis = getPermitJenisLabel(p);
+          const startSlash = formatDateSlash(p.start_date) || "-";
+          const endSlash =
+            formatDateSlash(p.end_date || p.start_date) || startSlash;
+          const izinDate = startSlash + " s/d " + endSlash;
+          const startCalc = parseDateForCalc(p.start_date);
+          const endCalc = parseDateForCalc(p.end_date || p.start_date);
+          const durasi = Math.max(1, dayDiffInclusive(startCalc, endCalc));
+          const reimbursementText = includeReimburse
+            ? "Izin ini termasuk yang mendapat reimbursement dan akan langsung diproses oleh tim HR."
+            : "Izin ini tidak mendapatkan reimbursement.";
+          return `Hai ${name},\n\nIzin kamu sudah kami setujui. Berikut detailnya:\n\n- Jenis izin   : ${jenis}\n- Alasan izin  : ${alasan}\n- Tanggal      : ${izinDate}\n- Durasi       : ${durasi} hari kerja\n\n${reimbursementText}\n\nSalam,\nHR Dialogika`;
+        }
+
+        function renderPermitTable(records) {
+          if (!permitTableBody) return;
+          if (!records.length) {
+            permitTableBody.innerHTML = "";
+            if (summaryText) {
+              summaryText.textContent = "Total Izin: 0";
+            }
+            return;
+          }
+          const rowsHtml = records
+            .map((p) => {
+              const statusVal = String(p.status || "pending").toLowerCase();
+              const rowBgClass =
+                statusVal === "approved"
+                  ? "bg-emerald-50"
+                  : statusVal === "rejected"
+                    ? "bg-rose-50"
+                    : "bg-amber-50";
+              const menuItems =
+                statusVal === "approved"
+                  ? '<button class="menu-item danger" data-action="change-to-rejected" data-id="' +
+                    p.id +
+                    '">' +
+                    '<i data-lucide="ban" class="w-4 h-4"></i> Change to Rejected' +
+                    "</button>"
+                  : '<button class="menu-item" data-action="change-to-approved" data-id="' +
+                    p.id +
+                    '">' +
+                    '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Change to Approved' +
+                    "</button>";
+              const menuHtml =
+                statusVal === "pending"
+                  ? ""
+                  : '<div class="action-menu">' +
+                    '<button class="menu-trigger" data-action="menu-toggle" data-id="' +
+                    p.id +
+                    '" aria-label="More actions">' +
+                    '<i data-lucide="more-horizontal" class="w-4 h-4"></i>' +
+                    "</button>" +
+                    '<div class="menu-panel hidden" data-menu-panel="' +
+                    p.id +
+                    '">' +
+                    menuItems +
+                    "</div>" +
+                    "</div>";
+              const statusBadge = renderStatusBadge(statusVal);
+              const approverName =
+                statusVal === "approved" ? p.approved_by_name || "" : "";
+              const rejectorName =
+                statusVal === "rejected" ? p.rejected_by_name || "" : "";
+              const statusMeta = approverName || rejectorName;
+              const statusMetaHtml = statusMeta
+                ? '<div class="mt-1 text-[10px] text-slate-400">by ' +
+                  escapeHtml(statusMeta) +
+                  "</div>"
+                : "";
+              const submissionLabel = formatFullDate(p.created_at || "");
+              const startFull = formatFullDate(p.start_date);
+              const endFull = formatFullDate(p.end_date || p.start_date);
+              let izinLabel = startFull || "-";
+              if (startFull && endFull && endFull !== startFull)
+                izinLabel = startFull + " - " + endFull;
+              const jenisIzinLabel = getPermitJenisLabel(p);
+              const reasonFull = p.reason || "-";
+              const attachmentHtml = p.attachment_url
+                ? '<div class="mt-1 text-xs"><a href="' +
+                  p.attachment_url +
+                  '" target="_blank" class="underline">Lampiran</a></div>'
+                : "";
+              const avatarName = p.user_name || "User";
+              const fallbackAvatar =
+                "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(avatarName) +
+                "&background=4F46E5&color=fff";
+              const photoUrl = p.photo || fallbackAvatar;
+              const avatarImg =
+                '<img src="' +
+                photoUrl +
+                '" onerror="this.onerror=null;this.src=\'' +
+                fallbackAvatar +
+                '\';" class="w-10 h-10 rounded-full shadow-sm object-cover">';
+              const actionHtml =
+                statusVal === "pending"
+                  ? '<div class="action-group">' +
+                    '<button data-action="approve" data-id="' +
+                    p.id +
+                    '" class="action-btn approve">' +
+                    '<i data-lucide="check-circle" class="w-3.5 h-3.5"></i>' +
+                    "</button>" +
+                    '<button data-action="reject" data-id="' +
+                    p.id +
+                    '" class="action-btn reject">' +
+                    '<i data-lucide="x-circle" class="w-3.5 h-3.5"></i>' +
+                    "</button>" +
+                    '<button data-action="delete-permit" data-id="' +
+                    p.id +
+                    '" class="action-btn delete">' +
+                    '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+                    "</button>" +
+                    "</div>"
+                  : '<div class="action-group">' +
+                    '<button data-action="delete-permit" data-id="' +
+                    p.id +
+                    '" class="action-btn delete">' +
+                    '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+                    "</button>" +
+                    menuHtml +
+                    "</div>";
+              return (
+                '<tr class="' +
+                rowBgClass +
+                ' table-row" data-id="' +
+                p.id +
+                '">' +
+                "<td>" +
+                "<div>" +
+                (submissionLabel || "-") +
+                "</div>" +
+                "</td>" +
+                "<td>" +
+                '<div class="name-cell">' +
+                avatarImg +
+                '<div class="name-text">' +
+                '<span class="primary">' +
+                (p.user_name || "Tanpa Nama") +
+                "</span>" +
+                "</div>" +
+                "</div>" +
+                "</td>" +
+                "<td>" +
+                "<div>" +
+                izinLabel +
+                "</div>" +
+                "</td>" +
+                "<td>" +
+                "<div>" +
+                escapeHtml(jenisIzinLabel) +
+                "</div>" +
+                "</td>" +
+                "<td>" +
+                "<div>" +
+                escapeHtml(reasonFull) +
+                "</div>" +
+                attachmentHtml +
+                "</td>" +
+                "<td>" +
+                statusBadge +
+                statusMetaHtml +
+                "</td>" +
+                '<td class="text-right">' +
+                actionHtml +
+                "</td>" +
+                "</tr>"
+              );
+            })
+            .join("");
+          permitTableBody.innerHTML = rowsHtml;
+          if (summaryText) {
+            summaryText.textContent = "Total Izin: " + records.length;
+          }
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
+            window.lucide.createIcons();
+          }
+        }
+
+        function listenToPermits() {
+          try {
+            if (unsubscribePermits) {
+              unsubscribePermits();
+            }
+            const q = query(
+              collection(db, "permits"),
+              orderBy("created_at", "desc"),
+            );
+            unsubscribePermits = onSnapshot(
+              q,
+              async (snapshot) => {
+                listenToPermitsRetryCount = 0;
+                const rows = [];
+                const tasks = [];
+                snapshot.forEach((docSnap) => {
+                  tasks.push(
+                    (async () => {
+                      const d = docSnap.data() || {};
+                      const userId = d.user_id || "";
+                      let rawPhoto = d.user_photo || "";
+                      if (!rawPhoto && userId) {
+                        if (userPhotoCache[userId] !== undefined) {
+                          rawPhoto = userPhotoCache[userId] || "";
+                        } else {
+                          try {
+                            const userSnap = await getDoc(
+                              doc(db, "users", userId),
+                            );
+                            if (userSnap.exists()) {
+                              const u = userSnap.data() || {};
+                              rawPhoto = u.photo || "";
+                              userPhotoCache[userId] = rawPhoto;
+                            } else {
+                              userPhotoCache[userId] = "";
+                            }
+                          } catch (err) {
+                            console.error(
+                              "Gagal memuat data user untuk foto",
+                              userId,
+                              err,
+                            );
+                            userPhotoCache[userId] = "";
+                          }
+                        }
+                      }
+                      const photo = getDirectPhotoUrl(
+                        rawPhoto || "",
+                        userId || "",
+                      );
+                      rows.push({
+                        id: docSnap.id,
+                        user_id: userId,
+                        user_name: d.user_name || "",
+                        user_position: d.user_position || "",
+                        photo,
+                        category: d.category || "",
+                        type: d.type || "",
+                        permit_type: d.permit_type || d.type || "",
+                        start_date: d.start_date || "",
+                        end_date: d.end_date || "",
+                        permit_hours: d.permit_hours || "",
+                        permit_start_hour: d.permit_start_hour || "",
+                        permit_end_hour: d.permit_end_hour || "",
+                        reason: d.reason || "",
+                        attachment_name: d.attachment_name || "",
+                        attachment_url: d.attachment_url || "",
+                        status: d.status || "pending",
+                        reimburse_id: d.reimburse_id || "",
+                        created_at: d.created_at || null,
+                        approved_by: d.approved_by || "",
+                        approved_by_name: d.approved_by_name || "",
+                        rejected_by: d.rejected_by || "",
+                        rejected_by_name: d.rejected_by_name || "",
+                        approved_at: d.approved_at || "",
+                        rejected_at: d.rejected_at || "",
+                      });
+                    })(),
+                  );
+                });
+                await Promise.all(tasks);
+                allPermits = rows;
+                applyPermitFilters();
+              },
+              (error) => {
+                console.error("Gagal memantau data izin", error);
+                if (
+                  error.code === "unavailable" ||
+                  (error.message && error.message.includes("abort")) ||
+                  error.code === "cancelled"
+                ) {
+                  listenToPermitsRetryCount += 1;
+                  const delay = Math.min(
+                    1000 * Math.pow(2, listenToPermitsRetryCount),
+                    30000,
+                  );
+                  setTimeout(listenToPermits, delay);
+                }
+                if (summaryText) {
+                  summaryText.textContent = "Gagal memuat data izin";
+                }
+              },
+            );
+          } catch (e) {
+            console.error("Gagal memulai listener izin", e);
+            if (summaryText) {
+              summaryText.textContent = "Gagal memuat data izin";
+            }
+          }
+        }
+
+        function applyPermitFilters() {
+          if (!Array.isArray(allPermits)) {
+            renderPermitTable([]);
+            return;
+          }
+          const term = String(currentSearchTerm || "")
+            .toLowerCase()
+            .trim();
+          const statusVal = String(currentStatusFilter || "")
+            .toLowerCase()
+            .trim();
+          let filtered = allPermits.slice();
+          if (term) {
+            filtered = filtered.filter((p) => {
+              const name = (p.user_name || "").toLowerCase();
+              const position = (p.user_position || "").toLowerCase();
+              const category = (p.category || "").toLowerCase();
+              const permitType = (p.permit_type || p.type || "").toLowerCase();
+              const permitHours = (p.permit_hours || "").toLowerCase();
+              const reason = (p.reason || "").toLowerCase();
+              return (
+                name.includes(term) ||
+                position.includes(term) ||
+                category.includes(term) ||
+                permitType.includes(term) ||
+                permitHours.includes(term) ||
+                reason.includes(term)
+              );
+            });
+          }
+          if (statusVal) {
+            filtered = filtered.filter(
+              (p) => String(p.status || "").toLowerCase() === statusVal,
+            );
+          }
+          renderPermitTable(filtered);
+        }
+
+        async function deletePermit(id) {
+          if (!id) return;
+          if (!confirm("Yakin ingin menghapus data izin ini?")) return;
+          try {
+            await deleteDoc(doc(db, "permits", id));
+            allPermits = allPermits.filter((p) => p.id !== id);
+            renderPermitTable(allPermits);
+          } catch (e) {
+            console.error("Gagal menghapus data izin", e);
+            alert("Gagal menghapus data izin.");
+          }
+        }
+
+        function openRejectModalFor(id) {
+          currentActionPermitId = id;
+          const p = allPermits.find((x) => x.id === id) || {};
+          const name = p.user_name || "";
+          const jenis = getPermitJenisLabel(p);
+          const startSlash = formatDateSlash(p.start_date) || "-";
+          const endSlash =
+            formatDateSlash(p.end_date || p.start_date) || startSlash;
+          const izinDate = startSlash + " s/d " + endSlash;
+          const tpl = `Hai ${name},\n\nMohon maaf, permohonan izin kamu belum bisa kami setujui. Berikut detailnya:\n\n- Jenis izin       : ${jenis}\n- Tanggal          : ${izinDate}\n- Alasan penolakan : [isi jika diperlukan]\n\nKalau ada yang ingin didiskusikan, kamu bisa langsung hubungi tim HR ya.\n\nSalam,\nHR Dialogika`;
+          const ta = document.getElementById("rejectEmailTextarea");
+          if (ta) ta.value = tpl;
+          const modal = document.getElementById("rejectEmailModal");
+          if (modal) modal.classList.remove("hidden");
+          if (modal) modal.classList.add("modal-open");
+        }
+
+        function closeRejectModal() {
+          currentActionPermitId = null;
+          const modal = document.getElementById("rejectEmailModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+        }
+
+        function openChangeToRejectedModal(id) {
+          currentActionPermitId = id;
+          const modal = document.getElementById("changeToRejectedModal");
+          if (modal) modal.classList.remove("hidden");
+          if (modal) modal.classList.add("modal-open");
+        }
+
+        function closeChangeToRejectedModal() {
+          const modal = document.getElementById("changeToRejectedModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+        }
+
+        async function applyStatusChangeReject(deleteReimburse) {
+          const permit =
+            allPermits.find((p) => p.id === currentActionPermitId) || null;
+          if (!permit) return;
+          try {
+            if (deleteReimburse && permit.reimburse_id) {
+              await deleteDoc(doc(db, "reimburse", permit.reimburse_id));
+            }
+            const updatePayload = {
+              status: "rejected",
+              rejected_by: currentUser ? currentUser.uid : null,
+              rejected_by_name: getActorName(),
+              rejected_at: new Date().toISOString(),
+            };
+            if (deleteReimburse) updatePayload.reimburse_id = "";
+            await updateDoc(doc(db, "permits", permit.id), updatePayload);
+            permit.status = "rejected";
+            permit.rejected_by = updatePayload.rejected_by;
+            permit.rejected_by_name = updatePayload.rejected_by_name;
+            permit.rejected_at = updatePayload.rejected_at;
+            if (deleteReimburse) permit.reimburse_id = "";
+            applyPermitFilters();
+            showToast("Status diubah ke rejected.", "success");
+          } catch (e) {
+            console.error("Gagal mengubah status ke rejected", e);
+            showToast("Gagal mengubah status ke rejected.", "error");
+          } finally {
+            closeChangeToRejectedModal();
+            approveFlowMode = "normal";
+          }
+        }
+
+        async function applyStatusChangeApprove(reimburseData) {
+          const permit =
+            allPermits.find((p) => p.id === currentActionPermitId) || null;
+          if (!permit) return;
+          try {
+            let createdReimburseId = "";
+            if (reimburseData) {
+              const ref = await addDoc(
+                collection(db, "reimburse"),
+                reimburseData,
+              );
+              createdReimburseId = ref.id;
+            }
+            const updatePayload = {
+              status: "approved",
+              approved_by: currentUser ? currentUser.uid : null,
+              approved_by_name: getActorName(),
+              approved_at: new Date().toISOString(),
+            };
+            if (createdReimburseId)
+              updatePayload.reimburse_id = createdReimburseId;
+            await updateDoc(doc(db, "permits", permit.id), updatePayload);
+            permit.status = "approved";
+            permit.approved_by = updatePayload.approved_by;
+            permit.approved_by_name = updatePayload.approved_by_name;
+            permit.approved_at = updatePayload.approved_at;
+            if (createdReimburseId) permit.reimburse_id = createdReimburseId;
+            applyPermitFilters();
+            showToast("Status diubah ke approved.", "success");
+          } catch (e) {
+            console.error("Gagal mengubah status ke approved", e);
+            showToast("Gagal mengubah status ke approved.", "error");
+          } finally {
+            approveFlowMode = "normal";
+            statusChangeReimburseData = null;
+          }
+        }
+
+        function closeAllActionMenus(exceptId = "") {
+          document.querySelectorAll(".menu-panel").forEach((panel) => {
+            const panelId = panel.getAttribute("data-menu-panel") || "";
+            if (panelId && panelId === exceptId) return;
+            panel.classList.add("hidden");
+            panel.classList.remove("open");
+          });
+        }
+
+        function toggleActionMenu(id) {
+          if (!id) return;
+          const panel = document.querySelector(
+            '[data-menu-panel="' + id + '"]',
+          );
+          if (!panel) return;
+          const isOpen = !panel.classList.contains("hidden");
+          closeAllActionMenus();
+          if (!isOpen) {
+            panel.classList.remove("hidden");
+            panel.classList.add("open");
+          }
+        }
+
+        async function resolveUserEmail(userId, permitObj) {
+          if (
+            permitObj &&
+            permitObj.user_email &&
+            permitObj.user_email.trim()
+          ) {
+            return permitObj.user_email.trim();
+          }
+          if (!userId) {
+            console.warn(
+              "userId kosong, tidak bisa fetch email dari users collection",
+            );
+            return "";
+          }
+          if (userEmailCache[userId]) {
+            return userEmailCache[userId];
+          }
+          try {
+            const userRef = doc(db, "users", userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap && userSnap.exists()) {
+              const u = userSnap.data() || {};
+              const email =
+                u.email ||
+                u.emailAddress ||
+                u.user_email ||
+                u.workEmail ||
+                u.email_address ||
+                (u.contact && u.contact.email) ||
+                (u.profile && u.profile.email) ||
+                "";
+              if (email && email.trim()) {
+                userEmailCache[userId] = String(email).trim();
+                return userEmailCache[userId];
+              }
+            }
+          } catch (e) {
+            console.error("Gagal memuat email user", e);
+          }
+          return "";
+        }
+
+        function buildMailtoUrl(to, subject, body) {
+          return `mailto:${to || ""}?subject=${encodeURIComponent(subject || "")}&body=${encodeURIComponent(body || "")}`;
+        }
+
+        function openMailClient(mailto) {
+          if (!mailto || !String(mailto).startsWith("mailto:")) return false;
+          const raw = String(mailto);
+          const noScheme = raw.replace(/^mailto:/i, "");
+          const qIdx = noScheme.indexOf("?");
+          const to = decodeURIComponent(
+            (qIdx >= 0 ? noScheme.slice(0, qIdx) : noScheme) || "",
+          ).trim();
+          const qs = qIdx >= 0 ? noScheme.slice(qIdx + 1) : "";
+          const params = new URLSearchParams(qs);
+          const subject = params.get("subject") || "";
+          const body = params.get("body") || "";
+          const gmailComposeUrl =
+            "https://mail.google.com/mail/?view=cm&fs=1" +
+            "&to=" +
+            encodeURIComponent(to) +
+            "&su=" +
+            encodeURIComponent(subject) +
+            "&body=" +
+            encodeURIComponent(body);
+          try {
+            window.location.href = raw;
+          } catch (e) {
+            console.warn("Gagal trigger mailto:", e.message);
+          }
+          setTimeout(() => {
+            try {
+              if (!document.hidden) {
+                window.location.href = gmailComposeUrl;
+              }
+            } catch (e) {
+              console.warn("Gagal membuka Gmail fallback:", e.message);
+            }
+          }, 700);
+          return true;
+        }
+
+        function setModalSending(modalId, sending) {
+          const modal = document.getElementById(modalId);
+          if (!modal) return;
+          const sendBtn = modal.querySelector("button[id$='Send']");
+          if (!sendBtn) return;
+          if (sending) {
+            sendBtn.setAttribute("disabled", "disabled");
+            sendBtn.classList.add("opacity-60", "pointer-events-none");
+            sendBtn.dataset.loading = "1";
+          } else {
+            sendBtn.removeAttribute("disabled");
+            sendBtn.classList.remove("opacity-60", "pointer-events-none");
+            delete sendBtn.dataset.loading;
+          }
+        }
+
+        function extractRejectionReason(body) {
+          if (!body) return "";
+          const lines = body
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          return lines.length ? lines.join("\n") : "";
+        }
+
+        async function sendRejectEmail() {
+          if (!currentActionPermitId)
+            return alert("Tidak ada pengajuan dipilih.");
+          const ta = document.getElementById("rejectEmailTextarea");
+          const body = ta ? ta.value : "";
+          try {
+            setModalSending("rejectEmailModal", true);
+            const p =
+              allPermits.find((x) => x.id === currentActionPermitId) || {};
+            if (String(p.status || "pending").toLowerCase() !== "pending") {
+              setModalSending("rejectEmailModal", false);
+              showToast(
+                "Status sudah ditetapkan. Tidak dapat diubah.",
+                "error",
+              );
+              closeRejectModal();
+              return;
+            }
+            const to = await resolveUserEmail(p.user_id, p);
+            if (!to || !to.trim()) {
+              setModalSending("rejectEmailModal", false);
+              showToast(
+                "Email pengguna tidak ditemukan. Periksa data user di database.",
+                "error",
+              );
+              return;
+            }
+            const startSlash = formatDateSlash(p.start_date) || "-";
+            const endSlash =
+              formatDateSlash(p.end_date || p.start_date) || startSlash;
+            const subject =
+              `Izin Kamu Belum Disetujui - ${p.user_name || ""} | ${startSlash}`.trim();
+            const mailto = buildMailtoUrl(to, subject, body);
+            openMailClient(mailto);
+            const rejReason = extractRejectionReason(body) || "";
+            await updateDoc(doc(db, "permits", currentActionPermitId), {
+              status: "rejected",
+              rejection_reason: rejReason,
+              rejected_by: currentUser ? currentUser.uid : null,
+              rejected_by_name: getActorName(),
+              rejected_at: new Date().toISOString(),
+            });
+            setModalSending("rejectEmailModal", false);
+            closeRejectModal();
+            showToast(
+              "Draft email penolakan terbuka - status diperbarui.",
+              "success",
+            );
+          } catch (e) {
+            setModalSending("rejectEmailModal", false);
+            console.error("Gagal menolak pengajuan", e);
+            alert("Gagal menolak pengajuan.");
+          }
+        }
+
+        function openApproveReimburseModalForMode(id, mode) {
+          currentActionPermitId = id;
+          reimburseChosen = false;
+          approveFlowMode = mode || "normal";
+          const modal = document.getElementById("approveReimburseModal");
+          if (modal) modal.classList.remove("hidden");
+          if (modal) modal.classList.add("modal-open");
+        }
+
+        function openApproveFlow(id) {
+          openApproveReimburseModalForMode(id, "normal");
+        }
+
+        function closeApproveReimburseModal() {
+          const modal = document.getElementById("approveReimburseModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+          if (approveFlowMode === "status-change") {
+            approveFlowMode = "normal";
+          }
+        }
+
+        async function handleApproveReimburseChoice(choiceYes) {
+          const isStatusChangeFlow = approveFlowMode === "status-change";
+          closeApproveReimburseModal();
+          if (isStatusChangeFlow) {
+            if (!choiceYes) {
+              reimburseChosen = false;
+              pendingReimburseData = null;
+              statusChangeReimburseData = null;
+              applyStatusChangeApprove(null);
+              return;
+            }
+            const p =
+              allPermits.find((x) => x.id === currentActionPermitId) || null;
+            if (!p) return alert("Data pengajuan tidak ditemukan.");
+            openPermitReimburseDetailModal(p);
+            return;
+          }
+          if (!choiceYes) {
+            reimburseChosen = false;
+            pendingReimburseData = null;
+            openApproveEmailModal();
+            return;
+          }
+          const p =
+            allPermits.find((x) => x.id === currentActionPermitId) || null;
+          if (!p) return alert("Data pengajuan tidak ditemukan.");
+          openPermitReimburseDetailModal(p);
+        }
+
+        function openApproveEmailModal() {
+          const p =
+            allPermits.find((x) => x.id === currentActionPermitId) || {};
+          const tpl = buildApproveEmailTemplate(
+            p,
+            Boolean(pendingReimburseData),
+          );
+          const ta = document.getElementById("approveEmailTextarea");
+          if (ta) ta.value = tpl;
+          const modal = document.getElementById("approveEmailModal");
+          if (modal) modal.classList.remove("hidden");
+          if (modal) modal.classList.add("modal-open");
+        }
+
+        function closeApproveEmailModal() {
+          const modal = document.getElementById("approveEmailModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+          currentActionPermitId = null;
+          approveFlowMode = "normal";
+          reimburseChosen = false;
+          pendingReimburseData = null;
+        }
+
+        async function sendApproveEmail() {
+          if (!currentActionPermitId)
+            return alert("Tidak ada pengajuan dipilih.");
+          const ta = document.getElementById("approveEmailTextarea");
+          const body = ta ? ta.value : "";
+          try {
+            setModalSending("approveEmailModal", true);
+            const p =
+              allPermits.find((x) => x.id === currentActionPermitId) || {};
+            const currentStatus = String(p.status || "pending").toLowerCase();
+            const allowedStatuses = ["pending", "rejected"];
+            if (!allowedStatuses.includes(currentStatus)) {
+              setModalSending("approveEmailModal", false);
+              showToast(
+                "Status sudah ditetapkan. Tidak dapat diubah.",
+                "error",
+              );
+              closeApproveEmailModal();
+              return;
+            }
+            const to = await resolveUserEmail(p.user_id, p);
+            if (!to || !to.trim()) {
+              setModalSending("approveEmailModal", false);
+              showToast(
+                "Email pengguna tidak ditemukan. Periksa data user di database.",
+                "error",
+              );
+              return;
+            }
+            const startSlash = formatDateSlash(p.start_date) || "-";
+            const subject =
+              `Izin Approved - ${p.user_name || ""} | ${startSlash}`.trim();
+            const mailto = buildMailtoUrl(to, subject, body);
+            openMailClient(mailto);
+            const includeReimburse = Boolean(pendingReimburseData);
+            let createdReimburseIdLocal = null;
+            if (includeReimburse && pendingReimburseData) {
+              try {
+                const ref = await addDoc(
+                  collection(db, "reimburse"),
+                  pendingReimburseData,
+                );
+                createdReimburseIdLocal = ref.id;
+              } catch (e) {
+                console.error("Gagal membuat reimburse", e);
+              }
+            }
+            const updatePayload = {
+              status: "approved",
+              approved_by: currentUser ? currentUser.uid : null,
+              approved_by_name: getActorName(),
+              approved_at: new Date().toISOString(),
+            };
+            if (createdReimburseIdLocal)
+              updatePayload.reimburse_id = createdReimburseIdLocal;
+            await updateDoc(
+              doc(db, "permits", currentActionPermitId),
+              updatePayload,
+            );
+            p.status = "approved";
+            p.approved_by = updatePayload.approved_by;
+            p.approved_by_name = updatePayload.approved_by_name;
+            p.approved_at = updatePayload.approved_at;
+            if (createdReimburseIdLocal)
+              p.reimburse_id = createdReimburseIdLocal;
+            pendingReimburseData = null;
+            applyPermitFilters();
+            setModalSending("approveEmailModal", false);
+            closeApproveEmailModal();
+            showToast(
+              "Draft email persetujuan terbuka - status diperbarui.",
+              "success",
+            );
+          } catch (e) {
+            setModalSending("approveEmailModal", false);
+            console.error("Gagal memproses persetujuan", e);
+            alert("Gagal memproses persetujuan.");
+          }
+        }
+
+        function dayDiffInclusive(a, b) {
+          const current = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+          const last = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+          let count = 0;
+          while (current <= last) {
+            if (WORK_DAYS.has(current.getDay())) count++;
+            current.setDate(current.getDate() + 1);
+          }
+          return Math.max(1, count);
+        }
+
+        function parseTimeToMinutes(val) {
+          if (!val) return null;
+          const parts = String(val).trim().split(":");
+          if (parts.length !== 2) return null;
+          const h = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10);
+          if (isNaN(h) || isNaN(m)) return null;
+          return h * 60 + m;
+        }
+
+        function calcPermitHours(rangeStr) {
+          if (!rangeStr) return 0;
+          const parts = String(rangeStr)
+            .split("-")
+            .map((s) => s.trim());
+          if (parts.length !== 2) return 0;
+          const start = parseTimeToMinutes(parts[0]);
+          const end = parseTimeToMinutes(parts[1]);
+          if (start === null || end === null) return 0;
+          const diff = end - start;
+          if (diff <= 0) return 0;
+          return Math.round((diff / 60) * 2) / 2;
+        }
+
+        function openPermitReimburseDetailModal(permit) {
+          const modal = document.getElementById("permitReimburseDetailModal");
+          const daysInput = document.getElementById("permitReimburseDaysInput");
+          const hoursInput = document.getElementById(
+            "permitReimburseHoursInput",
+          );
+          if (!modal || !daysInput || !hoursInput) return;
+          const start = parseDateForCalc(permit.start_date);
+          const end = parseDateForCalc(permit.end_date || permit.start_date);
+          const defaultDays = Math.max(1, dayDiffInclusive(start, end));
+          const defaultHours = calcPermitHours(permit.permit_hours || "");
+          daysInput.value = String(defaultDays);
+          hoursInput.value = String(defaultHours);
+          modal.classList.remove("hidden");
+          modal.classList.add("modal-open");
+        }
+
+        function closePermitReimburseDetailModal() {
+          const modal = document.getElementById("permitReimburseDetailModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+        }
+
+        function init(user, userData) {
+          currentUser = user;
+          currentUserData = userData;
+          listenToPermits();
+        }
+
+        if (permitSearchInput) {
+          permitSearchInput.addEventListener("input", function (ev) {
+            currentSearchTerm = ev.target.value || "";
+            applyPermitFilters();
+          });
+        }
+        if (permitStatusFilter) {
+          permitStatusFilter.addEventListener("change", function (ev) {
+            currentStatusFilter = ev.target.value || "";
+            applyPermitFilters();
+          });
+        }
+
+        if (permitTableBody) {
+          permitTableBody.addEventListener("click", function (ev) {
+            const menuToggle = ev.target.closest("[data-action='menu-toggle']");
+            if (menuToggle) {
+              ev.preventDefault();
+              const id = menuToggle.getAttribute("data-id");
+              toggleActionMenu(id);
+              return;
+            }
+            const changeToRejected = ev.target.closest(
+              "[data-action='change-to-rejected']",
+            );
+            if (changeToRejected) {
+              const id = changeToRejected.getAttribute("data-id");
+              closeAllActionMenus();
+              if (!id) return;
+              openChangeToRejectedModal(id);
+              return;
+            }
+            const changeToApproved = ev.target.closest(
+              "[data-action='change-to-approved']",
+            );
+            if (changeToApproved) {
+              const id = changeToApproved.getAttribute("data-id");
+              closeAllActionMenus();
+              if (!id) return;
+              openApproveReimburseModalForMode(id, "status-change");
+              return;
+            }
+            const approveBtn = ev.target.closest("[data-action='approve']");
+            if (approveBtn) {
+              const id = approveBtn.getAttribute("data-id");
+              if (!id) return;
+              const permit = allPermits.find((p) => p.id === id);
+              if (
+                permit &&
+                String(permit.status || "pending").toLowerCase() !== "pending"
+              )
+                return;
+              openApproveFlow(id);
+              return;
+            }
+            const rejectBtn = ev.target.closest("[data-action='reject']");
+            if (rejectBtn) {
+              const id = rejectBtn.getAttribute("data-id");
+              if (!id) return;
+              const permit = allPermits.find((p) => p.id === id);
+              if (
+                permit &&
+                String(permit.status || "pending").toLowerCase() !== "pending"
+              )
+                return;
+              openRejectModalFor(id);
+              return;
+            }
+            const deleteBtn = ev.target.closest(
+              "[data-action='delete-permit']",
+            );
+            if (deleteBtn) {
+              const id = deleteBtn.getAttribute("data-id");
+              if (!id) return;
+              deletePermit(id);
+            }
+          });
+        }
+
+        document.addEventListener("click", function (ev) {
+          if (!ev.target.closest(".action-menu")) {
+            closeAllActionMenus();
+          }
+        });
+
+        const rejectEmailModalClose = document.getElementById(
+          "rejectEmailModalClose",
+        );
+        const rejectEmailCancel = document.getElementById("rejectEmailCancel");
+        const rejectEmailSendBtn = document.getElementById("rejectEmailSend");
+        if (rejectEmailModalClose)
+          rejectEmailModalClose.addEventListener("click", closeRejectModal);
+        if (rejectEmailCancel)
+          rejectEmailCancel.addEventListener("click", closeRejectModal);
+        if (rejectEmailSendBtn)
+          rejectEmailSendBtn.addEventListener("click", sendRejectEmail);
+
+        const approveReimburseYes = document.getElementById(
+          "approveReimburseYes",
+        );
+        const approveReimburseNo =
+          document.getElementById("approveReimburseNo");
+        const approveReimburseClose = document.getElementById(
+          "approveReimburseClose",
+        );
+        if (approveReimburseYes)
+          approveReimburseYes.addEventListener("click", function () {
+            handleApproveReimburseChoice(true);
+          });
+        if (approveReimburseNo)
+          approveReimburseNo.addEventListener("click", function () {
+            handleApproveReimburseChoice(false);
+          });
+        if (approveReimburseClose)
+          approveReimburseClose.addEventListener(
+            "click",
+            closeApproveReimburseModal,
+          );
+
+        const changeToRejectedClose = document.getElementById(
+          "changeToRejectedClose",
+        );
+        const changeToRejectedKeep = document.getElementById(
+          "changeToRejectedKeep",
+        );
+        const changeToRejectedDelete = document.getElementById(
+          "changeToRejectedDelete",
+        );
+        if (changeToRejectedClose)
+          changeToRejectedClose.addEventListener(
+            "click",
+            closeChangeToRejectedModal,
+          );
+        if (changeToRejectedKeep)
+          changeToRejectedKeep.addEventListener("click", function () {
+            applyStatusChangeReject(false);
+          });
+        if (changeToRejectedDelete)
+          changeToRejectedDelete.addEventListener("click", function () {
+            applyStatusChangeReject(true);
+          });
+
+        const approveEmailModalClose = document.getElementById(
+          "approveEmailModalClose",
+        );
+        const approveEmailCancelBtn =
+          document.getElementById("approveEmailCancel");
+        const approveEmailSendBtn = document.getElementById("approveEmailSend");
+        if (approveEmailModalClose)
+          approveEmailModalClose.addEventListener(
+            "click",
+            closeApproveEmailModal,
+          );
+        if (approveEmailCancelBtn)
+          approveEmailCancelBtn.addEventListener(
+            "click",
+            closeApproveEmailModal,
+          );
+        if (approveEmailSendBtn)
+          approveEmailSendBtn.addEventListener("click", sendApproveEmail);
+
+        const reimburseDetailClose = document.getElementById(
+          "permitReimburseDetailClose",
+        );
+        const reimburseDetailCancel = document.getElementById(
+          "permitReimburseDetailCancel",
+        );
+        const reimburseDetailSave = document.getElementById(
+          "permitReimburseDetailSave",
+        );
+        if (reimburseDetailClose)
+          reimburseDetailClose.addEventListener(
+            "click",
+            closePermitReimburseDetailModal,
+          );
+        if (reimburseDetailCancel)
+          reimburseDetailCancel.addEventListener(
+            "click",
+            closePermitReimburseDetailModal,
+          );
+        if (reimburseDetailSave) {
+          reimburseDetailSave.addEventListener("click", function () {
+            const p =
+              allPermits.find((x) => x.id === currentActionPermitId) || null;
+            if (!p) return alert("Data pengajuan tidak ditemukan.");
+            const daysInput = document.getElementById(
+              "permitReimburseDaysInput",
+            );
+            const hoursInput = document.getElementById(
+              "permitReimburseHoursInput",
+            );
+            const daysVal = daysInput ? parseInt(daysInput.value, 10) : 0;
+            const hoursVal = hoursInput ? parseFloat(hoursInput.value) : 0;
+            const safeDays = !isNaN(daysVal) && daysVal >= 0 ? daysVal : 0;
+            const safeHours = !isNaN(hoursVal) && hoursVal >= 0 ? hoursVal : 0;
+            const reimbursePayload = {
+              permit_id: p.id,
+              user_id: p.user_id || "",
+              user_name: p.user_name || "",
+              start_date: p.start_date || "",
+              end_date: p.end_date || p.start_date || "",
+              total_days: safeDays,
+              total_hours: safeHours,
+              dailyEntries: generateDailyEntriesCount(p.start_date, safeDays),
+              status: "pending",
+              created_at: new Date().toISOString(),
+              related: {
+                reason: p.reason || "",
+                type: p.type || "",
+                permit_type: p.permit_type || p.type || "",
+                permit_hours: p.permit_hours || "",
+              },
+            };
+            if (approveFlowMode === "status-change") {
+              pendingReimburseData = reimbursePayload;
+              reimburseChosen = true;
+              closePermitReimburseDetailModal();
+              openApproveEmailModal();
+              return;
+            }
+            pendingReimburseData = reimbursePayload;
+            reimburseChosen = true;
+            closePermitReimburseDetailModal();
+            openApproveEmailModal();
+          });
+        }
+
+        const rejectModalEl = document.getElementById("rejectEmailModal");
+        if (rejectModalEl)
+          rejectModalEl.addEventListener("click", function (ev) {
+            if (ev.target === rejectModalEl) closeRejectModal();
+          });
+        const approveReimburseEl = document.getElementById(
+          "approveReimburseModal",
+        );
+        if (approveReimburseEl)
+          approveReimburseEl.addEventListener("click", function (ev) {
+            if (ev.target === approveReimburseEl) closeApproveReimburseModal();
+          });
+        const approveEmailEl = document.getElementById("approveEmailModal");
+        if (approveEmailEl)
+          approveEmailEl.addEventListener("click", function (ev) {
+            if (ev.target === approveEmailEl) closeApproveEmailModal();
+          });
+        const reimburseDetailEl = document.getElementById(
+          "permitReimburseDetailModal",
+        );
+        if (reimburseDetailEl)
+          reimburseDetailEl.addEventListener("click", function (ev) {
+            if (ev.target === reimburseDetailEl)
+              closePermitReimburseDetailModal();
+          });
+        const changeToRejectedEl = document.getElementById(
+          "changeToRejectedModal",
+        );
+        if (changeToRejectedEl)
+          changeToRejectedEl.addEventListener("click", function (ev) {
+            if (ev.target === changeToRejectedEl) closeChangeToRejectedModal();
+          });
+
+        return { init };
+      })();
+
+      const ReimburseModule = (() => {
+        const reimburseTableBody =
+          document.getElementById("reimburseTableBody");
+        const reimburseSummary = document.getElementById("reimburseSummary");
+        const reimburseSearch = document.getElementById("reimburseSearch");
+        let currentUser = null;
+        let currentUserData = null;
+        let allReimburse = [];
+        let groupedReimburse = [];
+        let currentSearch = "";
+        let activeDetailKey = null;
+        const reimburseUserPhotoCache = {};
+
+        function formatDateRange(start, end) {
+          if (!start && !end) return "-";
+          const a = start || "";
+          const b = end || start || "";
+          return a && b && a !== b ? `${a} - ${b}` : a || b || "-";
+        }
+
+        function formatNumber(value) {
+          if (value === null || value === undefined || value === "") return "0";
+          const num = Number(value);
+          if (Number.isNaN(num)) return "0";
+          return num % 1 === 0 ? String(num) : num.toFixed(1);
+        }
+
+        function getAvatarUrl(name) {
+          const safe = encodeURIComponent(name || "User");
+          return `https://ui-avatars.com/api/?name=${safe}&background=4F46E5&color=fff`;
+        }
+
+        function getActorName() {
+          const localName =
+            currentUserData && currentUserData.name ? currentUserData.name : "";
+          if (localName) return localName;
+          if (currentUser && currentUser.displayName)
+            return currentUser.displayName;
+          if (currentUser && currentUser.email) return currentUser.email;
+          return "";
+        }
+
+        function normalizePermitType(value) {
+          const raw = String(value || "")
+            .toLowerCase()
+            .trim();
+          if (
+            raw === "setengah-hari" ||
+            raw === "half-day" ||
+            raw === "half day"
+          )
+            return "half-day";
+          return "full-day";
+        }
+
+        function formatTimeToken(value) {
+          return String(value || "")
+            .trim()
+            .replace(/\./g, ":");
+        }
+
+        function formatPermitHoursLabel(permit) {
+          const hoursRaw = String(
+            permit && (permit.permit_hours || permit.permit_time_range || ""),
+          ).trim();
+          if (!hoursRaw) {
+            const start = formatTimeToken(permit && permit.permit_start_hour);
+            const end = formatTimeToken(permit && permit.permit_end_hour);
+            if (start && end) return start + " - " + end;
+            return "";
+          }
+          const cleaned = hoursRaw.replace(/\./g, ":");
+          const parts = cleaned
+            .split(/\s*-\s*/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+          if (parts.length >= 2) {
+            return (
+              formatTimeToken(parts[0]) + " - " + formatTimeToken(parts[1])
+            );
+          }
+          return cleaned;
+        }
+
+        function getPermitJenisLabel(permit) {
+          const hours = formatPermitHoursLabel(permit);
+          const type = normalizePermitType(
+            permit && (permit.permit_type || permit.type),
+          );
+          if (type === "half-day" || hours) {
+            return hours ? "Half Day (" + hours + ")" : "Half Day";
+          }
+          return "Full Day";
+        }
+
+        async function resolveUserPhoto(userId) {
+          if (!userId) return "";
+          if (reimburseUserPhotoCache[userId] !== undefined)
+            return reimburseUserPhotoCache[userId] || "";
+          try {
+            const userSnap = await getDoc(doc(db, "users", userId));
+            if (userSnap.exists()) {
+              const u = userSnap.data() || {};
+              const photo =
+                u.photo ||
+                u.photo_url ||
+                u.photoURL ||
+                (u.profile && u.profile.photo) ||
+                "";
+              reimburseUserPhotoCache[userId] = photo || "";
+              return reimburseUserPhotoCache[userId];
+            }
+          } catch (e) {
+            console.error("Gagal memuat foto user", e);
+          }
+          reimburseUserPhotoCache[userId] = "";
+          return "";
+        }
+
+        function buildGroupedReimburse(records) {
+          const map = new Map();
+          records.forEach((item) => {
+            const key = item.user_id || item.user_name || item.id;
+            if (!map.has(key)) {
+              map.set(key, {
+                key,
+                user_id: item.user_id || "",
+                user_name: item.user_name || "-",
+                user_photo: item.user_photo || "",
+                items: [],
+                total_days: 0,
+                total_hours: 0,
+                pending_days: 0,
+                pending_hours: 0,
+                completed_days: 0,
+                completed_hours: 0,
+                status: "completed",
+              });
+            }
+            const group = map.get(key);
+            const hours = Number(item.total_hours ?? item.hours ?? 0) || 0;
+            group.items.push(item);
+
+            const entries = item.dailyEntries || [];
+            const pendingCount = entries.filter(
+              (e) => e.status !== "completed",
+            ).length;
+            const completedCount = entries.filter(
+              (e) => e.status === "completed",
+            ).length;
+            const totalEntries = pendingCount + completedCount;
+
+            group.total_days += totalEntries;
+            group.pending_days += pendingCount;
+            group.completed_days += completedCount;
+
+            // Distribute hours proportionally across days
+            if (totalEntries > 0 && hours > 0) {
+              const hoursPerEntry = hours / totalEntries;
+              group.pending_hours += hoursPerEntry * pendingCount;
+              group.completed_hours += hoursPerEntry * completedCount;
+            }
+
+            if (pendingCount > 0) {
+              group.status = "pending";
+            } else if (totalEntries > 0 && group.status === "completed") {
+              // Keep status "completed" only if this item has entries and all are done
+              // (group status starts as "completed" and flips to "pending" if any item has pending)
+            }
+          });
+          // Compute final total_hours per group
+          map.forEach((group) => {
+            group.total_hours = group.pending_hours + group.completed_hours;
+          });
+          return Array.from(map.values());
+        }
+
+        function renderTable(records) {
+          if (!reimburseTableBody) return;
+          if (!records.length) {
+            reimburseTableBody.innerHTML =
+              '<tr><td colspan="5" class="px-6 py-6 text-center text-xs text-slate-400">Belum ada data reimburse.</td></tr>';
+            if (reimburseSummary) reimburseSummary.textContent = "0";
+            return;
+          }
+          const rows = records
+            .map((item) => {
+              const pendingDays = Number(item.pending_days) || 0;
+              const rowBgClass =
+                pendingDays === 0
+                  ? "bg-emerald-50"
+                  : pendingDays >= 5
+                    ? "bg-rose-50"
+                    : "bg-amber-50";
+              const avatar = item.user_photo || getAvatarUrl(item.user_name);
+              const detailBtn =
+                '<button data-action="detail" data-id="' +
+                item.key +
+                '" class="action-btn">Detail</button>';
+              return (
+                '<tr class="' +
+                rowBgClass +
+                ' table-row" data-id="' +
+                item.key +
+                '">' +
+                "<td>" +
+                '<img src="' +
+                avatar +
+                '" class="avatar-img" onerror="this.onerror=null;this.src=\'' +
+                getAvatarUrl(item.user_name) +
+                '\';" alt="Avatar">' +
+                "</td>" +
+                "<td>" +
+                (item.user_name || "-") +
+                "</td>" +
+                "<td>" +
+                formatNumber(item.pending_days) +
+                "</td>" +
+                "<td>" +
+                formatNumber(item.pending_hours) +
+                "</td>" +
+                '<td class="text-right">' +
+                '<div class="action-group">' +
+                detailBtn +
+                "</div>" +
+                "</td>" +
+                "</tr>"
+              );
+            })
+            .join("");
+          reimburseTableBody.innerHTML = rows;
+          if (reimburseSummary)
+            reimburseSummary.textContent = String(records.length);
+          if (
+            window.lucide &&
+            typeof window.lucide.createIcons === "function"
+          ) {
+            window.lucide.createIcons();
+          }
+        }
+
+        function applyFilters() {
+          let filtered = groupedReimburse.slice();
+          const term = String(currentSearch || "")
+            .toLowerCase()
+            .trim();
+          if (term) {
+            filtered = filtered.filter((item) =>
+              (item.user_name || "").toLowerCase().includes(term),
+            );
+          }
+          renderTable(filtered);
+        }
+
+        async function markDayCompleted(reimburseId, dateStr) {
+          if (!reimburseId || !dateStr) return;
+          try {
+            const reimburseRef = doc(db, "reimburse", reimburseId);
+            const snap = await getDoc(reimburseRef);
+            if (!snap.exists()) return;
+            const data = snap.data() || {};
+
+            // On-the-fly migration if document has no dailyEntries
+            let entries = data.dailyEntries || null;
+            if (!entries || !Array.isArray(entries) || entries.length === 0) {
+              const sd = data.start_date || "";
+              const ed = data.end_date || data.start_date || "";
+              const storedDays = Number(data.total_days ?? data.days ?? 0) || 0;
+              if (storedDays > 0 && sd) {
+                // Source of truth is total_days from admin popup input
+                entries = generateDailyEntriesCount(sd, storedDays);
+                if (
+                  String(data.status || "pending").toLowerCase() === "completed"
+                ) {
+                  entries.forEach((entry) => (entry.status = "completed"));
+                }
+              } else if (sd) {
+                // Fallback: no total_days stored, use date range
+                entries = generateDailyEntries(sd, ed);
+                if (
+                  String(data.status || "pending").toLowerCase() === "completed"
+                ) {
+                  entries.forEach((entry) => (entry.status = "completed"));
+                }
+              } else {
+                entries = [];
+              }
+            } else {
+              entries = entries.slice(); // copy to avoid mutation issues
+            }
+
+            let found = false;
+            entries.forEach((e) => {
+              if (e.date === dateStr && e.status !== "completed") {
+                e.status = "completed";
+                found = true;
+              }
+            });
+
+            if (!found) return;
+
+            // Check if all entries are now completed
+            const allCompleted = entries.every((e) => e.status === "completed");
+            const updatePayload = {
+              dailyEntries: entries,
+            };
+
+            if (allCompleted) {
+              updatePayload.status = "completed";
+              updatePayload.completed_by = currentUser ? currentUser.uid : null;
+              updatePayload.completed_by_name = getActorName();
+              updatePayload.completed_at = new Date().toISOString();
+            }
+
+             await updateDoc(reimburseRef, updatePayload);
+
+            // Add synthetic attendance (6 hours for Full Day, 3 hours for Half Day)
+            try {
+              const userId = data.user_id || "";
+              const userName = data.user_name || "";
+              const userPhoto = data.user_photo || (await resolveUserPhoto(userId)) || "";
+              
+              const permitType = normalizePermitType(
+                (data.related && (data.related.permit_type || data.related.type)) || data.type
+              );
+              const REIMBURSE_HOURS = (permitType === "half-day") ? 3 : 6;
+
+              // Check if synthetic attendance is already added for this reimbursement and date
+              const attendanceQuery = query(
+                collection(db, "user_attendance"),
+                where("reimburse_id", "==", reimburseId)
+              );
+              const attendanceSnap = await getDocs(attendanceQuery);
+              let alreadyAdded = false;
+              attendanceSnap.forEach((docSnap) => {
+                const docData = docSnap.data() || {};
+                if (docData.date === dateStr) {
+                  alreadyAdded = true;
+                }
+              });
+
+              if (!alreadyAdded) {
+                const startHour = 9;
+                const endHour = startHour + REIMBURSE_HOURS;
+                const loginTime = `${String(startHour).padStart(2, "0")}:00:00`;
+                const logoutTime = `${String(endHour).padStart(2, "0")}:00:00`;
+
+                const loginPayload = {
+                  user_id: userId,
+                  name: userName,
+                  photo: userPhoto,
+                  date: dateStr,
+                  time: loginTime,
+                  type: "login",
+                  source: "reimburse",
+                  reimburse_id: reimburseId,
+                  is_synthetic: true,
+                  created_at: new Date()
+                };
+
+                const logoutPayload = {
+                  user_id: userId,
+                  name: userName,
+                  photo: userPhoto,
+                  date: dateStr,
+                  time: logoutTime,
+                  type: "logout",
+                  source: "reimburse",
+                  reimburse_id: reimburseId,
+                  is_synthetic: true,
+                  created_at: new Date()
+                };
+
+                await addDoc(collection(db, "user_attendance"), loginPayload);
+                await addDoc(collection(db, "user_attendance"), logoutPayload);
+                console.log(`Successfully added ${REIMBURSE_HOURS} hours synthetic attendance for ${userName} on ${dateStr}`);
+              } else {
+                console.log(`Synthetic attendance already exists for ${userName} on ${dateStr}`);
+              }
+            } catch (err) {
+              console.error("Gagal menambahkan data attendance sintetis:", err);
+            }
+
+            showToast(
+              `Reimburse tanggal ${formatDailyDate(dateStr)} telah selesai.`,
+              "success",
+            );
+          } catch (e) {
+            console.error("Gagal menyelesaikan reimburse harian", e);
+            showToast("Gagal menyelesaikan reimburse harian.", "error");
+          }
+        }
+
+        function formatDailyDate(dateStr) {
+          if (!dateStr) return "-";
+          const parts = String(dateStr).split("-");
+          if (parts.length !== 3) return dateStr;
+          const months = [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+          ];
+          const day = parseInt(parts[2], 10);
+          const monthIdx = parseInt(parts[1], 10) - 1;
+          const year = parts[0];
+          return `${day} ${months[monthIdx] || ""} ${year}`;
+        }
+
+        function openDetailModal(key) {
+          activeDetailKey = key;
+          const group = groupedReimburse.find((item) => item.key === key);
+          if (!group) return;
+          const modal = document.getElementById("reimburseDetailModal");
+          const title = document.getElementById("detailModalTitle");
+          const subtitle = document.getElementById("detailModalSubtitle");
+          const totalDays = document.getElementById("detailTotalDays");
+          const totalHours = document.getElementById("detailTotalHours");
+          const timeline = document.getElementById("detailTimeline");
+          if (!modal || !timeline) return;
+          if (title)
+            title.textContent = `Detail Reimburse - ${group.user_name}`;
+          if (subtitle)
+            subtitle.textContent = `Pending: ${group.pending_days} hari - Completed: ${group.completed_days} hari`;
+          if (totalDays) totalDays.textContent = formatNumber(group.total_days);
+          if (totalHours)
+            totalHours.textContent = formatNumber(group.total_hours);
+
+          const pendingDaysList = [];
+          const completedDaysList = [];
+
+          group.items.forEach((item) => {
+            const entries = item.dailyEntries || [];
+            entries.forEach((entry) => {
+              const dayObj = {
+                item: item,
+                entry: entry,
+              };
+              if (entry.status === "completed") {
+                completedDaysList.push(dayObj);
+              } else {
+                pendingDaysList.push(dayObj);
+              }
+            });
+          });
+
+          // Sort ascending chronological
+          pendingDaysList.sort((a, b) =>
+            String(a.entry.date).localeCompare(String(b.entry.date)),
+          );
+          completedDaysList.sort((a, b) =>
+            String(a.entry.date).localeCompare(String(b.entry.date)),
+          );
+
+          const renderDayItem = (item, entry, dotClass, isPending) => {
+            const dateLabel = formatDailyDate(entry.date);
+            const jenis = getPermitJenisLabel(item.related || item);
+            const reason =
+              item.related && item.related.reason
+                ? item.related.reason
+                : item.reason || "-";
+            const statusLabel = isPending
+              ? '<span class="status-badge status-pending">Pending</span>'
+              : '<span class="status-badge status-approved">Completed</span>';
+            const actionBtn = isPending
+              ? '<button data-action="complete-day" data-reimburse-id="' +
+                item.id +
+                '" data-date="' +
+                entry.date +
+                '" class="px-3 py-1.5 bg-emerald-600 text-white text-[11px] font-bold rounded-lg hover:bg-emerald-700 transition-colors">Complete</button>'
+              : '<span class="text-[11px] text-slate-400 italic">Selesai</span>';
+
+            return (
+              '<div class="flex gap-4 py-4 border-b border-slate-100 last:border-b-0">' +
+              '<div class="mt-1">' +
+              '<div class="w-3 h-3 rounded-full ' +
+              dotClass +
+              '"></div>' +
+              '<div class="w-px h-full bg-indigo-100 mx-auto"></div>' +
+              "</div>" +
+              '<div class="flex-1">' +
+              '<div class="flex flex-wrap items-center gap-2">' +
+              '<span class="text-sm font-semibold text-slate-800">' +
+              dateLabel +
+              "</span>" +
+              statusLabel +
+              '<span class="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 rounded-full">' +
+              jenis +
+              "</span>" +
+              "</div>" +
+              '<p class="text-xs text-slate-500 mt-1">' +
+              reason +
+              "</p>" +
+              '<div class="mt-2 flex items-center justify-end">' +
+              actionBtn +
+              "</div>" +
+              "</div>" +
+              "</div>"
+            );
+          };
+
+          const pendingList = pendingDaysList
+            .map((dObj) =>
+              renderDayItem(dObj.item, dObj.entry, "bg-amber-500", true),
+            )
+            .join("");
+          const completedList = completedDaysList
+            .map((dObj) =>
+              renderDayItem(dObj.item, dObj.entry, "bg-emerald-500", false),
+            )
+            .join("");
+
+          const pendingHeader =
+            '<div class="mt-5 mb-2 flex items-center justify-between"><h4 class="text-sm font-bold text-slate-800">Pending Reimburse</h4><span class="text-xs text-slate-500">Total Hari: ' +
+            formatNumber(group.pending_days) +
+            "</span></div>";
+          const completedHeader =
+            '<div class="mt-6 mb-2 flex items-center justify-between"><h4 class="text-sm font-bold text-slate-800">Completed Reimburse</h4><span class="text-xs text-slate-500">Total Hari: ' +
+            formatNumber(group.completed_days) +
+            "</span></div>";
+          const pendingBlock =
+            pendingList ||
+            '<p class="text-xs text-slate-400">Tidak ada pending reimburse.</p>';
+          const completedBlock =
+            completedList ||
+            '<p class="text-xs text-slate-400">Belum ada reimburse completed.</p>';
+          timeline.innerHTML =
+            pendingHeader + pendingBlock + completedHeader + completedBlock;
+          modal.classList.remove("hidden");
+          modal.classList.add("modal-open");
+        }
+
+        function closeDetailModal() {
+          activeDetailKey = null;
+          const modal = document.getElementById("reimburseDetailModal");
+          if (modal) modal.classList.add("hidden");
+          if (modal) modal.classList.remove("modal-open");
+        }
+
+        function listenToReimburse() {
+          const q = query(
+            collection(db, "reimburse"),
+            orderBy("created_at", "desc"),
+          );
+          onSnapshot(
+            q,
+            async (snapshot) => {
+              const rows = [];
+              const tasks = [];
+              snapshot.forEach((docSnap) => {
+                const d = docSnap.data() || {};
+
+                let dailyEntries = d.dailyEntries || null;
+                if (
+                  !dailyEntries ||
+                  !Array.isArray(dailyEntries) ||
+                  dailyEntries.length === 0
+                ) {
+                  const sd = d.start_date || "";
+                  const ed = d.end_date || d.start_date || "";
+                  const storedDays = Number(d.total_days ?? d.days ?? 0) || 0;
+                  if (storedDays > 0 && sd) {
+                    // Source of truth is total_days from admin popup input
+                    dailyEntries = generateDailyEntriesCount(sd, storedDays);
+                    if (
+                      String(d.status || "pending").toLowerCase() ===
+                      "completed"
+                    ) {
+                      dailyEntries.forEach(
+                        (entry) => (entry.status = "completed"),
+                      );
+                    }
+                  } else if (sd) {
+                    // Fallback: no total_days stored, use date range
+                    dailyEntries = generateDailyEntries(sd, ed);
+                    if (
+                      String(d.status || "pending").toLowerCase() ===
+                      "completed"
+                    ) {
+                      dailyEntries.forEach(
+                        (entry) => (entry.status = "completed"),
+                      );
+                    }
+                  } else {
+                    dailyEntries = [];
+                  }
+                }
+
+                const row = {
+                  id: docSnap.id,
+                  user_id: d.user_id || "",
+                  user_name: d.user_name || "",
+                  user_photo: d.user_photo || d.photo || "",
+                  start_date: d.start_date || "",
+                  end_date: d.end_date || d.start_date || "",
+                  total_days: d.total_days ?? d.days ?? "",
+                  total_hours: d.total_hours ?? d.hours ?? "",
+                  status: d.status || "pending",
+                  dailyEntries: dailyEntries,
+                  related: d.related || {},
+                  reason: d.reason || "",
+                  type: d.type || "",
+                  completed_by: d.completed_by || "",
+                  completed_by_name: d.completed_by_name || "",
+                };
+                rows.push(row);
+                if (!row.user_photo && row.user_id) {
+                  tasks.push(
+                    (async () => {
+                      const photo = await resolveUserPhoto(row.user_id);
+                      row.user_photo = photo || "";
+                    })(),
+                  );
+                }
+              });
+              if (tasks.length) {
+                await Promise.all(tasks);
+              }
+              allReimburse = rows;
+              groupedReimburse = buildGroupedReimburse(rows);
+              applyFilters();
+              if (activeDetailKey) {
+                openDetailModal(activeDetailKey);
+              }
+            },
+            (err) => {
+              console.error("Gagal memuat data reimburse", err);
+              showToast("Gagal memuat data reimburse.", "error");
+            },
+          );
+        }
+
+        function init(user, userData) {
+          currentUser = user;
+          currentUserData = userData;
+          listenToReimburse();
+        }
+
+        if (reimburseSearch) {
+          reimburseSearch.addEventListener("input", (ev) => {
+            currentSearch = ev.target.value || "";
+            applyFilters();
+          });
+        }
+
+        if (reimburseTableBody) {
+          reimburseTableBody.addEventListener("click", (ev) => {
+            const detailBtn = ev.target.closest("[data-action='detail']");
+            if (!detailBtn) return;
+            const key = detailBtn.getAttribute("data-id");
+            openDetailModal(key);
+          });
+        }
+
+        const detailTimeline = document.getElementById("detailTimeline");
+        if (detailTimeline) {
+          detailTimeline.addEventListener("click", (ev) => {
+            const btn = ev.target.closest("[data-action='complete-day']");
+            if (!btn) return;
+            if (btn.disabled || btn.dataset.completed === "1") return;
+            btn.disabled = true;
+            btn.textContent = "Selesai";
+            btn.classList.remove("bg-emerald-600", "hover:bg-emerald-700");
+            btn.classList.add("bg-slate-200", "text-slate-500");
+            btn.dataset.completed = "1";
+            const reimburseId = btn.getAttribute("data-reimburse-id");
+            const dateStr = btn.getAttribute("data-date");
+            markDayCompleted(reimburseId, dateStr);
+          });
+        }
+
+        const detailModalClose = document.getElementById("detailModalClose");
+        const detailModalOk = document.getElementById("detailModalOk");
+        if (detailModalClose)
+          detailModalClose.addEventListener("click", closeDetailModal);
+        if (detailModalOk)
+          detailModalOk.addEventListener("click", closeDetailModal);
+        const detailModalEl = document.getElementById("reimburseDetailModal");
+        if (detailModalEl)
+          detailModalEl.addEventListener("click", (ev) => {
+            if (ev.target === detailModalEl) closeDetailModal();
+          });
+
+        return { init };
+      })();
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          let userData = null;
+          try {
+            userData = JSON.parse(localStorage.getItem("userData") || "null");
+          } catch (e) {
+            userData = null;
+          }
+          PermitModule.init(user, userData);
+          ReimburseModule.init(user, userData);
+        } else {
+          window.location.href = "../index.html";
+        }
+      });
+    </script>
+  </body>
+</html>

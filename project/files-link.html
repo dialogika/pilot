@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Link - Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .project-context-card {
+            max-width: 800px;
+            width: 90%;
+            background: white;
+            color: #1f2937;
+            margin: 20px auto -20px auto;
+            padding: 15px 25px 35px 25px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        .ph-badge {
+            background: #FDE047;
+            color: #854D0E;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            position: absolute;
+            left: 30px;
+            top: 38%;
+            transform: translateY(-50%);
+        }
+        .ph-crumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            color: white;
+        }
+        .ph-crumb-link {
+            text-decoration: none;
+            color: #d1d5db;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .ph-crumb-link:hover {
+            color: white;
+        }
+        .ph-crumb-active {
+            color: white;
+            font-weight: 700;
+            border-bottom: 2px solid #FDE047;
+            padding-bottom: 2px;
+        }
+        .ph-sep {
+            font-size: 0.8rem;
+            color: white;
+        }
+        .main-list-card {
+            
+            width: 100%;
+            margin: 0 auto 50px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.3);
+            padding: 40px 40px 32px 40px;
+            position: relative;
+            z-index: 2;
+            border: 0;
+        }
+        .main-list-card h4 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body style="background-color: #f1f7fd;">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content w-100" style="margin-left:290px; padding-top:100px">
+            <div class="container-fluid">
+                <div class="project-context-card">
+                    <span class="ph-badge" id="projectBadge">Project</span>
+                    <div class="ph-crumb-container">
+                        <a href="../project/project.html" id="breadProjectLink" class="ph-crumb-link">
+                            <i class="bi bi-arrow-left-short me-1"></i> Back to project
+                        </a>
+                        <span class="ph-sep">/</span>
+                        <a href="#" id="breadAllListLink" class="ph-crumb-link">Files</a>
+                        <span class="ph-sep">/</span>
+                        <span class="ph-crumb-active">Upload link</span>
+                    </div>
+                </div>
+
+                <div class="main-list-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="mb-1">Upload link baru</h4>
+                            <p class="text-muted mb-0" style="font-size:0.9rem;">Simpan link eksternal sebagai file di project ini.</p>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3 mt-3">
+                        <div class="mb-3">
+                            <label for="linkTitleInput" class="form-label small text-uppercase text-muted fw-semibold mb-1" style="letter-spacing:0.08em;">Judul</label>
+                            <input type="text"
+                                   id="linkTitleInput"
+                                   class="form-control border-0 border-bottom rounded-0 px-0"
+                                   placeholder="Tulis judul link..."
+                                   style="box-shadow:none;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="linkUrlInput" class="form-label small text-uppercase text-muted fw-semibold mb-1" style="letter-spacing:0.08em;">Link</label>
+                            <input type="url"
+                                   id="linkUrlInput"
+                                   class="form-control border-0 border-bottom rounded-0 px-0"
+                                   placeholder="Tempel atau ketik URL lengkap (https://...)"
+                                   style="box-shadow:none;">
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em;">Category</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="handleQuickCategoryClick('outcome')">Outcome</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="handleQuickCategoryClick('important')">Important</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="handleQuickCategoryClick('reference')">Reference</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="handleQuickCategoryClick('upcoming')">Upcoming</button>
+                            </div>
+                            <input type="text"
+                                   id="categoryInput"
+                                   class="form-control border-0 px-0"
+                                   placeholder="Type or customize category..."
+                                   style="max-width:260px; box-shadow:none;">
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-light border rounded-pill px-4" id="cancelButton">Cancel</button>
+                            <button type="button" class="btn btn-dlg-green rounded-pill px-4" id="saveLinkButton">Save link</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            collection,
+            getDoc,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5"
+        };
+
+        window.handleQuickCategoryClick = function (value) {
+            const input = document.getElementById("categoryInput");
+            if (!input) return;
+            const formatted = value.charAt(0).toUpperCase() + value.slice(1);
+            input.value = formatted;
+            input.focus();
+            input.select();
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let projectId = urlParams.get("projectId") || urlParams.get("id");
+        const fileId = urlParams.get("fileId") || "";
+        if (!projectId) {
+            try {
+                const cached = localStorage.getItem("currentProjectId");
+                if (cached) projectId = cached;
+            } catch (e) {}
+        }
+        if (!projectId && document.referrer) {
+            try {
+                const refUrl = new URL(document.referrer);
+                const refParams = refUrl.searchParams;
+                projectId = refParams.get("projectId") || refParams.get("id");
+            } catch (e) {}
+        }
+        if (projectId) {
+            try {
+                localStorage.setItem("currentProjectId", projectId);
+            } catch (e) {}
+        }
+
+        const breadProjectLink = document.getElementById("breadProjectLink");
+        const breadAllListLink = document.getElementById("breadAllListLink");
+        const badgeEl = document.getElementById("projectBadge");
+        const titleInput = document.getElementById("linkTitleInput");
+        const urlInput = document.getElementById("linkUrlInput");
+        const categoryInput = document.getElementById("categoryInput");
+        const saveLinkButton = document.getElementById("saveLinkButton");
+        const cancelButton = document.getElementById("cancelButton");
+
+        let currentUser = null;
+        let existingFileData = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user || null;
+            try {
+                const nameSpan = document.getElementById("user-name-display");
+                const photoImg = document.getElementById("user-photo-display");
+                if (!nameSpan || !photoImg) return;
+                const localData = JSON.parse(localStorage.getItem("userData") || "null");
+                const userName = localData && localData.name ? localData.name : (user ? user.email : "User");
+                const rawPhoto = localData && localData.photo ? localData.photo : (user && user.photoURL ? user.photoURL : "");
+                nameSpan.innerText = userName || "User";
+                if (rawPhoto) {
+                    photoImg.src = rawPhoto;
+                }
+            } catch (e) {}
+        });
+
+        function getDirectPhotoUrl(url, uid) {
+            if (!url) return `https://i.pravatar.cc/150?u=${uid || "user"}`;
+            if (url.includes("drive.google.com")) {
+                let id = "";
+                if (url.includes("id=")) {
+                    id = url.split("id=")[1].split("&")[0];
+                } else if (url.includes("/d/")) {
+                    id = url.split("/d/")[1].split("/")[0];
+                }
+                if (id) return `https://lh3.googleusercontent.com/u/0/d/${id}`;
+            }
+            return url;
+        }
+
+        function getFilesCollectionRef() {
+            if (!projectId) return null;
+            return collection(db, "projects", projectId, "files");
+        }
+
+        async function loadProjectHeader() {
+            if (!projectId) return;
+            try {
+                const snap = await getDoc(doc(db, "projects", projectId));
+                if (!snap.exists()) return;
+                const data = snap.data() || {};
+                if (breadProjectLink) {
+                    breadProjectLink.innerText = data.name || "Untitled Project";
+                    breadProjectLink.href = `../project/project.html?id=${projectId}`;
+                }
+                if (breadAllListLink) {
+                    breadAllListLink.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        window.location.href = `files.html?id=${projectId}`;
+                    });
+                }
+                if (badgeEl) {
+                    badgeEl.innerText = data.department || "Project";
+                }
+            } catch (e) {
+                console.error("Failed to load project header", e);
+            }
+        }
+
+        async function loadExistingLink() {
+            if (!projectId || !fileId) return;
+            try {
+                const ref = doc(db, "projects", projectId, "files", fileId);
+                const snap = await getDoc(ref);
+                if (!snap.exists()) return;
+                const data = snap.data() || {};
+                existingFileData = data;
+                if (titleInput) {
+                    titleInput.value = data.title || "";
+                }
+                if (urlInput) {
+                    urlInput.value = data.text_plain || "";
+                }
+                if (categoryInput) {
+                    categoryInput.value = data.category || "";
+                }
+            } catch (e) {
+                console.error("Failed to load link for edit", e);
+            }
+        }
+
+        async function saveLink() {
+            if (!projectId) {
+                alert("Project ID tidak ditemukan.");
+                return;
+            }
+            const url = (urlInput.value || "").trim();
+            const title = (titleInput.value || "").trim();
+            const category = categoryInput ? (categoryInput.value || "").trim() : "";
+            if (!url) {
+                alert("Masukkan URL terlebih dahulu.");
+                return;
+            }
+            const finalTitle = title || url;
+            const filesRef = getFilesCollectionRef();
+            if (!filesRef) {
+                alert("Project ID tidak valid.");
+                return;
+            }
+            let localData = null;
+            try {
+                localData = JSON.parse(localStorage.getItem("userData") || "null");
+            } catch (e) {}
+            const uid = currentUser && currentUser.uid
+                ? currentUser.uid
+                : (localData && localData.uid ? localData.uid : "");
+            const userName = localData && localData.name
+                ? localData.name
+                : (currentUser && currentUser.email ? currentUser.email : "User");
+            const rawPhoto = localData && localData.photo
+                ? localData.photo
+                : (currentUser && currentUser.photoURL ? currentUser.photoURL : "");
+            const photoUrl = getDirectPhotoUrl(rawPhoto || "", uid || "");
+            const initialsSource = userName || uid || "";
+            const initials = initialsSource
+                ? initialsSource.trim().split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()
+                : "US";
+
+            const btn = saveLinkButton;
+            let originalText = "";
+            if (btn) {
+                originalText = btn.innerText;
+                btn.innerText = "Saving...";
+                btn.disabled = true;
+            }
+
+            try {
+                const htmlText = `<p><a href="${url}" target="_blank" rel="noopener">${url}</a></p>`;
+                const plainText = url;
+                if (fileId) {
+                    const ref = doc(db, "projects", projectId, "files", fileId);
+                    await updateDoc(ref, {
+                        title: finalTitle,
+                        text: htmlText,
+                        text_plain: plainText,
+                        category: category || null,
+                        updated_at: serverTimestamp()
+                    });
+                } else {
+                    await addDoc(filesRef, {
+                        title: finalTitle,
+                        text: htmlText,
+                        text_plain: plainText,
+                        attachments: [],
+                        user_id: uid,
+                        user_name: userName,
+                        user_initials: initials,
+                        user_photo: photoUrl,
+                        category: category || null,
+                        parent_id: null,
+                        created_at: serverTimestamp(),
+                        parent_comment_id: null,
+                        mentioned_user_ids: [],
+                        file_type: "link"
+                    });
+                }
+                window.location.href = `files.html?id=${encodeURIComponent(projectId)}`;
+            } catch (e) {
+                console.error("Failed to save link", e);
+                alert("Gagal menyimpan link: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.innerText = originalText || "Save link";
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!projectId) {
+                alert("Error: Project ID tidak ditemukan.");
+            }
+            if (breadProjectLink) {
+                breadProjectLink.href = projectId ? `../project/project.html?id=${projectId}` : "../project/project.html";
+            }
+            if (breadAllListLink && projectId) {
+                breadAllListLink.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    window.location.href = `files.html?id=${projectId}`;
+                });
+            }
+            if (cancelButton && projectId) {
+                cancelButton.addEventListener("click", () => {
+                    window.location.href = `files.html?id=${projectId}`;
+                });
+            }
+            if (saveLinkButton) {
+                saveLinkButton.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    saveLink();
+                });
+            }
+            if (urlInput) {
+                urlInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        saveLink();
+                    }
+                });
+            }
+            loadProjectHeader();
+            if (fileId) {
+                loadExistingLink();
+            }
+        });
+    </script>
+</body>
+</html>

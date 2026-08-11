@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piket Branding - Team Dialogika</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f8fbff; }
+
+        .piket-hero {
+            background: radial-gradient(circle at top left, rgba(114, 4, 207, 0.16), transparent 32%),
+                linear-gradient(135deg, #0B2B6A 0%, #1247af 52%, #7204cf 100%);
+            color: #ffffff;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 24px 60px rgba(11, 43, 106, 0.18);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .piket-hero::after {
+            content: "";
+            position: absolute;
+            right: -70px;
+            top: -80px;
+            width: 240px;
+            height: 240px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .piket-stat-card, .piket-panel, .schedule-card, .type-chip {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
+        }
+
+        .piket-stat-card {
+            border-radius: 22px;
+            padding: 18px;
+        }
+
+        .piket-panel {
+            border-radius: 24px;
+        }
+
+        .schedule-card {
+            border-radius: 22px;
+            overflow: hidden;
+        }
+
+        .schedule-type-bar {
+            width: 6px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+
+        .type-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+        }
+
+        .assignment-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 12px;
+        }
+
+        .task-bullet {
+            border-left: 3px solid #cbd5e1;
+            padding-left: 8px;
+            margin-top: 6px;
+        }
+
+        .assignment-members {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .assignment-group-single .assignment-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px;
+            align-items: start;
+        }
+
+        .assignment-member-item {
+            min-width: 0;
+        }
+
+        .assignment-group-single .assignment-member-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px;
+            height: 100%;
+        }
+
+        .assignment-member-name {
+            font-size: 12px;
+        }
+
+        .assignment-role-label,
+        .assignment-task-desc {
+            font-size: 11px;
+        }
+
+        .assignment-task-title {
+            font-size: 12px;
+        }
+
+        .form-shell {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        .member-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            object-fit: cover;
+            background: #e2e8f0;
+            border: 2px solid #ffffff;
+        }
+
+        .admin-only.viewer-hidden, body.viewer-mode .admin-only { display: none !important; }
+
+        .empty-state {
+            border: 1px dashed #cbd5e1;
+            border-radius: 24px;
+            background: #ffffff;
+            padding: 46px 18px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .assignment-row-form {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #ffffff;
+            padding: 14px;
+        }
+
+        .task-row-form {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .type-card-row {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        #scheduleModal .modal-content {
+            max-height: calc(100vh - 3.5rem);
+        }
+
+        #scheduleModal form {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 3.5rem);
+            min-height: 0;
+        }
+
+        #scheduleModal .modal-body {
+            overflow-y: auto;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        #scheduleModal .modal-header,
+        #scheduleModal .modal-footer {
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .piket-hero { padding: 22px; border-radius: 22px; }
+            .main-content { padding-left: 18px; padding-right: 18px; }
+            #scheduleModal .modal-content,
+            #scheduleModal form {
+                max-height: calc(100vh - 1rem);
+            }
+        }
+    </style>
+
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <section class="piket-hero mb-4">
+                <div class="position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge rounded-pill bg-white text-primary fw-bold mb-3 px-3 py-2">Branding Duty Board</span>
+                            <h1 class="fw-bold mb-2">Piket Branding</h1>
+                            <p class="mb-0 text-white-50" id="heroSubtitle">Kelola jadwal Webinar, Live Report, Boost Community Discord, dan jenis piket lainnya.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 admin-only">
+                            <button class="btn btn-light rounded-pill fw-semibold px-4" id="addScheduleBtn">
+                                <i class="bi bi-plus-lg me-2"></i>Tambah Jadwal
+                            </button>
+                            <button class="btn btn-outline-light rounded-pill fw-semibold px-4" id="manageTypesBtn">
+                                <i class="bi bi-tags me-2"></i>Jenis Piket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="row g-3 mb-4">
+                <div class="col-6 col-xl-3">
+                    <div class="piket-stat-card h-100">
+                        <div class="text-muted small fw-semibold">Piket Hari Ini</div>
+                        <div class="h3 fw-bold mb-0" id="statToday">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="piket-stat-card h-100">
+                        <div class="text-muted small fw-semibold">Jadwal Aktif</div>
+                        <div class="h3 fw-bold mb-0" id="statActive">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="piket-stat-card h-100">
+                        <div class="text-muted small fw-semibold">Anggota Bertugas</div>
+                        <div class="h3 fw-bold mb-0" id="statMembers">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="piket-stat-card h-100">
+                        <div class="text-muted small fw-semibold">Jenis Piket</div>
+                        <div class="h3 fw-bold mb-0" id="statTypes">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="piket-panel p-3 p-lg-4 mb-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4 col-xl-3">
+                        <label class="field-label">Cari Jadwal</label>
+                        <input type="text" class="form-control rounded-3" id="searchInput" placeholder="Cari judul, anggota, tugas...">
+                    </div>
+                    <div class="col-md-4 col-xl-3">
+                        <label class="field-label">Jenis Piket</label>
+                        <select class="form-select rounded-3" id="typeFilter">
+                            <option value="">Semua Jenis</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-xl-3">
+                        <label class="field-label">Periode</label>
+                        <select class="form-select rounded-3" id="periodFilter">
+                            <option value="all">Semua Periode</option>
+                            <option value="today">Hari Ini</option>
+                            <option value="week" selected>Minggu Ini</option>
+                            <option value="month">Bulan Ini</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-xl-3">
+                        <label class="field-label">Status</label>
+                        <select class="form-select rounded-3" id="statusFilter">
+                            <option value="">Semua Status</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="d-flex flex-column gap-3" id="scheduleList">
+                <div class="empty-state">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <div class="fw-semibold">Memuat jadwal piket...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <form id="scheduleForm">
+                    <div class="modal-header border-0 p-4 pb-2">
+                        <div>
+                            <h5 class="modal-title fw-bold" id="scheduleModalTitle">Tambah Jadwal Piket</h5>
+                            <p class="text-muted small mb-0">Tambahkan anggota bertugas dan satu atau lebih tugas untuk setiap anggota.</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="scheduleId">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="field-label">Jenis Piket</label>
+                                <select class="form-select rounded-3" id="scheduleType" required></select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="field-label">Judul Jadwal</label>
+                                <input type="text" class="form-control rounded-3" id="scheduleTitle" placeholder="Contoh: Webinar 25.1" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="field-label">Deskripsi</label>
+                                <textarea class="form-control rounded-3" id="scheduleDescription" rows="2" placeholder="Contoh: Mini Dis Sabtu, 11 Juli 2026, Pagi"></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="field-label">Tanggal Mulai</label>
+                                <input type="date" class="form-control rounded-3" id="startDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="field-label">Tanggal Selesai</label>
+                                <input type="date" class="form-control rounded-3" id="endDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="field-label">Status</label>
+                                <select class="form-select rounded-3" id="scheduleStatus">
+                                    <option value="scheduled">Scheduled</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Anggota dan Tugas</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addAssignmentBtn">
+                                <i class="bi bi-person-plus me-1"></i>Tambah Anggota
+                            </button>
+                        </div>
+                        <div class="d-flex flex-column gap-3" id="assignmentsContainer"></div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-dlg-purple rounded-pill px-4" id="saveScheduleBtn">
+                            <i class="bi bi-save me-2"></i>Simpan Jadwal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="typesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 p-4 pb-2">
+                    <div>
+                        <h5 class="modal-title fw-bold">Jenis Piket</h5>
+                        <p class="text-muted small mb-0">Jenis baru bisa ditambahkan tanpa mengubah database.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="typeForm" class="form-shell mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="field-label">Nama Jenis</label>
+                                <input type="text" class="form-control rounded-3" id="typeName" placeholder="Contoh: Dokumentasi" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="field-label">Warna</label>
+                                <input type="color" class="form-control form-control-color rounded-3 w-100" id="typeColor" value="#0B2B6A">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="field-label">Icon Bootstrap</label>
+                                <input type="text" class="form-control rounded-3" id="typeIcon" placeholder="bi-calendar-check" value="bi-calendar-check">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-dlg-green rounded-pill w-100">Tambah</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="d-flex flex-column gap-2" id="typesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+
+        renderTopBar(document.getElementById('topbarContainer'));
+        renderSidebar(document.getElementById('sidebarContainer'));
+
+        let currentUser = null;
+        let currentUserDoc = null;
+        let isAdminMode = false;
+        let dutyTypes = [];
+        let schedules = [];
+        let users = [];
+        let typeUnsubscribe = null;
+        let scheduleUnsubscribe = null;
+
+        const defaultTypes = [
+            { name: 'Webinar', slug: 'webinar', color: '#7204cf', icon: 'bi-camera-video', description: 'Piket untuk persiapan dan pelaksanaan webinar', default_tasks: ['Reminder di webinar', 'Admin Google Form', 'Announcement di groupchat', 'Pendataan pertanyaan', 'Pendataan peserta webinar', 'Live report'], is_active: true },
+            { name: 'Live Report', slug: 'live-report', color: '#0B2B6A', icon: 'bi-broadcast', description: 'Piket pelaporan aktivitas dan dokumentasi harian', default_tasks: ['Live report', 'Upload dokumentasi', 'Rekap aktivitas'], is_active: true },
+            { name: 'Boost Community Discord', slug: 'boost-community-discord', color: '#f97316', icon: 'bi-discord', description: 'Piket untuk menjaga engagement community Discord', default_tasks: ['Aktifkan diskusi Discord', 'Reply member', 'Naikkan engagement channel'], is_active: true }
+        ];
+
+        const els = {
+            scheduleList: document.getElementById('scheduleList'),
+            typeFilter: document.getElementById('typeFilter'),
+            periodFilter: document.getElementById('periodFilter'),
+            statusFilter: document.getElementById('statusFilter'),
+            searchInput: document.getElementById('searchInput'),
+            scheduleForm: document.getElementById('scheduleForm'),
+            scheduleType: document.getElementById('scheduleType'),
+            assignmentsContainer: document.getElementById('assignmentsContainer'),
+            typesList: document.getElementById('typesList')
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            currentUser = user;
+            await loadCurrentUser();
+            applyAccessMode();
+            await loadUsers();
+            startListeners();
+        });
+
+        async function loadCurrentUser() {
+            try {
+                const snap = await getDoc(doc(db, 'users', currentUser.uid));
+                currentUserDoc = snap.exists() ? snap.data() : {};
+            } catch (e) {
+                console.error('Failed to load current user', e);
+                currentUserDoc = {};
+            }
+        }
+
+        function applyAccessMode() {
+            const access = currentUserDoc.access || {};
+            const rawRole = currentUserDoc.role || currentUserDoc.role_id || access.role || access.role_id || currentUserDoc.roleName || access.roleName || '';
+            const roleValue = String(rawRole || '').trim().toLowerCase();
+            const positionValue = String(currentUserDoc.position || currentUserDoc.employment?.position || '').trim().toLowerCase();
+            const isIntern = ['intern', 'internship', 'magang'].includes(roleValue) || ['intern', 'internship', 'magang'].includes(positionValue);
+            isAdminMode = !isIntern;
+            document.body.classList.toggle('viewer-mode', !isAdminMode);
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.toggle('viewer-hidden', !isAdminMode);
+            });
+
+            const subtitle = document.getElementById('heroSubtitle');
+            if (subtitle && !isAdminMode) {
+                subtitle.textContent = 'Lihat jadwal piket, anggota yang bertugas, dan deskripsi tugas masing-masing.';
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                users = [];
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const status = String(d.status || 'Active').toLowerCase();
+                    if (status !== 'active') return;
+                    users.push({
+                        id: docSnap.id,
+                        name: d.name || d.fullName || d.email || 'Tanpa Nama',
+                        email: d.email || '',
+                        photo: d.photo || ''
+                    });
+                });
+                users.sort((a, b) => a.name.localeCompare(b.name));
+            } catch (e) {
+                console.error('Failed to load users', e);
+                users = [];
+            }
+        }
+
+        function startListeners() {
+            if (typeUnsubscribe) typeUnsubscribe();
+            if (scheduleUnsubscribe) scheduleUnsubscribe();
+
+            typeUnsubscribe = onSnapshot(collection(db, 'duty_types'), async (snapshot) => {
+                dutyTypes = [];
+                snapshot.forEach(docSnap => dutyTypes.push({ id: docSnap.id, ...docSnap.data() }));
+                dutyTypes.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+                if (!dutyTypes.length && isAdminMode) {
+                    await seedDefaultTypes();
+                    return;
+                }
+
+                renderTypeOptions();
+                renderTypesList();
+                renderSchedules();
+            });
+
+            scheduleUnsubscribe = onSnapshot(query(collection(db, 'duty_schedules'), orderBy('start_date', 'desc')), (snapshot) => {
+                schedules = [];
+                snapshot.forEach(docSnap => schedules.push({ id: docSnap.id, ...docSnap.data() }));
+                renderSchedules();
+            }, (error) => {
+                console.error('Failed to listen schedules', error);
+                els.scheduleList.innerHTML = `<div class="empty-state"><i class="bi bi-exclamation-triangle text-danger fs-2 d-block mb-2"></i>Gagal memuat jadwal piket.</div>`;
+            });
+        }
+
+        async function seedDefaultTypes() {
+            try {
+                await Promise.all(defaultTypes.map(item => addDoc(collection(db, 'duty_types'), {
+                    ...item,
+                    created_at: serverTimestamp(),
+                    updated_at: serverTimestamp(),
+                    created_by: currentUser.uid
+                })));
+            } catch (e) {
+                console.error('Failed to seed duty types', e);
+            }
+        }
+
+        function renderTypeOptions() {
+            const activeTypes = dutyTypes.filter(t => t.is_active !== false);
+            els.typeFilter.innerHTML = '<option value="">Semua Jenis</option>';
+            els.scheduleType.innerHTML = '<option value="" disabled selected>Pilih jenis piket</option>';
+
+            activeTypes.forEach(type => {
+                const optFilter = document.createElement('option');
+                optFilter.value = type.id;
+                optFilter.textContent = type.name || type.id;
+                els.typeFilter.appendChild(optFilter);
+
+                const optForm = document.createElement('option');
+                optForm.value = type.id;
+                optForm.textContent = type.name || type.id;
+                els.scheduleType.appendChild(optForm);
+            });
+        }
+
+        function renderTypesList() {
+            if (!els.typesList) return;
+            if (!dutyTypes.length) {
+                els.typesList.innerHTML = '<div class="text-muted small">Belum ada jenis piket.</div>';
+                return;
+            }
+
+            els.typesList.innerHTML = dutyTypes.map(type => `
+                <div class="type-card-row d-flex justify-content-between align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 38px; height: 38px; background:${escapeAttr(type.color || '#0B2B6A')}">
+                            <i class="bi ${escapeAttr(type.icon || 'bi-calendar-check')}"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">${escapeHtml(type.name || 'Tanpa Nama')}</div>
+                            <div class="text-muted small">${escapeHtml(type.description || 'Tidak ada deskripsi')}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm ${type.is_active === false ? 'btn-outline-success' : 'btn-outline-secondary'} rounded-pill admin-only" onclick="toggleTypeActive('${type.id}', ${type.is_active === false})">
+                        ${type.is_active === false ? 'Aktifkan' : 'Nonaktifkan'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderSchedules() {
+            const filtered = getFilteredSchedules();
+            updateStats(filtered);
+
+            if (!filtered.length) {
+                els.scheduleList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-calendar2-week fs-1 text-primary d-block mb-3"></i>
+                        <div class="fw-bold text-dark mb-1">Belum ada jadwal piket</div>
+                        <div class="small">${isAdminMode ? 'Klik Tambah Jadwal untuk membuat jadwal baru.' : 'Jadwal akan muncul setelah dibuat oleh Team.'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            els.scheduleList.innerHTML = filtered.map(schedule => renderScheduleCard(schedule)).join('');
+        }
+
+        function getFilteredSchedules() {
+            const typeFilter = els.typeFilter.value;
+            const statusFilter = els.statusFilter.value;
+            const periodFilter = els.periodFilter.value;
+            const search = els.searchInput.value.trim().toLowerCase();
+            const range = getPeriodRange(periodFilter);
+
+            return schedules.filter(schedule => {
+                if (schedule.status === 'archived') return false;
+                if (typeFilter && schedule.type_id !== typeFilter) return false;
+                if (statusFilter && schedule.status !== statusFilter) return false;
+                if (range && !isRangeOverlap(toDate(schedule.start_date), toDate(schedule.end_date), range.start, range.end)) return false;
+                if (search && !scheduleMatchesSearch(schedule, search)) return false;
+                return true;
+            }).sort((a, b) => toDate(a.start_date) - toDate(b.start_date));
+        }
+
+        function renderScheduleCard(schedule) {
+            const type = getType(schedule.type_id);
+            const color = type?.color || schedule.type_color || '#0B2B6A';
+            const icon = type?.icon || 'bi-calendar-check';
+            const assignments = Array.isArray(schedule.assignments) ? schedule.assignments : [];
+            const grouped = groupAssignments(assignments);
+            const groupKeys = Object.keys(grouped);
+            const period = formatPeriod(schedule.start_date, schedule.end_date);
+            const statusClass = schedule.status === 'completed' ? 'success' : schedule.status === 'cancelled' ? 'danger' : 'primary';
+
+            return `
+                <article class="schedule-card">
+                    <div class="p-3 p-lg-4">
+                        <div class="d-flex gap-3">
+                            <div class="schedule-type-bar" style="background:${escapeAttr(color)}"></div>
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+                                    <div>
+                                        <span class="type-pill mb-2" style="background:${hexToRgba(color, 0.12)}; color:${escapeAttr(color)}">
+                                            <i class="bi ${escapeAttr(icon)}"></i>${escapeHtml(schedule.type_name || type?.name || 'Jenis Piket')}
+                                        </span>
+                                        <h5 class="fw-bold mb-1">${escapeHtml(schedule.title || 'Tanpa Judul')}</h5>
+                                        <div class="text-muted small"><i class="bi bi-calendar-range me-1"></i>${period}</div>
+                                        ${schedule.description ? `<p class="text-muted small mt-2 mb-0">${escapeHtml(schedule.description)}</p>` : ''}
+                                    </div>
+                                    <div class="d-flex align-items-start gap-2 flex-wrap justify-content-lg-end">
+                                        <span class="badge rounded-pill text-bg-${statusClass} text-uppercase">${escapeHtml(schedule.status || 'scheduled')}</span>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill admin-only" onclick="editSchedule('${schedule.id}')"><i class="bi bi-pencil me-1"></i>Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill admin-only" onclick="deleteSchedule('${schedule.id}')"><i class="bi bi-trash me-1"></i>Hapus</button>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mt-2">
+                                    ${groupKeys.map(key => renderAssignmentGroup(key, grouped[key], color, groupKeys.length === 1)).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderAssignmentGroup(dateKey, group, color, isSingleDay = false) {
+            return `
+                <div class="${isSingleDay ? 'col-12' : 'col-md-6 col-xl-4'}">
+                    <div class="assignment-card h-100 ${isSingleDay ? 'assignment-group-single' : ''}">
+                        <div class="fw-bold text-dark mb-3 ${isSingleDay ? 'small' : ''}"><i class="bi bi-clock me-1" style="color:${escapeAttr(color)}"></i>${escapeHtml(dateKey)}</div>
+                        <div class="assignment-members">
+                            ${group.map(item => renderAssignmentItem(item, color)).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAssignmentItem(item, color) {
+            const tasks = Array.isArray(item.tasks) ? item.tasks : [];
+            return `
+                <div class="assignment-member-item">
+                    <div class="d-flex align-items-center gap-2">
+                        <img class="member-avatar" src="${escapeAttr(item.photo || `https://i.pravatar.cc/120?u=${item.user_id || item.name || 'member'}`)}" alt="">
+                        <div>
+                            <div class="fw-semibold assignment-member-name">${escapeHtml(item.name || 'Tanpa Nama')}</div>
+                            ${item.role_label ? `<div class="text-muted assignment-role-label">${escapeHtml(item.role_label)}</div>` : ''}
+                        </div>
+                    </div>
+                    ${tasks.length ? tasks.map(task => `
+                        <div class="task-bullet" style="border-color:${escapeAttr(color)}">
+                            <div class="fw-semibold text-dark assignment-task-title">${escapeHtml(task.title || 'Tugas')}</div>
+                            ${task.description ? `<div class="text-muted assignment-task-desc">${escapeHtml(task.description)}</div>` : ''}
+                        </div>
+                    `).join('') : ''}
+                </div>
+            `;
+        }
+
+        function updateStats(filtered) {
+            const today = startOfDay(new Date());
+            const members = new Set();
+            let todayCount = 0;
+
+            filtered.forEach(schedule => {
+                const assignments = Array.isArray(schedule.assignments) ? schedule.assignments : [];
+                assignments.forEach(item => {
+                    if (item.user_id || item.name) members.add(item.user_id || item.name);
+                    const date = startOfDay(toDate(item.assignment_date || schedule.start_date));
+                    if (date.getTime() === today.getTime()) todayCount++;
+                });
+            });
+
+            document.getElementById('statToday').textContent = todayCount;
+            document.getElementById('statActive').textContent = filtered.filter(s => (s.status || 'scheduled') === 'scheduled').length;
+            document.getElementById('statMembers').textContent = members.size;
+            document.getElementById('statTypes').textContent = dutyTypes.filter(t => t.is_active !== false).length;
+        }
+
+        function groupAssignments(assignments) {
+            const grouped = {};
+            assignments.forEach(item => {
+                const label = item.assignment_date ? formatFullDate(item.assignment_date) : 'Tanggal utama';
+                if (!grouped[label]) grouped[label] = [];
+                grouped[label].push(item);
+            });
+            return grouped;
+        }
+
+        function openScheduleModal(schedule = null) {
+            if (!isAdminMode) return;
+            els.scheduleForm.reset();
+            els.assignmentsContainer.innerHTML = '';
+            document.getElementById('scheduleId').value = schedule?.id || '';
+            document.getElementById('scheduleModalTitle').textContent = schedule ? 'Edit Jadwal Piket' : 'Tambah Jadwal Piket';
+
+            if (schedule) {
+                document.getElementById('scheduleType').value = schedule.type_id || '';
+                document.getElementById('scheduleTitle').value = schedule.title || '';
+                document.getElementById('scheduleDescription').value = schedule.description || '';
+                document.getElementById('startDate').value = toInputDate(schedule.start_date);
+                document.getElementById('endDate').value = toInputDate(schedule.end_date || schedule.start_date);
+                document.getElementById('scheduleStatus').value = schedule.status || 'scheduled';
+                (schedule.assignments || []).forEach(item => addAssignmentRow(item));
+            } else {
+                const now = new Date();
+                document.getElementById('startDate').value = toInputDate(now);
+                document.getElementById('endDate').value = toInputDate(now);
+                addAssignmentRow();
+            }
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('scheduleModal')).show();
+        }
+
+        function addAssignmentRow(data = {}) {
+            const index = Date.now() + Math.floor(Math.random() * 1000);
+            const div = document.createElement('div');
+            div.className = 'assignment-row-form';
+            div.dataset.assignmentRow = 'true';
+            div.innerHTML = `
+                <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="field-label">Anggota</label>
+                        <select class="form-select rounded-3 assignment-user" required>
+                            <option value="" disabled selected>Pilih anggota</option>
+                            ${users.map(u => `<option value="${escapeAttr(u.id)}" data-name="${escapeAttr(u.name)}" data-photo="${escapeAttr(u.photo)}" ${data.user_id === u.id ? 'selected' : ''}>${escapeHtml(u.name)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="field-label">Tanggal Tugas</label>
+                        <input type="date" class="form-control rounded-3 assignment-date" value="${data.assignment_date ? toInputDate(data.assignment_date) : ''}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="field-label">Role/PIC</label>
+                        <input type="text" class="form-control rounded-3 assignment-role" placeholder="Optional" value="${escapeAttr(data.role_label || '')}">
+                    </div>
+                    <div class="col-md-2 text-md-end">
+                        <button type="button" class="btn btn-outline-danger rounded-pill w-100" onclick="this.closest('[data-assignment-row]').remove()"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted">Daftar Tugas</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" data-add-task="${index}"><i class="bi bi-plus me-1"></i>Tambah Tugas</button>
+                </div>
+                <div class="d-flex flex-column gap-2 assignment-tasks"></div>
+            `;
+
+            els.assignmentsContainer.appendChild(div);
+            const tasksWrap = div.querySelector('.assignment-tasks');
+            const existingTasks = Array.isArray(data.tasks) && data.tasks.length ? data.tasks : [{ title: '', description: '' }];
+            existingTasks.forEach(task => addTaskRow(tasksWrap, task));
+            div.querySelector('[data-add-task]').addEventListener('click', () => addTaskRow(tasksWrap));
+        }
+
+        function addTaskRow(container, data = {}) {
+            const div = document.createElement('div');
+            div.className = 'task-row-form';
+            div.innerHTML = `
+                <div class="row g-2 align-items-start">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control rounded-3 task-title" placeholder="Nama tugas (opsional)" value="${escapeAttr(data.title || '')}">
+                    </div>
+                    <div class="col-md-7">
+                        <input type="text" class="form-control rounded-3 task-desc" placeholder="Deskripsi tugas" value="${escapeAttr(data.description || '')}">
+                    </div>
+                    <div class="col-md-1 text-end">
+                        <button type="button" class="btn btn-light border rounded-circle" onclick="this.closest('.task-row-form').remove()"><i class="bi bi-x"></i></button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        async function saveSchedule(e) {
+            e.preventDefault();
+            if (!isAdminMode) return;
+
+            const id = document.getElementById('scheduleId').value;
+            const type = getType(els.scheduleType.value);
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const assignments = collectAssignments(startDate);
+
+            if (!assignments.length) {
+                Swal.fire({ title: 'Data belum lengkap', text: 'Tambahkan minimal satu anggota bertugas.', icon: 'warning' });
+                return;
+            }
+
+            const payload = {
+                type_id: type?.id || els.scheduleType.value,
+                type_name: type?.name || 'Jenis Piket',
+                type_color: type?.color || '#0B2B6A',
+                title: document.getElementById('scheduleTitle').value.trim(),
+                description: document.getElementById('scheduleDescription').value.trim(),
+                period_label: formatPeriodLabel(startDate, endDate),
+                start_date: Timestamp.fromDate(new Date(startDate)),
+                end_date: Timestamp.fromDate(new Date(endDate)),
+                status: document.getElementById('scheduleStatus').value,
+                visibility: 'all',
+                assignments,
+                updated_at: serverTimestamp(),
+                updated_by: currentUser.uid
+            };
+
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'duty_schedules', id), payload);
+                } else {
+                    await addDoc(collection(db, 'duty_schedules'), {
+                        ...payload,
+                        created_at: serverTimestamp(),
+                        created_by: currentUser.uid
+                    });
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
+                Swal.fire({ title: 'Berhasil', text: 'Jadwal piket berhasil disimpan.', icon: 'success', timer: 1500, showConfirmButton: false });
+            } catch (error) {
+                console.error('Failed to save schedule', error);
+                Swal.fire({ title: 'Gagal', text: 'Jadwal piket gagal disimpan.', icon: 'error' });
+            }
+        }
+
+        function collectAssignments(defaultDate) {
+            const rows = Array.from(document.querySelectorAll('[data-assignment-row]'));
+            return rows.map(row => {
+                const userSelect = row.querySelector('.assignment-user');
+                const opt = userSelect.options[userSelect.selectedIndex];
+                const dateValue = row.querySelector('.assignment-date').value || defaultDate;
+                const tasks = Array.from(row.querySelectorAll('.task-row-form')).map(taskRow => ({
+                    title: taskRow.querySelector('.task-title').value.trim(),
+                    description: taskRow.querySelector('.task-desc').value.trim(),
+                    status: 'pending'
+                })).filter(task => task.title);
+
+                if (!userSelect.value) return null;
+
+                return {
+                    assignment_date: Timestamp.fromDate(new Date(dateValue)),
+                    day_label: formatDayName(new Date(dateValue)),
+                    user_id: userSelect.value,
+                    name: opt?.dataset.name || opt?.textContent || '',
+                    photo: opt?.dataset.photo || '',
+                    role_label: row.querySelector('.assignment-role').value.trim(),
+                    tasks
+                };
+            }).filter(Boolean);
+        }
+
+        async function saveType(e) {
+            e.preventDefault();
+            if (!isAdminMode) return;
+            const name = document.getElementById('typeName').value.trim();
+            if (!name) return;
+
+            try {
+                await addDoc(collection(db, 'duty_types'), {
+                    name,
+                    slug: slugify(name),
+                    color: document.getElementById('typeColor').value || '#0B2B6A',
+                    icon: document.getElementById('typeIcon').value.trim() || 'bi-calendar-check',
+                    description: '',
+                    default_tasks: [],
+                    is_active: true,
+                    created_at: serverTimestamp(),
+                    updated_at: serverTimestamp(),
+                    created_by: currentUser.uid
+                });
+                document.getElementById('typeForm').reset();
+                document.getElementById('typeColor').value = '#0B2B6A';
+                document.getElementById('typeIcon').value = 'bi-calendar-check';
+            } catch (error) {
+                console.error('Failed to save type', error);
+                Swal.fire({ title: 'Gagal', text: 'Jenis piket gagal ditambahkan.', icon: 'error' });
+            }
+        }
+
+        window.editSchedule = (id) => {
+            const schedule = schedules.find(item => item.id === id);
+            if (schedule) openScheduleModal(schedule);
+        };
+
+        window.deleteSchedule = async (id) => {
+            if (!isAdminMode) return;
+            const res = await Swal.fire({
+                title: 'Hapus jadwal?',
+                text: 'Jadwal piket akan dihapus permanen.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc2626'
+            });
+
+            if (!res.isConfirmed) return;
+            try {
+                await deleteDoc(doc(db, 'duty_schedules', id));
+                Swal.fire({ title: 'Terhapus', text: 'Jadwal piket sudah dihapus.', icon: 'success', timer: 1400, showConfirmButton: false });
+            } catch (error) {
+                console.error('Failed to delete schedule', error);
+                Swal.fire({ title: 'Gagal', text: 'Jadwal piket gagal dihapus.', icon: 'error' });
+            }
+        };
+
+        window.toggleTypeActive = async (id, shouldActivate) => {
+            if (!isAdminMode) return;
+            try {
+                await updateDoc(doc(db, 'duty_types', id), {
+                    is_active: shouldActivate,
+                    updated_at: serverTimestamp(),
+                    updated_by: currentUser.uid
+                });
+            } catch (error) {
+                console.error('Failed to toggle type', error);
+            }
+        };
+
+        function getType(id) {
+            return dutyTypes.find(type => type.id === id);
+        }
+
+        function scheduleMatchesSearch(schedule, search) {
+            const text = [schedule.title, schedule.description, schedule.type_name, schedule.period_label]
+                .concat((schedule.assignments || []).flatMap(item => [item.name, item.role_label].concat((item.tasks || []).flatMap(task => [task.title, task.description]))))
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            return text.includes(search);
+        }
+
+        function getPeriodRange(period) {
+            const now = new Date();
+            if (period === 'all') return null;
+            if (period === 'today') {
+                return { start: startOfDay(now), end: endOfDay(now) };
+            }
+            if (period === 'week') {
+                const day = now.getDay();
+                const diff = day === 0 ? -6 : 1 - day;
+                const start = startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff));
+                const end = endOfDay(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6));
+                return { start, end };
+            }
+            if (period === 'month') {
+                return { start: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)), end: endOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0)) };
+            }
+            return null;
+        }
+
+        function isRangeOverlap(startA, endA, startB, endB) {
+            if (!startA || !endA) return false;
+            return startA <= endB && endA >= startB;
+        }
+
+        function toDate(value) {
+            if (!value) return new Date();
+            if (value.toDate) return value.toDate();
+            return new Date(value);
+        }
+
+        function toInputDate(value) {
+            const d = toDate(value);
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        }
+
+        function formatFullDate(value) {
+            const d = toDate(value);
+            return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function formatPeriod(start, end) {
+            const s = toDate(start);
+            const e = toDate(end || start);
+            if (s.toDateString() === e.toDateString()) return formatFullDate(s);
+            return `${s.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })} - ${e.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+        }
+
+        function formatPeriodLabel(startValue, endValue) {
+            const s = new Date(startValue);
+            const e = new Date(endValue);
+            if (s.toDateString() === e.toDateString()) return s.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            return `${s.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })} - ${e.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+        }
+
+        function formatDayName(date) {
+            return date.toLocaleDateString('id-ID', { weekday: 'long' });
+        }
+
+        function startOfDay(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function endOfDay(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+        }
+
+        function hexToRgba(hex, alpha) {
+            const normalized = String(hex || '#0B2B6A').replace('#', '');
+            const bigint = parseInt(normalized.length === 3 ? normalized.split('').map(c => c + c).join('') : normalized, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function slugify(text) {
+            return String(text || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
+        }
+
+        function escapeAttr(value) {
+            return escapeHtml(value).replace(/`/g, '&#96;');
+        }
+
+        document.getElementById('addScheduleBtn').addEventListener('click', () => openScheduleModal());
+        document.getElementById('manageTypesBtn').addEventListener('click', () => bootstrap.Modal.getOrCreateInstance(document.getElementById('typesModal')).show());
+        document.getElementById('addAssignmentBtn').addEventListener('click', () => addAssignmentRow());
+        els.scheduleForm.addEventListener('submit', saveSchedule);
+        document.getElementById('typeForm').addEventListener('submit', saveType);
+        [els.typeFilter, els.periodFilter, els.statusFilter].forEach(el => el.addEventListener('change', renderSchedules));
+        els.searchInput.addEventListener('input', renderSchedules);
+    </script>
+</body>
+</html>

@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-Up Class - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .cal-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+        .cal-nav { display:flex; align-items:center; gap:8px; }
+        .cal-nav button { padding:6px 14px; border-radius:12px; font-size:11px; font-weight:700; border:1px solid #e2e8f0; background:#fff; color:#334155; cursor:pointer; transition:all .15s; }
+        .cal-nav button:hover { background:#f1f5f9; }
+        .cal-nav .cal-month-label { font-size:14px; font-weight:800; color:#0f172a; min-width:140px; text-align:center; }
+        .cal-period-toggle { display:inline-flex; gap:4px; background:transparent; border:none; }
+        .cal-period-btn { padding:6px 10px; font-size:11px; font-weight:800; color:#64748b; border:1px solid #e2e8f0; border-radius:12px; background:#fff; cursor:pointer; transition:all .15s; }
+        .cal-period-btn:hover { background:#f8fafc; color:#334155; }
+        .cal-period-btn.active { background:#0f172a; color:#f8fafc; border-color:#0f172a; }
+        .cal-period-btn.active:hover { background:#1e293b; border-color:#1e293b; color:#ffffff; }
+        .cal-grid { display:grid; grid-template-columns:repeat(7,minmax(160px,1fr)); gap:1px; background:#e2e8f0; border-radius:16px; overflow:visible; min-width:1120px; }
+        .cal-day-header { background:#f8fafc; padding:8px 4px; text-align:center; font-size:10px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; position:sticky; top:0; z-index:10; }
+        .cal-cell { background:#fff; min-height:220px; padding:8px; position:relative; vertical-align:top; transition:background-color .12s; }
+        .cal-cell.other-month { background:#f8fafc; }
+        .cal-cell.today { box-shadow:inset 0 0 0 2px #38bdf8; }
+        .cal-cell.past-date { background:#f1f5f9; }
+        .cal-cell.past-date .cal-card { opacity:.65; filter:grayscale(.35); }
+        .cal-cell.past-date .cal-date-num { color:#94a3b8; }
+        .cal-cell.drag-over { background:#ecfeff; box-shadow:inset 0 0 0 2px #0ea5e9; }
+        .cal-date-num { font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px; }
+        .cal-cell.other-month .cal-date-num { color:#cbd5e1; }
+        .cal-card { padding:8px 10px; border-radius:12px; margin-bottom:6px; cursor:grab; transition:transform .12s,box-shadow .12s; border-left:3px solid transparent; user-select:none; }
+        .cal-card:active { cursor:grabbing; }
+        .cal-card:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,.1); }
+        .cal-card-soon { background:#fca5a5; border-left-color:#b91c1c; color:#7f1d1d; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(127,29,29,.18); }
+        .cal-card-running { background:#7dd3fc; border-left-color:#0369a1; color:#0c4a6e; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(12,74,110,.15); }
+        .cal-card-reminder { background:#d8b4fe; border-left-color:#7e22ce; color:#581c87; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(88,28,135,.15); }
+        .cal-card-stall { background:#d1d5db; border-left-color:#4b5563; color:#1f2937; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(31,41,55,.14); }
+        .cal-card-graduate { background:#fb923c; border-left-color:#9a3412; color:#7c2d12; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(124,45,18,.16); }
+        .cal-card-complete { background:#4ade80; border-left-color:#166534; color:#14532d; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(20,83,45,.18); }
+        .cal-card-title { font-size:12px; font-weight:700; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
+        .cal-card-time { font-size:11px; color:#334155; font-weight:700; margin-top:2px; }
+        .cal-card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:5px; }
+        .cal-card-label { font-size:10px; font-weight:700; color:#334155; opacity:.9; }
+        .cal-card-value { font-size:11px; font-weight:800; color:#0f172a; }
+        .cal-mentor-chip { max-width:85px; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:800; color:#0f172a; background:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cal-supervisor-avatar { width:24px; height:24px; border-radius:999px; overflow:hidden; border:1px solid rgba(15,23,42,.12); background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; }
+        .cal-supervisor-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .detail-user-select { display:none; }
+        .detail-multi-dropdown { position:relative; }
+        .detail-multi-btn { width:100%; min-height:36px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; color:#0f172a; font-size:12px; font-weight:600; padding:8px 34px 8px 12px; text-align:left; line-height:1.2; display:flex; align-items:center; }
+        .detail-multi-btn:disabled { opacity:.65; cursor:not-allowed; }
+        .detail-multi-btn-icon { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:#64748b; pointer-events:none; }
+        .detail-multi-panel { position:absolute; z-index:60; left:0; right:0; margin-top:6px; max-height:220px; overflow:auto; border:1px solid #e2e8f0; border-radius:12px; background:#fff; box-shadow:0 10px 25px rgba(15,23,42,.08); padding:6px; }
+        .detail-multi-panel.hidden { display:none; }
+        .detail-multi-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#0f172a; padding:6px 8px; border-radius:8px; cursor:pointer; }
+        .detail-multi-item:hover { background:#f8fafc; }
+        .detail-multi-empty { font-size:11px; color:#94a3b8; font-weight:600; padding:8px; }
+        .detail-multi-search-wrap { padding:4px 6px 8px 6px; border-bottom:1px solid #f1f5f9; margin-bottom:4px; }
+        .detail-multi-search-input { width:100%; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; color:#0f172a; font-size:12px; padding:6px 10px; outline:none; }
+        .detail-multi-search-input:focus { border-color:#6366f1; box-shadow:0 0 0 2px rgba(99,102,241,.12); }
+        .detail-multi-list { display:flex; flex-direction:column; gap:2px; }
+        .detail-user-avatar-list { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:6px; min-height:24px; }
+        .detail-user-avatar { width:24px; height:24px; border-radius:999px; overflow:hidden; border:1px solid rgba(15,23,42,.12); background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; }
+        .detail-user-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .detail-user-empty { font-size:11px; color:#94a3b8; font-weight:600; }
+        .comment-thread { display:flex; flex-direction:column; gap:10px; }
+        .comment-card { display:flex; gap:10px; padding:10px 12px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; }
+        .comment-card.is-pinned { border-color:#f59e0b; background:#fffbeb; }
+        .comment-avatar { width:28px; height:28px; border-radius:999px; overflow:hidden; border:1px solid rgba(15,23,42,.12); background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; }
+        .comment-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+        .comment-content { flex:1; min-width:0; }
+        .comment-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .comment-author { font-size:11px; font-weight:700; color:#0f172a; }
+        .comment-time { font-size:10px; color:#94a3b8; }
+        .comment-pin { font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:2px 6px; border-radius:999px; background:#fef3c7; color:#b45309; }
+        .comment-text { font-size:11px; color:#475569; margin-top:4px; white-space:pre-wrap; line-height:1.4; word-break:break-word; overflow-wrap:anywhere; }
+        .comment-actions { margin-left:auto; display:flex; align-items:center; gap:6px; }
+        .comment-action-btn { font-size:10px; font-weight:800; border:1px solid #e2e8f0; border-radius:999px; padding:4px 8px; background:#fff; color:#475569; cursor:pointer; transition:all .15s; }
+        .comment-action-btn.is-active { background:#fef3c7; border-color:#f59e0b; color:#b45309; }
+        .comment-action-btn.is-danger { color:#dc2626; border-color:#fecaca; background:#fff5f5; }
+        .comment-action-btn.is-danger:hover { background:#fee2e2; border-color:#fca5a5; }
+        .comment-action-btn:disabled { opacity:.6; cursor:not-allowed; }
+        .comment-composer { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; }
+        .comment-composer-body { flex:1; display:flex; flex-direction:column; gap:8px; }
+        .comment-composer-textarea { width:100%; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; color:#0f172a; font-size:12px; padding:8px 10px; resize:vertical; min-height:60px; outline:none; }
+        .comment-composer-textarea:focus { border-color:#6366f1; box-shadow:0 0 0 2px rgba(99,102,241,.12); background:#fff; }
+        .comment-composer-actions { display:flex; justify-content:flex-end; gap:8px; }
+        .comment-composer-btn { font-size:11px; font-weight:800; border-radius:10px; padding:6px 14px; border:1px solid #e2e8f0; background:#fff; color:#475569; cursor:pointer; transition:all .15s; }
+        .comment-composer-btn.is-primary { background:#0f172a; color:#fff; border-color:#0f172a; }
+        .comment-composer-btn.is-primary:hover { background:#1e293b; border-color:#1e293b; }
+        .comment-composer-btn.is-ghost:hover { background:#f8fafc; }
+        .comment-composer-btn:disabled { opacity:.6; cursor:not-allowed; }
+        .detail-layout { display:grid; grid-template-columns:1fr; gap:20px; flex:1; overflow:hidden; }
+        .detail-main { overflow-y:auto; padding-right:10px; align-content:start; }
+        .detail-comments { overflow-y:auto; padding-right:10px; border-top:1px solid #e2e8f0; padding-top:14px; }
+        @media (min-width: 992px) {
+            .detail-layout { grid-template-columns:2fr 1fr; align-items:stretch; }
+            .detail-comments { border-top:none; border-left:1px solid #e2e8f0; padding-top:0; padding-left:18px; }
+        }
+        .comment-editor-row { border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+        .comment-editor-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .comment-editor-left { display:flex; align-items:center; gap:8px; min-width:0; }
+        .comment-editor-meta { display:flex; flex-direction:column; min-width:0; }
+        .comment-editor-name { font-size:11px; font-weight:700; color:#0f172a; }
+        .comment-editor-time { font-size:10px; color:#94a3b8; }
+        .comment-editor-actions { display:flex; align-items:center; gap:6px; }
+        .comment-pin-btn { font-size:10px; font-weight:800; border:1px solid #e2e8f0; border-radius:999px; padding:4px 8px; background:#fff; color:#475569; cursor:pointer; transition:all .15s; }
+        .comment-pin-btn.is-active { background:#fef3c7; border-color:#f59e0b; color:#b45309; }
+        .comment-pin-btn:disabled { opacity:.6; cursor:not-allowed; }
+        .comment-remove-btn { width:28px; height:28px; border-radius:10px; border:1px solid #e2e8f0; background:#fff; font-size:14px; font-weight:800; color:#dc2626; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
+        .comment-remove-btn:hover { background:#fee2e2; border-color:#fecaca; }
+        .comment-remove-btn:disabled { opacity:.6; cursor:not-allowed; }
+        .cal-type-pill { font-size:11px; font-weight:800; padding:2px 8px; border-radius:8px; color:#fff; }
+        .cal-type-online { background:#0284c7; }
+        .cal-type-offline { background:#16a34a; }
+        .cal-type-hybrid { background:#7c3aed; }
+        .cal-type-badge { font-size:8px; font-weight:700; padding:1px 5px; border-radius:6px; background:rgba(0,0,0,.06); }
+        .status-pill { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:6px; }
+        .status-soon { background:#f5f5f5; color:#4b5563; }
+        .status-running { background:#ecfdf3; color:#15803d; }
+        .status-reminder { background:#fefce8; color:#b45309; }
+        .status-stall { background:#fef2f2; color:#b91c1c; }
+        .status-graduate { background:#eff6ff; color:#1d4ed8; }
+        .status-complete { background:#020617; color:#e5e7eb; }
+        .modal-backdrop-custom { position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
+        .modal-backdrop-custom.open { display:flex; }
+        .modal-card { width:100%; max-width:680px; max-height:calc(100vh - 40px); overflow:auto; }
+        #classDetailModal .modal-card { max-width:1000px; overflow:hidden; display:flex; flex-direction:column; -ms-overflow-style:none; scrollbar-width:none; }
+        #classDetailModal .modal-card::-webkit-scrollbar { width:0; height:0; display:none; }
+        .cal-scroll-wrapper { overflow-x:auto; overflow-y:auto; max-height:760px; border-radius:16px; background:#e2e8f0; }
+        @media(max-width:768px){ .cal-grid{grid-template-columns:repeat(7,minmax(140px,1fr)); min-width:980px;} .cal-cell{min-height:180px;} }
+        .salary-section { border:1px solid #d1fae5; border-radius:18px; background:linear-gradient(135deg,#ecfdf5 0%,#f0fdf4 50%,#f0fdfa 100%); padding:20px; margin-top:8px; position:relative; overflow:hidden; }
+        .salary-section::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#10b981,#14b8a6,#06b6d4); }
+        .salary-section-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:#065f46; margin-bottom:14px; }
+        .salary-section-title i { color:#10b981; }
+        .salary-status-bar { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.18); margin-bottom:14px; font-size:11px; font-weight:700; color:#065f46; }
+        .salary-field-label { display:block; font-size:10px; font-weight:800; color:#6b7280; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+        .salary-input { width:100%; border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:9px 12px; font-size:12px; color:#0f172a; outline:none; transition:all .15s; }
+        .salary-input:focus { border-color:#10b981; box-shadow:0 0 0 2px rgba(16,185,129,.15); }
+        .salary-input:disabled { background:#f3f4f6; color:#9ca3af; cursor:not-allowed; }
+        .salary-textarea { resize:vertical; min-height:70px; }
+        .salary-btn-publish { display:inline-flex; align-items:center; gap:8px; padding:10px 22px; border-radius:14px; border:none; background:linear-gradient(135deg,#059669,#10b981); color:#fff; font-size:12px; font-weight:800; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(16,185,129,.25); }
+        .salary-btn-publish:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(16,185,129,.35); }
+        .salary-btn-publish:disabled { opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
+        .salary-btn-publish .pulse-dot { width:8px; height:8px; border-radius:50%; background:#fff; animation:salaryPulse 1.5s ease-in-out infinite; }
+        @keyframes salaryPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(.7);} }
+        .salary-published { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.2); }
+        .salary-published-icon { width:32px; height:32px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; flex-shrink:0; }
+        .salary-published-info { flex:1; }
+        .salary-published-label { font-size:11px; font-weight:800; color:#065f46; }
+        .salary-published-detail { font-size:11px; color:#6b7280; margin-top:2px; }
+        .salary-link-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:10px; border:1px solid #d1fae5; background:#ecfdf5; color:#059669; font-size:11px; font-weight:800; text-decoration:none; transition:all .15s; margin-top:8px; }
+        .salary-link-btn:hover { background:#d1fae5; color:#047857; }
+        .salary-btn-undo { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:12px; border:1px solid #fecaca; background:#fff5f5; color:#dc2626; font-size:11px; font-weight:800; cursor:pointer; transition:all .2s; }
+        .salary-btn-undo:hover { background:#fee2e2; border-color:#fca5a5; transform:translateY(-1px); box-shadow:0 4px 12px rgba(220,38,38,.15); }
+        .salary-btn-undo:disabled { opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
+        .salary-help { font-size:10px; color:#9ca3af; margin-top:8px; }
+        .salary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+        @media(max-width:640px){ .salary-grid{grid-template-columns:1fr;} }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8 bg-slate-50">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="calendar-check-2" class="w-6 h-6 text-indigo-600"></i>
+                        Check-Up Class
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">Kalender operasional kelas. Drag & drop kartu kelas untuk mengubah tanggal start.</p>
+                </div>
+                <a href="./class-management.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Kembali ke Class Management
+                </a>
+            </div>
+
+            <section class="bg-white rounded-3xl border border-slate-100 p-5 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="relative">
+                        <input id="searchClass" type="text" placeholder="Cari kelas..." class="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full bg-slate-50">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    </div>
+                    <div>
+                        <select id="filterStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Semua Status</option>
+                            <option value="Soon">Soon</option>
+                            <option value="Running">Running</option>
+                            <option value="Reminder">Reminder</option>
+                            <option value="Stall">Stall</option>
+                            <option value="Graduate">Graduate</option>
+                            <option value="Complete">Complete</option>
+                        </select>
+                    </div>
+                    <div class="text-xs text-slate-500 font-semibold flex items-center md:justify-end">
+                        <span id="calClassCount">0 kelas</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-3xl border border-slate-100 p-5">
+                <div class="cal-header">
+                    <div class="cal-nav">
+                        <button id="calToday">Today</button>
+                        <div class="cal-period-toggle">
+                            <button id="btnPeriodDay" class="cal-period-btn">Day</button>
+                            <button id="btnPeriodWeek" class="cal-period-btn">Week</button>
+                            <button id="btnPeriodMonth" class="cal-period-btn active">Month</button>
+                        </div>
+                        <button id="calPrev"><i data-lucide="chevron-left" class="w-3 h-3 inline"></i></button>
+                        <span class="cal-month-label" id="calMonthLabel">-</span>
+                        <button id="calNext"><i data-lucide="chevron-right" class="w-3 h-3 inline"></i></button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="syncBadgeContainer"></span>
+                        <!-- <span class="text-[11px] text-slate-400">Tarik kartu kelas ke tanggal lain untuk reschedule start date</span> -->
+                        <div class="relative">
+                            <button id="btnCalMore" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                            </button>
+                            <div id="calMoreMenu" class="hidden absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-slate-100 text-[11px] text-slate-700 z-50">
+                                <button id="btnViewAllScheduleLogs" class="w-full text-left px-3 py-2 hover:bg-slate-50">Lihat Log Schedule</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cal-scroll-wrapper">
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="scheduleLogsModal" class="modal-backdrop-custom">
+        <div class="modal-card bg-white rounded-3xl border border-slate-100 shadow-2xl max-w-3xl mx-auto">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <div class="text-base font-bold text-slate-900">Schedule Logs</div>
+                    <div class="text-[11px] text-slate-500">Riwayat seluruh perubahan jadwal kelas</div>
+                </div>
+                <button id="btnCloseScheduleLogs" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 text-xs">
+                <div id="scheduleLogsSummary" class="text-[11px] text-slate-500 mb-2"></div>
+                <div id="scheduleLogsList" class="border border-slate-200 rounded-xl bg-slate-50 max-h-[420px] overflow-y-auto px-3 py-2 text-[11px] text-slate-700"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="classDetailModal" class="modal-backdrop-custom">
+        <div class="modal-card bg-white rounded-3xl border border-slate-100 shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div>
+                    <div class="text-base font-bold text-slate-900">Detail Kelas</div>
+                    <div id="detailSubtitle" class="text-[11px] text-slate-500"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnManualSalaryTrigger" type="button" class="px-3 py-1.5 rounded-xl text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700">Publish Gaji Mentor</button>
+                    <a id="btnOpenDetailPage" href="./class-detail.html" class="px-3 py-1.5 rounded-xl text-[11px] font-bold border border-slate-200 text-slate-700 hover:bg-slate-50">Halaman Detail</a>
+                    <button id="btnEnableDetailEdit" class="px-3 py-1.5 rounded-xl text-[11px] font-bold text-white bg-amber-500 hover:bg-amber-600">Aktifkan Edit</button>
+                    <button id="btnCancelDetailEdit" class="hidden px-3 py-1.5 rounded-xl text-[11px] font-bold border border-slate-200 text-slate-700 hover:bg-slate-50">Batal</button>
+                    <button id="btnSaveDetailEdit" class="hidden px-3 py-1.5 rounded-xl text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700">Simpan</button>
+                    <button id="btnCloseDetail" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 py-5 text-xs detail-layout">
+                <div class="detail-main grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Class Name</div>
+                    <input id="editClassName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Status</div>
+                    <select id="editStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                        <option value="Soon">Soon</option>
+                        <option value="Running">Running</option>
+                        <option value="Reminder">Reminder</option>
+                        <option value="Stall">Stall</option>
+                        <option value="Graduate">Graduate</option>
+                        <option value="Complete">Complete</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Start Date</div>
+                    <input id="editStartDate" type="date" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lokasi</div>
+                    <input id="editLocation" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Jam Kelas</div>
+                    <input id="editStartTime" type="time" step="1800" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Type</div>
+                    <select id="editType" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Mentor</div>
+                    <select id="editMentorName" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                        <option value="">Pilih mentor</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Meeting Done</div>
+                    <input id="editMeetingDone" type="number" min="0" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Meeting Total</div>
+                    <input id="editMeetingTotal" type="number" min="0" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Supervisor</div>
+                    <div class="detail-multi-dropdown">
+                        <button id="editSupervisorUsersToggle" type="button" class="detail-multi-btn">
+                            <span id="editSupervisorUsersLabel">Pilih supervisor</span>
+                        </button>
+                        <i data-lucide="chevron-down" class="w-4 h-4 detail-multi-btn-icon"></i>
+                        <div id="editSupervisorUsersPanel" class="detail-multi-panel hidden"></div>
+                    </div>
+                    <select id="editSupervisorUsers" multiple class="detail-user-select">
+                        <option value="">Pilih supervisor</option>
+                    </select>
+                    <div class="text-[10px] text-slate-400 mt-1">Bisa pilih lebih dari satu supervisor</div>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Admin</div>
+                    <div class="detail-multi-dropdown">
+                        <button id="editAdminUsersToggle" type="button" class="detail-multi-btn">
+                            <span id="editAdminUsersLabel">Pilih admin</span>
+                        </button>
+                        <i data-lucide="chevron-down" class="w-4 h-4 detail-multi-btn-icon"></i>
+                        <div id="editAdminUsersPanel" class="detail-multi-panel hidden"></div>
+                    </div>
+                    <select id="editAdminUsers" multiple class="detail-user-select">
+                        <option value="">Pilih admin</option>
+                    </select>
+                    <div class="text-[10px] text-slate-400 mt-1">Bisa pilih lebih dari satu admin</div>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Treasurer</div>
+                    <div class="detail-multi-dropdown">
+                        <button id="editTreasurerUsersToggle" type="button" class="detail-multi-btn">
+                            <span id="editTreasurerUsersLabel">Pilih treasurer</span>
+                        </button>
+                        <i data-lucide="chevron-down" class="w-4 h-4 detail-multi-btn-icon"></i>
+                        <div id="editTreasurerUsersPanel" class="detail-multi-panel hidden"></div>
+                    </div>
+                    <select id="editTreasurerUsers" multiple class="detail-user-select">
+                        <option value="">Pilih treasurer</option>
+                    </select>
+                    <div class="text-[10px] text-slate-400 mt-1">Bisa pilih lebih dari satu treasurer</div>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Class Links</div>
+                    <div id="classLinksContainer" class="space-y-2"></div>
+                    <div class="mt-2">
+                        <button id="btnAddClassLink" type="button" class="w-full h-full rounded-full border border-slate-200 bg-white text-base font-bold text-slate-700 hover:bg-slate-50">+</button>
+                    </div>
+                    <div id="classLinksView" class="mt-2 space-y-1"></div>
+                </div>
+                <div id="salarySection" class="md:col-span-2 hidden">
+                    <div class="salary-section">
+                        <div class="salary-section-title">
+                            <i data-lucide="banknote" class="w-5 h-5"></i>
+                            Publish Gaji Mentor
+                        </div>
+                        <div id="salaryStatusBar" class="salary-status-bar">
+                            <i data-lucide="check-circle-2" class="w-4 h-4" style="color:#10b981"></i>
+                            <span id="salaryStatusText">Kelas telah graduate</span>
+                        </div>
+                        <div id="salaryFormArea">
+                            <div class="salary-grid">
+                                <div>
+                                    <label class="salary-field-label">Mentor</label>
+                                    <input id="salaryMentorName" type="text" class="salary-input" disabled>
+                                </div>
+                                <div>
+                                    <label class="salary-field-label">Kelas</label>
+                                    <input id="salaryClassName" type="text" class="salary-input" disabled>
+                                </div>
+                            </div>
+                            <div class="salary-grid">
+                                <div>
+                                    <label class="salary-field-label">Nominal Gaji (IDR)</label>
+                                    <input id="salaryAmount" type="text" inputmode="numeric" class="salary-input" placeholder="Contoh: 950.000">
+                                </div>
+                                <div>
+                                    <label class="salary-field-label">Due Date</label>
+                                    <input id="salaryDueDate" type="date" class="salary-input">
+                                </div>
+                            </div>
+                            <div style="margin-bottom:14px">
+                                <label class="salary-field-label">Notes untuk Treasurer <span style="color:#ef4444">*wajib</span></label>
+                                <textarea id="salaryNotes" class="salary-input salary-textarea" placeholder="Jelaskan breakdown nominal, misal: 8 sesi mengajar + bonus evaluasi + transport. Treasurer perlu ini sebelum transfer."></textarea>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                                <button id="btnPublishSalary" type="button" class="salary-btn-publish">
+                                    <span class="pulse-dot"></span>
+                                    Publish ke Operational Expenses
+                                </button>
+                            </div>
+                            <div class="salary-help">
+                                <i data-lucide="info" class="w-3 h-3 inline" style="vertical-align:middle"></i>
+                                Notes wajib diisi agar treasurer memahami breakdown nominal sebelum transfer.
+                            </div>
+                        </div>
+                        <div id="salaryPublishedArea" class="hidden">
+                            <div class="salary-published">
+                                <div class="salary-published-icon">✓</div>
+                                <div class="salary-published-info">
+                                    <div class="salary-published-label">Sudah dipublish ke Operational Expenses</div>
+                                    <div id="salaryPublishedDetail" class="salary-published-detail"></div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px">
+                                <a id="salaryExpenseLink" href="./operational-expenses.html" target="_blank" class="salary-link-btn">
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                    Lihat di Operational Expenses
+                                </a>
+                                <button id="btnUndoSalary" type="button" class="salary-btn-undo">
+                                    <i data-lucide="undo-2" class="w-3 h-3"></i>
+                                    Undo Publish
+                                </button>
+                            </div>
+                            <div class="salary-help" style="margin-top:10px">
+                                <i data-lucide="alert-triangle" class="w-3 h-3 inline" style="vertical-align:middle;color:#f59e0b"></i>
+                                Undo akan menghapus data expense dari Operational Expenses dan membuka kembali form publish.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="detail-comments">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Comment</div>
+                    <div class="comment-composer mt-2">
+                        <div id="commentComposerAvatar" class="comment-avatar">U</div>
+                        <div class="comment-composer-body">
+                            <textarea id="commentInput" rows="2" class="comment-composer-textarea" placeholder="Tulis komentar..."></textarea>
+                            <div class="comment-composer-actions">
+                                <button id="btnCancelCommentEdit" type="button" class="comment-composer-btn is-ghost hidden">Batal</button>
+                                <button id="btnSubmitComment" type="button" class="comment-composer-btn is-primary">Kirim</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="commentsView" class="mt-3 comment-thread"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed top-6 right-6 z-[9999] px-4 py-2 rounded-xl text-xs font-bold shadow-lg"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, deleteDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onBroadcastMessage, scheduleRender, createSyncBadge, updateSyncBadge, highlightNewCards, injectSyncStyles, destroySyncResources } from "../assets/js/class-sync.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+        let classesState = [];
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth();
+        let calDay = new Date().getDate();
+        let calViewMode = "month";
+        let dragClassId = null;
+        let lastDropAt = 0;
+        let currentDetailClassId = null;
+        let manualSalaryTriggerClassId = null;
+        let detailEditEnabled = false;
+        let detailCommentsState = [];
+        let commentEditId = "";
+        let commentIdSeed = 0;
+        let usersState = [];
+        let mentorsState = [];
+        const CLASS_SOURCE_PLANNING = "class_planning";
+        const userMultiSearchState = {
+            editSupervisorUsers: "",
+            editAdminUsers: "",
+            editTreasurerUsers: ""
+        };
+
+        const currentFilters = { search: "", status: "" };
+
+        // ── Real-time sync state ──
+        let _unsubPlanning = null;
+        let _unsubAvailability = null;
+        let _unsubBroadcast = null;
+        let _initialLoadDone = false;
+        const _recentlyAddedDocIds = new Set();
+
+        function toDateKey(dateObj) {
+            return dateObj.getFullYear() + "-" + String(dateObj.getMonth() + 1).padStart(2, "0") + "-" + String(dateObj.getDate()).padStart(2, "0");
+        }
+
+        function formatHumanDate(dateObj) {
+            return dateObj.toLocaleDateString("id-ID", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+        }
+
+        function formatRangeDate(dateObj) {
+            return dateObj.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+        }
+
+        function getCurrentCursorDate() {
+            return new Date(calYear, calMonth, calDay);
+        }
+
+        function setPeriodMode(mode) {
+            calViewMode = mode;
+            const btnDay = document.getElementById("btnPeriodDay");
+            const btnWeek = document.getElementById("btnPeriodWeek");
+            const btnMonth = document.getElementById("btnPeriodMonth");
+            if (btnDay) btnDay.classList.toggle("active", mode === "day");
+            if (btnWeek) btnWeek.classList.toggle("active", mode === "week");
+            if (btnMonth) btnMonth.classList.toggle("active", mode === "month");
+            renderCalendar(applyFilters());
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById("toast");
+            if (!toast) return;
+            toast.textContent = message;
+            toast.className = "fixed top-6 right-6 z-[9999] px-4 py-2 rounded-xl text-xs font-bold shadow-lg";
+            if (type === "error") {
+                toast.classList.add("bg-rose-600", "text-white");
+            } else {
+                toast.classList.add("bg-emerald-600", "text-white");
+            }
+            toast.classList.remove("hidden");
+            setTimeout(() => toast.classList.add("hidden"), 2500);
+        }
+
+        function deriveStatusFromAvailability(d) {
+            const raw = d && (d.status || d.class_status);
+            if (raw) {
+                const lower = String(raw).toLowerCase();
+                if (lower === "soon") return "Soon";
+                if (lower === "running") return "Running";
+                if (lower === "reminder") return "Reminder";
+                if (lower === "stall") return "Stall";
+                if (lower === "graduate") return "Graduate";
+                if (lower === "complete") return "Complete";
+            }
+            const startRaw = d && (d.date || d.start_date || d.startDate);
+            if (!startRaw || startRaw === "Flexible") return "Soon";
+            const start = new Date(startRaw);
+            if (isNaN(start.getTime())) return "Soon";
+            const now = new Date();
+            if (start.getTime() > now.getTime()) return "Soon";
+            return "Running";
+        }
+
+        function toDateString(raw) {
+            if (!raw) return "";
+            let v = raw;
+            if (v && typeof v === "object" && typeof v.toDate === "function") v = v.toDate();
+            const d = new Date(v);
+            if (isNaN(d.getTime())) return "";
+            return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+        }
+
+        function getCurrentUserAuditInfo() {
+            let data = null;
+            try {
+                const raw = localStorage.getItem("userData");
+                if (raw) data = JSON.parse(raw);
+            } catch (e) {}
+            const name = data && (data.name || data.fullName || data.email || "");
+            const email = data && data.email;
+            const uid = data && (data.uid || data.id || null);
+            return {
+                userId: uid || email || null,
+                userName: name || "Unknown User",
+                userEmail: email || null,
+                raw: data || null
+            };
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function normalizeAuditCompareValue(value) {
+            if (value === null || value === undefined) return null;
+            if (typeof value === "string") return value.trim();
+            if (typeof value === "number" || typeof value === "boolean") return value;
+            if (Array.isArray(value)) {
+                return value
+                    .map((item) => normalizeAuditCompareValue(item))
+                    .filter((item) => item !== null && item !== "")
+                    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+            }
+            if (typeof value === "object") {
+                if ("uid" in value || "name" in value || "photo" in value) {
+                    return {
+                        uid: String(value.uid || ""),
+                        name: String(value.name || ""),
+                        photo: String(value.photo || "")
+                    };
+                }
+                if ("url" in value || "title" in value || "type" in value) {
+                    return {
+                        url: String(value.url || ""),
+                        title: String(value.title || ""),
+                        type: String(value.type || "")
+                    };
+                }
+                const out = {};
+                Object.keys(value).sort().forEach((key) => {
+                    out[key] = normalizeAuditCompareValue(value[key]);
+                });
+                return out;
+            }
+            return String(value);
+        }
+
+        function formatAuditDisplayValue(value) {
+            if (value === null || value === undefined) return "-";
+            if (typeof value === "string") {
+                const v = value.trim();
+                return v || "-";
+            }
+            if (typeof value === "number" || typeof value === "boolean") return String(value);
+            if (Array.isArray(value)) {
+                const parts = value.map((item) => {
+                    if (item === null || item === undefined) return "";
+                    if (typeof item === "string") return item.trim();
+                    if (typeof item === "number" || typeof item === "boolean") return String(item);
+                    if (typeof item === "object") {
+                        if ("name" in item && item.name) return String(item.name).trim();
+                        if ("title" in item && item.title && "url" in item && item.url) return String(item.title).trim() + " (" + String(item.url).trim() + ")";
+                        if ("url" in item && item.url) return String(item.url).trim();
+                        if ("uid" in item && item.uid) return String(item.uid).trim();
+                        return JSON.stringify(item);
+                    }
+                    return String(item);
+                }).filter(Boolean);
+                return parts.length ? parts.join(", ") : "-";
+            }
+            if (typeof value === "object") {
+                if ("name" in value && value.name) return String(value.name).trim();
+                if ("title" in value && value.title && "url" in value && value.url) return String(value.title).trim() + " (" + String(value.url).trim() + ")";
+                if ("url" in value && value.url) return String(value.url).trim();
+                return JSON.stringify(value);
+            }
+            return String(value);
+        }
+
+        function buildClassChangeEntries(prevData, nextData) {
+            const fields = [
+                { key: "name", label: "Nama Kelas" },
+                { key: "status", label: "Status" },
+                { key: "startDate", label: "Tanggal Mulai" },
+                { key: "startTime", label: "Jam Mulai" },
+                { key: "location", label: "Lokasi" },
+                { key: "type", label: "Tipe Kelas" },
+                { key: "mentorName", label: "Mentor" },
+                { key: "supervisors", label: "Supervisor" },
+                { key: "admins", label: "Admin" },
+                { key: "treasurers", label: "Treasurer" },
+                { key: "classLinks", label: "Class Links" },
+                { key: "meetingDone", label: "Meeting Done" },
+                { key: "meetingTotal", label: "Meeting Total" },
+                { key: "comment", label: "Komentar" }
+            ];
+            const changes = [];
+            fields.forEach((field) => {
+                const beforeRaw = prevData ? prevData[field.key] : undefined;
+                const afterRaw = nextData ? nextData[field.key] : undefined;
+                const before = normalizeAuditCompareValue(beforeRaw);
+                const after = normalizeAuditCompareValue(afterRaw);
+                if (JSON.stringify(before) === JSON.stringify(after)) return;
+                changes.push({
+                    field: field.key,
+                    label: field.label,
+                    from: formatAuditDisplayValue(beforeRaw),
+                    to: formatAuditDisplayValue(afterRaw)
+                });
+            });
+            return changes;
+        }
+
+        async function logScheduleChange(classData, prevDate, newDate, source, changes) {
+            if (!classData || !classData.docId) return;
+            const user = getCurrentUserAuditInfo();
+            const safeChanges = Array.isArray(changes) ? changes.filter((item) => item && item.field) : [];
+            const payload = {
+                classDocId: classData.docId,
+                classId: classData.id || null,
+                className: classData.name || "",
+                previousDate: prevDate || "",
+                newDate: newDate || "",
+                location: classData.location || "",
+                type: classData.type || "",
+                status: classData.status || "",
+                changedById: user.userId || null,
+                changedByName: user.userName || "",
+                changedByEmail: user.userEmail || null,
+                source: source || "unknown",
+                changeType: safeChanges.length ? "field_update" : "date_change",
+                changes: safeChanges,
+                changedAt: serverTimestamp()
+            };
+            try {
+                await addDoc(collection(db, "schedule_logs"), payload);
+            } catch (e) {}
+        }
+
+        function formatLogTimestamp(ts) {
+            if (!ts || typeof ts.toDate !== "function") return "";
+            const d = ts.toDate();
+            if (isNaN(d.getTime())) return "";
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            const hh = String(d.getHours()).padStart(2, "0");
+            const mm = String(d.getMinutes()).padStart(2, "0");
+            return y + "-" + m + "-" + day + " " + hh + ":" + mm;
+        }
+
+        async function loadAllScheduleLogs() {
+            const listEl = document.getElementById("scheduleLogsList");
+            const summaryEl = document.getElementById("scheduleLogsSummary");
+            if (!listEl) return;
+            listEl.innerHTML = "<div class=\"text-[11px] text-slate-400\">Memuat semua log schedule...</div>";
+            if (summaryEl) summaryEl.textContent = "";
+            try {
+                const snap = await getDocs(collection(db, "schedule_logs"));
+                const items = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    items.push({ id: docSnap.id, data: d });
+                });
+                items.sort((a, b) => {
+                    const ta = a.data.changedAt && typeof a.data.changedAt.toDate === "function" ? a.data.changedAt.toDate().getTime() : 0;
+                    const tb = b.data.changedAt && typeof b.data.changedAt.toDate === "function" ? b.data.changedAt.toDate().getTime() : 0;
+                    return tb - ta;
+                });
+                if (!items.length) {
+                    listEl.innerHTML = "<div class=\"text-[11px] text-slate-400\">Belum ada log schedule.</div>";
+                    if (summaryEl) summaryEl.textContent = "0 log";
+                    return;
+                }
+                const parts = [];
+                items.forEach((item) => {
+                    const d = item.data;
+                    const className = d.className || "(Tanpa nama)";
+                    const prev = d.previousDate || "-";
+                    const next = d.newDate || "-";
+                    const by = d.changedByName || d.changedByEmail || d.changedById || "Unknown";
+                    const timeStr = d.changedAt ? formatLogTimestamp(d.changedAt) : "";
+                    let sourceLabel = "Perubahan";
+                    if (d.source === "calendar_drag") sourceLabel = "Kalender";
+                    else if (d.source === "detail_modal") sourceLabel = "Detail";
+                    else if (d.source === "salary_publish") sourceLabel = "Publish Gaji";
+                    const changeRows = Array.isArray(d.changes) ? d.changes : [];
+                    const detailHtml = changeRows.length
+                        ? "<div class=\"text-[11px] text-slate-700\">" + changeRows.map((change) => {
+                            const label = escapeHtml(change.label || change.field || "Field");
+                            const from = escapeHtml(change.from || "-");
+                            const to = escapeHtml(change.to || "-");
+                            return "<div>" + label + ": " + from + " → " + to + "</div>";
+                        }).join("") + "</div>"
+                        : "<div class=\"text-[11px] text-slate-700\">" + escapeHtml(prev) + " → " + escapeHtml(next) + "</div>";
+                    parts.push(
+                        "<div class=\"py-1.5 border-b border-slate-200 last:border-b-0\">" +
+                        "<div class=\"font-semibold text-[11px] text-slate-800\">" + escapeHtml(className) + "</div>" +
+                        detailHtml +
+                        "<div class=\"text-[10px] text-slate-500\">" + escapeHtml(by) +
+                        (sourceLabel ? " • " + sourceLabel : "") +
+                        (timeStr ? " • " + timeStr : "") +
+                        "</div>" +
+                        "</div>"
+                    );
+                });
+                listEl.innerHTML = parts.join("");
+                if (summaryEl) summaryEl.textContent = items.length + " log";
+            } catch (e) {
+                listEl.innerHTML = "<div class=\"text-[11px] text-rose-500\">Gagal memuat log schedule.</div>";
+                if (summaryEl) summaryEl.textContent = "";
+            }
+        }
+
+        function openScheduleLogsModal() {
+            const modal = document.getElementById("scheduleLogsModal");
+            if (!modal) return;
+            modal.classList.add("open");
+            loadAllScheduleLogs();
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function closeScheduleLogsModal() {
+            const modal = document.getElementById("scheduleLogsModal");
+            if (!modal) return;
+            modal.classList.remove("open");
+        }
+
+        function mapAvailabilityDocToClass(docSnap, sourceCollection) {
+            const d = docSnap.data() || {};
+            const isRemedial = d.is_remedial === true || d.isRemedial === true || String(d.variant || "").toLowerCase() === "remedial";
+            const mentorName = d.mentor_name || d.mentor || "";
+            const mentors = [];
+            if (typeof mentorName === "string" && mentorName.trim() !== "") {
+                mentorName.split(",").forEach(part => {
+                    const name = part.trim();
+                    if (name) mentors.push({ name });
+                });
+            }
+            if (Array.isArray(d.mentors)) {
+                d.mentors.forEach(m => {
+                    if (!m) return;
+                    if (typeof m === "string" && m.trim()) mentors.push({ name: m.trim() });
+                    else if (m.name) mentors.push({ name: String(m.name) });
+                });
+            }
+            const supervisors = extractSupervisorsFromDoc(d);
+            const admins = extractAdminsFromDoc(d);
+            const treasurers = extractTreasurersFromDoc(d);
+            const supervisor = supervisors.length ? supervisors[0] : { uid: "", name: "", photo: "" };
+            const meetingDone = typeof d.meeting_done === "number"
+                ? d.meeting_done
+                : (typeof d.meetingDone === "number" ? d.meetingDone : 0);
+            const meetingTotal = typeof d.meeting_total === "number"
+                ? d.meeting_total
+                : (typeof d.meetingTotal === "number" ? d.meetingTotal : 0);
+            let status = deriveStatusFromAvailability(d);
+            if (meetingTotal > 0 && meetingDone >= meetingTotal && status === "Running") {
+                status = "Graduate";
+            }
+            return {
+                id: d.id || docSnap.id,
+                docId: docSnap.id,
+                sourceCollection: sourceCollection || CLASS_SOURCE_PLANNING,
+                name: d.name || d.class_name || "Unnamed Class",
+                variant: d.variant || (isRemedial ? "remedial" : "regular"),
+                isRemedial,
+                parentClassDocId: d.parent_class_doc_id || d.parentClassDocId || "",
+                parentClassName: d.parent_class_name || d.parentClassName || "",
+                rootClassDocId: d.root_class_doc_id || d.rootClassDocId || "",
+                remedialLevel: typeof d.remedial_level === "number" ? d.remedial_level : (typeof d.remedialLevel === "number" ? d.remedialLevel : 0),
+                remedialReason: d.remedial_reason || d.remedialReason || "",
+                status,
+                startDate: toDateString(d.date || d.start_date || d.startDate),
+                startTime: d.time || d.start_time || d.startTime || d.class_time || d.classTime || d.jam || "",
+                location: d.location || (d.room ? "Ruang " + d.room : ""),
+                type: d.type || "Offline",
+                meetingDone,
+                meetingTotal,
+                groupLink: d.group_link || d.groupLink || "",
+                videoClassLink: d.video_class || d.videoClass || d.video_class_link || d.videoClassLink || "",
+                classLinks: parseClassLinksFromData(d),
+                comments: parseCommentsFromData(d),
+                comment: d.comment || "",
+                supervisor,
+                supervisors,
+                admins,
+                treasurers,
+                mentors,
+                salaryExpenseId: d.salary_expense_id || "",
+                salaryPublishedAt: d.salary_published_at || null,
+                salaryPublishedBy: d.salary_published_by || ""
+            };
+        }
+
+        function getClassSourceCollection(c) {
+            return c && c.sourceCollection ? c.sourceCollection : CLASS_SOURCE_PLANNING;
+        }
+
+        function getCalCardClass(status) {
+            const map = {
+                Soon: "cal-card-soon",
+                Running: "cal-card-running",
+                Reminder: "cal-card-reminder",
+                Stall: "cal-card-stall",
+                Graduate: "cal-card-graduate",
+                Complete: "cal-card-complete"
+            };
+            return map[status] || "cal-card-soon";
+        }
+
+        function inferClassLinkType(url) {
+            const v = String(url || "").toLowerCase();
+            if (!v) return "video_class";
+            if (v.includes("chat.whatsapp.com") || v.includes("wa.me") || v.includes("whatsapp")) return "wa_group";
+            return "video_class";
+        }
+
+        function normalizeClassLinkItem(raw) {
+            if (!raw) return null;
+            if (typeof raw === "string") {
+                const url = raw.trim();
+                if (!url) return null;
+                return { type: inferClassLinkType(url), url, title: "" };
+            }
+            if (typeof raw !== "object") return null;
+            const url = String(raw.url || raw.link || raw.href || "").trim();
+            if (!url) return null;
+            const type = raw.type ? String(raw.type) : inferClassLinkType(url);
+            const title = String(raw.title || raw.label || raw.name || "").trim();
+            return { type, url, title };
+        }
+
+        function dedupeClassLinks(items) {
+            const map = new Map();
+            items.forEach((item) => {
+                const normalized = normalizeClassLinkItem(item);
+                if (!normalized) return;
+                const key = normalized.url.toLowerCase();
+                if (!map.has(key)) {
+                    map.set(key, normalized);
+                    return;
+                }
+                const existing = map.get(key);
+                if (existing && !existing.title && normalized.title) {
+                    existing.title = normalized.title;
+                }
+            });
+            return Array.from(map.values());
+        }
+
+        function parseClassLinksFromData(d) {
+            const fromArray = Array.isArray(d.class_links) ? d.class_links : (Array.isArray(d.classLinks) ? d.classLinks : (Array.isArray(d.links) ? d.links : []));
+            const merged = [];
+            fromArray.forEach((item) => merged.push(item));
+            const waLegacy = String(d.group_link || d.groupLink || "").trim();
+            const videoLegacy = String(d.video_class || d.videoClass || d.video_class_link || d.videoClassLink || "").trim();
+            if (waLegacy) merged.push({ type: "wa_group", url: waLegacy, title: "WA Group" });
+            if (videoLegacy) merged.push({ type: "video_class", url: videoLegacy, title: "Video Class" });
+            return dedupeClassLinks(merged);
+        }
+
+        function toCommentTimestamp(raw) {
+            if (!raw) return 0;
+            if (typeof raw === "number") return raw;
+            if (typeof raw === "string") {
+                const d = new Date(raw);
+                return isNaN(d.getTime()) ? 0 : d.getTime();
+            }
+            if (typeof raw === "object") {
+                if (typeof raw.toDate === "function") return raw.toDate().getTime();
+                if (typeof raw.seconds === "number") return raw.seconds * 1000;
+            }
+            return 0;
+        }
+
+        function normalizeCommentAuthor(raw) {
+            if (!raw) return { uid: "", name: "", photo: "" };
+            if (typeof raw === "string") {
+                const name = raw.trim();
+                return { uid: "", name, photo: "" };
+            }
+            if (typeof raw !== "object") return { uid: "", name: "", photo: "" };
+            const uid = String(raw.uid || raw.userId || raw.id || "").trim();
+            const name = String(raw.name || raw.displayName || raw.fullName || raw.nama || raw.email || "").trim();
+            const photo = String(raw.photo || raw.photoURL || raw.avatar || raw.image || raw.avatar_url || "").trim();
+            return { uid, name, photo };
+        }
+
+        function formatCommentTimestamp(ms) {
+            if (!ms) return "-";
+            const d = new Date(ms);
+            if (isNaN(d.getTime())) return "-";
+            return d.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+
+        function generateCommentId() {
+            commentIdSeed += 1;
+            return "cmt-" + Date.now() + "-" + commentIdSeed;
+        }
+
+        function setDetailCommentsState(list) {
+            const items = dedupeComments(Array.isArray(list) ? list : []);
+            items.forEach((item) => {
+                if (!item.id) item.id = generateCommentId();
+            });
+            detailCommentsState = items;
+        }
+
+        function getCommentById(commentId) {
+            return detailCommentsState.find((item) => item.id === commentId);
+        }
+
+        function updateCommentText(commentId, newText) {
+            const idx = detailCommentsState.findIndex((item) => item.id === commentId);
+            if (idx < 0) return false;
+            detailCommentsState[idx] = {
+                ...detailCommentsState[idx],
+                text: newText
+            };
+            return true;
+        }
+
+        function syncCommentComposerAvatar(author) {
+            const avatar = document.getElementById("commentComposerAvatar");
+            if (!avatar) return;
+            const safeAuthor = author || getCurrentCommentAuthor();
+            const name = (safeAuthor.name || safeAuthor.uid || "Unknown User").trim() || "Unknown User";
+            avatar.innerHTML = "";
+            if (safeAuthor.photo) {
+                const img = document.createElement("img");
+                img.src = safeAuthor.photo;
+                img.alt = name;
+                avatar.appendChild(img);
+            } else {
+                avatar.textContent = getInitials(name);
+            }
+        }
+
+        function setCommentEditorDisabled(disabled) {
+            const input = document.getElementById("commentInput");
+            const btnSubmit = document.getElementById("btnSubmitComment");
+            const btnCancel = document.getElementById("btnCancelCommentEdit");
+            if (input) input.disabled = !!disabled;
+            if (btnSubmit) btnSubmit.disabled = !!disabled;
+            if (btnCancel) btnCancel.disabled = !!disabled;
+        }
+
+        function updateCommentComposerState() {
+            const btnSubmit = document.getElementById("btnSubmitComment");
+            const btnCancel = document.getElementById("btnCancelCommentEdit");
+            if (btnSubmit) btnSubmit.textContent = "Kirim";
+            if (btnCancel) btnCancel.classList.add("hidden");
+        }
+
+        function resetCommentComposer() {
+            const input = document.getElementById("commentInput");
+            if (input) input.value = "";
+            commentEditId = "";
+            syncCommentComposerAvatar(getCurrentCommentAuthor());
+            updateCommentComposerState();
+            renderCommentsView(detailCommentsState);
+        }
+
+        function startEditComment(commentId) {
+            commentEditId = commentId;
+            renderCommentsView(detailCommentsState);
+        }
+
+        function toggleCommentPin(commentId) {
+            const item = getCommentById(commentId);
+            if (!item) return;
+            item.pinned = !item.pinned;
+            renderCommentsView(detailCommentsState);
+            persistCommentChanges();
+        }
+
+        function submitComment() {
+            const input = document.getElementById("commentInput");
+            if (!input) return;
+            const text = String(input.value || "").trim();
+            if (!text) {
+                showToast("Komentar tidak boleh kosong", "error");
+                return;
+            }
+            detailCommentsState.unshift({
+                id: generateCommentId(),
+                text,
+                createdAtMs: Date.now(),
+                createdBy: getCurrentCommentAuthor(),
+                pinned: false
+            });
+            renderCommentsView(detailCommentsState);
+            resetCommentComposer();
+            persistCommentChanges();
+        }
+
+        function commitPendingCommentEdit() {
+            resetCommentComposer();
+        }
+
+        function deleteComment(commentId) {
+            const item = getCommentById(commentId);
+            if (!item) return;
+            const preview = (item.text || "").slice(0, 120);
+            const confirmed = confirm("Hapus komentar ini?\n\n" + preview);
+            if (!confirmed) return;
+            detailCommentsState = detailCommentsState.filter((entry) => entry.id !== commentId);
+            renderCommentsView(detailCommentsState);
+            if (commentEditId === commentId) resetCommentComposer();
+            persistCommentChanges();
+        }
+
+        async function persistCommentChanges() {
+            if (!currentDetailClassId) return;
+            const idx = classesState.findIndex(c => c.id === currentDetailClassId);
+            if (idx < 0) return;
+            const selected = classesState[idx];
+            const comments = getCommentsFromEditor();
+            const commentText = comments.map((item) => item.text).join("\n");
+            try {
+                await updateDoc(doc(db, getClassSourceCollection(selected), selected.docId), {
+                    comment_items: comments,
+                    commentItems: comments,
+                    comment: commentText,
+                    updatedAt: serverTimestamp()
+                });
+                classesState[idx] = {
+                    ...selected,
+                    comments,
+                    comment: commentText
+                };
+            } catch (e) {
+                showToast("Gagal menyimpan komentar", "error");
+            }
+        }
+
+        function normalizeCommentItem(raw) {
+            if (!raw) return null;
+            if (typeof raw === "string") {
+                const text = raw.trim();
+                if (!text) return null;
+                return {
+                    text,
+                    createdAtMs: 0,
+                    createdBy: { uid: "", name: "", photo: "" },
+                    pinned: false
+                };
+            }
+            if (typeof raw !== "object") return null;
+            const text = String(raw.text || raw.comment || raw.value || "").trim();
+            if (!text) return null;
+            const createdAtMs = toCommentTimestamp(raw.createdAtMs || raw.created_at_ms || raw.createdAt || raw.created_at || raw.timestamp || raw.time);
+            const createdBy = normalizeCommentAuthor(raw.createdBy || raw.author || raw.user || raw.by);
+            if (!createdBy.uid) createdBy.uid = String(raw.createdByUid || raw.userId || raw.uid || "").trim();
+            if (!createdBy.name) createdBy.name = String(raw.createdByName || raw.userName || raw.name || raw.byName || "").trim();
+            if (!createdBy.photo) createdBy.photo = String(raw.createdByPhoto || raw.photo || raw.photoURL || raw.avatar || "").trim();
+            const pinned = !!(raw.pinned || raw.isPinned || raw.pin);
+            return {
+                text,
+                createdAtMs,
+                createdBy,
+                pinned,
+                id: String(raw.id || raw.commentId || "").trim()
+            };
+        }
+
+        function dedupeComments(items) {
+            const map = new Map();
+            items.forEach((item) => {
+                const normalized = normalizeCommentItem(item);
+                if (!normalized) return;
+                const authorKey = normalized.createdBy && (normalized.createdBy.uid || normalized.createdBy.name)
+                    ? (normalized.createdBy.uid || normalized.createdBy.name).toLowerCase()
+                    : "";
+                const timeKey = normalized.createdAtMs ? String(normalized.createdAtMs) : "";
+                const key = normalized.id
+                    ? "id:" + normalized.id
+                    : [timeKey, authorKey, normalized.text.toLowerCase()].filter(Boolean).join("|") || normalized.text.toLowerCase();
+                if (!map.has(key)) map.set(key, normalized);
+            });
+            return Array.from(map.values());
+        }
+
+        function parseCommentsFromData(d) {
+            const fromArray = Array.isArray(d.comment_items)
+                ? d.comment_items
+                : (Array.isArray(d.commentItems)
+                    ? d.commentItems
+                    : (Array.isArray(d.comments) ? d.comments : []));
+            const merged = [];
+            fromArray.forEach((item) => merged.push(item));
+            const legacyComment = String(d.comment || "").trim();
+            if (legacyComment) {
+                legacyComment.split(/\r?\n+/).forEach((part) => {
+                    const text = String(part || "").trim();
+                    if (text) merged.push({ text });
+                });
+            }
+            return dedupeComments(merged);
+        }
+
+        function renderClassLinksView(list) {
+            const view = document.getElementById("classLinksView");
+            if (!view) return;
+            view.innerHTML = "";
+            const items = dedupeClassLinks(Array.isArray(list) ? list : []);
+            if (!items.length) {
+                const empty = document.createElement("div");
+                empty.className = "text-[11px] text-slate-400";
+                empty.textContent = "-";
+                view.appendChild(empty);
+                return;
+            }
+            items.forEach((item) => {
+                const anchor = document.createElement("a");
+                anchor.href = item.url;
+                anchor.target = "_blank";
+                anchor.rel = "noopener";
+                anchor.className = "block w-full text-[11px] font-semibold text-indigo-600 whitespace-nowrap overflow-hidden text-ellipsis";
+                anchor.textContent = item.title || item.url;
+                anchor.title = item.url;
+                view.appendChild(anchor);
+            });
+        }
+
+        function createClassLinkRow(item, disabled) {
+            const row = document.createElement("div");
+            row.className = "grid grid-cols-[minmax(0,1fr)_160px_auto] gap-2";
+            const urlInput = document.createElement("input");
+            urlInput.type = "url";
+            urlInput.placeholder = "https://...";
+            urlInput.className = "w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50";
+            urlInput.value = item && item.url ? item.url : "";
+            urlInput.dataset.linkUrl = "1";
+            urlInput.disabled = !!disabled;
+            const titleInput = document.createElement("input");
+            titleInput.type = "text";
+            titleInput.placeholder = "Title link";
+            titleInput.className = "w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50";
+            titleInput.value = item && item.title ? item.title : "";
+            titleInput.dataset.linkTitle = "1";
+            titleInput.disabled = !!disabled;
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "w-7 h-7 rounded-lg border border-slate-200 bg-white text-sm font-bold leading-none text-rose-600 hover:bg-rose-50";
+            removeBtn.textContent = "×";
+            removeBtn.disabled = !!disabled;
+            removeBtn.addEventListener("click", () => {
+                row.remove();
+                renderClassLinksView(getClassLinksFromEditor());
+            });
+            urlInput.addEventListener("input", () => renderClassLinksView(getClassLinksFromEditor()));
+            titleInput.addEventListener("input", () => renderClassLinksView(getClassLinksFromEditor()));
+            row.appendChild(urlInput);
+            row.appendChild(titleInput);
+            row.appendChild(removeBtn);
+            return row;
+        }
+
+        function getClassLinksFromEditor() {
+            const container = document.getElementById("classLinksContainer");
+            if (!container) return [];
+            const rows = Array.from(container.children || []);
+            const list = rows.map((row) => {
+                const urlInput = row.querySelector("input[data-link-url='1']");
+                const titleInput = row.querySelector("input[data-link-title='1']");
+                return normalizeClassLinkItem({
+                    url: urlInput ? urlInput.value : "",
+                    title: titleInput ? titleInput.value : ""
+                });
+            }).filter(Boolean);
+            return dedupeClassLinks(list);
+        }
+
+        function renderClassLinksEditor(list, disabled) {
+            const container = document.getElementById("classLinksContainer");
+            if (!container) return;
+            const items = dedupeClassLinks(Array.isArray(list) ? list : []);
+            container.innerHTML = "";
+            if (!items.length) {
+                container.appendChild(createClassLinkRow({ url: "" }, disabled));
+            } else {
+                items.forEach((item) => container.appendChild(createClassLinkRow(item, disabled)));
+            }
+            renderClassLinksView(getClassLinksFromEditor());
+        }
+
+        function addClassLinkRow() {
+            const container = document.getElementById("classLinksContainer");
+            if (!container) return;
+            container.appendChild(createClassLinkRow({ url: "" }, !detailEditEnabled));
+            renderClassLinksView(getClassLinksFromEditor());
+        }
+
+        function setClassLinksEditDisabled(disabled) {
+            const container = document.getElementById("classLinksContainer");
+            const addBtn = document.getElementById("btnAddClassLink");
+            if (addBtn) addBtn.disabled = !!disabled;
+            if (!container) return;
+            Array.from(container.children || []).forEach((row) => {
+                const urlInput = row.querySelector("input[data-link-url='1']");
+                const titleInput = row.querySelector("input[data-link-title='1']");
+                const removeBtn = row.querySelector("button");
+                if (urlInput) urlInput.disabled = !!disabled;
+                if (titleInput) titleInput.disabled = !!disabled;
+                if (removeBtn) removeBtn.disabled = !!disabled;
+            });
+        }
+
+        function renderCommentsView(list) {
+            const view = document.getElementById("commentsView");
+            if (!view) return;
+            view.innerHTML = "";
+            const items = dedupeComments(Array.isArray(list) ? list : detailCommentsState);
+            if (!items.length) {
+                const empty = document.createElement("div");
+                empty.className = "text-[11px] text-slate-400";
+                empty.textContent = "-";
+                view.appendChild(empty);
+                return;
+            }
+            items.sort((a, b) => {
+                if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+                return (b.createdAtMs || 0) - (a.createdAtMs || 0);
+            });
+            items.forEach((item) => {
+                const author = item.createdBy || { uid: "", name: "", photo: "" };
+                const authorName = (author.name || author.uid || "Unknown User").trim() || "Unknown User";
+                const card = document.createElement("div");
+                card.className = "comment-card" + (item.pinned ? " is-pinned" : "");
+                const avatar = document.createElement("div");
+                avatar.className = "comment-avatar";
+                if (author.photo) {
+                    const img = document.createElement("img");
+                    img.src = author.photo;
+                    img.alt = authorName;
+                    avatar.appendChild(img);
+                } else {
+                    avatar.textContent = getInitials(authorName);
+                }
+                const content = document.createElement("div");
+                content.className = "comment-content";
+                const meta = document.createElement("div");
+                meta.className = "comment-meta";
+                const nameEl = document.createElement("div");
+                nameEl.className = "comment-author";
+                nameEl.textContent = authorName;
+                const timeEl = document.createElement("div");
+                timeEl.className = "comment-time";
+                timeEl.textContent = formatCommentTimestamp(item.createdAtMs);
+                meta.appendChild(nameEl);
+                meta.appendChild(timeEl);
+                if (item.pinned) {
+                    const pin = document.createElement("div");
+                    pin.className = "comment-pin";
+                    pin.textContent = "Pinned";
+                    meta.appendChild(pin);
+                }
+
+                if (commentEditId === item.id) {
+                    const editArea = document.createElement("div");
+                    editArea.className = "mt-2";
+                    
+                    const textarea = document.createElement("textarea");
+                    textarea.className = "comment-composer-textarea mb-2";
+                    textarea.rows = 2;
+                    textarea.value = item.text;
+                    
+                    const actionsRow = document.createElement("div");
+                    actionsRow.className = "flex justify-end gap-2";
+                    
+                    const btnCancel = document.createElement("button");
+                    btnCancel.className = "comment-composer-btn is-ghost";
+                    btnCancel.textContent = "Batal";
+                    btnCancel.addEventListener("click", () => {
+                        commentEditId = "";
+                        renderCommentsView(detailCommentsState);
+                    });
+                    
+                    const btnSave = document.createElement("button");
+                    btnSave.className = "comment-composer-btn is-primary";
+                    btnSave.textContent = "Simpan";
+                    btnSave.addEventListener("click", () => {
+                        const newText = String(textarea.value || "").trim();
+                        if (!newText) {
+                            showToast("Komentar tidak boleh kosong", "error");
+                            return;
+                        }
+                        updateCommentText(item.id, newText);
+                        commentEditId = "";
+                        renderCommentsView(detailCommentsState);
+                        persistCommentChanges();
+                    });
+                    
+                    actionsRow.appendChild(btnCancel);
+                    actionsRow.appendChild(btnSave);
+                    editArea.appendChild(textarea);
+                    editArea.appendChild(actionsRow);
+                    
+                    content.appendChild(meta);
+                    content.appendChild(editArea);
+                    
+                    setTimeout(() => textarea.focus(), 0);
+                } else {
+                    const actions = document.createElement("div");
+                    actions.className = "comment-actions";
+                    const editBtn = document.createElement("button");
+                    editBtn.type = "button";
+                    editBtn.className = "comment-action-btn flex items-center justify-center w-6 h-6 !p-0";
+                    editBtn.innerHTML = '<i data-lucide="pencil" class="w-3 h-3"></i>';
+                    editBtn.title = "Edit";
+                    editBtn.addEventListener("click", () => startEditComment(item.id));
+                    
+                    const pinBtn = document.createElement("button");
+                    pinBtn.type = "button";
+                    pinBtn.className = "comment-action-btn flex items-center justify-center w-6 h-6 !p-0" + (item.pinned ? " is-active" : "");
+                    pinBtn.innerHTML = '<i data-lucide="pin" class="w-3 h-3"></i>';
+                    pinBtn.title = item.pinned ? "Unpin" : "Pin";
+                    pinBtn.addEventListener("click", () => toggleCommentPin(item.id));
+                    
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.type = "button";
+                    deleteBtn.className = "comment-action-btn is-danger flex items-center justify-center w-6 h-6 !p-0";
+                    deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-3 h-3"></i>';
+                    deleteBtn.title = "Hapus";
+                    deleteBtn.addEventListener("click", () => deleteComment(item.id));
+                    
+                    actions.appendChild(editBtn);
+                    actions.appendChild(pinBtn);
+                    actions.appendChild(deleteBtn);
+                    meta.appendChild(actions);
+                    
+                    const textEl = document.createElement("div");
+                    textEl.className = "comment-text";
+                    textEl.textContent = item.text;
+                    
+                    content.appendChild(meta);
+                    content.appendChild(textEl);
+                }
+
+                card.appendChild(avatar);
+                card.appendChild(content);
+                view.appendChild(card);
+            });
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function getCommentsFromEditor() {
+            return dedupeComments(detailCommentsState);
+        }
+
+        function renderCommentsEditor(list, disabled) {
+            setDetailCommentsState(list || []);
+            renderCommentsView(detailCommentsState);
+            setCommentEditorDisabled(false);
+            resetCommentComposer();
+        }
+
+        function getCurrentCommentAuthor() {
+            const user = getCurrentUserAuditInfo();
+            const rawUser = user && user.raw ? user.raw : {};
+            return {
+                uid: user.userId || rawUser.uid || rawUser.id || "",
+                name: user.userName || rawUser.name || rawUser.fullName || rawUser.email || "Unknown User",
+                photo: rawUser.photo || rawUser.photoURL || rawUser.avatar || rawUser.avatar_url || rawUser.image || ""
+            };
+        }
+
+        function addCommentRow() {
+            const input = document.getElementById("commentInput");
+            if (input) input.focus();
+        }
+
+        function setCommentsEditDisabled(disabled) {
+            setCommentEditorDisabled(false);
+            syncCommentComposerAvatar(getCurrentCommentAuthor());
+            updateCommentComposerState();
+            renderCommentsView(detailCommentsState);
+        }
+
+        function getFirstName(fullName) {
+            if (!fullName) return "-";
+            return String(fullName).trim().split(/\s+/)[0] || "-";
+        }
+
+        function getInitials(fullName) {
+            if (!fullName) return "S";
+            const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+            if (!parts.length) return "S";
+            return parts.slice(0, 2).map(p => p[0]).join("").toUpperCase();
+        }
+
+        function getTypePillClass(type) {
+            const v = String(type || "").toLowerCase();
+            if (v === "online") return "cal-type-pill cal-type-online";
+            if (v === "hybrid") return "cal-type-pill cal-type-hybrid";
+            return "cal-type-pill cal-type-offline";
+        }
+
+        function mapUserDocToOption(docSnap) {
+            const d = docSnap.data() || {};
+            const uid = d.uid || docSnap.id;
+            const name = d.name || d.displayName || d.nickname || d.email || uid;
+            const photo = d.photo || d.photoURL || d.avatar_url || d.avatar || "";
+            return { uid, name, photo };
+        }
+
+        function normalizeAssignee(raw) {
+            if (!raw) return null;
+            if (typeof raw === "string") {
+                const name = raw.trim();
+                if (!name) return null;
+                return { uid: "", name, photo: "" };
+            }
+            if (typeof raw !== "object") return null;
+            const uid = String(raw.uid || raw.userId || raw.id || "").trim();
+            const name = String(raw.name || raw.displayName || raw.fullName || raw.nama || "").trim();
+            const photo = String(raw.photo || raw.photoURL || raw.avatar || raw.image || "").trim();
+            if (!uid && !name) return null;
+            return { uid, name: name || uid, photo };
+        }
+
+        function normalizeAssigneeArray(raw) {
+            if (!Array.isArray(raw)) return [];
+            return raw.map(normalizeAssignee).filter(Boolean);
+        }
+
+        function dedupeAssignees(list) {
+            const map = new Map();
+            list.forEach((item) => {
+                const normalized = normalizeAssignee(item);
+                if (!normalized) return;
+                const key = normalized.uid ? "uid:" + normalized.uid : "name:" + normalized.name.toLowerCase();
+                if (!map.has(key)) {
+                    map.set(key, normalized);
+                }
+            });
+            return Array.from(map.values());
+        }
+
+        function extractSupervisorsFromDoc(d) {
+            const legacySupervisor = normalizeAssignee({
+                uid: d.pic_uid || d.picUid || d.supervisor_uid || d.supervisorUid || "",
+                name: d.pic || d.supervisor_name || d.supervisorName || "",
+                photo: d.pic_photo || d.picPhoto || d.supervisor_photo || d.supervisorPhoto || ""
+            });
+            const merged = [
+                ...normalizeAssigneeArray(d.supervisors),
+                ...normalizeAssigneeArray(d.supervisor_users),
+                ...normalizeAssigneeArray(d.supervisorUsers)
+            ];
+            const picObjectSupervisor = normalizeAssignee(d.pic && typeof d.pic === "object" ? d.pic : null);
+            const supervisorObject = normalizeAssignee(d.supervisor && typeof d.supervisor === "object" ? d.supervisor : null);
+            if (picObjectSupervisor) merged.push(picObjectSupervisor);
+            if (supervisorObject) merged.push(supervisorObject);
+            if (legacySupervisor) merged.push(legacySupervisor);
+            return dedupeAssignees(merged);
+        }
+
+        function extractAdminsFromDoc(d) {
+            return dedupeAssignees([
+                ...normalizeAssigneeArray(d.admins),
+                ...normalizeAssigneeArray(d.admin_users),
+                ...normalizeAssigneeArray(d.adminUsers),
+                normalizeAssignee(d.admin),
+                normalizeAssignee(d.admin_user)
+            ]);
+        }
+
+        function extractTreasurersFromDoc(d) {
+            return dedupeAssignees([
+                ...normalizeAssigneeArray(d.treasurers),
+                ...normalizeAssigneeArray(d.treasurer_users),
+                ...normalizeAssigneeArray(d.treasurerUsers),
+                normalizeAssignee(d.treasurer),
+                normalizeAssignee(d.treasurer_user)
+            ]);
+        }
+
+        async function loadUsersForSupervisorDropdown() {
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                usersState = [];
+                snap.forEach((docSnap) => {
+                    usersState.push(mapUserDocToOption(docSnap));
+                });
+            } catch (e) {
+                usersState = [];
+            }
+        }
+
+        function mapMentorDocToOption(docSnap) {
+            const d = docSnap.data() || {};
+            const id = docSnap.id;
+            const name = d.fullName || d.nama_lengkap || d.name || d.displayName || id;
+            return { id, name };
+        }
+
+        async function loadMentorsForDropdown() {
+            try {
+                const snap = await getDocs(collection(db, "mentor"));
+                mentorsState = [];
+                snap.forEach((docSnap) => {
+                    mentorsState.push(mapMentorDocToOption(docSnap));
+                });
+            } catch (e) {
+                mentorsState = [];
+            }
+        }
+
+        function renderMentorOptions(selectedName) {
+            const select = document.getElementById("editMentorName");
+            if (!select) return;
+            select.innerHTML = "";
+            const emptyOption = document.createElement("option");
+            emptyOption.value = "";
+            emptyOption.textContent = "Pilih mentor";
+            select.appendChild(emptyOption);
+            mentorsState.forEach((m) => {
+                const opt = document.createElement("option");
+                opt.value = m.name;
+                opt.textContent = m.name;
+                select.appendChild(opt);
+            });
+            if (selectedName) {
+                const found = mentorsState.some(m => m.name === selectedName);
+                if (!found) {
+                    const opt = document.createElement("option");
+                    opt.value = selectedName;
+                    opt.textContent = selectedName;
+                    select.appendChild(opt);
+                }
+                select.value = selectedName;
+            }
+        }
+
+        function renderUserMultiOptions(selectId, selectedUsers, emptyLabel) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const selected = dedupeAssignees(Array.isArray(selectedUsers) ? selectedUsers : []);
+            const selectedKeys = new Set(selected.map((u) => (u.uid ? "uid:" + u.uid : "name:" + u.name)));
+            select.innerHTML = "";
+            const emptyOption = document.createElement("option");
+            emptyOption.value = "";
+            emptyOption.textContent = emptyLabel;
+            emptyOption.disabled = true;
+            select.appendChild(emptyOption);
+            usersState.forEach((u) => {
+                const opt = document.createElement("option");
+                opt.value = u.uid;
+                opt.textContent = u.name;
+                if (selectedKeys.has("uid:" + u.uid)) opt.selected = true;
+                select.appendChild(opt);
+            });
+            selected.forEach((u) => {
+                const key = u.uid ? "uid:" + u.uid : "name:" + u.name;
+                const found = u.uid ? usersState.some(item => item.uid === u.uid) : false;
+                if (!found && !Array.from(select.options).some(opt => opt.value === key)) {
+                    const opt = document.createElement("option");
+                    opt.value = key;
+                    opt.textContent = u.name || u.uid;
+                    opt.selected = true;
+                    select.appendChild(opt);
+                }
+            });
+            refreshUserMultiDropdown(selectId, emptyLabel);
+            updateUserMultiPreview(selectId, selected);
+        }
+
+        function getSelectedUsersFromMultiSelect(selectId) {
+            const select = document.getElementById(selectId);
+            if (!select) return [];
+            const selectedOptions = Array.from(select.selectedOptions || []).filter(opt => opt.value);
+            const selectedUsers = selectedOptions.map((opt) => {
+                const value = opt.value || "";
+                if (value.startsWith("uid:")) {
+                    const uid = value.slice(4);
+                    const found = usersState.find(u => u.uid === uid);
+                    if (found) return { uid: found.uid, name: found.name, photo: found.photo || "" };
+                    return { uid, name: opt.textContent || uid, photo: "" };
+                }
+                const found = usersState.find(u => u.uid === value);
+                if (found) return { uid: found.uid, name: found.name, photo: found.photo || "" };
+                if (value.startsWith("name:")) return { uid: "", name: value.slice(5), photo: "" };
+                return { uid: value, name: opt.textContent || value, photo: "" };
+            });
+            return dedupeAssignees(selectedUsers);
+        }
+
+        function updateUserMultiPreview(selectId, selectedUsers) {
+            const previewMap = {
+                editSupervisorUsers: "editSupervisorUsersPreview",
+                editAdminUsers: "editAdminUsersPreview",
+                editTreasurerUsers: "editTreasurerUsersPreview"
+            };
+            const container = document.getElementById(previewMap[selectId] || "");
+            if (!container) return;
+            const list = dedupeAssignees(Array.isArray(selectedUsers) ? selectedUsers : []);
+            container.innerHTML = "";
+            if (!list.length) {
+                const empty = document.createElement("span");
+                empty.className = "detail-user-empty";
+                empty.textContent = "-";
+                container.appendChild(empty);
+                return;
+            }
+            list.forEach((u) => {
+                const avatar = document.createElement("span");
+                avatar.className = "detail-user-avatar";
+                avatar.title = u.name || "-";
+                if (u.photo) {
+                    const img = document.createElement("img");
+                    img.src = u.photo;
+                    img.alt = u.name || "User";
+                    avatar.appendChild(img);
+                } else {
+                    avatar.textContent = getInitials(u.name || "U");
+                }
+                container.appendChild(avatar);
+            });
+        }
+
+        function getUserMultiDropdownConfig(selectId) {
+            const map = {
+                editSupervisorUsers: {
+                    toggleId: "editSupervisorUsersToggle",
+                    labelId: "editSupervisorUsersLabel",
+                    panelId: "editSupervisorUsersPanel"
+                },
+                editAdminUsers: {
+                    toggleId: "editAdminUsersToggle",
+                    labelId: "editAdminUsersLabel",
+                    panelId: "editAdminUsersPanel"
+                },
+                editTreasurerUsers: {
+                    toggleId: "editTreasurerUsersToggle",
+                    labelId: "editTreasurerUsersLabel",
+                    panelId: "editTreasurerUsersPanel"
+                }
+            };
+            return map[selectId] || null;
+        }
+
+        function updateUserMultiDropdownLabel(selectId, emptyLabel) {
+            const cfg = getUserMultiDropdownConfig(selectId);
+            if (!cfg) return;
+            const select = document.getElementById(selectId);
+            const label = document.getElementById(cfg.labelId);
+            if (!select || !label) return;
+            const selectedOptions = Array.from(select.selectedOptions || []).filter(opt => opt.value);
+            if (!selectedOptions.length) {
+                label.textContent = emptyLabel;
+                return;
+            }
+            if (selectedOptions.length === 1) {
+                label.textContent = selectedOptions[0].textContent || emptyLabel;
+                return;
+            }
+            const first = selectedOptions[0].textContent || "";
+            label.textContent = first + " +" + String(selectedOptions.length - 1) + " lainnya";
+        }
+
+        function refreshUserMultiDropdown(selectId, emptyLabel) {
+            const cfg = getUserMultiDropdownConfig(selectId);
+            if (!cfg) return;
+            const select = document.getElementById(selectId);
+            const panel = document.getElementById(cfg.panelId);
+            if (!select || !panel) return;
+            const options = Array.from(select.options || []).filter(opt => opt.value);
+            panel.innerHTML = "";
+            if (!options.length) {
+                const empty = document.createElement("div");
+                empty.className = "detail-multi-empty";
+                empty.textContent = "Belum ada user";
+                panel.appendChild(empty);
+                updateUserMultiDropdownLabel(selectId, emptyLabel);
+                return;
+            }
+            const searchWrap = document.createElement("div");
+            searchWrap.className = "detail-multi-search-wrap";
+            const searchInput = document.createElement("input");
+            searchInput.type = "text";
+            searchInput.className = "detail-multi-search-input";
+            searchInput.placeholder = "Cari user...";
+            searchInput.value = userMultiSearchState[selectId] || "";
+            searchWrap.appendChild(searchInput);
+            panel.appendChild(searchWrap);
+            const listWrap = document.createElement("div");
+            listWrap.className = "detail-multi-list";
+            panel.appendChild(listWrap);
+            const noResult = document.createElement("div");
+            noResult.className = "detail-multi-empty hidden";
+            noResult.textContent = "User tidak ditemukan";
+            panel.appendChild(noResult);
+            options.forEach((opt) => {
+                const row = document.createElement("label");
+                row.className = "detail-multi-item";
+                row.dataset.searchText = String(opt.textContent || "").toLowerCase();
+                row.dataset.userOption = "1";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = !!opt.selected;
+                checkbox.addEventListener("change", () => {
+                    opt.selected = checkbox.checked;
+                    updateUserMultiDropdownLabel(selectId, emptyLabel);
+                    updateUserMultiPreview(selectId, getSelectedUsersFromMultiSelect(selectId));
+                });
+                const text = document.createElement("span");
+                text.textContent = opt.textContent || "";
+                row.appendChild(checkbox);
+                row.appendChild(text);
+                listWrap.appendChild(row);
+            });
+            const applySearch = () => {
+                const query = (searchInput.value || "").trim().toLowerCase();
+                userMultiSearchState[selectId] = searchInput.value || "";
+                let visibleCount = 0;
+                const rows = listWrap.querySelectorAll("[data-user-option='1']");
+                rows.forEach((row) => {
+                    const keyword = row.dataset.searchText || "";
+                    const matched = !query || keyword.includes(query);
+                    row.classList.toggle("hidden", !matched);
+                    if (matched) visibleCount += 1;
+                });
+                noResult.classList.toggle("hidden", visibleCount > 0);
+            };
+            searchInput.addEventListener("input", applySearch);
+            applySearch();
+            updateUserMultiDropdownLabel(selectId, emptyLabel);
+        }
+
+        function closeAllUserMultiDropdownPanels() {
+            ["editSupervisorUsers", "editAdminUsers", "editTreasurerUsers"].forEach((selectId) => {
+                const cfg = getUserMultiDropdownConfig(selectId);
+                if (!cfg) return;
+                const panel = document.getElementById(cfg.panelId);
+                if (panel) panel.classList.add("hidden");
+            });
+        }
+
+        function setUserMultiDropdownDisabled(disabled) {
+            ["editSupervisorUsers", "editAdminUsers", "editTreasurerUsers"].forEach((selectId) => {
+                const cfg = getUserMultiDropdownConfig(selectId);
+                if (!cfg) return;
+                const toggle = document.getElementById(cfg.toggleId);
+                if (toggle) toggle.disabled = !!disabled;
+                if (disabled) {
+                    const panel = document.getElementById(cfg.panelId);
+                    if (panel) panel.classList.add("hidden");
+                }
+            });
+        }
+
+        function bindUserMultiDropdown(selectId, emptyLabel) {
+            const cfg = getUserMultiDropdownConfig(selectId);
+            if (!cfg) return;
+            const toggle = document.getElementById(cfg.toggleId);
+            const panel = document.getElementById(cfg.panelId);
+            if (!toggle || !panel) return;
+            toggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (toggle.disabled) return;
+                const willOpen = panel.classList.contains("hidden");
+                closeAllUserMultiDropdownPanels();
+                if (willOpen) {
+                    refreshUserMultiDropdown(selectId, emptyLabel);
+                    panel.classList.remove("hidden");
+                    const searchInput = panel.querySelector(".detail-multi-search-input");
+                    if (searchInput) searchInput.focus();
+                }
+            });
+            panel.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        function setDetailEditMode(enabled) {
+            detailEditEnabled = enabled;
+            const inputIds = [
+                "editClassName",
+                "editStatus",
+                "editStartDate",
+                "editStartTime",
+                "editLocation",
+                "editType",
+                "editMentorName",
+                "editSupervisorUsers",
+                "editAdminUsers",
+                "editTreasurerUsers",
+                "editMeetingDone",
+                "editMeetingTotal"
+            ];
+            inputIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !enabled;
+            });
+            setUserMultiDropdownDisabled(!enabled);
+            setClassLinksEditDisabled(!enabled);
+            setCommentsEditDisabled(false);
+            const btnEnable = document.getElementById("btnEnableDetailEdit");
+            const btnCancel = document.getElementById("btnCancelDetailEdit");
+            const btnSave = document.getElementById("btnSaveDetailEdit");
+            if (btnEnable) btnEnable.classList.toggle("hidden", enabled);
+            if (btnCancel) btnCancel.classList.toggle("hidden", !enabled);
+            if (btnSave) btnSave.classList.toggle("hidden", !enabled);
+        }
+
+        function setDetailPageLink(c) {
+            const btn = document.getElementById("btnOpenDetailPage");
+            if (!btn) return;
+            const docId = c && c.docId ? c.docId : "";
+            btn.href = "./class-detail.html?docId=" + encodeURIComponent(docId);
+        }
+
+        function openDetailModal(classId) {
+            const modal = document.getElementById("classDetailModal");
+            if (!modal) return;
+            const c = classesState.find(item => item.id === classId);
+            if (!c) return;
+            currentDetailClassId = c.id;
+            const subEl = document.getElementById("detailSubtitle");
+            const nameEl = document.getElementById("editClassName");
+            const statusEl = document.getElementById("editStatus");
+            const startEl = document.getElementById("editStartDate");
+            const startTimeEl = document.getElementById("editStartTime");
+            const locationEl = document.getElementById("editLocation");
+            const typeEl = document.getElementById("editType");
+            const meetingDoneEl = document.getElementById("editMeetingDone");
+            const meetingTotalEl = document.getElementById("editMeetingTotal");
+            if (subEl) {
+                subEl.textContent = "ID: " + (c.id || "-") +
+                    (c.isRemedial && c.parentClassName ? " | Parent: " + c.parentClassName : "");
+            }
+            if (nameEl) nameEl.value = c.name || "";
+            if (statusEl) statusEl.value = c.status || "Soon";
+            if (startEl) startEl.value = c.startDate || "";
+            if (startTimeEl) startTimeEl.value = c.startTime || "";
+            if (locationEl) locationEl.value = c.location || "";
+            if (typeEl) typeEl.value = c.type || "Offline";
+            const selectedMentorName = Array.isArray(c.mentors) && c.mentors.length ? c.mentors[0].name : "";
+            renderMentorOptions(selectedMentorName);
+            if (meetingDoneEl) meetingDoneEl.value = String(c.meetingDone || 0);
+            if (meetingTotalEl) meetingTotalEl.value = String(c.meetingTotal || 0);
+            renderUserMultiOptions("editSupervisorUsers", c.supervisors || (c.supervisor ? [c.supervisor] : []), "Pilih supervisor");
+            renderUserMultiOptions("editAdminUsers", c.admins || [], "Pilih admin");
+            renderUserMultiOptions("editTreasurerUsers", c.treasurers || [], "Pilih treasurer");
+            renderClassLinksEditor(c.classLinks || [], true);
+            renderCommentsEditor(c.comments || parseCommentsFromData({ comment: c.comment || "" }), true);
+            setDetailPageLink(c);
+            renderSalarySection(c);
+            setDetailEditMode(false);
+            modal.classList.add("open");
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function formatSalaryCurrency(value) {
+            const num = parseInt(String(value || "").replace(/[^\d]/g, ""), 10);
+            if (!num || isNaN(num)) return "";
+            return new Intl.NumberFormat("id-ID").format(num);
+        }
+
+        function shouldAutoShowSalarySection(status) {
+            const normalized = String(status || "").trim().toLowerCase();
+            return normalized === "graduate"
+                || normalized === "stall";
+        }
+
+        function shouldShowSalarySection(status, classId) {
+            if (shouldAutoShowSalarySection(status)) return true;
+            return !!classId && manualSalaryTriggerClassId === classId;
+        }
+
+        function renderSalarySection(c) {
+            const section = document.getElementById("salarySection");
+            const formArea = document.getElementById("salaryFormArea");
+            const publishedArea = document.getElementById("salaryPublishedArea");
+            const statusText = document.getElementById("salaryStatusText");
+            const mentorInput = document.getElementById("salaryMentorName");
+            const classInput = document.getElementById("salaryClassName");
+            const amountInput = document.getElementById("salaryAmount");
+            const dueDateInput = document.getElementById("salaryDueDate");
+            const notesInput = document.getElementById("salaryNotes");
+            const publishedDetail = document.getElementById("salaryPublishedDetail");
+            const expenseLink = document.getElementById("salaryExpenseLink");
+            if (!section) return;
+            const isSalaryVisible = shouldShowSalarySection(c.status, c.id);
+            if (!isSalaryVisible) {
+                section.classList.add("hidden");
+                return;
+            }
+            section.classList.remove("hidden");
+            const mentorFullName = c.mentors && c.mentors.length ? c.mentors[0].name : "-";
+            if (statusText) statusText.textContent = "Kelas telah " + c.status.toLowerCase() + " (" + c.meetingDone + "/" + c.meetingTotal + " meeting)";
+            if (mentorInput) mentorInput.value = mentorFullName;
+            if (classInput) classInput.value = c.name || "-";
+            if (c.salaryExpenseId) {
+                if (formArea) formArea.classList.add("hidden");
+                if (publishedArea) publishedArea.classList.remove("hidden");
+                if (publishedDetail) {
+                    const byText = c.salaryPublishedBy ? " oleh " + c.salaryPublishedBy : "";
+                    publishedDetail.textContent = "Expense ID: " + c.salaryExpenseId + byText;
+                }
+                if (expenseLink) expenseLink.href = "./operational-expenses.html";
+            } else {
+                if (formArea) formArea.classList.remove("hidden");
+                if (publishedArea) publishedArea.classList.add("hidden");
+                if (amountInput) amountInput.value = "";
+                if (dueDateInput) {
+                    const nextWeek = new Date();
+                    nextWeek.setDate(nextWeek.getDate() + 7);
+                    dueDateInput.value = toDateKey(nextWeek);
+                }
+                if (notesInput) notesInput.value = "";
+            }
+        }
+
+        function triggerManualSalaryFromModal() {
+            if (!currentDetailClassId) return;
+            const idx = classesState.findIndex(c => c.id === currentDetailClassId);
+            if (idx < 0) return;
+            manualSalaryTriggerClassId = currentDetailClassId;
+            renderSalarySection(classesState[idx]);
+            const section = document.getElementById("salarySection");
+            if (section && !section.classList.contains("hidden")) {
+                section.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+
+        async function findMentorDocByName(mentorName) {
+            if (!mentorName) return null;
+            try {
+                const snap = await getDocs(collection(db, "mentor"));
+                let found = null;
+                snap.forEach((docSnap) => {
+                    if (found) return;
+                    const d = docSnap.data() || {};
+                    const names = [
+                        d.fullName, d.nama_lengkap, d.name, d.displayName
+                    ].filter(Boolean).map(n => String(n).trim().toLowerCase());
+                    if (names.includes(mentorName.trim().toLowerCase())) {
+                        found = { id: docSnap.id, data: d };
+                    }
+                });
+                return found;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function extractBankInfoFromMentor(d) {
+            const first = (...vals) => {
+                for (const v of vals) {
+                    const s = String(v || "").trim();
+                    if (s) return s;
+                }
+                return "";
+            };
+            return {
+                beneficiaryName: first(d.beneficiaryName, d.accountHolderName, d.accountName, d.namaPemilikRekening, d.nama_rekening, d.namaRekening, d.fullName, d.nama_lengkap, d.name),
+                bankName: first(d.bankName, d.bank, d.namaBank, d.bank_name, d.rekeningBank, d.bankAccountBank),
+                accountNumber: first(d.accountNumber, d.noRekening, d.no_rekening, d.nomorRekening, d.nomor_rekening, d.account_number)
+            };
+        }
+
+        async function publishSalaryToExpenses() {
+            if (!currentDetailClassId) return;
+            const idx = classesState.findIndex(c => c.id === currentDetailClassId);
+            if (idx < 0) return;
+            const c = classesState[idx];
+            if (c.salaryExpenseId) {
+                showToast("Gaji untuk kelas ini sudah dipublish sebelumnya", "error");
+                return;
+            }
+            const amountRaw = (document.getElementById("salaryAmount")?.value || "").replace(/[^\d]/g, "");
+            const amount = parseInt(amountRaw, 10) || 0;
+            const dueDate = (document.getElementById("salaryDueDate")?.value || "").trim();
+            const notes = (document.getElementById("salaryNotes")?.value || "").trim();
+            if (!amount || amount <= 0) {
+                showToast("Nominal gaji wajib diisi dan lebih dari 0", "error");
+                return;
+            }
+            if (!notes) {
+                showToast("Notes untuk treasurer wajib diisi agar jelas tujuan transfer", "error");
+                return;
+            }
+            const btnPublish = document.getElementById("btnPublishSalary");
+            if (btnPublish) {
+                btnPublish.disabled = true;
+                btnPublish.innerHTML = '<span class="pulse-dot"></span> Publishing...';
+            }
+            try {
+                const mentorFullName = c.mentors && c.mentors.length ? c.mentors[0].name : "";
+                const user = getCurrentUserAuditInfo();
+                const mentorDoc = await findMentorDocByName(mentorFullName);
+                let bankInfo = { beneficiaryName: mentorFullName, bankName: "", accountNumber: "" };
+                let mentorId = "";
+                if (mentorDoc) {
+                    mentorId = mentorDoc.id;
+                    bankInfo = extractBankInfoFromMentor(mentorDoc.data);
+                    if (!bankInfo.beneficiaryName) bankInfo.beneficiaryName = mentorFullName;
+                }
+                const expenseId = "OPS-" + Date.now();
+                const nowMs = Date.now();
+                const expensePayload = {
+                    title: "Gaji Mentor " + (mentorFullName || "Unknown") + " - " + (c.name || "Unknown Class"),
+                    category: "mentor_salary",
+                    department: "Client & Product",
+                    requesterId: user.userId || "",
+                    requesterName: user.userName || "Admin",
+                    classId: c.docId || "",
+                    relatedClass: c.name || "",
+                    mentorId: mentorId,
+                    mentorName: mentorFullName,
+                    dueDate: dueDate,
+                    amount: amount,
+                    status: "requested",
+                    beneficiaryName: bankInfo.beneficiaryName,
+                    bankName: bankInfo.bankName,
+                    accountNumber: bankInfo.accountNumber,
+                    paymentMethod: "Transfer Bank",
+                    transferProofUrl: "",
+                    transferProofPath: "",
+                    notes: notes,
+                    paymentNotes: "",
+                    vendorName: "",
+                    expensePeriod: "",
+                    reimburseType: "",
+                    reimburseReason: "",
+                    toolName: "",
+                    billingPeriod: "",
+                    travelerName: "",
+                    travelDate: "",
+                    travelRoute: "",
+                    referenceLabel: "",
+                    referenceDetail: "",
+                    createdAtMs: nowMs,
+                    updatedAtMs: nowMs,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    sourcePublish: "class_checkup",
+                    sourceClassDocId: c.docId || ""
+                };
+                await setDoc(doc(db, "operational_expenses", expenseId), expensePayload);
+                await updateDoc(doc(db, getClassSourceCollection(c), c.docId), {
+                    salary_expense_id: expenseId,
+                    salary_published_at: serverTimestamp(),
+                    salary_published_by: user.userName || "Admin",
+                    updatedAt: serverTimestamp()
+                });
+                classesState[idx] = {
+                    ...c,
+                    salaryExpenseId: expenseId,
+                    salaryPublishedBy: user.userName || "Admin"
+                };
+                await logScheduleChange(classesState[idx], "", "", "salary_publish", [{
+                    field: "salary",
+                    label: "Publish Gaji Mentor",
+                    from: "-",
+                    to: "Rp " + formatSalaryCurrency(String(amount)) + " → " + expenseId
+                }]);
+                renderSalarySection(classesState[idx]);
+                if (window.lucide) window.lucide.createIcons();
+                showToast("Gaji mentor berhasil dipublish ke Operational Expenses!", "success");
+            } catch (e) {
+                showToast("Gagal mempublish gaji mentor: " + (e.message || "Unknown error"), "error");
+            } finally {
+                if (btnPublish) {
+                    btnPublish.disabled = false;
+                    btnPublish.innerHTML = '<span class="pulse-dot"></span> Publish ke Operational Expenses';
+                }
+            }
+        }
+
+        async function undoSalaryPublish() {
+            if (!currentDetailClassId) return;
+            const idx = classesState.findIndex(c => c.id === currentDetailClassId);
+            if (idx < 0) return;
+            const c = classesState[idx];
+            if (!c.salaryExpenseId) {
+                showToast("Tidak ada publish gaji yang bisa di-undo", "error");
+                return;
+            }
+            const confirmed = confirm(
+                "Anda yakin ingin membatalkan publish gaji mentor?\n\n" +
+                "Expense ID: " + c.salaryExpenseId + "\n" +
+                "Kelas: " + (c.name || "-") + "\n\n" +
+                "Data expense di Operational Expenses akan dihapus dan form publish akan terbuka kembali."
+            );
+            if (!confirmed) return;
+            const btnUndo = document.getElementById("btnUndoSalary");
+            if (btnUndo) {
+                btnUndo.disabled = true;
+                btnUndo.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Membatalkan...';
+            }
+            try {
+                const user = getCurrentUserAuditInfo();
+                const expenseId = c.salaryExpenseId;
+                await deleteDoc(doc(db, "operational_expenses", expenseId));
+                await updateDoc(doc(db, getClassSourceCollection(c), c.docId), {
+                    salary_expense_id: "",
+                    salary_published_at: null,
+                    salary_published_by: "",
+                    updatedAt: serverTimestamp()
+                });
+                classesState[idx] = {
+                    ...c,
+                    salaryExpenseId: "",
+                    salaryPublishedAt: null,
+                    salaryPublishedBy: ""
+                };
+                await logScheduleChange(classesState[idx], "", "", "salary_undo", [{
+                    field: "salary",
+                    label: "Undo Publish Gaji Mentor",
+                    from: expenseId,
+                    to: "Dibatalkan oleh " + (user.userName || "Admin")
+                }]);
+                renderSalarySection(classesState[idx]);
+                if (window.lucide) window.lucide.createIcons();
+                showToast("Publish gaji berhasil dibatalkan. Expense " + expenseId + " telah dihapus.", "success");
+            } catch (e) {
+                showToast("Gagal membatalkan publish gaji: " + (e.message || "Unknown error"), "error");
+            } finally {
+                if (btnUndo) {
+                    btnUndo.disabled = false;
+                    btnUndo.innerHTML = '<i data-lucide="undo-2" class="w-3 h-3"></i> Undo Publish';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            }
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById("classDetailModal");
+            if (!modal) return;
+            if (currentDetailClassId && manualSalaryTriggerClassId === currentDetailClassId) {
+                manualSalaryTriggerClassId = null;
+            }
+            modal.classList.remove("open");
+            currentDetailClassId = null;
+        }
+
+        function buildMentorArrayFromName(name) {
+            const raw = (name || "").trim();
+            if (!raw) return [];
+            return [{
+                name: raw,
+                initials: raw.split(" ").filter(Boolean).map(n => n[0]).join("").toUpperCase().slice(0, 2)
+            }];
+        }
+
+        async function saveDetailChanges() {
+            if (!currentDetailClassId) return;
+            const idx = classesState.findIndex(c => c.id === currentDetailClassId);
+            if (idx < 0) return;
+            const selected = classesState[idx];
+            const btnSave = document.getElementById("btnSaveDetailEdit");
+            const name = (document.getElementById("editClassName")?.value || "").trim();
+            if (!name) {
+                showToast("Nama kelas wajib diisi", "error");
+                return;
+            }
+            const status = (document.getElementById("editStatus")?.value || "Soon").trim();
+            const startDate = (document.getElementById("editStartDate")?.value || "").trim();
+            const startTime = (document.getElementById("editStartTime")?.value || "").trim();
+            const location = (document.getElementById("editLocation")?.value || "").trim();
+            const type = (document.getElementById("editType")?.value || "Offline").trim();
+            const mentorName = (document.getElementById("editMentorName")?.value || "").trim();
+            const mentors = buildMentorArrayFromName(mentorName);
+            const supervisors = getSelectedUsersFromMultiSelect("editSupervisorUsers");
+            const admins = getSelectedUsersFromMultiSelect("editAdminUsers");
+            const treasurers = getSelectedUsersFromMultiSelect("editTreasurerUsers");
+            const supervisor = supervisors.length ? supervisors[0] : { uid: "", name: "", photo: "" };
+            const classLinks = getClassLinksFromEditor();
+            const waGroupLink = (classLinks.find((item) => item.type === "wa_group") || {}).url || "";
+            const videoClassLink = (classLinks.find((item) => item.type === "video_class") || {}).url || "";
+            const meetingDone = parseInt(document.getElementById("editMeetingDone")?.value || "0", 10) || 0;
+            const meetingTotal = parseInt(document.getElementById("editMeetingTotal")?.value || "0", 10) || 0;
+            commitPendingCommentEdit();
+            const comments = getCommentsFromEditor();
+            const comment = comments.map((item) => item.text).join("\n");
+            if (meetingTotal > 0 && meetingDone >= meetingTotal && status === "Running") {
+                const statusEl2 = document.getElementById("editStatus");
+                if (statusEl2) statusEl2.value = "Graduate";
+                showToast("Meeting selesai! Status otomatis diubah ke Graduate", "success");
+            }
+            const finalStatus = (document.getElementById("editStatus")?.value || "Soon").trim();
+            if (btnSave) {
+                btnSave.disabled = true;
+                btnSave.textContent = "Menyimpan...";
+            }
+            const nextClassData = {
+                name,
+                status: finalStatus,
+                startDate,
+                startTime,
+                location,
+                type,
+                mentorName,
+                supervisors,
+                admins,
+                treasurers,
+                classLinks,
+                meetingDone,
+                meetingTotal,
+                comments,
+                comment
+            };
+            const previousClassData = {
+                name: selected.name,
+                status: selected.status,
+                startDate: selected.startDate,
+                startTime: selected.startTime,
+                location: selected.location,
+                type: selected.type,
+                mentorName: Array.isArray(selected.mentors) && selected.mentors.length ? selected.mentors[0].name : "",
+                supervisors: selected.supervisors || [],
+                admins: selected.admins || [],
+                treasurers: selected.treasurers || [],
+                classLinks: selected.classLinks || [],
+                meetingDone: selected.meetingDone,
+                meetingTotal: selected.meetingTotal,
+                comments: selected.comments || parseCommentsFromData({ comment: selected.comment || "" }),
+                comment: selected.comment || ""
+            };
+            const changeEntries = buildClassChangeEntries(previousClassData, nextClassData);
+            try {
+                const prevDate = selected.startDate || "";
+                await updateDoc(doc(db, getClassSourceCollection(selected), selected.docId), {
+                    name,
+                    class_name: name,
+                    status: finalStatus,
+                    class_status: finalStatus,
+                    date: startDate,
+                    start_date: startDate,
+                    startDate: startDate,
+                    start_time: startTime,
+                    startTime: startTime,
+                    class_time: startTime,
+                    classTime: startTime,
+                    time: startTime,
+                    jam: startTime,
+                    location,
+                    type,
+                    mentors,
+                    mentor_name: mentorName,
+                    supervisors,
+                    supervisor_users: supervisors,
+                    pic: supervisor.name || "",
+                    pic_uid: supervisor.uid || "",
+                    picUid: supervisor.uid || "",
+                    pic_photo: supervisor.photo || "",
+                    picPhoto: supervisor.photo || "",
+                    admins,
+                    admin_users: admins,
+                    treasurers,
+                    treasurer_users: treasurers,
+                    class_links: classLinks,
+                    classLinks: classLinks,
+                    group_link: waGroupLink,
+                    groupLink: waGroupLink,
+                    video_class: videoClassLink,
+                    videoClass: videoClassLink,
+                    meeting_done: meetingDone,
+                    meeting_total: meetingTotal,
+                    comment_items: comments,
+                    commentItems: comments,
+                    comment,
+                    updatedAt: serverTimestamp()
+                });
+                classesState[idx] = {
+                    ...selected,
+                    name,
+                    status: finalStatus,
+                    startDate,
+                    startTime,
+                    location,
+                    type,
+                    mentors,
+                    supervisor,
+                    supervisors,
+                    admins,
+                    treasurers,
+                    classLinks,
+                    groupLink: waGroupLink,
+                    videoClassLink: videoClassLink,
+                    meetingDone,
+                    meetingTotal,
+                    comments,
+                    comment
+                };
+                if (changeEntries.length) {
+                    await logScheduleChange(classesState[idx], prevDate, startDate, "detail_modal", changeEntries);
+                }
+                renderCalendar(applyFilters());
+                openDetailModal(selected.id);
+                setDetailEditMode(false);
+                showToast("Detail kelas berhasil diperbarui", "success");
+            } catch (e) {
+                showToast("Gagal menyimpan detail kelas", "error");
+            } finally {
+                if (btnSave) {
+                    btnSave.disabled = false;
+                    btnSave.textContent = "Simpan";
+                }
+            }
+        }
+
+        function applyFilters() {
+            let list = classesState.slice();
+            if (currentFilters.search) {
+                const q = currentFilters.search.toLowerCase();
+                list = list.filter(c => {
+                    const nameHit = (c.name || "").toLowerCase().includes(q);
+                    const locationHit = (c.location || "").toLowerCase().includes(q);
+                    const mentorHit = Array.isArray(c.mentors) && c.mentors.some(m => (m.name || "").toLowerCase().includes(q));
+                    return nameHit || locationHit || mentorHit;
+                });
+            }
+            if (currentFilters.status) {
+                list = list.filter(c => (c.status || "") === currentFilters.status);
+            }
+            return list;
+        }
+
+        async function persistDateChange(c, dateStr) {
+            if (!c || !c.docId) return;
+            await updateDoc(doc(db, getClassSourceCollection(c), c.docId), {
+                date: dateStr,
+                start_date: dateStr,
+                startDate: dateStr,
+                updatedAt: serverTimestamp()
+            });
+        }
+
+        async function moveClassToDate(classId, targetDate) {
+            const idx = classesState.findIndex(c => c.id === classId);
+            if (idx < 0) return;
+            const selected = classesState[idx];
+            const prevDate = selected.startDate || "-";
+            classesState[idx] = { ...selected, startDate: targetDate };
+            renderCalendar(applyFilters());
+            try {
+                await persistDateChange(classesState[idx], targetDate);
+                await logScheduleChange(classesState[idx], prevDate, targetDate, "calendar_drag");
+                showToast((selected.name || "Class") + " dipindah dari " + prevDate + " ke " + targetDate, "success");
+            } catch (e) {
+                classesState[idx] = { ...selected, startDate: prevDate === "-" ? "" : prevDate };
+                renderCalendar(applyFilters());
+                showToast("Gagal mengubah tanggal class", "error");
+            }
+        }
+
+        function renderCalendar(list) {
+            const grid = document.getElementById("calGrid");
+            const label = document.getElementById("calMonthLabel");
+            const countEl = document.getElementById("calClassCount");
+            if (!grid) return;
+            grid.innerHTML = "";
+
+            const today = new Date();
+            const todayStr = toDateKey(today);
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const classByDate = {};
+            let calCount = 0;
+
+            list.forEach(c => {
+                if (!c.startDate) return;
+                if (!classByDate[c.startDate]) classByDate[c.startDate] = [];
+                classByDate[c.startDate].push(c);
+            });
+
+            function parseStartTimeToMinutes(value) {
+                const raw = String(value || "").trim();
+                if (!raw) return Number.POSITIVE_INFINITY;
+                const match = raw.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+                if (!match) return Number.POSITIVE_INFINITY;
+                let hour = Number(match[1]);
+                const minute = Number(match[2] || "0");
+                const ampm = (match[3] || "").toUpperCase();
+                if (ampm) {
+                    if (hour === 12) hour = 0;
+                    if (ampm === "PM") hour += 12;
+                }
+                if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                    return Number.POSITIVE_INFINITY;
+                }
+                return (hour * 60) + minute;
+            }
+
+            Object.keys(classByDate).forEach((dateKey) => {
+                classByDate[dateKey].sort((a, b) => {
+                    const timeDiff = parseStartTimeToMinutes(a.startTime) - parseStartTimeToMinutes(b.startTime);
+                    if (timeDiff !== 0) return timeDiff;
+                    return String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base" });
+                });
+            });
+
+            function appendCard(cell, c) {
+                const card = document.createElement("div");
+                card.className = "cal-card " + getCalCardClass(c.status);
+                card.draggable = true;
+                card.dataset.classId = c.id;
+                card.dataset.docId = c.docId || "";
+                card.title = "Drag untuk pindahkan tanggal start";
+                card.addEventListener("dragstart", () => {
+                    dragClassId = c.id;
+                });
+                card.addEventListener("dragend", () => {
+                    dragClassId = null;
+                });
+                card.addEventListener("click", () => {
+                    if (Date.now() - lastDropAt < 250) return;
+                    openDetailModal(c.id);
+                });
+
+                const title = document.createElement("div");
+                title.className = "cal-card-title";
+                title.textContent = c.name || "-";
+                const remedialInfo = document.createElement("div");
+                remedialInfo.className = "cal-card-time";
+                remedialInfo.textContent = c.isRemedial
+                    ? "Remedial" + (c.parentClassName ? " | Parent: " + c.parentClassName : "")
+                    : "";
+                const time = document.createElement("div");
+                time.className = "cal-card-time";
+                time.textContent = c.startTime ? String(c.startTime) : "-";
+
+                const rowMeeting = document.createElement("div");
+                rowMeeting.className = "cal-card-row";
+                const meetingLabel = document.createElement("span");
+                meetingLabel.className = "cal-card-label";
+                meetingLabel.textContent = "Meeting:";
+                const meetingVal = document.createElement("span");
+                meetingVal.className = "cal-card-value";
+                meetingVal.textContent = String(c.meetingDone || 0) + "/" + String(c.meetingTotal || 0);
+                rowMeeting.appendChild(meetingLabel);
+                rowMeeting.appendChild(meetingVal);
+
+                const rowMentor = document.createElement("div");
+                rowMentor.className = "cal-card-row";
+                const mentorLabel = document.createElement("span");
+                mentorLabel.className = "cal-card-label";
+                mentorLabel.textContent = "Mentor:";
+                const mentorChip = document.createElement("span");
+                mentorChip.className = "cal-mentor-chip";
+                const mentorFullName = c.mentors && c.mentors.length ? c.mentors[0].name : "-";
+                mentorChip.textContent = getFirstName(mentorFullName);
+                mentorChip.title = mentorFullName || "-";
+                rowMentor.appendChild(mentorLabel);
+                rowMentor.appendChild(mentorChip);
+
+                const rowSupervisor = document.createElement("div");
+                rowSupervisor.className = "cal-card-row";
+                const supervisorLabel = document.createElement("span");
+                supervisorLabel.className = "cal-card-label";
+                supervisorLabel.textContent = "Supervisor:";
+                const supervisorAvatar = document.createElement("span");
+                supervisorAvatar.className = "cal-supervisor-avatar";
+                const supName = c.supervisor && c.supervisor.name ? c.supervisor.name : "-";
+                const supPhoto = c.supervisor && c.supervisor.photo ? c.supervisor.photo : "";
+                supervisorAvatar.title = supName;
+                if (supPhoto) {
+                    const img = document.createElement("img");
+                    img.src = supPhoto;
+                    img.alt = supName;
+                    supervisorAvatar.appendChild(img);
+                } else {
+                    supervisorAvatar.textContent = getInitials(supName);
+                }
+                rowSupervisor.appendChild(supervisorLabel);
+                rowSupervisor.appendChild(supervisorAvatar);
+
+                const rowType = document.createElement("div");
+                rowType.className = "cal-card-row";
+                const typeLabel = document.createElement("span");
+                typeLabel.className = "cal-card-label";
+                typeLabel.textContent = "Type Class:";
+                const typePill = document.createElement("span");
+                typePill.className = getTypePillClass(c.type || "Offline");
+                typePill.textContent = c.type || "Offline";
+                rowType.appendChild(typeLabel);
+                rowType.appendChild(typePill);
+
+                card.appendChild(title);
+                if (remedialInfo.textContent) card.appendChild(remedialInfo);
+                card.appendChild(time);
+                card.appendChild(rowMeeting);
+                card.appendChild(rowMentor);
+                card.appendChild(rowSupervisor);
+                card.appendChild(rowType);
+                cell.appendChild(card);
+            }
+
+            function createDateCell(dateObj, isOtherMonth) {
+                const dateStr = toDateKey(dateObj);
+                const cell = document.createElement("div");
+                const isPast = dateObj < todayStart;
+                cell.className = "cal-cell" + (dateStr === todayStr ? " today" : "") + (isOtherMonth ? " other-month" : "") + (isPast ? " past-date" : "");
+                cell.dataset.date = dateStr;
+                const num = document.createElement("div");
+                num.className = "cal-date-num";
+                num.textContent = dateObj.getDate();
+                cell.appendChild(num);
+
+                cell.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    cell.classList.add("drag-over");
+                });
+                cell.addEventListener("dragleave", () => {
+                    cell.classList.remove("drag-over");
+                });
+                cell.addEventListener("drop", async (e) => {
+                    e.preventDefault();
+                    cell.classList.remove("drag-over");
+                    if (!dragClassId) return;
+                    await moveClassToDate(dragClassId, dateStr);
+                    lastDropAt = Date.now();
+                    dragClassId = null;
+                });
+
+                const classes = classByDate[dateStr] || [];
+                calCount += classes.length;
+                classes.forEach(c => appendCard(cell, c));
+                return cell;
+            }
+
+            if (calViewMode === "day") {
+                grid.style.gridTemplateColumns = "1fr";
+                const currentDate = getCurrentCursorDate();
+                if (label) label.textContent = formatHumanDate(currentDate);
+                const h = document.createElement("div");
+                h.className = "cal-day-header";
+                h.textContent = DAY_NAMES[currentDate.getDay()].substring(0, 3);
+                grid.appendChild(h);
+                grid.appendChild(createDateCell(currentDate, false));
+            } else if (calViewMode === "week") {
+                grid.style.gridTemplateColumns = "repeat(7,minmax(160px,1fr))";
+                const currentDate = getCurrentCursorDate();
+                const weekStart = new Date(currentDate);
+                weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                if (label) label.textContent = formatRangeDate(weekStart) + " - " + formatRangeDate(weekEnd);
+                DAY_NAMES.forEach(d => {
+                    const h = document.createElement("div");
+                    h.className = "cal-day-header";
+                    h.textContent = d.substring(0, 3);
+                    grid.appendChild(h);
+                });
+                for (let i = 0; i < 7; i++) {
+                    const dateObj = new Date(weekStart);
+                    dateObj.setDate(weekStart.getDate() + i);
+                    grid.appendChild(createDateCell(dateObj, false));
+                }
+            } else {
+                grid.style.gridTemplateColumns = "repeat(7,minmax(160px,1fr))";
+                if (label) label.textContent = MONTH_NAMES[calMonth] + " " + calYear;
+                DAY_NAMES.forEach(d => {
+                    const h = document.createElement("div");
+                    h.className = "cal-day-header";
+                    h.textContent = d.substring(0, 3);
+                    grid.appendChild(h);
+                });
+
+                const firstDay = new Date(calYear, calMonth, 1).getDay();
+                const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+                const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+                for (let i = 0; i < firstDay; i++) {
+                    const dateObj = new Date(calYear, calMonth - 1, prevMonthDays - firstDay + 1 + i);
+                    grid.appendChild(createDateCell(dateObj, true));
+                }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateObj = new Date(calYear, calMonth, d);
+                    grid.appendChild(createDateCell(dateObj, false));
+                }
+                const totalCells = firstDay + daysInMonth;
+                const remaining = (7 - (totalCells % 7)) % 7;
+                for (let i = 1; i <= remaining; i++) {
+                    const dateObj = new Date(calYear, calMonth + 1, i);
+                    grid.appendChild(createDateCell(dateObj, true));
+                }
+            }
+
+            if (countEl) countEl.textContent = calCount + " kelas";
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function bindControls() {
+            const searchInput = document.getElementById("searchClass");
+            const statusInput = document.getElementById("filterStatus");
+            const calPrev = document.getElementById("calPrev");
+            const calNext = document.getElementById("calNext");
+            const calTodayBtn = document.getElementById("calToday");
+            const btnPeriodDay = document.getElementById("btnPeriodDay");
+            const btnPeriodWeek = document.getElementById("btnPeriodWeek");
+            const btnPeriodMonth = document.getElementById("btnPeriodMonth");
+            const btnCloseDetail = document.getElementById("btnCloseDetail");
+            const btnEnableDetailEdit = document.getElementById("btnEnableDetailEdit");
+            const btnCancelDetailEdit = document.getElementById("btnCancelDetailEdit");
+            const btnSaveDetailEdit = document.getElementById("btnSaveDetailEdit");
+            const detailModal = document.getElementById("classDetailModal");
+            const editSupervisorUsers = document.getElementById("editSupervisorUsers");
+            const editAdminUsers = document.getElementById("editAdminUsers");
+            const editTreasurerUsers = document.getElementById("editTreasurerUsers");
+            const btnAddClassLink = document.getElementById("btnAddClassLink");
+            const commentInput = document.getElementById("commentInput");
+            const btnSubmitComment = document.getElementById("btnSubmitComment");
+            const btnCancelCommentEdit = document.getElementById("btnCancelCommentEdit");
+            const btnCalMore = document.getElementById("btnCalMore");
+            const calMoreMenu = document.getElementById("calMoreMenu");
+            const btnViewAllScheduleLogs = document.getElementById("btnViewAllScheduleLogs");
+            const scheduleLogsModal = document.getElementById("scheduleLogsModal");
+            const btnCloseScheduleLogs = document.getElementById("btnCloseScheduleLogs");
+
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    currentFilters.search = (e.target.value || "").trim();
+                    renderCalendar(applyFilters());
+                });
+            }
+            if (statusInput) {
+                statusInput.addEventListener("change", (e) => {
+                    currentFilters.status = e.target.value || "";
+                    renderCalendar(applyFilters());
+                });
+            }
+            if (calPrev) {
+                calPrev.addEventListener("click", () => {
+                    const cursor = getCurrentCursorDate();
+                    if (calViewMode === "day") cursor.setDate(cursor.getDate() - 1);
+                    else if (calViewMode === "week") cursor.setDate(cursor.getDate() - 7);
+                    else cursor.setMonth(cursor.getMonth() - 1);
+                    calYear = cursor.getFullYear();
+                    calMonth = cursor.getMonth();
+                    calDay = cursor.getDate();
+                    renderCalendar(applyFilters());
+                });
+            }
+            if (calNext) {
+                calNext.addEventListener("click", () => {
+                    const cursor = getCurrentCursorDate();
+                    if (calViewMode === "day") cursor.setDate(cursor.getDate() + 1);
+                    else if (calViewMode === "week") cursor.setDate(cursor.getDate() + 7);
+                    else cursor.setMonth(cursor.getMonth() + 1);
+                    calYear = cursor.getFullYear();
+                    calMonth = cursor.getMonth();
+                    calDay = cursor.getDate();
+                    renderCalendar(applyFilters());
+                });
+            }
+            if (calTodayBtn) {
+                calTodayBtn.addEventListener("click", () => {
+                    const now = new Date();
+                    calYear = now.getFullYear();
+                    calMonth = now.getMonth();
+                    calDay = now.getDate();
+                    renderCalendar(applyFilters());
+                });
+            }
+            if (btnPeriodDay) {
+                btnPeriodDay.addEventListener("click", () => setPeriodMode("day"));
+            }
+            if (btnPeriodWeek) {
+                btnPeriodWeek.addEventListener("click", () => setPeriodMode("week"));
+            }
+            if (btnPeriodMonth) {
+                btnPeriodMonth.addEventListener("click", () => setPeriodMode("month"));
+            }
+            if (btnCloseDetail) {
+                btnCloseDetail.addEventListener("click", () => closeDetailModal());
+            }
+            if (btnEnableDetailEdit) {
+                btnEnableDetailEdit.addEventListener("click", () => setDetailEditMode(true));
+            }
+            if (btnCancelDetailEdit) {
+                btnCancelDetailEdit.addEventListener("click", () => {
+                    if (!currentDetailClassId) return;
+                    openDetailModal(currentDetailClassId);
+                });
+            }
+            if (btnSaveDetailEdit) {
+                btnSaveDetailEdit.addEventListener("click", () => saveDetailChanges());
+            }
+            if (btnAddClassLink) {
+                btnAddClassLink.addEventListener("click", () => {
+                    if (!detailEditEnabled) return;
+                    addClassLinkRow();
+                });
+            }
+            if (btnSubmitComment) {
+                btnSubmitComment.addEventListener("click", submitComment);
+            }
+            if (btnCancelCommentEdit) {
+                btnCancelCommentEdit.addEventListener("click", resetCommentComposer);
+            }
+            if (commentInput) {
+                commentInput.addEventListener("keydown", (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                        e.preventDefault();
+                        submitComment();
+                    }
+                });
+            }
+            if (editSupervisorUsers) {
+                editSupervisorUsers.addEventListener("change", () => {
+                    updateUserMultiPreview("editSupervisorUsers", getSelectedUsersFromMultiSelect("editSupervisorUsers"));
+                    refreshUserMultiDropdown("editSupervisorUsers", "Pilih supervisor");
+                });
+            }
+            if (editAdminUsers) {
+                editAdminUsers.addEventListener("change", () => {
+                    updateUserMultiPreview("editAdminUsers", getSelectedUsersFromMultiSelect("editAdminUsers"));
+                    refreshUserMultiDropdown("editAdminUsers", "Pilih admin");
+                });
+            }
+            if (editTreasurerUsers) {
+                editTreasurerUsers.addEventListener("change", () => {
+                    updateUserMultiPreview("editTreasurerUsers", getSelectedUsersFromMultiSelect("editTreasurerUsers"));
+                    refreshUserMultiDropdown("editTreasurerUsers", "Pilih treasurer");
+                });
+            }
+            bindUserMultiDropdown("editSupervisorUsers", "Pilih supervisor");
+            bindUserMultiDropdown("editAdminUsers", "Pilih admin");
+            bindUserMultiDropdown("editTreasurerUsers", "Pilih treasurer");
+            if (detailModal) {
+                detailModal.addEventListener("click", (e) => {
+                    if (e.target === detailModal) closeDetailModal();
+                });
+            }
+            if (btnCalMore && calMoreMenu) {
+                btnCalMore.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const isHidden = calMoreMenu.classList.contains("hidden");
+                    if (isHidden) {
+                        calMoreMenu.classList.remove("hidden");
+                    } else {
+                        calMoreMenu.classList.add("hidden");
+                    }
+                });
+                document.addEventListener("click", (e) => {
+                    if (!calMoreMenu.classList.contains("hidden") && !btnCalMore.contains(e.target)) {
+                        calMoreMenu.classList.add("hidden");
+                    }
+                });
+            }
+            document.addEventListener("click", () => {
+                closeAllUserMultiDropdownPanels();
+            });
+            if (btnViewAllScheduleLogs) {
+                btnViewAllScheduleLogs.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    if (calMoreMenu) calMoreMenu.classList.add("hidden");
+                    openScheduleLogsModal();
+                });
+            }
+            if (scheduleLogsModal) {
+                scheduleLogsModal.addEventListener("click", (e) => {
+                    if (e.target === scheduleLogsModal) {
+                        closeScheduleLogsModal();
+                    }
+                });
+            }
+            if (btnCloseScheduleLogs) {
+                btnCloseScheduleLogs.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    closeScheduleLogsModal();
+                });
+            }
+            const btnPublishSalary = document.getElementById("btnPublishSalary");
+            if (btnPublishSalary) {
+                btnPublishSalary.addEventListener("click", () => publishSalaryToExpenses());
+            }
+            const btnManualSalaryTrigger = document.getElementById("btnManualSalaryTrigger");
+            if (btnManualSalaryTrigger) {
+                btnManualSalaryTrigger.addEventListener("click", () => triggerManualSalaryFromModal());
+            }
+            const btnUndoSalary = document.getElementById("btnUndoSalary");
+            if (btnUndoSalary) {
+                btnUndoSalary.addEventListener("click", () => undoSalaryPublish());
+            }
+            const salaryAmountInput = document.getElementById("salaryAmount");
+            if (salaryAmountInput) {
+                salaryAmountInput.addEventListener("input", (e) => {
+                    const raw = (e.target.value || "").replace(/[^\d]/g, "");
+                    const formatted = formatSalaryCurrency(raw);
+                    e.target.value = formatted;
+                });
+            }
+        }
+
+        async function loadClassesFromFirestore() {
+            await loadUsersForSupervisorDropdown();
+            await loadMentorsForDropdown();
+
+            // Memuat data sekali saat halaman dibuka menggunakan getDocs
+            await startRealtimeSync();
+        }
+
+        async function startRealtimeSync() {
+            // Inject CSS for sync badge & highlight animation
+            injectSyncStyles();
+
+            // Create sync badge
+            const badgeContainer = document.getElementById("syncBadgeContainer");
+            if (badgeContainer) createSyncBadge(badgeContainer);
+            updateSyncBadge("syncing");
+
+            // docId-keyed maps for merging both collections
+            const planningDocs = new Map();
+            const availabilityDocs = new Map();
+
+            function rebuildClassesState() {
+                const merged = [];
+                const seenIds = new Set();
+                planningDocs.forEach((c) => {
+                    merged.push(c);
+                    if (c.id) seenIds.add(String(c.id));
+                });
+                classesState = merged;
+            }
+
+            function scheduleRerender(newDocIds) {
+                updateSyncBadge("syncing");
+                const docIdsToHighlight = newDocIds ? [...newDocIds] : [];
+                scheduleRender(() => {
+                    rebuildClassesState();
+                    renderCalendar(applyFilters());
+                    if (docIdsToHighlight.length) {
+                        highlightNewCards(docIdsToHighlight);
+                    }
+                    updateSyncBadge("live");
+                });
+            }
+
+            try {
+                const planningSnap = await getDocs(collection(db, CLASS_SOURCE_PLANNING));
+
+                planningSnap.forEach((doc) => {
+                    const item = mapAvailabilityDocToClass(doc, CLASS_SOURCE_PLANNING);
+                    planningDocs.set(doc.id, item);
+                });
+
+                _initialLoadDone = true;
+                scheduleRerender([]);
+            } catch (error) {
+                console.error("Error fetching classes:", error);
+                updateSyncBadge("offline");
+            }
+
+            // ── BroadcastChannel fast-path ──
+            _unsubBroadcast = onBroadcastMessage((msg) => {
+                if (msg.type === "CLASS_ADDED" && msg.docId) {
+                    _recentlyAddedDocIds.add(msg.docId);
+                    updateSyncBadge("syncing");
+                    showToast("Kelas baru ditambahkan: " + (msg.className || "Unknown"), "success");
+                }
+            });
+        }
+
+        function stopRealtimeSync() {
+            if (_unsubPlanning) { _unsubPlanning(); _unsubPlanning = null; }
+            if (_unsubAvailability) { _unsubAvailability(); _unsubAvailability = null; }
+            if (_unsubBroadcast) { _unsubBroadcast(); _unsubBroadcast = null; }
+            destroySyncResources();
+        }
+
+        // Cleanup on page unload
+        window.addEventListener("beforeunload", stopRealtimeSync);
+
+        bindControls();
+        setPeriodMode("month");
+        loadClassesFromFirestore().catch(() => {
+            showToast("Gagal memuat data class", "error");
+            updateSyncBadge("offline");
+        });
+        if (window.lucide) window.lucide.createIcons();
+    </script>
+</body>
+</html>

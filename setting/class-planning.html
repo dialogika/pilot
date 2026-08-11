@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perencanaan Kelas - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .planning-layout { display:flex; flex-direction:column; gap:24px; }
+        .planning-header-row { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+        .planning-main-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:20px; }
+        .planning-card-shell { background:#ffffff; border-radius:24px; border:1px solid #e2e8f0; padding:18px 18px 20px; }
+        .planning-card-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.14em; color:#64748b; margin-bottom:4px; }
+        .planning-card-sub { font-size:11px; color:#94a3b8; }
+        .planning-form-grid { display:grid; grid-template-columns:1fr; gap:10px; margin-top:10px; }
+        .planning-form-grid .two-col { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .planning-label { font-size:10px; font-weight:700; text-transform:uppercase; color:#94a3b8; margin-bottom:4px; }
+        .planning-input { width:100%; font-size:12px; border-radius:14px; border:1px solid #e2e8f0; padding:8px 10px; background:#f8fafc; outline:none; }
+        .planning-input:focus { border-color:#0ea5e9; box-shadow:0 0 0 1px rgba(14,165,233,.25); background:#ffffff; }
+        .planning-textarea { width:100%; font-size:12px; border-radius:14px; border:1px solid #e2e8f0; padding:8px 10px; background:#f8fafc; outline:none; resize:vertical; min-height:60px; }
+        .planning-textarea:focus { border-color:#0ea5e9; box-shadow:0 0 0 1px rgba(14,165,233,.25); background:#ffffff; }
+        .planning-unscheduled { margin-top:14px; border-radius:18px; border:1px dashed #cbd5e1; background:#f8fafc; padding:10px; font-size:11px; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+        .planning-unscheduled-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
+        .planning-unscheduled-empty { font-size:11px; color:#94a3b8; }
+        .planning-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:999px; font-size:10px; font-weight:600; background:#f1f5f9; color:#64748b; }
+        .planning-chip-dot { width:7px; height:7px; border-radius:999px; background:#22c55e; }
+        .planning-card { padding:8px 10px; border-radius:12px; margin-bottom:4px; cursor:grab; transition:transform .12s,box-shadow .12s; border-left:4px solid #0ea5e9; background:#e0f2fe; font-size:11px; font-weight:600; color:#0f172a; }
+        .planning-card:active { cursor:grabbing; }
+        .planning-card:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(15,23,42,.18); }
+        .planning-card-meta { font-size:10px; color:#64748b; margin-top:2px; }
+        .planning-calendar-shell { display:flex; flex-direction:column; gap:8px; }
+        .planning-calendar-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+        .planning-calendar-range { font-size:11px; font-weight:600; color:#0f172a; padding:4px 10px; border-radius:999px; background:#f1f5f9; }
+        .planning-calendar-nav { display:flex; align-items:center; gap:4px; }
+        .planning-nav-btn { padding:6px 10px; border-radius:999px; border:1px solid #e2e8f0; background:#ffffff; font-size:11px; font-weight:600; color:#334155; cursor:pointer; }
+        .planning-nav-btn:hover { background:#f8fafc; }
+        .planning-calendar { display:grid; grid-template-columns:72px repeat(7,minmax(0,1fr)); gap:0; background:#f8fafc; border-radius:22px; overflow:hidden; min-height:360px; --planning-slot-height:40px; --planning-hour-height:calc(var(--planning-slot-height) * 2); }
+        .planning-day-header { background:#f8fafc; padding:10px 6px; text-align:center; font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.10em; }
+        .planning-time-header { color:#94a3b8; }
+        .planning-time-column { background:#f8fafc; background-image:repeating-linear-gradient(to bottom, #e2e8f0 0, #e2e8f0 1px, transparent 1px, transparent var(--planning-hour-height)); }
+        .planning-time-column-inner { padding:0 6px 8px; }
+        .planning-time-slot { min-height:var(--planning-slot-height); display:flex; align-items:flex-start; justify-content:flex-end; padding:4px 6px; font-size:10px; font-weight:700; color:#94a3b8; }
+        .planning-day-column { background:#ffffff; background-image:repeating-linear-gradient(to bottom, #e2e8f0 0, #e2e8f0 1px, transparent 1px, transparent var(--planning-hour-height)); }
+        .planning-day-column-inner { padding:0 6px 8px; }
+        .planning-slot { border-radius:0; border:none; margin-bottom:0; padding:4px 6px; font-size:10px; color:#64748b; background:transparent; min-height:var(--planning-slot-height); position:relative; }
+        .planning-slot-body { display:flex; flex-direction:column; gap:4px; }
+        .planning-slot-empty { font-size:10px; color:#cbd5e1; }
+        .planning-slot-active { border-color:#0ea5e9; background:#f0f9ff; }
+        .planning-card-room-pede { border-left-color:#ef4444; background:#fee2e2; }
+        .planning-card-room-tara { border-left-color:#0ea5e9; background:#e0f2fe; }
+        .planning-card-room-kata { border-left-color:#16a34a; background:#ecfdf5; }
+        .planning-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:10px; font-weight:600; background:#ecfdf5; color:#15803d; }
+        .planning-badge-dot { width:7px; height:7px; border-radius:999px; background:#22c55e; }
+        .planning-toast { position:fixed; top:16px; right:16px; z-index:2100; padding:8px 12px; border-radius:999px; font-size:11px; font-weight:700; }
+        .planning-toast-success { background:#22c55e; color:#ecfdf5; }
+        .planning-toast-error { background:#ef4444; color:#fef2f2; }
+        .modal-backdrop-custom { position:fixed; inset:0; background:rgba(15,23,42,0.45); display:none; align-items:flex-start; justify-content:center; z-index:2200; overflow-y:auto; padding:84px 16px 24px; }
+        .modal-backdrop-custom.open { display:flex; }
+        .modal-card { width:100%; max-width:640px; max-height:calc(100vh - 108px); overflow:hidden; border-radius:24px; background:#ffffff; box-shadow:0 24px 60px rgba(15,23,42,0.25); border:1px solid #e2e8f0; display:flex; flex-direction:column; }
+        .modal-body-scroll { flex:1 1 auto; min-height:0; overflow-y:auto; }
+        @media (max-width:1200px) {
+            .planning-main-grid { grid-template-columns:minmax(0,1fr); }
+        }
+        @media (max-width:768px) {
+            .modal-backdrop-custom { padding-top:72px; padding-bottom:16px; }
+            .modal-card { max-height:calc(100vh - 88px); }
+            .modal-body-scroll { min-height:0; }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8 bg-slate-50">
+    <div id="topbarContainer"></div>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content">
+            <div class="planning-layout">
+                <div class="planning-header-row">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
+                            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                            Perencanaan Kelas
+                        </div>
+                        <h1 class="mt-3 text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
+                            Susun jadwal kelas 
+                        </h1>
+                        <p class="mt-2 text-sm text-slate-500 max-w-2xl">
+                            Tambahkan daftar kelas yang akan datang, lalu drag ke kalender mingguan dengan slot jam.
+                            Semua perubahan tersimpan di database sehingga mudah diteruskan ke tahap Check-Up.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <a href="./class-management.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            Kembali ke Class Management
+                        </a>
+                        <div class="planning-badge mt-1">
+                            <span class="planning-badge-dot"></span>
+                            Draft perencanaan internal
+                        </div>
+                    </div>
+                </div>
+
+                <section class="planning-main-grid">
+                    <div class="planning-card-shell">
+                        <div class="planning-calendar-shell">
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <div class="planning-card-title">Perencanaan Kelas</div>
+                                    <div class="planning-card-sub">Tambahkan kelas, lalu drag ke kalender mingguan.</div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative">
+                                        <input id="planningSearchInput" type="text" placeholder="Cari nama kelas atau mentor..." class="planning-input" style="padding-left:26px; min-width:220px;">
+                                        <i class="bi bi-search" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:11px; color:#9ca3af;"></i>
+                                    </div>
+                                    <button id="btnOpenPlanningModal" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                        Tambah Kelas
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="planning-unscheduled" style="margin-bottom:16px;">
+                                <div class="planning-unscheduled-header">
+                                    <div class="planning-chip">
+                                        <span class="planning-chip-dot"></span>
+                                        Kelas belum dijadwalkan (drag ke kalender)
+                                    </div>
+                                    <div id="planningUnscheduledCount" class="text-[10px] text-slate-400">0 kelas</div>
+                                </div>
+                                <div id="planningUnscheduledList" class="flex flex-col gap-1">
+                                    <div class="planning-unscheduled-empty">Belum ada kelas pada daftar rencana.</div>
+                                </div>
+                            </div>
+                            <div class="planning-calendar-toolbar">
+                                <div>
+                                    <div class="planning-card-title">Kalender Perencanaan Mingguan</div>
+                                    <div class="planning-card-sub">Drag kartu kelas ke tanggal dan jam yang diinginkan.</div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1">
+                                    <div class="planning-calendar-nav">
+                                        <button id="planningPrevWeek" class="planning-nav-btn">‹ Minggu Sebelumnya</button>
+                                        <button id="planningNextWeek" class="planning-nav-btn">Minggu Berikutnya ›</button>
+                                    </div>
+                                    <div id="planningWeekLabel" class="planning-calendar-range"></div>
+                                </div>
+                            </div>
+                            <div class="planning-calendar" id="planningCalendar"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="planningInputModal" class="modal-backdrop-custom">
+        <div class="modal-card">
+            <div class="px-6 py-4 border-bottom d-flex align-items-center justify-content-between" style="border-bottom:1px solid #e2e8f0;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 d-flex align-items-center justify-content-center">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div id="planningModalTitle" class="text-sm fw-semibold text-slate-900">Tambah Kelas Rencana</div>
+                        <div id="planningModalSubtitle" class="text-[11px] text-slate-500">Masukkan detail kelas yang akan dijadwalkan.</div>
+                    </div>
+                </div>
+                <button id="btnPlanningModalClose" class="w-8 h-8 rounded-circle border d-flex align-items-center justify-content-center text-slate-500" style="border-color:#e2e8f0;">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <div class="planning-form-grid">
+                    <div>
+                        <div class="planning-label">Nama Kelas</div>
+                        <input id="modalPlanName" type="text" class="planning-input" placeholder="Contoh: First Class #1">
+                    </div>
+                    <div>
+                        <div class="planning-label">Mentor</div>
+                        <select id="modalPlanMentor" class="planning-input">
+                            <option value="">Pilih mentor</option>
+                        </select>
+                    </div>
+                    <div class="two-col">
+                        <div>
+                            <div class="planning-label">Durasi (menit)</div>
+                            <input id="modalPlanDuration" type="number" min="30" step="30" class="planning-input" value="90">
+                        </div>
+                        <div>
+                            <div class="planning-label">Tipe</div>
+                            <select id="modalPlanType" class="planning-input">
+                                <option value="Online">Online</option>
+                                <option value="Offline">Offline</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="planning-label">Ruang</div>
+                        <select id="modalPlanRoom" class="planning-input">
+                            <option value="">Pilih ruang</option>
+                            <option value="Pede">Ruang Pede</option>
+                            <option value="Tara">Ruang Tara</option>
+                            <option value="Kata">Ruang Kata</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="planning-label">Catatan</div>
+                        <textarea id="modalPlanNote" class="planning-textarea" placeholder="Contoh: fokus corporate, minimal 15 peserta."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-3 border-top d-flex justify-content-end gap-2" style="border-top:1px solid #e2e8f0;">
+                <button id="btnPlanningModalCancel" class="px-4 py-2 rounded-xl text-[11px] fw-semibold text-slate-600" style="background:#e5e7eb;">
+                    Batal
+                </button>
+                <button id="btnPlanningModalSave" class="px-5 py-2 rounded-xl text-[11px] fw-bold text-white" style="background:#16a34a;">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="planningToast" class="planning-toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        if (window.lucide) window.lucide.createIcons();
+
+        const DAY_NAMES = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        let planningWeekStart = startOfWeek(new Date());
+        let planningUnscheduled = [];
+        let planningScheduled = [];
+        const planningSlots = buildTimeSlots();
+        let dragState = null;
+        let editingPlanId = null;
+        let mentorsState = [];
+        const CLASS_SOURCE_PLANNING = "class_planning";
+
+        function startOfWeek(d) {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day;
+            return new Date(date.getFullYear(), date.getMonth(), diff);
+        }
+
+        function formatDateKey(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return year + "-" + month + "-" + day;
+        }
+
+        function buildTimeSlots() {
+            const slots = [];
+            for (let h = 7; h <= 21; h++) {
+                const hh = h < 10 ? "0" + h : String(h);
+                slots.push(hh + ":00");
+                slots.push(hh + ":30");
+            }
+            return slots;
+        }
+
+        function parseHour(time) {
+            const parts = String(time || "").split(":");
+            const h = parseInt(parts[0], 10);
+            if (isNaN(h)) return null;
+            const m = parts.length > 1 ? parseInt(parts[1], 10) || 0 : 0;
+            return h + (m >= 30 ? 0.5 : 0);
+        }
+
+        function normalizeDateKey(raw) {
+            if (!raw) return "";
+            if (raw === "Flexible") return "";
+            let value = raw;
+            if (value && typeof value === "object" && typeof value.toDate === "function") {
+                value = value.toDate();
+            }
+            if (value instanceof Date && !isNaN(value.getTime())) {
+                return formatDateKey(value);
+            }
+            const str = String(value).trim();
+            if (!str) return "";
+            const direct = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (direct) return direct[1] + "-" + direct[2] + "-" + direct[3];
+            const parsed = new Date(str);
+            if (isNaN(parsed.getTime())) return "";
+            return formatDateKey(parsed);
+        }
+
+        function normalizeTimeLabel(raw) {
+            if (!raw) return "";
+            const str = String(raw).trim();
+            if (!str) return "";
+            const m = str.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+            if (!m) return "";
+            let hour = Number(m[1]);
+            const minute = Number(m[2] || "0");
+            const ampm = (m[3] || "").toUpperCase();
+            if (ampm) {
+                if (hour === 12) hour = 0;
+                if (ampm === "PM") hour += 12;
+            }
+            if (!Number.isFinite(hour) || hour < 0 || hour > 23) return "";
+            if (!Number.isFinite(minute) || minute < 0 || minute > 59) return "";
+            return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+        }
+
+        function splitAvailabilitySchedule(d) {
+            const rawStart = d.start_date || d.startDate || d.date || "";
+            const fallbackTime = d.time || d.start_time || d.startTime || d.class_time || d.classTime || d.jam || "";
+            let date = normalizeDateKey(rawStart);
+            let time = normalizeTimeLabel(fallbackTime);
+            if (rawStart && typeof rawStart === "string" && rawStart.includes("T")) {
+                const parts = rawStart.split("T");
+                date = normalizeDateKey(parts[0]);
+                const timePart = parts[1] ? parts[1].slice(0, 5) : "";
+                if (!time) time = normalizeTimeLabel(timePart);
+            }
+            return { date, time };
+        }
+
+        function buildPlanningItemFromClassPlanning(docSnap) {
+            const d = docSnap.data() || {};
+            const isRemedial = d.is_remedial === true || d.isRemedial === true || String(d.variant || "").toLowerCase() === "remedial";
+            return {
+                id: CLASS_SOURCE_PLANNING + ":" + docSnap.id,
+                sourceCollection: CLASS_SOURCE_PLANNING,
+                sourceDocId: docSnap.id,
+                classId: d.id || "",
+                name: d.name || "",
+                variant: d.variant || (isRemedial ? "remedial" : "regular"),
+                isRemedial,
+                parentClassDocId: d.parent_class_doc_id || d.parentClassDocId || "",
+                parentClassName: d.parent_class_name || d.parentClassName || "",
+                mentor: d.mentor || d.mentor_name || "",
+                duration: typeof d.duration === "number" ? d.duration : 1,
+                type: d.type || "Online",
+                note: d.note || "",
+                room: d.room || "",
+                date: normalizeDateKey(d.date || d.start_date || d.startDate || ""),
+                time: normalizeTimeLabel(d.time || d.start_time || d.startTime || d.class_time || d.classTime || d.jam || ""),
+                availabilityId: d.availabilityId || ""
+            };
+        }
+
+        function buildPlanningItemFromAvailability(docSnap) {
+            const d = docSnap.data() || {};
+            const schedule = splitAvailabilitySchedule(d);
+            const isRemedial = d.is_remedial === true || d.isRemedial === true || String(d.variant || "").toLowerCase() === "remedial";
+            return {
+                id: CLASS_SOURCE_AVAILABILITY + ":" + docSnap.id,
+                sourceCollection: CLASS_SOURCE_AVAILABILITY,
+                sourceDocId: docSnap.id,
+                classId: d.id || "",
+                name: d.name || d.class_name || "",
+                variant: d.variant || (isRemedial ? "remedial" : "regular"),
+                isRemedial,
+                parentClassDocId: d.parent_class_doc_id || d.parentClassDocId || "",
+                parentClassName: d.parent_class_name || d.parentClassName || "",
+                mentor: d.mentor_name || d.mentor || "",
+                duration: typeof d.duration === "number" ? d.duration : 1,
+                type: d.type || "Online",
+                note: d.note || d.comment || "",
+                room: d.room || "",
+                date: schedule.date,
+                time: schedule.time,
+                availabilityId: docSnap.id
+            };
+        }
+
+        function isAvailabilityPlan(plan) {
+            return plan && plan.sourceCollection === CLASS_SOURCE_AVAILABILITY;
+        }
+
+        function getRoomClass(room) {
+            const r = String(room || "").toLowerCase();
+            if (r === "pede") return "planning-card-room-pede";
+            if (r === "tara") return "planning-card-room-tara";
+            if (r === "kata") return "planning-card-room-kata";
+            return "";
+        }
+
+        function isRoomConflict(dateKey, time, candidate) {
+            const room = (candidate.room || "").trim();
+            if (!room) return false;
+            const startHour = parseHour(time);
+            if (startHour === null) return false;
+            const duration = candidate.duration && candidate.duration > 0 ? candidate.duration : 1;
+            const startUnit = Math.round(startHour * 2);
+            const durationUnits = Math.max(1, Math.round(duration * 2));
+            const endUnit = startUnit + durationUnits;
+            for (let i = 0; i < planningScheduled.length; i++) {
+                const p = planningScheduled[i];
+                if (p.id === candidate.id) continue;
+                if ((p.date || "") !== dateKey) continue;
+                if ((p.room || "").trim() !== room) continue;
+                const otherStart = parseHour(p.time);
+                if (otherStart === null) continue;
+                const otherDuration = p.duration && p.duration > 0 ? p.duration : 1;
+                const otherStartUnit = Math.round(otherStart * 2);
+                const otherDurationUnits = Math.max(1, Math.round(otherDuration * 2));
+                const otherEndUnit = otherStartUnit + otherDurationUnits;
+                if (startUnit < otherEndUnit && otherStartUnit < endUnit) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function isMentorConflict(dateKey, time, candidate) {
+            const mentor = (candidate.mentor || "").trim();
+            if (!mentor) return false;
+            const startHour = parseHour(time);
+            if (startHour === null) return false;
+            const duration = candidate.duration && candidate.duration > 0 ? candidate.duration : 1;
+            const startUnit = Math.round(startHour * 2);
+            const durationUnits = Math.max(1, Math.round(duration * 2));
+            const endUnit = startUnit + durationUnits;
+            for (let i = 0; i < planningScheduled.length; i++) {
+                const p = planningScheduled[i];
+                if (p.id === candidate.id) continue;
+                if ((p.date || "") !== dateKey) continue;
+                if ((p.mentor || "").trim() !== mentor) continue;
+                const otherStart = parseHour(p.time);
+                if (otherStart === null) continue;
+                const otherDuration = p.duration && p.duration > 0 ? p.duration : 1;
+                const otherStartUnit = Math.round(otherStart * 2);
+                const otherDurationUnits = Math.max(1, Math.round(otherDuration * 2));
+                const otherEndUnit = otherStartUnit + otherDurationUnits;
+                if (startUnit < otherEndUnit && otherStartUnit < endUnit) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        async function deletePlanningClass(id) {
+            const target = planningUnscheduled.find(p => p.id === id) || planningScheduled.find(p => p.id === id);
+            if (!target) return;
+            planningUnscheduled = planningUnscheduled.filter(p => p.id !== id);
+            planningScheduled = planningScheduled.filter(p => p.id !== id);
+            renderUnscheduled();
+            renderCalendar();
+            try {
+                await deleteDoc(doc(db, target.sourceCollection || CLASS_SOURCE_PLANNING, target.sourceDocId || id));
+                showToast("Kelas dihapus dari perencanaan.", "success");
+            } catch (e) {
+                console.error("Gagal menghapus rencana kelas:", e);
+                showToast("Gagal menghapus kelas dari database.", "error");
+            }
+        }
+
+        function showToast(message, type) {
+            const el = document.getElementById("planningToast");
+            if (!el) return;
+            el.textContent = message;
+            const variant = type === "error" ? "planning-toast-error" : "planning-toast-success";
+            el.className = "planning-toast " + variant;
+            el.classList.remove("hidden");
+            setTimeout(() => el.classList.add("hidden"), 2200);
+        }
+
+        function renderUnscheduled() {
+            const listEl = document.getElementById("planningUnscheduledList");
+            const countEl = document.getElementById("planningUnscheduledCount");
+            const searchInput = document.getElementById("planningSearchInput");
+            const term = searchInput ? searchInput.value.trim().toLowerCase() : "";
+            if (!listEl) return;
+            const sourceList = term
+                ? planningUnscheduled.filter((plan) => {
+                    const name = String(plan.name || "").toLowerCase();
+                    const mentor = String(plan.mentor || "").toLowerCase();
+                    return name.includes(term) || mentor.includes(term);
+                })
+                : planningUnscheduled.slice();
+            if (countEl) countEl.textContent = planningUnscheduled.length + " kelas";
+            if (!sourceList.length) {
+                listEl.innerHTML = "<div class=\"planning-unscheduled-empty\">Belum ada kelas pada daftar rencana.</div>";
+                return;
+            }
+            listEl.innerHTML = "";
+            sourceList.forEach(plan => {
+                const card = document.createElement("div");
+                const roomClass = getRoomClass(plan.room);
+                card.className = "planning-card" + (roomClass ? " " + roomClass : "");
+                card.draggable = true;
+                card.dataset.planId = plan.id;
+                const remedialInfo = plan.isRemedial
+                    ? "<div class=\"planning-card-meta\"><span style=\"font-weight:800;color:#0369a1;\">Remedial</span>" +
+                    (plan.parentClassName ? " | Parent: " + plan.parentClassName : "") +
+                    "</div>"
+                    : "";
+                card.innerHTML =
+                    "<div>" + (plan.name || "-") + "</div>" +
+                    remedialInfo +
+                    "<div class=\"planning-card-meta\">" +
+                    (plan.mentor ? "Mentor: " + plan.mentor + " • " : "") +
+                    (plan.duration ? (Math.round(plan.duration * 60) + " menit • ") : "") +
+                    (plan.type || "") +
+                    (plan.room ? " • Ruang " + plan.room : "") +
+                    "</div>";
+                card.addEventListener("dragstart", () => {
+                    dragState = { source: "unscheduled", id: plan.id, collection: plan.sourceCollection, docId: plan.sourceDocId };
+                });
+                card.addEventListener("dragend", () => {
+                    dragState = null;
+                });
+                const actions = document.createElement("div");
+                actions.style.marginTop = "2px";
+                actions.style.display = "flex";
+                actions.style.gap = "8px";
+                const editBtn = document.createElement("button");
+                editBtn.textContent = "Edit";
+                editBtn.style.fontSize = "10px";
+                editBtn.style.color = "#0369a1";
+                editBtn.style.alignSelf = "flex-start";
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    openEditModal(plan);
+                });
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "Hapus";
+                deleteBtn.style.fontSize = "10px";
+                deleteBtn.style.color = "#b91c1c";
+                deleteBtn.style.alignSelf = "flex-start";
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    deletePlanningClass(plan.id);
+                });
+                actions.appendChild(editBtn);
+                actions.appendChild(deleteBtn);
+                card.appendChild(actions);
+                listEl.appendChild(card);
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById("planningCalendar");
+            const label = document.getElementById("planningWeekLabel");
+            if (!grid) return;
+            grid.innerHTML = "";
+            const start = new Date(planningWeekStart.getFullYear(), planningWeekStart.getMonth(), planningWeekStart.getDate());
+            const end = new Date(start.getTime());
+            end.setDate(start.getDate() + 6);
+            if (label) {
+                label.textContent = formatDateKey(start) + " - " + formatDateKey(end);
+            }
+            const timeHeader = document.createElement("div");
+            timeHeader.className = "planning-day-header planning-time-header";
+            timeHeader.textContent = "Jam";
+            grid.appendChild(timeHeader);
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(start.getTime());
+                dayDate.setDate(start.getDate() + i);
+                const header = document.createElement("div");
+                header.className = "planning-day-header";
+                header.textContent = DAY_NAMES[dayDate.getDay()] + " " + dayDate.getDate();
+                grid.appendChild(header);
+            }
+            const timeCol = document.createElement("div");
+            timeCol.className = "planning-time-column";
+            const timeInner = document.createElement("div");
+            timeInner.className = "planning-time-column-inner";
+            planningSlots.forEach((time) => {
+                const timeSlot = document.createElement("div");
+                timeSlot.className = "planning-time-slot";
+                timeSlot.dataset.time = time;
+                timeSlot.textContent = time.endsWith(":00") ? time : "";
+                timeInner.appendChild(timeSlot);
+            });
+            timeCol.appendChild(timeInner);
+            grid.appendChild(timeCol);
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(start.getTime());
+                dayDate.setDate(start.getDate() + i);
+                const dateKey = formatDateKey(dayDate);
+                const col = document.createElement("div");
+                col.className = "planning-day-column";
+                const inner = document.createElement("div");
+                inner.className = "planning-day-column-inner";
+                planningSlots.forEach((time) => {
+                    const slot = document.createElement("div");
+                    slot.className = "planning-slot";
+                    slot.dataset.date = dateKey;
+                    slot.dataset.time = time;
+                    slot.addEventListener("dragover", (e) => {
+                        e.preventDefault();
+                        slot.classList.add("planning-slot-active");
+                    });
+                    slot.addEventListener("dragleave", () => {
+                        slot.classList.remove("planning-slot-active");
+                    });
+                    slot.addEventListener("drop", (e) => {
+                        e.preventDefault();
+                        slot.classList.remove("planning-slot-active");
+                        handleDrop(dateKey, time);
+                    });
+                    const body = document.createElement("div");
+                    body.className = "planning-slot-body";
+                    const slotHour = parseHour(time);
+                    const occupying = planningScheduled.filter(p => {
+                        if ((p.date || "") !== dateKey) return false;
+                        const start = parseHour(p.time);
+                        if (start === null || slotHour === null) return false;
+                        const duration = p.duration && p.duration > 0 ? p.duration : 1;
+                        return slotHour >= start && slotHour < start + duration;
+                    });
+                    if (occupying.length) {
+                        occupying.forEach(plan => {
+                            const startHour = parseHour(plan.time);
+                            const isStart = startHour !== null && startHour === slotHour;
+                            if (!isStart) return;
+                            const card = document.createElement("div");
+                            const roomClass = getRoomClass(plan.room);
+                            card.className = "planning-card" + (roomClass ? " " + roomClass : "");
+                            card.dataset.planId = plan.id;
+                            card.draggable = true;
+                            const metaParts = [];
+                            if (plan.mentor) metaParts.push("Mentor: " + plan.mentor);
+                            if (plan.duration) metaParts.push(Math.round(plan.duration * 60) + " menit");
+                            if (plan.room) metaParts.push("Ruang " + plan.room);
+                            const remedialInfo = plan.isRemedial
+                                ? "<div class=\"planning-card-meta\"><span style=\"font-weight:800;color:#0369a1;\">Remedial</span>" +
+                                (plan.parentClassName ? " | Parent: " + plan.parentClassName : "") +
+                                "</div>"
+                                : "";
+                            card.innerHTML =
+                                "<div>" + (plan.name || "-") + "</div>" +
+                                remedialInfo +
+                                "<div class=\"planning-card-meta\">" +
+                                metaParts.join(" • ") +
+                                "</div>";
+                            card.addEventListener("dragstart", () => {
+                                dragState = { source: "calendar", id: plan.id, collection: plan.sourceCollection, docId: plan.sourceDocId };
+                            });
+                            card.addEventListener("dragend", () => {
+                                dragState = null;
+                            });
+                            const actions = document.createElement("div");
+                            actions.style.marginTop = "2px";
+                            actions.style.display = "flex";
+                            actions.style.gap = "8px";
+                            const editBtn = document.createElement("button");
+                            editBtn.textContent = "Edit";
+                            editBtn.style.fontSize = "10px";
+                            editBtn.style.color = "#0369a1";
+                            editBtn.style.alignSelf = "flex-start";
+                            editBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                openEditModal(plan);
+                            });
+                            const deleteBtn = document.createElement("button");
+                            deleteBtn.textContent = "Hapus";
+                            deleteBtn.style.fontSize = "10px";
+                            deleteBtn.style.color = "#b91c1c";
+                            deleteBtn.style.alignSelf = "flex-start";
+                            deleteBtn.addEventListener("click", (e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                deletePlanningClass(plan.id);
+                            });
+                            actions.appendChild(editBtn);
+                            actions.appendChild(deleteBtn);
+                            card.appendChild(actions);
+                            body.appendChild(card);
+                        });
+                    }
+                    slot.appendChild(body);
+                    inner.appendChild(slot);
+                });
+                col.appendChild(inner);
+                grid.appendChild(col);
+            }
+        }
+
+        async function loadPlanning() {
+            try {
+                const planningSnap = await getDocs(collection(db, CLASS_SOURCE_PLANNING));
+                const unscheduled = [];
+                const scheduled = [];
+                planningSnap.forEach((docSnap) => {
+                    const item = buildPlanningItemFromClassPlanning(docSnap);
+                    if (item.date && item.time) scheduled.push(item);
+                    else unscheduled.push(item);
+                });
+                planningUnscheduled = unscheduled;
+                planningScheduled = scheduled;
+            } catch (e) {
+                console.error("Gagal memuat data perencanaan kelas:", e);
+                planningUnscheduled = [];
+                planningScheduled = [];
+            }
+            renderUnscheduled();
+            renderCalendar();
+        }
+
+        function renderMentorOptions(selectedName) {
+            const select = document.getElementById("modalPlanMentor");
+            if (!select) return;
+            select.innerHTML = "";
+            const emptyOption = document.createElement("option");
+            emptyOption.value = "";
+            emptyOption.textContent = "Pilih mentor";
+            select.appendChild(emptyOption);
+            mentorsState.forEach((m) => {
+                const opt = document.createElement("option");
+                opt.value = m.name;
+                opt.textContent = m.name;
+                select.appendChild(opt);
+            });
+            if (selectedName) {
+                const found = mentorsState.some(m => m.name === selectedName);
+                if (!found) {
+                    const opt = document.createElement("option");
+                    opt.value = selectedName;
+                    opt.textContent = selectedName;
+                    select.appendChild(opt);
+                }
+                select.value = selectedName;
+            }
+        }
+
+        async function loadMentorsForPlanning() {
+            try {
+                const snap = await getDocs(collection(db, "mentor"));
+                mentorsState = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    const id = docSnap.id;
+                    const name = d.fullName || d.nama_lengkap || d.name || d.displayName || id;
+                    mentorsState.push({ id, name });
+                });
+            } catch (e) {
+                mentorsState = [];
+            }
+            renderMentorOptions("");
+        }
+
+        function openInputModal() {
+            editingPlanId = null;
+            const titleEl = document.getElementById("planningModalTitle");
+            const subtitleEl = document.getElementById("planningModalSubtitle");
+            const btnSave = document.getElementById("btnPlanningModalSave");
+            const nameEl = document.getElementById("modalPlanName");
+            const durationEl = document.getElementById("modalPlanDuration");
+            const typeEl = document.getElementById("modalPlanType");
+            const roomEl = document.getElementById("modalPlanRoom");
+            const noteEl = document.getElementById("modalPlanNote");
+            if (titleEl) titleEl.textContent = "Tambah Kelas Rencana";
+            if (subtitleEl) subtitleEl.textContent = "Masukkan detail kelas yang akan dijadwalkan.";
+            if (btnSave) btnSave.textContent = "Simpan";
+            if (nameEl) nameEl.value = "";
+            renderMentorOptions("");
+            if (durationEl) durationEl.value = "90";
+            if (typeEl) typeEl.value = "Online";
+            if (roomEl) roomEl.value = "";
+            if (noteEl) noteEl.value = "";
+            const modal = document.getElementById("planningInputModal");
+            if (modal) modal.classList.add("open");
+        }
+
+        function openEditModal(plan) {
+            editingPlanId = plan.id;
+            const titleEl = document.getElementById("planningModalTitle");
+            const subtitleEl = document.getElementById("planningModalSubtitle");
+            const btnSave = document.getElementById("btnPlanningModalSave");
+            const nameEl = document.getElementById("modalPlanName");
+            const durationEl = document.getElementById("modalPlanDuration");
+            const typeEl = document.getElementById("modalPlanType");
+            const roomEl = document.getElementById("modalPlanRoom");
+            const noteEl = document.getElementById("modalPlanNote");
+            if (titleEl) titleEl.textContent = "Edit Kelas Rencana";
+            if (subtitleEl) subtitleEl.textContent = "Perbarui detail kelas kemudian simpan.";
+            const mentorName = plan.mentor || "";
+            if (btnSave) btnSave.textContent = "Update";
+            if (nameEl) nameEl.value = plan.name || "";
+            renderMentorOptions(mentorName);
+            if (durationEl) {
+                const minutes = plan.duration != null ? Math.round(plan.duration * 60) : 90;
+                durationEl.value = String(minutes);
+            }
+            if (typeEl) typeEl.value = plan.type || "Online";
+            if (roomEl) roomEl.value = plan.room || "";
+            if (noteEl) noteEl.value = plan.note || "";
+            const modal = document.getElementById("planningInputModal");
+            if (modal) modal.classList.add("open");
+        }
+
+        function closeInputModal() {
+            const modal = document.getElementById("planningInputModal");
+            if (modal) modal.classList.remove("open");
+        }
+
+        async function addPlanningClass() {
+            const nameEl = document.getElementById("modalPlanName");
+            const durationEl = document.getElementById("modalPlanDuration");
+            const typeEl = document.getElementById("modalPlanType");
+            const roomEl = document.getElementById("modalPlanRoom");
+            const noteEl = document.getElementById("modalPlanNote");
+            const mentorEl = document.getElementById("modalPlanMentor");
+            if (!nameEl || !mentorEl || !durationEl || !typeEl || !noteEl) return;
+            const name = nameEl.value.trim();
+            const mentor = mentorEl.value.trim();
+            const durationMinutesRaw = parseInt(durationEl.value || "0", 10);
+            const durationMinutes = isNaN(durationMinutesRaw) || durationMinutesRaw <= 0 ? 90 : durationMinutesRaw;
+            const duration = durationMinutes / 60;
+            const type = (typeEl.value || "Online").trim();
+            const room = roomEl ? roomEl.value.trim() : "";
+            const note = noteEl.value.trim();
+            if (!name) {
+                showToast("Nama kelas wajib diisi.", "error");
+                return;
+            }
+            const btn = document.getElementById("btnPlanningModalSave");
+            if (btn) btn.disabled = true;
+            try {
+                if (!editingPlanId) {
+                    const docRef = await addDoc(collection(db, CLASS_SOURCE_PLANNING), {
+                        name,
+                        mentor,
+                        duration,
+                        type,
+                        room,
+                        note,
+                        date: "",
+                        time: "",
+                        createdAt: serverTimestamp()
+                    });
+                    const item = {
+                        id: CLASS_SOURCE_PLANNING + ":" + docRef.id,
+                        sourceCollection: CLASS_SOURCE_PLANNING,
+                        sourceDocId: docRef.id,
+                        classId: "",
+                        name,
+                        mentor,
+                        duration,
+                        type,
+                        room,
+                        note,
+                        date: "",
+                        time: ""
+                    };
+                    planningUnscheduled.push(item);
+                    nameEl.value = "";
+                    renderMentorOptions("");
+                    durationEl.value = "2";
+                    if (typeEl) typeEl.value = "Online";
+                    if (roomEl) roomEl.value = "";
+                    noteEl.value = "";
+                    showToast("Kelas ditambahkan ke daftar rencana.", "success");
+                } else {
+                    const payload = {
+                        name,
+                        mentor,
+                        duration,
+                        type,
+                        room,
+                        note
+                    };
+                    let existing = planningUnscheduled.find(p => p.id === editingPlanId);
+                    if (!existing) {
+                        existing = planningScheduled.find(p => p.id === editingPlanId);
+                    }
+                    if (existing && existing.date && existing.time) {
+                        const candidate = {
+                            id: editingPlanId,
+                            name,
+                            mentor,
+                            duration,
+                            type,
+                            note,
+                            room,
+                            date: existing.date,
+                            time: existing.time
+                        };
+                        if (isRoomConflict(existing.date, existing.time, candidate)) {
+                            showToast("Jadwal bentrok: ruang " + (candidate.room || "-") + " pada " + existing.date + " • " + existing.time, "error");
+                            return;
+                        }
+                        if (isMentorConflict(existing.date, existing.time, candidate)) {
+                            showToast("Jadwal bentrok: mentor " + (candidate.mentor || "-") + " pada " + existing.date + " • " + existing.time, "error");
+                            return;
+                        }
+                    }
+                    const targetCollection = CLASS_SOURCE_PLANNING;
+                    const targetDocId = existing && existing.sourceDocId ? existing.sourceDocId : editingPlanId;
+                    await updateDoc(doc(db, targetCollection, targetDocId), payload);
+                    let item = planningUnscheduled.find(p => p.id === editingPlanId);
+                    if (!item) {
+                        item = planningScheduled.find(p => p.id === editingPlanId);
+                    }
+                    if (item) {
+                        item.name = name;
+                        item.mentor = mentor;
+                        item.duration = duration;
+                        item.type = type;
+                        item.room = room;
+                        item.note = note;
+                    }
+                    showToast("Kelas diperbarui.", "success");
+                    editingPlanId = null;
+                }
+                renderUnscheduled();
+                renderCalendar();
+                closeInputModal();
+            } catch (e) {
+                console.error("Gagal menambahkan rencana kelas:", e);
+                showToast("Gagal menyimpan rencana kelas.", "error");
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function handleDrop(dateKey, time) {
+            if (!dragState || !dragState.id) return;
+            const id = dragState.id;
+            const source = dragState.source;
+            const sourceCollection = dragState.collection || "";
+            const sourceDocId = dragState.docId || "";
+            let original = null;
+            if (source === "unscheduled") {
+                original = planningUnscheduled.find(p => p.id === id && p.sourceCollection === sourceCollection && p.sourceDocId === sourceDocId)
+                    || planningUnscheduled.find(p => p.id === id);
+            } else if (source === "calendar") {
+                original = planningScheduled.find(p => p.id === id && p.sourceCollection === sourceCollection && p.sourceDocId === sourceDocId)
+                    || planningScheduled.find(p => p.id === id);
+            }
+            if (!original) return;
+            const candidate = {
+                id: original.id,
+                name: original.name,
+                mentor: original.mentor,
+                duration: original.duration,
+                type: original.type,
+                note: original.note,
+                room: original.room,
+                date: dateKey,
+                time: time
+            };
+            if (isRoomConflict(dateKey, time, candidate)) {
+                showToast("Jadwal bentrok: ruang " + (candidate.room || "-") + " pada " + dateKey + " • " + time, "error");
+                return;
+            }
+            if (isMentorConflict(dateKey, time, candidate)) {
+                showToast("Jadwal bentrok: mentor " + (candidate.mentor || "-") + " pada " + dateKey + " • " + time, "error");
+                return;
+            }
+            let item = null;
+            if (source === "unscheduled") {
+                const idx = planningUnscheduled.findIndex(p => p.id === id);
+                if (idx === -1) return;
+                item = planningUnscheduled.splice(idx, 1)[0];
+                item.date = dateKey;
+                item.time = time;
+                planningScheduled.push(item);
+            } else if (source === "calendar") {
+                const idx = planningScheduled.findIndex(p => p.id === id);
+                if (idx === -1) return;
+                item = planningScheduled[idx];
+                item.date = dateKey;
+                item.time = time;
+            } else {
+                return;
+            }
+            renderUnscheduled();
+            renderCalendar();
+            try {
+                await updateDoc(doc(db, CLASS_SOURCE_PLANNING, item.sourceDocId), {
+                    date: dateKey,
+                    time: time
+                });
+                showToast("Jadwal diperbarui: " + dateKey + " • " + time, "success");
+            } catch (e) {
+                console.error("Gagal menyimpan jadwal perencanaan kelas:", e);
+                showToast("Gagal menyimpan jadwal ke database.", "error");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnOpenModal = document.getElementById("btnOpenPlanningModal");
+            const btnModalSave = document.getElementById("btnPlanningModalSave");
+            const btnModalCancel = document.getElementById("btnPlanningModalCancel");
+            const btnModalClose = document.getElementById("btnPlanningModalClose");
+            const modalEl = document.getElementById("planningInputModal");
+            const btnPrev = document.getElementById("planningPrevWeek");
+            const btnNext = document.getElementById("planningNextWeek");
+            const searchInput = document.getElementById("planningSearchInput");
+
+            if (btnOpenModal) {
+                btnOpenModal.addEventListener("click", () => {
+                    openInputModal();
+                });
+            }
+            if (btnModalSave) {
+                btnModalSave.addEventListener("click", () => {
+                    addPlanningClass();
+                });
+            }
+            if (btnModalCancel) {
+                btnModalCancel.addEventListener("click", () => {
+                    closeInputModal();
+                });
+            }
+            if (btnModalClose) {
+                btnModalClose.addEventListener("click", () => {
+                    closeInputModal();
+                });
+            }
+            if (modalEl) {
+                modalEl.addEventListener("click", (e) => {
+                    if (e.target === modalEl) closeInputModal();
+                });
+            }
+            if (btnPrev) {
+                btnPrev.addEventListener("click", () => {
+                    planningWeekStart.setDate(planningWeekStart.getDate() - 7);
+                    renderCalendar();
+                });
+            }
+            if (btnNext) {
+                btnNext.addEventListener("click", () => {
+                    planningWeekStart.setDate(planningWeekStart.getDate() + 7);
+                    renderCalendar();
+                });
+            }
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    renderUnscheduled();
+                });
+            }
+            loadMentorsForPlanning()
+                .then(() => loadPlanning())
+                .catch(() => {
+                    loadPlanning();
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Reimburse - Intern Dialogika</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <style>
+        .form-panel {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .field-control {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+
+        .field-control:focus {
+            outline: none;
+            border-color: #cbd5e1;
+            background-color: #ffffff;
+        }
+
+        .field-control::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .field-readonly {
+            background-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .field-help {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .proof-preview {
+            width: 100%;
+            min-height: 120px;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .proof-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Status Badge for consistency */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-requested {
+            background-color: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .status-paid {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-reviewing {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-rejected {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status-complete, .status-whatsapp {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Fade Transition */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="app">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-0">Form Reimburse</h4>
+                    <small class="text-muted">Ajukan permohonan penggantian dana pengeluaran operasional.</small>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="row align-items-start">
+                <div class="col-lg-8">
+
+                    <div class="form-panel">
+                        <div class="text-sm font-black text-slate-900 mb-5 fs-5 fw-bold">Basic Information</div>
+                        <div class="grid gap-4" style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+
+                            <!-- Title -->
+                            <div>
+                                <label class="field-label">Judul Pengeluaran</label>
+                                <input v-model="form.title" type="text" class="field-control"
+                                    placeholder="Contoh: Beli ATK untuk kegiatan kantor">
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- Department -->
+                                <div class="col-md-6">
+                                    <label class="field-label">Department</label>
+                                    <select v-model="form.department" class="field-control">
+                                        <option value="HR Division">HR Division</option>
+                                        <option value="Client & Product">Client & Product</option>
+                                        <option value="Marketing Division">Marketing Division</option>
+                                        <option value="Branding Division">Branding Division</option>
+                                        <option value="General">General</option>
+                                    </select>
+                                </div>
+                                <!-- Due Date -->
+                                <div class="col-md-6">
+                                    <label class="field-label">Tanggal Dibutuhkan (Due Date)</label>
+                                    <input v-model="form.dueDate" type="date" class="field-control">
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- Amount -->
+                                <div class="col-md-6">
+                                    <label class="field-label">Nominal (IDR)</label>
+                                    <input v-model="formattedAmount" type="text" class="field-control mono"
+                                        placeholder="0">
+                                </div>
+                                <!-- Status (Read-only initially) -->
+                                <div class="col-md-6">
+                                    <label class="field-label">Status</label>
+                                    <div
+                                        class="field-control field-readonly d-flex align-items-center justify-content-between">
+                                        <span class="text-uppercase fw-bold" style="color: #64748b;">{{ form.status
+                                            }}</span>
+                                        <span class="status-badge status-requested"><i
+                                                class="bi bi-clock-history me-1"></i> Requested</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reimburse Specific Fields -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="field-label">Reimburse Type</label>
+                                    <input v-model="form.reimburseType" type="text" class="field-control"
+                                        placeholder="Contoh: konsumsi, transport, ATK">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="field-label">Reimburse For</label>
+                                    <input v-model="form.reimburseReason" type="text" class="field-control"
+                                        placeholder="Contoh: meeting client / belanja tim">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-panel">
+                        <div class="text-sm font-black text-slate-900 mb-5 fs-5 fw-bold">Transfer Destination</div>
+                        <div class="grid gap-4" style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+                            <div>
+                                <label class="field-label">Nama Penerima Rekening</label>
+                                <input v-model="form.beneficiaryName" type="text" class="field-control"
+                                    placeholder="Nama pemilik rekening">
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="field-label">Bank</label>
+                                    <input v-model="form.bankName" type="text" class="field-control"
+                                        placeholder="BCA / BNI / Mandiri / dll">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="field-label">Nomor Rekening</label>
+                                    <input v-model="form.accountNumber" type="text" class="field-control mono"
+                                        placeholder="1234567890">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="field-label">Metode Pembayaran</label>
+                                <input v-model="form.paymentMethod" type="text" class="field-control"
+                                    placeholder="Transfer Bank / E-Wallet / Cash">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-panel">
+                        <div class="text-sm font-black text-slate-900 mb-5 fs-5 fw-bold">Context & Notes</div>
+                        <div class="grid gap-4" style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+                            <div>
+                                <label class="field-label">Notes / Penjelasan Request</label>
+                                <textarea v-model="form.notes" rows="4" class="field-control"
+                                    placeholder="Misalnya: Penggantian dana pembelian ATK dan print materi."></textarea>
+                                <div class="field-help">Jelaskan kenapa nominal tersebut diajukan.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-panel">
+                        <div class="text-sm font-black text-slate-900 mb-5 fs-5 fw-bold">Supporting Document</div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="field-label">Upload Nota / Dokumen Pendukung</label>
+                                <input ref="reimburseProofInput" type="file" accept="image/*,.pdf" class="field-control"
+                                    style="padding: 9px 16px; background-color: #fff;">
+                                <div class="field-help">Wajib untuk reimburse. File bukti nota belanja.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="field-label">Preview Dokumen Saat Ini</div>
+                                <div class="proof-preview">
+                                    <template v-if="form.reimburseProofUrl">
+                                        <img v-if="isImageUrl(form.reimburseProofUrl)" :src="form.reimburseProofUrl"
+                                            alt="Supporting Doc">
+                                        <a v-else :href="form.reimburseProofUrl" target="_blank"
+                                            class="text-sm fw-bold text-primary">
+                                            Buka Dokumen Pendukung
+                                        </a>
+                                    </template>
+                                    <span v-else class="text-muted fw-bold small">Belum ada dokumen pendukung</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 mb-5">
+                        <button @click="resetForm" class="btn btn-light rounded-pill px-4 fw-bold border">
+                            Clear Form
+                        </button>
+                        <button @click="saveExpense" :disabled="saving"
+                            class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm"
+                            style="background-color: #0B2B6A; border-color: #0B2B6A;">
+                            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"
+                                aria-hidden="true"></span>
+                            {{ saving ? 'Submitting...' : 'Submit Reimburse' }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Panel (Right Side) -->
+                <div class="col-lg-4">
+                    <div class="form-panel sticky-top" style="top: 80px; z-index: 10;">
+                        <div class="text-sm font-black text-slate-900 mb-4 fs-5 fw-bold">My Reimburse History</div>
+                        <div v-if="loadingHistory" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div v-else-if="myExpenses.length === 0" class="text-center py-4 text-muted fw-bold">
+                            Belum ada riwayat pengajuan reimburse.
+                        </div>
+                        <div v-else class="d-flex flex-column gap-3" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+                            <div v-for="expense in myExpenses" :key="expense.id" class="p-3 bg-light rounded-3 d-flex flex-column gap-2" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <p class="fw-bold mb-0 text-dark" style="line-height: 1.2;">{{ expense.title }}</p>
+                                    <span :class="['status-badge', statusBadgeClass(expense.status)]">
+                                        {{ displayStatus(expense.status) }}
+                                    </span>
+                                </div>
+                                <div class="text-muted" style="font-size:0.75rem">
+                                    <i class="bi bi-calendar-event me-1"></i> {{ expense.formattedDate }} &bull; <span class="fw-bold mono text-dark">{{ formatCurrency(expense.amount) }} IDR</span>
+                                </div>
+                                <div v-if="(expense.status === 'paid' || expense.status === 'complete') && expense.transferProofUrl" class="mt-1 pt-2 border-top">
+                                    <a :href="expense.transferProofUrl" target="_blank" class="text-decoration-none text-success fw-bold" style="font-size: 0.75rem;">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka Bukti Transfer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Toast Notification -->
+            <transition name="fade">
+                <div v-if="toast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+                    <div class="toast show align-items-center text-white bg-dark border-0 rounded-4 shadow-lg"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body fw-bold">
+                                {{ toast }}
+                            </div>
+                            <button type="button" @click="toast = null" class="btn-close btn-close-white me-2 m-auto"
+                                aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+        </main>
+
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <a href="../home.html" class="nav-item-mobile"><i class="bi bi-house-door-fill"></i></a>
+            <a href="#" class="nav-item-mobile active"><i class="bi bi-receipt"></i></a>
+            <button class="nav-btn-plus" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionSheet">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+            <a href="#" class="nav-item-mobile position-relative">
+                <i class="bi bi-bell"></i>
+            </a>
+            <a href="#" class="nav-item-mobile"><i class="bi bi-person"></i></a>
+        </div>
+
+        <!-- MOBILE ACTION SHEET -->
+        <div class="offcanvas offcanvas-bottom custom-bottom-sheet" tabindex="-1" id="actionSheet">
+            <div class="offcanvas-header justify-content-center pb-0">
+                <div style="width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px;"></div>
+            </div>
+            <div class="offcanvas-body pt-4">
+                <h6 class="fw-bold mb-3 ps-2">Create New</h6>
+                <a href="#" class="action-option">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 me-3"
+                        style="width:40px; height:40px; background:#e0f2fe; color:#0284c7;"><i class="bi bi-sticky"></i>
+                    </div>
+                    <div><span class="d-block fw-bold small">Capture</span><small class="text-muted"
+                            style="font-size: 0.7rem;">Quick ideas & memos</small></div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeFirestore, collection, doc, setDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = initializeFirestore(firebaseApp, {
+            experimentalForceLongPolling: true,
+            useFetchStreams: false
+        });
+        const storage = getStorage(firebaseApp);
+
+        // Render Navigation Elements
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const saving = ref(false);
+                const toast = ref(null);
+                const reimburseProofInput = ref(null);
+                const currentUserInfo = ref({ id: '', name: '' });
+                const myExpenses = ref([]);
+                const loadingHistory = ref(false);
+
+                const createEmptyForm = () => ({
+                    title: '',
+                    category: 'reimburse', // Locked to reimburse
+                    department: 'General',
+                    requesterId: '',
+                    requesterName: '',
+                    dueDate: '',
+                    amount: 0,
+                    status: 'requested', // Initial status
+                    beneficiaryName: '',
+                    bankName: '',
+                    accountNumber: '',
+                    paymentMethod: 'Transfer Bank',
+                    notes: '',
+                    reimburseType: '',
+                    reimburseReason: '',
+                    reimburseProofUrl: '',
+                    reimburseProofPath: ''
+                });
+
+                const form = ref(createEmptyForm());
+
+                const formatCurrency = (value) => new Intl.NumberFormat('id-ID').format(Number(value || 0));
+
+                const formattedAmount = computed({
+                    get() {
+                        const raw = Number(form.value.amount || 0);
+                        return raw ? formatCurrency(raw) : '';
+                    },
+                    set(value) {
+                        const digits = String(value || '').replace(/[^\d]/g, '');
+                        form.value.amount = digits ? parseInt(digits, 10) : 0;
+                    }
+                });
+
+                const isImageUrl = (url) => /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(String(url || ''));
+
+                const showToast = (message) => {
+                    toast.value = message;
+                    setTimeout(() => {
+                        toast.value = null;
+                    }, 3200);
+                };
+
+                const loadMyExpenses = async () => {
+                    if (!currentUserInfo.value.id) return;
+                    loadingHistory.value = true;
+                    try {
+                        const q = query(
+                            collection(db, 'operational_expenses'),
+                            where('category', '==', 'reimburse'),
+                            where('requesterId', '==', currentUserInfo.value.id)
+                        );
+                        const snap = await getDocs(q);
+                        const list = [];
+                        snap.forEach(docSnap => {
+                            const data = docSnap.data();
+                            let d = new Date(data.createdAtMs || Date.now());
+                            let formattedDate = new Intl.DateTimeFormat('id-ID', {
+                                day: '2-digit', month: 'short', year: 'numeric'
+                            }).format(d);
+                            
+                            list.push({
+                                id: docSnap.id,
+                                title: data.title || 'Untitled',
+                                amount: data.amount || 0,
+                                status: data.status || 'requested',
+                                transferProofUrl: data.transferProofUrl || '',
+                                createdAtMs: data.createdAtMs || 0,
+                                formattedDate
+                            });
+                        });
+                        list.sort((a, b) => b.createdAtMs - a.createdAtMs);
+                        myExpenses.value = list;
+                    } catch (e) {
+                        console.error("Gagal load history", e);
+                    } finally {
+                        loadingHistory.value = false;
+                    }
+                };
+
+                const displayStatus = (status) => {
+                    const s = String(status || '').toLowerCase();
+                    if (s === 'complete' || s === 'paid') return 'Paid';
+                    if (s === 'reviewing') return 'Reviewing';
+                    if (s === 'rejected') return 'Rejected';
+                    return 'Requested';
+                };
+
+                const statusBadgeClass = (status) => {
+                    const s = String(status || '').toLowerCase();
+                    if (s === 'complete' || s === 'paid') return 'status-paid';
+                    if (s === 'reviewing') return 'status-reviewing';
+                    if (s === 'rejected') return 'status-rejected';
+                    return 'status-requested';
+                };
+
+                const resetForm = () => {
+                    form.value = createEmptyForm();
+                    // Keep requester info
+                    form.value.requesterId = currentUserInfo.value.id;
+                    form.value.requesterName = currentUserInfo.value.name;
+
+                    if (reimburseProofInput.value) {
+                        reimburseProofInput.value.value = '';
+                    }
+                };
+
+                const uploadReimburseProof = async (expenseId) => {
+                    const file = reimburseProofInput.value && reimburseProofInput.value.files ? reimburseProofInput.value.files[0] : null;
+                    if (!file) {
+                        return {
+                            url: form.value.reimburseProofUrl || '',
+                            path: form.value.reimburseProofPath || ''
+                        };
+                    }
+
+                    const safeName = String(file.name || 'reimburse')
+                        .replace(/[^\w.\-]/g, '_')
+                        .replace(/_+/g, '_');
+                    const path = `operational-expenses/${expenseId}/reimburse-${Date.now()}-${safeName}`;
+                    const refFile = storageRef(storage, path);
+                    await uploadBytes(refFile, file);
+                    return {
+                        url: await getDownloadURL(refFile),
+                        path
+                    };
+                };
+
+                const validateForm = () => {
+                    if (!String(form.value.title || '').trim()) {
+                        alert('Judul pengeluaran wajib diisi.');
+                        return false;
+                    }
+                    if (!String(form.value.beneficiaryName || '').trim()) {
+                        alert('Nama penerima rekening wajib diisi.');
+                        return false;
+                    }
+                    if (!String(form.value.bankName || '').trim() || !String(form.value.accountNumber || '').trim()) {
+                        alert('Bank dan nomor rekening tujuan wajib diisi.');
+                        return false;
+                    }
+                    if (!(Number(form.value.amount) > 0)) {
+                        alert('Nominal pengeluaran wajib lebih dari 0.');
+                        return false;
+                    }
+                    if (!form.value.reimburseProofUrl && !(reimburseProofInput.value && reimburseProofInput.value.files && reimburseProofInput.value.files[0])) {
+                        alert('Nota/kwitansi wajib dilampirkan untuk reimburse.');
+                        return false;
+                    }
+                    return true;
+                };
+
+                const saveExpense = async () => {
+                    if (saving.value) return;
+                    if (!validateForm()) return;
+                    saving.value = true;
+
+                    const expenseId = `OPS-${Date.now()}`;
+
+                    try {
+                        const reimburseUpload = await uploadReimburseProof(expenseId);
+                        const nowMs = Date.now();
+
+                        const payload = {
+                            title: String(form.value.title || '').trim(),
+                            category: 'reimburse',
+                            department: String(form.value.department || 'General').trim(),
+                            requesterId: String(form.value.requesterId || '').trim(),
+                            requesterName: String(form.value.requesterName || '').trim(),
+                            dueDate: String(form.value.dueDate || '').trim(),
+                            amount: Number(form.value.amount) || 0,
+                            status: 'requested', // Explicitly set to requested
+                            beneficiaryName: String(form.value.beneficiaryName || '').trim(),
+                            bankName: String(form.value.bankName || '').trim(),
+                            accountNumber: String(form.value.accountNumber || '').trim(),
+                            paymentMethod: String(form.value.paymentMethod || '').trim(),
+                            notes: String(form.value.notes || '').trim(),
+                            reimburseType: String(form.value.reimburseType || '').trim(),
+                            reimburseReason: String(form.value.reimburseReason || '').trim(),
+                            reimburseProofUrl: reimburseUpload.url || '',
+                            reimburseProofPath: reimburseUpload.path || '',
+                            createdAtMs: nowMs,
+                            createdAt: serverTimestamp(),
+                            updatedAtMs: nowMs,
+                            updatedAt: serverTimestamp()
+                        };
+
+                        await setDoc(doc(db, 'operational_expenses', expenseId), payload, { merge: true });
+                        showToast('Permintaan Reimburse berhasil diajukan!');
+                        resetForm();
+                        await loadMyExpenses();
+                    } catch (error) {
+                        console.error('[FormReimburse] Gagal menyimpan expense', error);
+                        alert('Gagal mengajukan reimburse. Silakan coba lagi.');
+                    } finally {
+                        saving.value = false;
+                    }
+                };
+
+                onMounted(() => {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (!user) {
+                            window.location.href = "../index.html";
+                            return;
+                        }
+
+                        // Coba ambil data user dari localStorage
+                        let localData = null;
+                        try {
+                            localData = JSON.parse(localStorage.getItem('userData'));
+                        } catch (e) { }
+
+                        const requesterName = (localData && localData.name) ? localData.name : (user.displayName || user.email);
+                        currentUserInfo.value = { id: user.uid, name: requesterName };
+
+                        form.value.requesterId = user.uid;
+                        form.value.requesterName = requesterName;
+                        loadMyExpenses();
+                    });
+                });
+
+                return {
+                    form,
+                    saving,
+                    toast,
+                    reimburseProofInput,
+                    formattedAmount,
+                    isImageUrl,
+                    resetForm,
+                    saveExpense,
+                    myExpenses,
+                    loadingHistory,
+                    statusBadgeClass,
+                    displayStatus,
+                    formatCurrency
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --team-primary: #ff5b37;
+            --team-green: #10b981;
+            --team-green-dark: #059669;
+            --team-muted: #64748b;
+            --team-border: #e2e8f0;
+            --team-bg: #f8fafc;
+            --team-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--team-bg);
+            color: #1e293b;
+        }
+
+        .page-kicker {
+            color: var(--team-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #ff7b5f 0%, var(--team-primary) 100%);
+            border: none;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(255, 91, 55, 0.18);
+        }
+
+        .btn-primary-custom:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 12px 22px rgba(255, 91, 55, 0.22);
+        }
+
+        .btn-team-add {
+            background: linear-gradient(135deg, #34d399 0%, var(--team-green) 100%);
+            border: none;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            line-height: 1.2;
+            box-shadow: 0 7px 16px rgba(16, 185, 129, 0.18);
+            transition: all 0.2s ease;
+        }
+
+        .btn-team-add:hover {
+            color: #fff;
+            background: linear-gradient(135deg, #22c55e 0%, var(--team-green-dark) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.24);
+        }
+
+        .team-section {
+            background: #fff;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            box-shadow: var(--team-shadow);
+            overflow: hidden;
+        }
+
+        .team-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--team-border);
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        }
+
+        .team-section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .team-section-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff7ed;
+            color: var(--team-primary);
+        }
+
+        .team-table {
+            min-width: 1120px;
+            margin-bottom: 0;
+        }
+
+        .team-table thead th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--team-border);
+            white-space: nowrap;
+        }
+
+        .team-table tbody td {
+            padding: 15px 18px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .team-table tbody tr:hover {
+            background: #fbfcfe;
+        }
+
+        .member-name {
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .status-pill.status-ghosted {
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        .status-pill.status-resigned {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .status-pill.status-inactive,
+        .status-pill.status-on-leave {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .action-btn.danger:hover {
+            color: #dc2626;
+            border-color: #fecaca;
+            background: #fff5f5;
+        }
+
+        .form-control-custom,
+        .form-select-custom {
+            border: 1px solid var(--team-border);
+            border-radius: 12px;
+            font-size: 14px;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+        }
+
+        .form-control-custom:focus,
+        .form-select-custom:focus {
+            border-color: var(--team-primary);
+            box-shadow: 0 0 0 4px rgba(255, 91, 55, 0.1);
+        }
+
+        .modal-content {
+            border: 0;
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 20px 24px;
+        }
+
+        .modal-title {
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem !important;
+            }
+
+            .team-section-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="p-8">
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="mb-5">
+                <div>
+                    <h1 class="fw-bold mb-1">Team Management</h1>
+                    <nav class="page-kicker d-flex align-items-center gap-2">
+                        <a href="../home.html" class="text-muted"><i class="fas fa-home text-xs"></i></a>
+                        <span>/ HR Division /</span>
+                        <span class="text-dark">Team Management</span>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="d-grid gap-4" id="teamDivisionContainer"></div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="teamMemberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="teamMemberModalTitle">Tambah Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="teamMemberForm">
+                    <input type="hidden" id="teamMemberId">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nama</label>
+                                <input type="text" id="teamMemberName" class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nomor WhatsApp</label>
+                                <input type="text" id="teamMemberWhatsapp" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Email</label>
+                                <input type="email" id="teamMemberEmail" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Instagram</label>
+                                <input type="text" id="teamMemberInstagram" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">LinkedIn</label>
+                                <input type="text" id="teamMemberLinkedin" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Address</label>
+                                <input type="text" id="teamMemberAddress" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Birth Date</label>
+                                <input type="date" id="teamMemberBirthDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Status</label>
+                                <select id="teamMemberStatus" class="form-select form-select-custom" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="On Leave">On Leave</option>
+                                    <option value="Ghosted">Ghosted</option>
+                                    <option value="Resigned">Resigned</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Jenis Kontrak</label>
+                                <select id="teamMemberContractType" class="form-select form-select-custom">
+                                    <option value="PKWT">PKWT</option>
+                                    <option value="PKWTT">PKWTT</option>
+                                    <option value="Freelance">Freelance</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Start Date</label>
+                                <input type="date" id="teamMemberStartDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">End Date</label>
+                                <input type="date" id="teamMemberEndDate" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Bank / Wallet</label>
+                                <input type="text" id="teamMemberBank" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nomor Rekening</label>
+                                <input type="text" id="teamMemberAccountNumber" class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Price / Fee</label>
+                                <input type="number" id="teamMemberFee" class="form-control form-control-custom" min="0" step="any">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold">PKWT Contract File</label>
+                                <input type="file" id="teamMemberPkwtFile" class="form-control form-control-custom" accept=".pdf,.doc,.docx">
+                                <small class="text-muted d-block mt-2">Format: PDF, DOC, DOCX</small>
+                                <div id="pkwtFileStatus" class="mt-2"></div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold">Dokumen Tim</label>
+                                <div class="border rounded-3 p-3 bg-light">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+                                        <div>
+                                            <div class="fw-bold text-dark">Upload dokumen anggota</div>
+                                            <small class="text-muted">Format: PDF, DOC, DOCX, JPG, JPEG, PNG. File bisa ditambahkan beberapa kali sebelum disimpan.</small>
+                                        </div>
+                                        <div>
+                                            <input type="file" id="teamMemberDocuments" class="d-none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                                            <button type="button" class="btn btn-sm btn-light border fw-bold" id="teamMemberDocumentsChooseBtn">
+                                                <i class="fas fa-paperclip me-2"></i>Pilih File
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="teamExistingDocumentsList" class="mt-3"></div>
+                                    <div id="teamMemberDocumentsStatus" class="mt-3" style="max-height: 180px; overflow-y: auto;">
+                                        <ul id="teamMemberDocumentsList" class="list-unstyled mb-0" style="font-size: 0.85rem;"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary-custom" id="teamMemberSubmitBtn">Simpan Anggota</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="teamDocumentsViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dokumen Tim: <span id="documentsMemberName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="documentsListContainer">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Tidak ada dokumen
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            doc,
+            onSnapshot,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref,
+            uploadBytes,
+            getDownloadURL,
+            deleteObject
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const TEAM_COLLECTION = "team_management";
+        const DOCUMENT_STORAGE_ROOT = "team-management";
+        const ALLOWED_DOCUMENT_EXTENSIONS = [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png"];
+        const ALLOWED_DOCUMENT_TYPES = [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "image/jpeg",
+            "image/png"
+        ];
+        const DIVISIONS = [
+            "Human Resources",
+            "Marketing",
+            "Client & Product",
+            "Branding",
+            "Ghosted",
+            "Resigned"
+        ];
+
+        const CONTRACT_TYPES = ["PKWT", "PKWTT", "Freelance"];
+        const CONTRACT_COLORS = {
+            PKWT: "badge bg-primary text-white",
+            PKWTT: "badge bg-success text-white",
+            Freelance: "badge bg-warning text-dark"
+        };
+
+        const state = {
+            members: [],
+            editingId: "",
+            modal: null,
+            pendingDocuments: [],
+            removedDocumentKeys: new Set(),
+            activeDivision: DIVISIONS[0]
+        };
+        let unsubscribeTeamManagement = null;
+
+        // Active divisions (excluding Ghosted and Resigned)
+        const ACTIVE_DIVISIONS = DIVISIONS.filter(d => d !== "Ghosted" && d !== "Resigned");
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (topbarTarget) renderTopBar(topbarTarget);
+        if (sidebarTarget) renderSidebar(sidebarTarget);
+
+        function escapeHtml(value) {
+            return (value || "").toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function slugDivision(division) {
+            return division.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        }
+
+        function normalizeDivision(value) {
+            const raw = (value || "").toString().trim();
+            return DIVISIONS.includes(raw) ? raw : "";
+        }
+
+        function formatFee(value) {
+            if (value === null || value === undefined || value === "") return "-";
+            const numeric = Number(value);
+            if (Number.isNaN(numeric)) return escapeHtml(value);
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                maximumFractionDigits: 0
+            }).format(numeric);
+        }
+
+        function getPkwtBadgeHtml(member) {
+            if (member.pkwtFileUrl) {
+                return '<a href="' + escapeHtml(member.pkwtFileUrl) + '" target="_blank" class="btn btn-sm btn-outline-success" style="padding: 4px 8px; font-size: 0.75rem;">' +
+                       '<i class="fas fa-file-pdf me-1"></i>Lihat PKWT</a>';
+            } else {
+                return '<span class="badge bg-light text-dark" style="font-size: 0.7rem;">No File</span>';
+            }
+        }
+
+        function getContractBadgeHtml(member) {
+            const contractType = member.contractType || "PKWT";
+            const badgeClass = CONTRACT_COLORS[contractType] || "badge bg-secondary text-white";
+            return '<span class="' + badgeClass + '" style="font-size: 0.78rem; font-weight: 600;">' + escapeHtml(contractType) + '</span>';
+        }
+
+        function getDocumentBadgeHtml(member) {
+            const docs = (member.documents && Array.isArray(member.documents)) ? member.documents : [];
+            console.log(
+                "TEAM DOC DEBUG",
+                member.name,
+                member.documents,
+                member.documents?.length
+            );
+            if (docs.length > 0) {
+                return '<button type="button" class="btn btn-sm btn-outline-primary team-documents-btn" data-id="' + escapeHtml(member.id) + '" style="padding: 4px 8px; font-size: 0.75rem;">' +
+                       '<i class="fas fa-folder me-1"></i>' + docs.length + ' ' + (docs.length === 1 ? 'File' : 'Files') + '</button>';
+            } else {
+                return '<span class="badge bg-light text-dark" style="font-size: 0.7rem;">No Document</span>';
+            }
+        }
+
+        function getStatusClass(status) {
+            return "status-" + (status || "active").toString().trim().toLowerCase().replace(/\s+/g, "-");
+        }
+
+        function renderDivisionSections() {
+            const container = document.getElementById("teamDivisionContainer");
+            if (!container) return;
+            
+            // Build sections for active divisions and special sections (Ghosted, Resigned)
+            const sectionsToRender = ACTIVE_DIVISIONS.concat(["Ghosted", "Resigned"]);
+            
+            container.innerHTML = sectionsToRender.map((division) => {
+                const slug = slugDivision(division);
+                const isSpecial = division === "Ghosted" || division === "Resigned";
+                
+                // Only show "Add" button for active divisions
+                const addButtonHtml = isSpecial ? '' : 
+                    '<button type="button" class="btn btn-team-add team-add-btn" data-division="' + escapeHtml(division) + '">' +
+                        '<i class="fas fa-plus me-2"></i>Tambah Anggota' +
+                    '</button>';
+                
+                // Determine headers based on whether it's special division
+                let headers = '<th>Nama</th>' +
+                              '<th>Status</th>' +
+                              '<th>Kontrak</th>' +
+                              '<th>PKWT</th>' +
+                              '<th>Dokumen Tim</th>' +
+                              '<th>WhatsApp</th>' +
+                              '<th>Email</th>' +
+                              '<th>Instagram</th>' +
+                              '<th>LinkedIn</th>' +
+                              '<th>Bank / Wallet</th>' +
+                              '<th>Nomor Rekening</th>' +
+                              '<th>Price / Fee</th>' +
+                              '<th class="text-end">Action</th>';
+
+                if (isSpecial) {
+                    headers = '<th>Nama</th>' +
+                              '<th>Divisi Asal</th>' +
+                              '<th>Status</th>' +
+                              '<th>Kontrak</th>' +
+                              '<th>PKWT</th>' +
+                              '<th>Dokumen Tim</th>' +
+                              '<th>WhatsApp</th>' +
+                              '<th>Email</th>' +
+                              '<th>Instagram</th>' +
+                              '<th>LinkedIn</th>' +
+                              '<th>Bank / Wallet</th>' +
+                              '<th>Nomor Rekening</th>' +
+                              '<th>Price / Fee</th>' +
+                              '<th class="text-end">Action</th>';
+                }
+                
+                return (
+                    '<section class="team-section" data-division="' + escapeHtml(division) + '">' +
+                        '<div class="team-section-header">' +
+                            '<h2 class="team-section-title">' +
+                                '<span class="team-section-icon"><i class="bi bi-people-fill"></i></span>' +
+                                '<span>' + escapeHtml(division) + '</span>' +
+                            '</h2>' +
+                            addButtonHtml +
+                        '</div>' +
+                        '<div class="table-responsive">' +
+                            '<table class="table team-table">' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        headers +
+                                    '</tr>' +
+                                '</thead>' +
+                                '<tbody id="teamBody-' + slug + '"></tbody>' +
+                            '</table>' +
+                        '</div>' +
+                    '</section>'
+                );
+            }).join("");
+        }
+
+        function renderMembers() {
+            const sectionsToRender = ACTIVE_DIVISIONS.concat(["Ghosted", "Resigned"]);
+            sectionsToRender.forEach((division) => {
+                const body = document.getElementById("teamBody-" + slugDivision(division));
+                if (body) body.innerHTML = "";
+            });
+
+                state.members
+                .slice()
+                .sort((a, b) => (a.name || "").localeCompare(b.name || "", "id"))
+                .forEach((member) => {
+                    let targetDivision = null;
+                    
+                    // Determine which table this member should appear in
+                    if (member.status === "Ghosted") {
+                        targetDivision = "Ghosted";
+                    } else if (member.status === "Resigned") {
+                        targetDivision = "Resigned";
+                    } else {
+                        // For active members, use their division
+                        const division = normalizeDivision(member.department || member.division);
+                        if (division && ACTIVE_DIVISIONS.includes(division)) {
+                            targetDivision = division;
+                        }
+                    }
+                    
+                    if (!targetDivision) return;
+                    
+                    const body = document.getElementById("teamBody-" + slugDivision(targetDivision));
+                    if (!body) return;
+                    
+                    const isSpecial = targetDivision === "Ghosted" || targetDivision === "Resigned";
+                    const tr = document.createElement("tr");
+                    
+                    if (isSpecial) {
+                        // For Ghosted and Resigned, include originalDivision
+                        const originalDiv = member.originalDivision || member.department || member.division || "-";
+                        tr.innerHTML =
+                            '<td><span class="member-name">' + escapeHtml(member.name || "-") + '</span></td>' +
+                            '<td>' + escapeHtml(originalDiv) + '</td>' +
+                            '<td><span class="status-pill ' + getStatusClass(member.status) + '">' + escapeHtml(member.status || "-") + '</span></td>' +
+                            '<td>' + getContractBadgeHtml(member) + '</td>' +
+                            '<td>' + getPkwtBadgeHtml(member) + '</td>' +
+                            '<td>' + getDocumentBadgeHtml(member) + '</td>' +
+                            '<td>' + escapeHtml(member.whatsapp || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.email || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.instagram || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.linkedin || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.bank || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.accountNumber || "-") + '</td>' +
+                            '<td>' + formatFee(member.fee) + '</td>' +
+                            '<td class="text-end">' +
+                                '<button type="button" class="action-btn me-2 team-edit-btn" data-id="' + escapeHtml(member.id) + '" aria-label="Edit anggota">' +
+                                    '<i class="fas fa-pen"></i>' +
+                                '</button>' +
+                                '<button type="button" class="action-btn danger team-delete-btn" data-id="' + escapeHtml(member.id) + '" aria-label="Hapus anggota">' +
+                                    '<i class="fas fa-trash"></i>' +
+                                '</button>' +
+                            '</td>';
+                    } else {
+                        // For active divisions, use standard layout
+                        tr.innerHTML =
+                            '<td><span class="member-name">' + escapeHtml(member.name || "-") + '</span></td>' +
+                            '<td><span class="status-pill ' + getStatusClass(member.status) + '">' + escapeHtml(member.status || "-") + '</span></td>' +
+                            '<td>' + getContractBadgeHtml(member) + '</td>' +
+                            '<td>' + getPkwtBadgeHtml(member) + '</td>' +
+                            '<td>' + getDocumentBadgeHtml(member) + '</td>' +
+                            '<td>' + escapeHtml(member.whatsapp || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.email || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.instagram || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.linkedin || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.bank || "-") + '</td>' +
+                            '<td>' + escapeHtml(member.accountNumber || "-") + '</td>' +
+                            '<td>' + formatFee(member.fee) + '</td>' +
+                            '<td class="text-end">' +
+                                '<button type="button" class="action-btn me-2 team-edit-btn" data-id="' + escapeHtml(member.id) + '" aria-label="Edit anggota">' +
+                                    '<i class="fas fa-pen"></i>' +
+                                '</button>' +
+                                '<button type="button" class="action-btn danger team-delete-btn" data-id="' + escapeHtml(member.id) + '" aria-label="Hapus anggota">' +
+                                    '<i class="fas fa-trash"></i>' +
+                                '</button>' +
+                            '</td>';
+                    }
+                    
+                    body.appendChild(tr);
+                });
+        }
+
+        function resetForm(division) {
+            const form = document.getElementById("teamMemberForm");
+            if (form) form.reset();
+            state.editingId = "";
+            state.activeDivision = normalizeDivision(division) || DIVISIONS[0];
+            document.getElementById("teamMemberId").value = "";
+            document.getElementById("teamMemberStatus").value = "Active";
+            document.getElementById("teamMemberContractType").value = "PKWT";
+            document.getElementById("teamMemberPkwtFile").value = "";
+            document.getElementById("pkwtFileStatus").innerHTML = "";
+            document.getElementById("teamMemberDocuments").value = "";
+            state.pendingDocuments = [];
+            state.removedDocumentKeys = new Set();
+            renderSelectedDocuments([]);
+            document.getElementById("teamMemberModalTitle").textContent = "Tambah Anggota";
+            document.getElementById("teamMemberSubmitBtn").textContent = "Simpan Anggota";
+        }
+
+        function openAddModal(division) {
+            resetForm(division);
+            if (state.modal) state.modal.show();
+        }
+
+        function openEditModal(id) {
+            const member = state.members.find((item) => item.id === id);
+            if (!member) return;
+            state.editingId = id;
+            
+            // Determine active division for modal
+            // If member is Ghosted or Resigned, use originalDivision; otherwise use current division
+            let activeDivision = member.division || DIVISIONS[0];
+            if ((member.status === "Ghosted" || member.status === "Resigned") && member.originalDivision) {
+                activeDivision = member.originalDivision;
+            }
+            state.activeDivision = normalizeDivision(activeDivision) || DIVISIONS[0];
+            
+            document.getElementById("teamMemberId").value = id;
+            document.getElementById("teamMemberName").value = member.name || "";
+            document.getElementById("teamMemberStatus").value = member.status || "Active";
+            document.getElementById("teamMemberContractType").value = member.contractType || "PKWT";
+            document.getElementById("teamMemberWhatsapp").value = member.whatsapp || "";
+            document.getElementById("teamMemberEmail").value = member.email || "";
+            document.getElementById("teamMemberInstagram").value = member.instagram || "";
+            document.getElementById("teamMemberLinkedin").value = member.linkedin || "";
+            document.getElementById("teamMemberAddress").value = member.address || "";
+            document.getElementById("teamMemberBirthDate").value = member.birthDate || "";
+            document.getElementById("teamMemberStartDate").value = member.startDate || "";
+            document.getElementById("teamMemberEndDate").value = member.endDate || "";
+            document.getElementById("teamMemberBank").value = member.bank || "";
+            document.getElementById("teamMemberAccountNumber").value = member.accountNumber || "";
+            document.getElementById("teamMemberFee").value = member.fee || "";
+            
+            // Display current PKWT file status
+            const pkwtStatusEl = document.getElementById("pkwtFileStatus");
+            if (member.pkwtFileUrl) {
+                pkwtStatusEl.innerHTML = '<small class="text-success"><i class="fas fa-check-circle"></i> File tersimpan: ' + 
+                                        escapeHtml(member.pkwtFileName || "PKWT Contract") + '</small><br>' +
+                                        '<small class="text-muted">Upload file baru untuk mengganti</small>';
+            } else {
+                pkwtStatusEl.innerHTML = '<small class="text-warning">Belum ada file PKWT</small>';
+            }
+            
+            document.getElementById("teamMemberPkwtFile").value = "";
+            state.pendingDocuments = [];
+            state.removedDocumentKeys = new Set();
+            renderSelectedDocuments(member.documents || []);
+            document.getElementById("teamMemberModalTitle").textContent = "Edit Anggota";
+            document.getElementById("teamMemberSubmitBtn").textContent = "Simpan Perubahan";
+            if (state.modal) state.modal.show();
+        }
+
+        function collectPayload() {
+            const feeValue = document.getElementById("teamMemberFee").value.trim();
+            return {
+                name: document.getElementById("teamMemberName").value.trim(),
+                division: normalizeDivision(state.activeDivision) || DIVISIONS[0],
+                status: document.getElementById("teamMemberStatus").value,
+                contractType: document.getElementById("teamMemberContractType").value,
+                whatsapp: document.getElementById("teamMemberWhatsapp").value.trim(),
+                email: document.getElementById("teamMemberEmail").value.trim(),
+                instagram: document.getElementById("teamMemberInstagram").value.trim(),
+                linkedin: document.getElementById("teamMemberLinkedin").value.trim(),
+                address: document.getElementById("teamMemberAddress").value.trim(),
+                birthDate: document.getElementById("teamMemberBirthDate").value,
+                startDate: document.getElementById("teamMemberStartDate").value,
+                endDate: document.getElementById("teamMemberEndDate").value,
+                bank: document.getElementById("teamMemberBank").value.trim(),
+                accountNumber: document.getElementById("teamMemberAccountNumber").value.trim(),
+                fee: feeValue === "" ? "" : Number(feeValue),
+                pkwtFile: document.getElementById("teamMemberPkwtFile").files[0] || null
+            };
+        }
+
+        async function uploadPkwtFile(memberId, file, oldPkwtFilePath) {
+            if (!file) return { url: null, fileName: null };
+            
+            try {
+                // Delete old file if exists
+                if (oldPkwtFilePath) {
+                    try {
+                        const oldFileRef = ref(storage, oldPkwtFilePath);
+                        await deleteObject(oldFileRef);
+                    } catch (error) {
+                        console.warn("Could not delete old PKWT file", error);
+                    }
+                }
+                
+                // Upload new file
+                const fileName = file.name;
+                const fileRef = ref(storage, `${DOCUMENT_STORAGE_ROOT}/${memberId}/pkwt/${Date.now()}_${fileName}`);
+                await uploadBytes(fileRef, file);
+                const url = await getDownloadURL(fileRef);
+                
+                return { url, fileName, filePath: fileRef.fullPath };
+            } catch (error) {
+                console.error("Failed to upload PKWT file", error);
+                throw error;
+            }
+        }
+
+        function getDocumentKey(doc) {
+            return (doc && (doc.fileUrl || doc.filePath || doc.fileName)) || "";
+        }
+
+        function deduplicateDocuments(docs) {
+            const seen = new Set();
+            const result = [];
+            const inputArray = Array.isArray(docs) ? docs : [];
+            console.log("DEDUPLICATE INPUT", inputArray.length, inputArray);
+            inputArray.forEach((doc) => {
+                const key = getDocumentKey(doc);
+                console.log("  DOC KEY", key, doc);
+                if (!key || seen.has(key)) {
+                    console.log("  SKIPPING DUPLICATE", key);
+                    return;
+                }
+                seen.add(key);
+                result.push(doc);
+            });
+            console.log("DEDUPLICATE RESULT", result.length, result);
+            return result;
+        }
+
+        function isPendingFileDuplicate(newFile) {
+            return state.pendingDocuments.some(existing => 
+                existing.name === newFile.name && existing.size === newFile.size
+            );
+        }
+
+        function isAllowedDocumentFile(file) {
+            if (!file) return false;
+            const name = (file.name || "").toLowerCase();
+            const hasAllowedExtension = ALLOWED_DOCUMENT_EXTENSIONS.some(ext => name.endsWith(ext));
+            const hasAllowedType = !file.type || ALLOWED_DOCUMENT_TYPES.includes(file.type);
+            return hasAllowedExtension && hasAllowedType;
+        }
+
+        function formatFileSize(size) {
+            const bytes = Number(size || 0);
+            if (!bytes) return "";
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+            return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+        }
+
+        async function uploadTeamDocuments(memberId, files) {
+            const uploads = Array.isArray(files) ? files : Array.from(files || []);
+            const uploadedDocuments = [];
+            for (let i = 0; i < uploads.length; i++) {
+                const file = uploads[i];
+                const fileName = file.name;
+                const timestamp = Date.now() + "_" + i;
+                const safeName = fileName.replace(/[^\w.\-() ]+/g, "_");
+                const fileRef = ref(storage, `${DOCUMENT_STORAGE_ROOT}/${memberId}/documents/${timestamp}_${safeName}`);
+                await uploadBytes(fileRef, file);
+                const fileUrl = await getDownloadURL(fileRef);
+                uploadedDocuments.push({
+                    fileName,
+                    fileUrl,
+                    filePath: fileRef.fullPath,
+                    uploadedAt: new Date().toISOString()
+                });
+            }
+            return uploadedDocuments;
+        }
+
+        async function deleteRemovedDocuments(documents) {
+            const docs = Array.isArray(documents) ? documents : [];
+            for (let i = 0; i < docs.length; i++) {
+                const path = docs[i].filePath || "";
+                if (!path || !state.removedDocumentKeys.has(getDocumentKey(docs[i]))) continue;
+                try {
+                    await deleteObject(ref(storage, path));
+                } catch (error) {
+                    console.warn("Could not delete team document from storage", error);
+                }
+            }
+        }
+
+        function renderSelectedDocuments(existingDocuments = []) {
+            const listContainer = document.getElementById("teamMemberDocumentsList");
+            const existingContainer = document.getElementById("teamExistingDocumentsList");
+            const existing = (Array.isArray(existingDocuments) ? existingDocuments : [])
+                .filter(doc => !state.removedDocumentKeys.has(getDocumentKey(doc)));
+
+            if (existingContainer) {
+                existingContainer.innerHTML = existing.length
+                    ? '<div class="small fw-bold text-muted mb-2">Dokumen tersimpan</div>' + existing.map((doc) => {
+                        return '<div class="d-flex justify-content-between align-items-center border rounded-3 bg-white px-3 py-2 mb-2">' +
+                            '<div class="text-truncate pe-3"><i class="fas fa-file me-2 text-muted"></i>' + escapeHtml(doc.fileName || "File") + '</div>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger team-remove-existing-document" data-key="' + escapeHtml(getDocumentKey(doc)) + '">' +
+                                '<i class="fas fa-times"></i>' +
+                            '</button>' +
+                        '</div>';
+                    }).join("")
+                    : "";
+            }
+
+            if (!listContainer) return;
+            listContainer.innerHTML = state.pendingDocuments.length
+                ? state.pendingDocuments.map((file, index) => {
+                    return '<li class="d-flex justify-content-between align-items-center border rounded-3 bg-white px-3 py-2 mb-2">' +
+                        '<span class="text-truncate pe-3"><i class="fas fa-file me-2 text-muted"></i>' + escapeHtml(file.name) +
+                        '<span class="text-muted ms-2">' + escapeHtml(formatFileSize(file.size)) + '</span></span>' +
+                        '<button type="button" class="btn btn-sm btn-outline-danger team-remove-pending-document" data-index="' + index + '">' +
+                            '<i class="fas fa-times"></i>' +
+                        '</button>' +
+                    '</li>';
+                }).join("")
+                : '<li class="text-muted small">Belum ada file baru dipilih.</li>';
+        }
+
+        function getCurrentEditingDocuments() {
+            if (!state.editingId) return [];
+            const member = state.members.find(item => item.id === state.editingId);
+            return member && Array.isArray(member.documents) ? member.documents : [];
+        }
+
+        function handleDocumentInputChange(event) {
+            const files = Array.from(event.target.files || []);
+            files.forEach((file) => {
+                if (isAllowedDocumentFile(file) && !isPendingFileDuplicate(file)) {
+                    state.pendingDocuments.push(file);
+                }
+            });
+            event.target.value = "";
+            renderSelectedDocuments(getCurrentEditingDocuments());
+        }
+
+        async function saveMember(event) {
+            event.preventDefault();
+            const payload = collectPayload();
+            if (!payload.name) {
+                alert("Nama wajib diisi.");
+                return;
+            }
+
+            const submitBtn = document.getElementById("teamMemberSubmitBtn");
+            submitBtn.disabled = true;
+            try {
+                if (state.editingId) {
+                    const existingMember = state.members.find(m => m.id === state.editingId);
+                    const oldStatus = existingMember?.status || "Active";
+                    const newStatus = payload.status;
+                    let pkwtFileUrl = existingMember?.pkwtFileUrl || null;
+                    let pkwtFileName = existingMember?.pkwtFileName || null;
+                    let pkwtFilePath = existingMember?.pkwtFilePath || null;
+
+                    if (payload.pkwtFile) {
+                        const fileResult = await uploadPkwtFile(
+                            state.editingId,
+                            payload.pkwtFile,
+                            existingMember?.pkwtFilePath
+                        );
+                        pkwtFileUrl = fileResult.url;
+                        pkwtFileName = fileResult.fileName;
+                        pkwtFilePath = fileResult.filePath;
+                    }
+
+                    const existingDocuments = Array.isArray(existingMember?.documents) ? existingMember.documents : [];
+                    await deleteRemovedDocuments(existingDocuments);
+                    const keptDocuments = existingDocuments.filter(doc => !state.removedDocumentKeys.has(getDocumentKey(doc)));
+                    const uploadedDocuments = await uploadTeamDocuments(state.editingId, state.pendingDocuments);
+                    const documentsArray = deduplicateDocuments(keptDocuments.concat(uploadedDocuments));
+
+                    let divisionToSave = payload.division;
+                    let originalDivisionToSave = existingMember?.originalDivision || payload.division;
+
+                    if (newStatus === "Ghosted" || newStatus === "Resigned") {
+                        divisionToSave = newStatus;
+                        if (oldStatus !== "Ghosted" && oldStatus !== "Resigned") {
+                            originalDivisionToSave = payload.division;
+                        }
+                    } else {
+                        if (oldStatus === "Ghosted" || oldStatus === "Resigned") {
+                            if (existingMember?.originalDivision) {
+                                divisionToSave = existingMember.originalDivision;
+                            }
+                        } else {
+                            divisionToSave = payload.division;
+                        }
+                    }
+                    
+                    const updatePayload = {
+                        name: payload.name,
+                        division: divisionToSave,
+                        department: divisionToSave,
+                        originalDivision: originalDivisionToSave,
+                        status: newStatus,
+                        contractType: payload.contractType,
+                        whatsapp: payload.whatsapp,
+                        email: payload.email,
+                        instagram: payload.instagram,
+                        linkedin: payload.linkedin,
+                        address: payload.address,
+                        birthDate: payload.birthDate,
+                        startDate: payload.startDate,
+                        endDate: payload.endDate,
+                        bank: payload.bank,
+                        accountNumber: payload.accountNumber,
+                        fee: payload.fee,
+                        pkwtFileUrl: pkwtFileUrl,
+                        pkwtFileName: pkwtFileName,
+                        pkwtFilePath: pkwtFilePath,
+                        documents: documentsArray,
+                        updatedAt: serverTimestamp()
+                    };
+
+                    await updateDoc(doc(db, TEAM_COLLECTION, state.editingId), updatePayload);
+                } else {
+                    const status = payload.status || "Active";
+                    let divisionToSave = payload.division;
+                    let originalDivisionToSave = payload.division;
+
+                    if (status === "Ghosted" || status === "Resigned") {
+                        divisionToSave = status;
+                        originalDivisionToSave = state.activeDivision;
+                    }
+
+                    const createPayload = {
+                        name: payload.name,
+                        division: divisionToSave,
+                        department: divisionToSave,
+                        originalDivision: originalDivisionToSave,
+                        status: status,
+                        contractType: payload.contractType,
+                        whatsapp: payload.whatsapp,
+                        email: payload.email,
+                        instagram: payload.instagram,
+                        linkedin: payload.linkedin,
+                        address: payload.address,
+                        birthDate: payload.birthDate,
+                        startDate: payload.startDate,
+                        endDate: payload.endDate,
+                        bank: payload.bank,
+                        accountNumber: payload.accountNumber,
+                        fee: payload.fee,
+                        pkwtFileUrl: null,
+                        pkwtFileName: null,
+                        pkwtFilePath: null,
+                        documents: [],
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    };
+
+                    const memberRef = await addDoc(collection(db, TEAM_COLLECTION), createPayload);
+                    let pkwtFileUrl = null;
+                    let pkwtFileName = null;
+                    let pkwtFilePath = null;
+                    if (payload.pkwtFile) {
+                        const fileResult = await uploadPkwtFile(memberRef.id, payload.pkwtFile, null);
+                        pkwtFileUrl = fileResult.url;
+                        pkwtFileName = fileResult.fileName;
+                        pkwtFilePath = fileResult.filePath;
+                    }
+                    const uploadedDocuments = await uploadTeamDocuments(memberRef.id, state.pendingDocuments);
+                    const documentsArray = deduplicateDocuments(uploadedDocuments);
+                    if (pkwtFileUrl || documentsArray.length) {
+                        await updateDoc(memberRef, {
+                            pkwtFileUrl,
+                            pkwtFileName,
+                            pkwtFilePath,
+                            documents: documentsArray,
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                }
+                if (state.modal) state.modal.hide();
+            } catch (error) {
+                console.error("Failed to save team member", error);
+                alert("Gagal menyimpan anggota team: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function deleteMember(id) {
+            if (!id) return;
+            const member = state.members.find((item) => item.id === id);
+            const name = member && member.name ? member.name : "anggota ini";
+            const ok = confirm("Hapus " + name + " dari Team Management?");
+            if (!ok) return;
+            try {
+                await deleteDoc(doc(db, TEAM_COLLECTION, id));
+            } catch (error) {
+                console.error("Failed to delete team member", error);
+                alert("Gagal menghapus anggota team: " + error.message);
+            }
+        }
+
+        function openDocumentsModal(memberId) {
+            const member = state.members.find(m => m.id === memberId);
+            if (!member) return;
+
+            const memberNameEl = document.getElementById("documentsMemberName");
+            const listContainer = document.getElementById("documentsListContainer");
+
+            if (memberNameEl) memberNameEl.textContent = member.name || "Unknown";
+
+            const docs = (member.documents && Array.isArray(member.documents)) ? member.documents : [];
+            if (docs.length === 0) {
+                listContainer.innerHTML = '<div class="alert alert-info mb-0"><i class="fas fa-info-circle me-2"></i>Tidak ada dokumen</div>';
+            } else {
+                let html = '<table class="table table-sm table-striped mb-0">' +
+                          '<tbody>';
+                docs.forEach((doc, index) => {
+                    html += '<tr>' +
+                           '<td><i class="fas fa-file me-2"></i>' + escapeHtml(doc.fileName || "File") + '</td>' +
+                           '<td class="text-end" style="white-space: nowrap;">' +
+                           '<a href="' + escapeHtml(doc.fileUrl) + '" target="_blank" class="btn btn-sm btn-outline-primary me-2"><i class="fas fa-eye"></i> Lihat</a>' +
+                           '<a href="' + escapeHtml(doc.fileUrl) + '" download class="btn btn-sm btn-outline-success"><i class="fas fa-download"></i> Download</a>' +
+                           '</td>' +
+                           '</tr>';
+                });
+                html += '</tbody></table>';
+                listContainer.innerHTML = html;
+            }
+
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("teamDocumentsViewModal"));
+            modal.show();
+        }
+
+        function subscribeTeamManagement() {
+            if (unsubscribeTeamManagement) {
+                unsubscribeTeamManagement();
+            }
+            unsubscribeTeamManagement = onSnapshot(collection(db, TEAM_COLLECTION), (snapshot) => {
+                state.members = snapshot.docs.map((docSnap) => {
+                    const data = docSnap.data() || {};
+                    console.log(
+                        "FIRESTORE DOCS",
+                        docSnap.id,
+                        data.documents
+                    );
+                    if (Array.isArray(data.documents)) {
+                        data.documents = deduplicateDocuments(data.documents);
+                    }
+                    return {
+                        id: docSnap.id,
+                        ...data
+                    };
+                });
+                renderMembers();
+            }, (error) => {
+                console.error("Failed to load team management data", error);
+            });
+        }
+
+        function bindEvents() {
+            const modalEl = document.getElementById("teamMemberModal");
+            state.modal = modalEl && window.bootstrap ? new bootstrap.Modal(modalEl) : null;
+
+            document.getElementById("teamMemberForm").addEventListener("submit", saveMember);
+
+            // Document file input listener
+            const documentInput = document.getElementById("teamMemberDocuments");
+            if (documentInput) {
+                documentInput.addEventListener("change", handleDocumentInputChange);
+            }
+
+            const documentChooseBtn = document.getElementById("teamMemberDocumentsChooseBtn");
+            if (documentChooseBtn && documentInput) {
+                documentChooseBtn.addEventListener("click", () => {
+                    documentInput.click();
+                });
+            }
+
+            document.getElementById("teamMemberModal").addEventListener("click", (event) => {
+                const pendingBtn = event.target.closest(".team-remove-pending-document");
+                const existingBtn = event.target.closest(".team-remove-existing-document");
+                if (pendingBtn) {
+                    const index = Number(pendingBtn.getAttribute("data-index"));
+                    if (!Number.isNaN(index)) {
+                        state.pendingDocuments.splice(index, 1);
+                        renderSelectedDocuments(getCurrentEditingDocuments());
+                    }
+                    return;
+                }
+                if (existingBtn) {
+                    const key = existingBtn.getAttribute("data-key") || "";
+                    if (key) {
+                        state.removedDocumentKeys.add(key);
+                        renderSelectedDocuments(getCurrentEditingDocuments());
+                    }
+                }
+            });
+
+            document.getElementById("teamDivisionContainer").addEventListener("click", (event) => {
+                const addBtn = event.target.closest(".team-add-btn");
+                const editBtn = event.target.closest(".team-edit-btn");
+                const deleteBtn = event.target.closest(".team-delete-btn");
+                const documentsBtn = event.target.closest(".team-documents-btn");
+
+                if (addBtn) {
+                    openAddModal(addBtn.getAttribute("data-division") || DIVISIONS[0]);
+                    return;
+                }
+                if (editBtn) {
+                    openEditModal(editBtn.getAttribute("data-id") || "");
+                    return;
+                }
+                if (deleteBtn) {
+                    deleteMember(deleteBtn.getAttribute("data-id") || "");
+                    return;
+                }
+                if (documentsBtn) {
+                    openDocumentsModal(documentsBtn.getAttribute("data-id") || "");
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderDivisionSections();
+            bindEvents();
+            onAuthStateChanged(auth, () => {
+                subscribeTeamManagement();
+            });
+        });
+    </script>
+</body>
+</html>

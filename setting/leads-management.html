@@ -1,0 +1,2589 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leads Management Settings - Team Dialogika</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+      .modal-header {
+        border-bottom: 1px solid #f3f4f6;
+        padding: 20px 30px;
+      }
+      .modal-body {
+        padding: 30px;
+      }
+      .modal-title {
+        font-weight: 800;
+        color: #111;
+        font-size: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+      }
+      .form-control,
+      .form-select {
+        padding: 10px 15px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--dlg-blue);
+        box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
+      }
+      .input-focus {
+        transition: all 0.2s;
+        border: 1.5px solid #e2e8f0;
+      }
+      .input-focus:focus {
+        border-color: #4f46e5;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      }
+
+      .settings-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+      }
+      .settings-card h5 {
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .settings-card small {
+        color: #64748b;
+      }
+      .card-elite {
+        background: #ffffff;
+        border: 1px solid #f1f5f9;
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.02),
+          0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      }
+      .swipe-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        cursor: grab;
+      }
+      .swipe-scroll:active {
+        cursor: grabbing;
+      }
+      .next-payment-scroll table {
+        min-width: 900px;
+      }
+      .upload-proof-scroll table {
+        min-width: 1100px;
+      }
+      .next-payment-table th,
+      .next-payment-table td {
+        vertical-align: middle;
+      }
+      .next-payment-table th:nth-child(1),
+      .next-payment-table td:nth-child(1) {
+        width: 22%;
+        min-width: 180px;
+      }
+      .next-payment-table th:nth-child(2),
+      .next-payment-table td:nth-child(2) {
+        width: 24%;
+        min-width: 200px;
+      }
+      .next-payment-table th:nth-child(3),
+      .next-payment-table td:nth-child(3) {
+        width: 14%;
+        min-width: 120px;
+      }
+      .next-payment-table th:nth-child(4),
+      .next-payment-table td:nth-child(4) {
+        width: 14%;
+        min-width: 140px;
+      }
+      .next-payment-table th:nth-child(5),
+      .next-payment-table td:nth-child(5) {
+        width: 14%;
+        min-width: 140px;
+      }
+      .next-payment-table th:nth-child(6),
+      .next-payment-table td:nth-child(6) {
+        width: 12%;
+        min-width: 120px;
+        white-space: nowrap;
+      }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+  </head>
+  <body>
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+
+      <main class="main-content">
+        <div class="mb-4">
+          <h4 class="fw-bold mb-0">Leads Management - Marketing</h4>
+          <small class="text-muted"
+            >Pantau performa leads harian, pipeline pembayaran, dan konfigurasi
+            form.</small
+          >
+        </div>
+
+        <div
+          class="mb-4 flex flex-wrap items-center gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm"
+        >
+          <div class="flex items-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+            <span class="text-sm font-bold text-slate-700">Range Tanggal:</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input
+              id="globalStartDateFilter"
+              type="date"
+              class="input-focus text-sm rounded-xl px-4 py-2 border border-slate-200 bg-white font-semibold"
+            />
+            <span class="text-slate-400 text-xs">s/d</span>
+            <input
+              id="globalEndDateFilter"
+              type="date"
+              class="input-focus text-sm rounded-xl px-4 py-2 border border-slate-200 bg-white font-semibold"
+            />
+          </div>
+          <button
+            id="btnDate1Month"
+            class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-sm transition"
+          >
+            1 Bulan Terakhir
+          </button>
+          <span id="globalDateLabel" class="text-xs text-slate-500 ml-2"></span>
+        </div>
+
+        <section
+          class="mb-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+        >
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4 text-indigo-600"></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Total Leads Tanggal Ini</small
+              >
+            </div>
+            <h2
+              id="statLeadsToday"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0
+            </h2>
+            <small class="text-slate-500"
+              >Semua leads baru pada range tanggal terpilih.</small
+            >
+          </div>
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i
+                data-lucide="calendar-range"
+                class="w-4 h-4 text-indigo-600"
+              ></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Total Leads Minggu Ini</small
+              >
+            </div>
+            <h2
+              id="statLeadsThisWeek"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0
+            </h2>
+            <small class="text-slate-500"
+              >Akumulasi leads dalam 7 hari terakhir.</small
+            >
+          </div>
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i data-lucide="ticket" class="w-4 h-4 text-indigo-600"></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Total Penggunaan Kode Referral</small
+              >
+            </div>
+            <h2
+              id="statReferralUsed"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0
+            </h2>
+            <small class="text-slate-500"
+              >Invoice yang menggunakan kode referral.</small
+            >
+          </div>
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i
+                data-lucide="upload-cloud"
+                class="w-4 h-4 text-emerald-600"
+              ></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Total Upload Bukti Transfer</small
+              >
+            </div>
+            <h2
+              id="statProofUploaded"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0
+            </h2>
+            <small class="text-slate-500"
+              >Invoice dengan bukti transfer yang sudah diupload.</small
+            >
+          </div>
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i data-lucide="badge-check" class="w-4 h-4 text-emerald-600"></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Total Verified Payment</small
+              >
+            </div>
+            <h2
+              id="statVerifiedPayment"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0
+            </h2>
+            <small class="text-slate-500"
+              >Pembayaran yang sudah diverifikasi finance.</small
+            >
+          </div>
+          <div class="settings-card flex flex-col gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
+              <small class="text-uppercase text-xs text-slate-400 fw-bold"
+                >Conversion Rate Next → Verified</small
+              >
+            </div>
+            <h2
+              id="statNextToVerifiedRate"
+              class="text-3xl font-extrabold tracking-tight text-slate-900"
+            >
+              0%
+            </h2>
+            <small class="text-slate-500"
+              >Perbandingan klik Next Payment vs pembayaran
+              terverifikasi.</small
+            >
+          </div>
+        </section>
+
+        <section class="card-elite rounded-[2rem] p-6 mb-6">
+          <div
+            class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+          >
+            <div>
+              <h2
+                class="text-xl font-bold text-slate-900 flex items-center gap-2"
+              >
+                <i data-lucide="credit-card" class="w-5 h-5 text-amber-600"></i>
+                Next Payment Pipeline
+              </h2>
+              <p class="text-sm text-slate-500 mt-1">
+                Semua leads dan invoice pada range tanggal terpilih.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <input
+                id="filterSearchDaily"
+                type="text"
+                placeholder="Cari nama / program"
+                class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[180px]"
+              />
+              <select
+                id="filterProgramNext"
+                class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[160px]"
+              >
+                <option value="">Semua Program</option>
+              </select>
+              <button
+                id="btnOpenManualAdd"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <i data-lucide="plus" class="w-4 h-4 inline-block mr-1"></i> Add
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive swipe-scroll next-payment-scroll">
+            <table class="table table-sm align-middle next-payment-table">
+              <thead class="text-[11px] text-slate-500">
+                <tr>
+                  <th>Nama</th>
+                  <th>Program</th>
+                  <th>Stage</th>
+                  <th>Kode Referral</th>
+                  <th>WA</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableNextPaymentBody" class="text-xs">
+                <tr>
+                  <td colspan="6" class="text-center text-slate-400 py-3">
+                    Memuat data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card-elite rounded-[2rem] p-6 mb-6">
+          <div
+            class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+          >
+            <div>
+              <h2
+                class="text-xl font-bold text-slate-900 flex items-center gap-2"
+              >
+                <i
+                  data-lucide="upload-cloud"
+                  class="w-5 h-5 text-emerald-600"
+                ></i>
+                Upload Bukti Transfer
+              </h2>
+              <p class="text-sm text-slate-500 mt-1">
+                Invoice yang sudah upload bukti transfer pada range tanggal
+                terpilih.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <input
+                id="filterSearchUpload"
+                type="text"
+                placeholder="Cari nama / program"
+                class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[180px]"
+              />
+            </div>
+          </div>
+          <div class="table-responsive swipe-scroll upload-proof-scroll">
+            <table class="table table-sm align-middle">
+              <thead class="text-[11px] text-slate-500">
+                <tr>
+                  <th>Nama</th>
+                  <th>Program</th>
+                  <th>Batch Program</th>
+                  <th>Jadwal</th>
+                  <th>Nominal</th>
+                  <th>Harga Asli</th>
+                  <th>Metode</th>
+                  <th>WA</th>
+                  <th>Detail</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableUploadProofBody" class="text-xs">
+                <tr>
+                  <td colspan="10" class="text-center text-slate-400 py-3">
+                    Memuat data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card-elite rounded-[2rem] p-6 mb-8">
+          <div class="flex flex-col gap-2">
+            <h2
+              class="text-xl font-bold text-slate-900 flex items-center gap-2"
+            >
+              <i data-lucide="sparkles" class="w-5 h-5 text-sky-600"></i>
+              Automation Trigger (Read Only)
+            </h2>
+            <p class="text-sm text-slate-500">
+              Perpindahan data antar tabel di atas mengikuti status di
+              Firestore: Leads → Next Payment → Upload Bukti → Verified Payment.
+              Dashboard ini hanya membaca data secara real-time.
+            </p>
+          </div>
+        </section>
+
+        <section class="card-elite rounded-[2rem] p-8">
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <h2
+                class="text-xl font-bold text-slate-900 flex items-center gap-2"
+              >
+                <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i>
+                Konfigurasi Form Leads
+              </h2>
+              <p class="text-sm text-slate-500 mt-1">
+                Atur pilihan Ads Channel dan Interest yang muncul di form Leads.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div class="space-y-4">
+              <label
+                class="text-sm font-bold text-slate-700 flex justify-between items-center"
+              >
+                Ads Channel
+                <span
+                  class="text-[10px] text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider"
+                  >Dropdown Options</span
+                >
+              </label>
+              <div
+                class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50"
+              >
+                <div id="adsChannelList" class="space-y-2"></div>
+                <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                  <label
+                    class="block text-[11px] font-semibold text-slate-500 mb-2"
+                    >Tambah / Edit Ads Channel</label
+                  >
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      id="adsChannelInput"
+                      class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                      placeholder="Mis. Meta Ads, Google Ads"
+                    />
+                    <button
+                      id="btnAddAdsChannel"
+                      class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <i data-lucide="save" class="w-4 h-4"></i>
+                      <span>Simpan</span>
+                    </button>
+                  </div>
+                  <p class="mt-2 text-[11px] text-slate-400">
+                    Klik kartu di atas untuk mengedit, atau ikon hapus untuk
+                    menghapus.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <label
+                class="text-sm font-bold text-slate-700 flex justify-between items-center"
+              >
+                Interest Program
+                <span
+                  class="text-[10px] text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wider"
+                  >Program Options</span
+                >
+              </label>
+              <div
+                class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50"
+              >
+                <div id="interestList" class="space-y-2"></div>
+                <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                  <label
+                    class="block text-[11px] font-semibold text-slate-500 mb-2"
+                    >Tambah / Edit Interest</label
+                  >
+                  <div class="flex flex-col lg:flex-row gap-2">
+                    <input
+                      type="text"
+                      id="interestNameInput"
+                      class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                      placeholder="Nama program, mis. Public Speaking Bootcamp"
+                    />
+                    <button
+                      id="btnAddInterest"
+                      class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <i data-lucide="save" class="w-4 h-4"></i>
+                      <span>Simpan</span>
+                    </button>
+                  </div>
+                  <p class="mt-2 text-[11px] text-slate-400">
+                    Interest bisa dikaitkan ke Ads Channel tertentu, atau
+                    dibiarkan umum.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Detail Invoice Modal -->
+        <div
+          class="modal fade"
+          id="invoiceDetailModal"
+          tabindex="-1"
+          aria-labelledby="invoiceDetailModalLabel"
+          aria-hidden="true"
+        >
+          <div
+            class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+          >
+            <div
+              class="modal-content"
+              style="border-radius: 20px; overflow: hidden"
+            >
+              <div
+                class="modal-header"
+                style="
+                  background: linear-gradient(135deg, #0b2b6a 0%, #1e40af 100%);
+                  padding: 24px 30px;
+                  border: none;
+                "
+              >
+                <h5
+                  class="modal-title text-white fw-bold d-flex align-items-center gap-2"
+                  id="invoiceDetailModalLabel"
+                >
+                  <i data-lucide="file-text" class="w-5 h-5"></i>
+                  Detail Invoice
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body" style="padding: 30px">
+                <div id="invoiceDetailContent">
+                  <p class="text-center text-slate-400">Memuat data...</p>
+                </div>
+              </div>
+              <div
+                class="modal-footer"
+                style="border-top: 1px solid #f1f5f9; padding: 16px 30px"
+              >
+                <button
+                  type="button"
+                  class="btn btn-sm btn-secondary rounded-xl px-4"
+                  data-bs-dismiss="modal"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { renderTopBar } from "../element/topbar.js";
+      import { renderSidebar } from "../element/sidebar.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        collection,
+        getDoc,
+        getDocs,
+        setDoc,
+        deleteDoc,
+        addDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+        authDomain: "pre-dialogika.firebaseapp.com",
+        projectId: "pre-dialogika",
+        storageBucket: "pre-dialogika.firebasestorage.app",
+        messagingSenderId: "343771410480",
+        appId: "1:343771410480:web:32881c9868522090237df5",
+        measurementId: "G-SXN811P3N0",
+      };
+
+      const topbarTarget = document.getElementById("topbarContainer");
+      if (topbarTarget) {
+        renderTopBar(topbarTarget);
+      }
+      const sidebarTarget = document.getElementById("sidebarContainer");
+      if (sidebarTarget) {
+        renderSidebar(sidebarTarget);
+      }
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.getDoc = getDoc;
+      window.doc = doc;
+      window.setDoc = setDoc;
+      window.deleteDoc = deleteDoc;
+
+      window.toggleSidebar = () => {
+        const sidebar = document.getElementById("sidebarNav");
+        if (!sidebar) return;
+        const isMobile = window.innerWidth <= 991;
+        if (isMobile) {
+          sidebar.classList.toggle("show");
+        } else {
+          document.body.classList.toggle("sidebar-collapsed");
+        }
+      };
+
+      let productCatalog = {};
+
+      window.logout = async () => {
+        try {
+          await signOut(auth);
+        } catch (e) {}
+        try {
+          localStorage.removeItem("userData");
+        } catch (e) {}
+        window.location.href = "/index.html";
+      };
+
+      let analyticsInitialized = false;
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "../index.html";
+          return;
+        }
+        if (!analyticsInitialized) {
+          analyticsInitialized = true;
+          initLeadsDashboard();
+        }
+      });
+
+      const adsChannelInput = document.getElementById("adsChannelInput");
+      const btnAddAdsChannel = document.getElementById("btnAddAdsChannel");
+      const adsChannelListEl = document.getElementById("adsChannelList");
+      const interestNameInput = document.getElementById("interestNameInput");
+      const btnAddInterest = document.getElementById("btnAddInterest");
+      const interestListEl = document.getElementById("interestList");
+
+      const statLeadsTodayEl = document.getElementById("statLeadsToday");
+      const statLeadsThisWeekEl = document.getElementById("statLeadsThisWeek");
+      const statReferralUsedEl = document.getElementById("statReferralUsed");
+      const statProofUploadedEl = document.getElementById("statProofUploaded");
+      const statVerifiedPaymentEl = document.getElementById(
+        "statVerifiedPayment",
+      );
+      const statNextToVerifiedRateEl = document.getElementById(
+        "statNextToVerifiedRate",
+      );
+
+      const tableNextPaymentBody = document.getElementById(
+        "tableNextPaymentBody",
+      );
+      const tableUploadProofBody = document.getElementById(
+        "tableUploadProofBody",
+      );
+
+      const globalStartDateFilter = document.getElementById(
+        "globalStartDateFilter",
+      );
+      const globalEndDateFilter = document.getElementById(
+        "globalEndDateFilter",
+      );
+      const btnDate1Month = document.getElementById("btnDate1Month");
+      const globalDateLabel = document.getElementById("globalDateLabel");
+      const filterSearchDaily = document.getElementById("filterSearchDaily");
+      const filterSearchUpload = document.getElementById("filterSearchUpload");
+      const filterProgramNext = document.getElementById("filterProgramNext");
+
+      function getSelectedDateRange() {
+        let start = null;
+        let end = null;
+
+        if (globalStartDateFilter && globalStartDateFilter.value) {
+          start = parseDateInputValue(globalStartDateFilter.value);
+        }
+        if (globalEndDateFilter && globalEndDateFilter.value) {
+          end = parseDateInputValue(globalEndDateFilter.value);
+        }
+
+        // Fallback if empty
+        if (!start || !end) {
+          const range = getDefault1MonthRange();
+          if (!start) start = range.start;
+          if (!end) end = range.end;
+        }
+
+        return {
+          start: normalizeDate(start),
+          end: normalizeDate(end),
+        };
+      }
+
+      function getDefault1MonthRange() {
+        const end = new Date();
+        const start = new Date();
+        start.setMonth(start.getMonth() - 1);
+        return {
+          start: normalizeDate(start),
+          end: normalizeDate(end),
+        };
+      }
+
+      function formatDateIndonesian(date) {
+        const days = [
+          "Minggu",
+          "Senin",
+          "Selasa",
+          "Rabu",
+          "Kamis",
+          "Jumat",
+          "Sabtu",
+        ];
+        const months = [
+          "Januari",
+          "Februari",
+          "Maret",
+          "April",
+          "Mei",
+          "Juni",
+          "Juli",
+          "Agustus",
+          "September",
+          "Oktober",
+          "November",
+          "Desember",
+        ];
+        return (
+          days[date.getDay()] +
+          ", " +
+          date.getDate() +
+          " " +
+          months[date.getMonth()] +
+          " " +
+          date.getFullYear()
+        );
+      }
+
+      function setGlobalDateTo1Month() {
+        const range = getDefault1MonthRange();
+
+        const formatDate = (d) => {
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return yyyy + "-" + mm + "-" + dd;
+        };
+
+        if (globalStartDateFilter)
+          globalStartDateFilter.value = formatDate(range.start);
+        if (globalEndDateFilter)
+          globalEndDateFilter.value = formatDate(range.end);
+
+        updateGlobalDateLabel();
+      }
+
+      function updateGlobalDateLabel() {
+        if (!globalDateLabel) return;
+        const range = getSelectedDateRange();
+        const startLabel = formatDateIndonesian(range.start);
+        const endLabel = formatDateIndonesian(range.end);
+
+        const today = getTodayDateOnly();
+        const isTodayEnd = range.end.getTime() === today.getTime();
+
+        if (range.start.getTime() === range.end.getTime()) {
+          globalDateLabel.textContent =
+            startLabel + (isTodayEnd ? " (Hari Ini)" : "");
+        } else {
+          globalDateLabel.textContent =
+            startLabel +
+            " - " +
+            endLabel +
+            (isTodayEnd ? " (Sampai Hari Ini)" : "");
+        }
+      }
+
+      function onGlobalDateChange() {
+        updateGlobalDateLabel();
+        updateDashboardSummary();
+        renderNextPaymentTable();
+        renderUploadProofTable();
+      }
+
+      let adsChannels = [];
+      let interests = [];
+      let allLeads = [];
+      let allInvoices = [];
+      let usersMap = {};
+
+      function formatCurrencyId(value) {
+        const num =
+          typeof value === "number" ? value : parseInt(value, 10) || 0;
+        return num.toLocaleString("id-ID");
+      }
+
+      function parseDateInputValue(value) {
+        if (!value) return null;
+        const parts = String(value).split("-");
+        if (parts.length !== 3) return null;
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        const date = new Date(y, m, d);
+        if (isNaN(date.getTime())) return null;
+        return date;
+      }
+
+      function normalizeDate(date) {
+        if (!(date instanceof Date)) return null;
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function getLeadCreatedDateFromData(data) {
+        if (data.created_at && typeof data.created_at.toDate === "function") {
+          return data.created_at.toDate();
+        }
+        const display = String(data.created_display || "").trim();
+        if (display) {
+          const parts = display.split(" ");
+          if (parts[0]) {
+            const parsed = parseDateInputValue(parts[0]);
+            if (parsed) return parsed;
+          }
+        }
+        const due = String(data.due_date || "").trim();
+        if (due) {
+          const parsedDue = parseDateInputValue(due);
+          if (parsedDue) return parsedDue;
+        }
+        return null;
+      }
+
+      function formatWhatsAppLink(number) {
+        if (!number) return "#";
+        let num = String(number).trim();
+        if (num.startsWith("0")) {
+          num = "+62" + num.substring(1);
+        }
+        if (num.startsWith("+")) {
+          num = num.substring(1);
+        }
+        num = num.replace(/[^0-9]/g, "");
+        return "https://wa.me/" + num;
+      }
+
+      async function loadAdsChannels() {
+        try {
+          const snap = await getDocs(
+            collection(db, "leads_settings_ads_channels"),
+          );
+          const result = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            result.push({
+              id: docSnap.id,
+              name: d.name || "",
+            });
+          });
+          adsChannels = result;
+          renderAdsChannels();
+        } catch (e) {
+          console.error("Gagal memuat ads channel", e);
+        }
+      }
+
+      function renderAdsChannels() {
+        adsChannelListEl.innerHTML = "";
+        if (!adsChannels.length) {
+          adsChannelListEl.innerHTML =
+            '<p class="text-[11px] text-slate-400 italic mb-0">Belum ada ads channel.</p>';
+          return;
+        }
+        adsChannels.forEach((ch) => {
+          const card = document.createElement("div");
+          card.className =
+            "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm group";
+          card.dataset.id = ch.id;
+
+          const iconWrapper = document.createElement("div");
+          iconWrapper.className = "bg-indigo-50 text-indigo-600 p-2 rounded-lg";
+          iconWrapper.innerHTML =
+            '<i data-lucide="megaphone" class="w-4 h-4"></i>';
+
+          const textWrapper = document.createElement("div");
+          textWrapper.className = "flex-1";
+
+          const titleEl = document.createElement("p");
+          titleEl.className = "text-sm font-semibold text-slate-800 mb-0";
+          titleEl.textContent = ch.name;
+
+          const metaEl = document.createElement("p");
+          metaEl.className = "text-[10px] text-slate-400 font-mono italic mb-0";
+          metaEl.textContent = "Value ID: " + ch.id;
+
+          textWrapper.appendChild(titleEl);
+          textWrapper.appendChild(metaEl);
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className =
+            "opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition";
+          deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+          deleteBtn.addEventListener("click", async (ev) => {
+            ev.stopPropagation();
+            await deleteAdsChannel(ch.id);
+          });
+
+          card.appendChild(iconWrapper);
+          card.appendChild(textWrapper);
+          card.appendChild(deleteBtn);
+
+          card.addEventListener("click", () => {
+            adsChannelInput.value = ch.name;
+            adsChannelInput.dataset.editId = ch.id;
+          });
+
+          adsChannelListEl.appendChild(card);
+        });
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      async function saveAdsChannel() {
+        const name = (adsChannelInput.value || "").trim();
+        if (!name) return;
+        const editId = adsChannelInput.dataset.editId || "";
+        try {
+          if (editId) {
+            await setDoc(
+              doc(db, "leads_settings_ads_channels", editId),
+              { name },
+              { merge: true },
+            );
+          } else {
+            const ref = doc(collection(db, "leads_settings_ads_channels"));
+            await setDoc(ref, { name });
+          }
+          adsChannelInput.value = "";
+          adsChannelInput.dataset.editId = "";
+          await loadAdsChannels();
+        } catch (e) {
+          console.error("Gagal menyimpan ads channel", e);
+        }
+      }
+
+      async function deleteAdsChannel(id) {
+        if (!id) return;
+        const ok = window.confirm("Hapus ads channel ini?");
+        if (!ok) return;
+        try {
+          await deleteDoc(doc(db, "leads_settings_ads_channels", id));
+          await loadAdsChannels();
+        } catch (e) {
+          console.error("Gagal menghapus ads channel", e);
+        }
+      }
+
+      async function loadInterests() {
+        try {
+          const snap = await getDocs(
+            collection(db, "leads_settings_interests"),
+          );
+          const result = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            result.push({
+              id: docSnap.id,
+              name: d.name || "",
+              ads_channel_id: d.ads_channel_id || "",
+            });
+          });
+          interests = result;
+          renderInterests();
+        } catch (e) {
+          console.error("Gagal memuat interest", e);
+        }
+      }
+
+      function renderInterests() {
+        interestListEl.innerHTML = "";
+        if (!interests.length) {
+          interestListEl.innerHTML =
+            '<p class="text-[11px] text-slate-400 italic mb-0">Belum ada interest.</p>';
+          return;
+        }
+        interests.forEach((it) => {
+          const card = document.createElement("div");
+          card.className =
+            "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm group";
+          card.dataset.id = it.id;
+
+          const iconWrapper = document.createElement("div");
+          iconWrapper.className =
+            "bg-emerald-50 text-emerald-600 p-2 rounded-lg";
+          iconWrapper.innerHTML =
+            '<i data-lucide="sparkles" class="w-4 h-4"></i>';
+
+          const textWrapper = document.createElement("div");
+          textWrapper.className = "flex-1";
+
+          const titleEl = document.createElement("p");
+          titleEl.className = "text-sm font-semibold text-slate-800 mb-0";
+          titleEl.textContent = it.name;
+
+          const channel = adsChannels.find((c) => c.id === it.ads_channel_id);
+          const channelLabel = channel
+            ? "Ads Channel: " + channel.name
+            : "Ads Channel: Umum";
+
+          const channelEl = document.createElement("p");
+          channelEl.className = "text-[11px] text-slate-500 mb-0";
+          channelEl.textContent = channelLabel;
+
+          const metaEl = document.createElement("p");
+          metaEl.className = "text-[10px] text-slate-400 font-mono italic mb-0";
+          metaEl.textContent = "Value ID: " + it.id;
+
+          textWrapper.appendChild(titleEl);
+          textWrapper.appendChild(channelEl);
+          textWrapper.appendChild(metaEl);
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className =
+            "opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 transition";
+          deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+          deleteBtn.addEventListener("click", async (ev) => {
+            ev.stopPropagation();
+            await deleteInterest(it.id);
+          });
+
+          card.appendChild(iconWrapper);
+          card.appendChild(textWrapper);
+          card.appendChild(deleteBtn);
+
+          card.addEventListener("click", () => {
+            interestNameInput.value = it.name;
+            interestNameInput.dataset.editId = it.id;
+          });
+
+          interestListEl.appendChild(card);
+        });
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      async function saveInterest() {
+        const name = (interestNameInput.value || "").trim();
+        if (!name) return;
+        const adsChannelId = "";
+        const editId = interestNameInput.dataset.editId || "";
+        try {
+          if (editId) {
+            await setDoc(
+              doc(db, "leads_settings_interests", editId),
+              {
+                name,
+                ads_channel_id: adsChannelId,
+              },
+              { merge: true },
+            );
+          } else {
+            const ref = doc(collection(db, "leads_settings_interests"));
+            await setDoc(ref, {
+              name,
+              ads_channel_id: adsChannelId,
+            });
+          }
+          interestNameInput.value = "";
+          interestNameInput.dataset.editId = "";
+          await loadInterests();
+        } catch (e) {
+          console.error("Gagal menyimpan interest", e);
+        }
+      }
+
+      async function deleteInterest(id) {
+        if (!id) return;
+        const ok = window.confirm("Hapus interest ini?");
+        if (!ok) return;
+        try {
+          await deleteDoc(doc(db, "leads_settings_interests", id));
+          await loadInterests();
+        } catch (e) {
+          console.error("Gagal menghapus interest", e);
+        }
+      }
+
+      async function loadUsersForPic() {
+        try {
+          const snap = await getDocs(collection(db, "users"));
+          const map = {};
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            const id = docSnap.id;
+            const name = d.name || d.displayName || d.email || id;
+            map[id] = name;
+          });
+          usersMap = map;
+        } catch (e) {
+          usersMap = {};
+        }
+      }
+
+      async function loadLeadsAnalytics() {
+        try {
+          const snap = await getDocs(collection(db, "leads"));
+          const leads = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            const createdDate = getLeadCreatedDateFromData(d);
+            leads.push({
+              id: docSnap.id,
+              name: d.name || "",
+              city: d.city || "",
+              interest_program: d.interest_program || "",
+              ads_channel: d.ads_channel || "",
+              whatsapp: d.whatsapp || "",
+              stage: d.stage || "LEADS",
+              referral_code: d.referral_code || "",
+              createdDate: createdDate,
+              assigned_ids: Array.isArray(d.assigned_ids) ? d.assigned_ids : [],
+              certificate_name:
+                d.peserta_name || d.certificate_name || d.nama_sertifikat || "",
+              email: d.peserta_email || d.email || "",
+              instagram: d.peserta_ig || d.instagram || d.ig || "",
+              job: d.peserta_job || d.job || d.pekerjaan || "",
+              age: d.peserta_age || d.age || d.usia || "",
+              gender: d.peserta_gender || d.gender || d.jenis_kelamin || "",
+              marital_status:
+                d.peserta_marital_status ||
+                d.marital_status ||
+                d.status_menikah ||
+                "",
+              city: d.peserta_city || d.city || "",
+              additional_info:
+                d.notes_info ||
+                d.additional_info ||
+                d.informasi_tambahan ||
+                d.catatan ||
+                "",
+            });
+          });
+          allLeads = leads;
+        } catch (e) {
+          allLeads = [];
+        }
+      }
+
+      function mapVerificationStatusLabel(status) {
+        const key = String(status || "").toLowerCase();
+        if (key === "legit") return "Legit";
+        if (key === "scam") return "Scam";
+        if (key === "not_verified") return "Not Verified";
+        return "-";
+      }
+
+      function resolveOriginalPrice(programName, inv) {
+        let originalPrice = 0;
+        const rawProgramName =
+          inv && inv.productName ? inv.productName : programName || "";
+        let progKey = String(rawProgramName).trim().toLowerCase();
+        let cleanProgKey = progKey
+          .replace(/\s+(online|offline|kids|class)$/i, "")
+          .trim();
+
+        if (
+          productCatalog[cleanProgKey] &&
+          productCatalog[cleanProgKey].base_price > 0
+        ) {
+          originalPrice = productCatalog[cleanProgKey].base_price;
+        } else if (
+          productCatalog[progKey] &&
+          productCatalog[progKey].base_price > 0
+        ) {
+          originalPrice = productCatalog[progKey].base_price;
+        } else if (
+          inv &&
+          typeof inv.basePrice === "number" &&
+          inv.basePrice > 0
+        ) {
+          originalPrice = inv.basePrice;
+        }
+        return originalPrice;
+      }
+
+      async function loadProductCatalog() {
+        try {
+          const snap = await getDocs(collection(db, "products"));
+          const cat = {};
+          snap.forEach((docSnap) => {
+            const d = docSnap.data();
+            if (d.name) {
+              let key = String(d.name).trim().toLowerCase();
+              // Normalize the key by removing common suffixes
+              key = key.replace(/\s+(online|offline|kids|class)$/i, "").trim();
+              // Also store original lowercase just in case
+              const originalKey = String(d.name).trim().toLowerCase();
+
+              const entry = {
+                id: docSnap.id,
+                name: d.name,
+                base_price: typeof d.basePrice === "number" ? d.basePrice : 0,
+              };
+
+              cat[key] = entry;
+              cat[originalKey] = entry;
+            }
+          });
+          productCatalog = cat;
+          console.log(
+            "Loaded products mapped keys:",
+            Object.keys(productCatalog),
+          );
+        } catch (err) {
+          console.error("Error loading products:", err);
+        }
+      }
+
+      async function loadInvoicesAnalytics() {
+        try {
+          const snap = await getDocs(collection(db, "invoices"));
+          const invoices = [];
+          snap.forEach((docSnap) => {
+            const d = docSnap.data() || {};
+            invoices.push({
+              id: docSnap.id,
+              invoiceNumber: d.invoiceNumber || docSnap.id,
+              leadName: d.leadName || "",
+              productName: d.productName || d.className || "",
+              paidAmount: typeof d.paidAmount === "number" ? d.paidAmount : 0,
+              finalBasePrice:
+                typeof d.finalBasePrice === "number"
+                  ? d.finalBasePrice
+                  : typeof d.basePrice === "number"
+                    ? d.basePrice
+                    : 0,
+              createdAtMs:
+                typeof d.createdAtMs === "number" ? d.createdAtMs : 0,
+              paidAtMs: typeof d.paidAtMs === "number" ? d.paidAtMs : 0,
+              paymentType: d.paymentType || "",
+              paymentMethod: d.paymentMethod || "",
+              bankName: d.bankName || "",
+              transferProofUrl: d.transferProofUrl || "",
+              verificationStatus: d.verificationStatus || "",
+              enrollmentWhatsapp: d.enrollmentWhatsapp || "",
+              className: d.className || "",
+              batchLabel: d.batchLabel || "",
+              batchSchedule: d.batchSchedule || "",
+              classSchedule: d.classSchedule || "",
+              schedule: d.schedule || "",
+              sessionSchedule: d.sessionSchedule || "",
+              classMeta: d.classMeta || "",
+              basePrice: typeof d.basePrice === "number" ? d.basePrice : 0,
+            });
+          });
+          allInvoices = invoices;
+        } catch (e) {
+          allInvoices = [];
+        }
+      }
+
+      function isInvoiceNextPayment(inv) {
+        const base = inv.finalBasePrice || 0;
+        const paid = inv.paidAmount || 0;
+        const typeKey = String(inv.paymentType || "").toLowerCase();
+        if (!base) return false;
+        if (typeKey === "dp") {
+          return paid > 0 && paid < base;
+        }
+        return false;
+      }
+
+      function getTodayDateOnly() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      }
+
+      function getInvoiceDate(inv) {
+        if (inv.createdAtMs && inv.createdAtMs > 0) {
+          return normalizeDate(new Date(inv.createdAtMs));
+        }
+        return null;
+      }
+
+      function getInvoicePaidDate(inv) {
+        if (inv.paidAtMs && inv.paidAtMs > 0) {
+          return normalizeDate(new Date(inv.paidAtMs));
+        }
+        return null;
+      }
+
+      function updateDashboardSummary() {
+        const range = getSelectedDateRange();
+        const startMs = range.start.getTime();
+        const endMs = range.end.getTime();
+
+        let leadsSelected = 0;
+        let leadsThisWeek = 0;
+        let referralUsedCount = 0;
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const weekStart = new Date(range.end.getTime() - 6 * oneDayMs);
+
+        (allLeads || []).forEach((lead) => {
+          if (!lead.createdDate) return;
+          const d = normalizeDate(lead.createdDate);
+          if (!d) return;
+          const dMs = d.getTime();
+          if (dMs >= startMs && dMs <= endMs) {
+            leadsSelected += 1;
+            // Count referral code usage from leads (set in first-class.html)
+            if (
+              lead.referral_code &&
+              String(lead.referral_code).trim() !== ""
+            ) {
+              referralUsedCount += 1;
+            }
+          }
+          if (d >= weekStart && d <= range.end) {
+            leadsThisWeek += 1;
+          }
+        });
+
+        const invoices = Array.isArray(allInvoices) ? allInvoices : [];
+        let proofUploadedCount = 0;
+        let verifiedCount = 0;
+
+        invoices.forEach((inv) => {
+          const invDate = getInvoiceDate(inv);
+          if (!invDate) return;
+          const invMs = invDate.getTime();
+          const matchRange = invMs >= startMs && invMs <= endMs;
+
+          if (inv.transferProofUrl && matchRange) {
+            proofUploadedCount += 1;
+          }
+        });
+
+        /* Count verified from leads with stage = verified */
+        (allLeads || []).forEach((lead) => {
+          if (!lead.createdDate) return;
+          const d = normalizeDate(lead.createdDate);
+          if (!d) return;
+          const dMs = d.getTime();
+          const stageKey = String(lead.stage || "").toLowerCase();
+          if (dMs >= startMs && dMs <= endMs && stageKey === "verified") {
+            verifiedCount += 1;
+          }
+        });
+
+        const conversionRate = referralUsedCount
+          ? Math.round((verifiedCount * 100) / referralUsedCount)
+          : 0;
+
+        if (statLeadsTodayEl)
+          statLeadsTodayEl.textContent = String(leadsSelected);
+        if (statLeadsThisWeekEl)
+          statLeadsThisWeekEl.textContent = String(leadsThisWeek);
+        if (statReferralUsedEl)
+          statReferralUsedEl.textContent = String(referralUsedCount);
+        if (statProofUploadedEl)
+          statProofUploadedEl.textContent = String(proofUploadedCount);
+        if (statVerifiedPaymentEl)
+          statVerifiedPaymentEl.textContent = String(verifiedCount);
+        if (statNextToVerifiedRateEl)
+          statNextToVerifiedRateEl.textContent = conversionRate + "%";
+      }
+
+      function populateProgramFilterOptions() {
+        if (!filterProgramNext) return;
+        const allPrograms = new Set();
+        (allLeads || []).forEach((lead) => {
+          const name = String(lead.interest_program || "").trim();
+          if (name) allPrograms.add(name);
+        });
+        (allInvoices || []).forEach((inv) => {
+          const name = String(inv.productName || "").trim();
+          if (name) allPrograms.add(name);
+        });
+        filterProgramNext.innerHTML = "";
+        const baseOpt = document.createElement("option");
+        baseOpt.value = "";
+        baseOpt.textContent = "Semua Program";
+        filterProgramNext.appendChild(baseOpt);
+
+        const manualAddProgram = document.getElementById("manualAddProgram");
+        if (manualAddProgram) {
+          manualAddProgram.innerHTML =
+            '<option value="">Pilih Program...</option>';
+        }
+
+        Array.from(allPrograms)
+          .sort()
+          .forEach((name) => {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            filterProgramNext.appendChild(opt);
+
+            if (manualAddProgram) {
+              const optAdd = document.createElement("option");
+              optAdd.value = name;
+              optAdd.textContent = name;
+              manualAddProgram.appendChild(optAdd);
+            }
+          });
+      }
+
+      function formatPhoneDisplay(number) {
+        if (!number) return "-";
+        const raw = String(number).trim();
+        if (!raw) return "-";
+        let num = raw.replace(/[^0-9+]/g, "");
+        if (num.startsWith("+62")) return "0" + num.substring(3);
+        if (num.startsWith("62")) return "0" + num.substring(2);
+        return num;
+      }
+
+      function resolveInvoiceWhatsapp(inv) {
+        const fromInvoice = String(
+          inv.enrollmentWhatsapp ||
+            inv.whatsapp ||
+            inv.leadWhatsapp ||
+            inv.phone ||
+            "",
+        ).trim();
+        if (fromInvoice) return fromInvoice;
+
+        const leadNameKey = String(inv.leadName || "")
+          .trim()
+          .toLowerCase();
+        if (!leadNameKey) return "";
+        const matchedLead = (allLeads || []).find((lead) => {
+          return (
+            String(lead.name || "")
+              .trim()
+              .toLowerCase() === leadNameKey
+          );
+        });
+        return matchedLead && matchedLead.whatsapp
+          ? String(matchedLead.whatsapp).trim()
+          : "";
+      }
+
+      function resolveInvoiceBatchProgram(inv) {
+        const batch = String(inv.batchLabel || "").trim();
+        if (batch) return batch;
+        const className = String(inv.className || "").trim();
+        if (className) return className;
+        return "-";
+      }
+
+      function resolveInvoiceScheduleFromBatch(inv) {
+        const fromApi = String(
+          inv.batchSchedule ||
+            inv.classSchedule ||
+            inv.schedule ||
+            inv.sessionSchedule ||
+            "",
+        ).trim();
+        if (fromApi) return fromApi;
+
+        const batchRaw = String(inv.batchLabel || "").trim();
+        if (!batchRaw) return "-";
+
+        const separators = [" - ", " – ", " — ", " | ", " • "];
+        for (let i = 0; i < separators.length; i += 1) {
+          const sep = separators[i];
+          if (batchRaw.includes(sep)) {
+            const parts = batchRaw
+              .split(sep)
+              .map((s) => String(s).trim())
+              .filter(Boolean);
+            if (parts.length > 1) {
+              return parts.slice(1).join(" - ");
+            }
+          }
+        }
+        const classMetaRaw = String(inv.classMeta || "").trim();
+        if (classMetaRaw.includes("•")) {
+          const parts = classMetaRaw
+            .split("•")
+            .map((s) => String(s).trim())
+            .filter(Boolean);
+          if (parts.length > 2) {
+            return parts.slice(2).join(" • ");
+          }
+        }
+        return "-";
+      }
+
+      function renderNextPaymentTable() {
+        if (!tableNextPaymentBody) return;
+        tableNextPaymentBody.innerHTML = "";
+        const range = getSelectedDateRange();
+        const startMs = range.start.getTime();
+        const endMs = range.end.getTime();
+        const term =
+          filterSearchDaily && filterSearchDaily.value
+            ? String(filterSearchDaily.value).toLowerCase().trim()
+            : "";
+        const programFilter = filterProgramNext
+          ? String(filterProgramNext.value || "")
+          : "";
+
+        /* --- Build leads rows for selected date --- */
+        const leads = Array.isArray(allLeads) ? allLeads.slice() : [];
+        let filteredLeads = leads.filter((lead) => {
+          if (!lead.createdDate) return false;
+          const d = normalizeDate(lead.createdDate);
+          if (!d) return false;
+          const dMs = d.getTime();
+          if (dMs < startMs || dMs > endMs) return false;
+          if (
+            programFilter &&
+            String(lead.interest_program || "") !== programFilter
+          )
+            return false;
+          if (!term) return true;
+          const name = String(lead.name || "").toLowerCase();
+          const program = String(lead.interest_program || "").toLowerCase();
+          return name.includes(term) || program.includes(term);
+        });
+
+        /* --- Build invoices map by leadName for enrichment --- */
+        const invoiceByLead = {};
+        (allInvoices || []).forEach((inv) => {
+          const key = String(inv.leadName || "")
+            .trim()
+            .toLowerCase();
+          if (key) {
+            if (!invoiceByLead[key]) invoiceByLead[key] = [];
+            invoiceByLead[key].push(inv);
+          }
+        });
+
+        if (!filteredLeads.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 6;
+          td.className = "text-center text-slate-400 py-3";
+          td.textContent = "Belum ada leads untuk range tanggal ini.";
+          tr.appendChild(td);
+          tableNextPaymentBody.appendChild(tr);
+          return;
+        }
+
+        filteredLeads.forEach((lead) => {
+          const tr = document.createElement("tr");
+
+          const tdName = document.createElement("td");
+          tdName.textContent = lead.name || "-";
+
+          const tdProgram = document.createElement("td");
+          tdProgram.textContent = lead.interest_program || "-";
+
+          const tdStage = document.createElement("td");
+          const stage = lead.stage || "LEADS";
+          const stageBadge = document.createElement("span");
+          const stageKey = stage.toLowerCase();
+          let badgeClass = "bg-slate-100 text-slate-600";
+          if (stageKey === "leads") badgeClass = "bg-blue-100 text-blue-700";
+          else if (stageKey === "next_payment" || stageKey === "next payment")
+            badgeClass = "bg-amber-100 text-amber-700";
+          else if (stageKey === "paid" || stageKey === "verified")
+            badgeClass = "bg-emerald-100 text-emerald-700";
+          stageBadge.className =
+            "px-2 py-0.5 rounded-md text-[10px] font-bold " + badgeClass;
+          stageBadge.textContent = stage;
+          tdStage.appendChild(stageBadge);
+
+          /* Invoice info */
+          const leadKey = String(lead.name || "")
+            .trim()
+            .toLowerCase();
+          const matchedInvoices = invoiceByLead[leadKey] || [];
+          const inv = matchedInvoices.length ? matchedInvoices[0] : null;
+
+          const tdWa = document.createElement("td");
+          if (lead.whatsapp) {
+            const displayNumber = formatPhoneDisplay(lead.whatsapp);
+            const a = document.createElement("a");
+            a.href = formatWhatsAppLink(lead.whatsapp);
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.className = "text-indigo-600 font-semibold hover:underline";
+            a.textContent = displayNumber;
+            tdWa.appendChild(a);
+          } else {
+            tdWa.textContent = "-";
+          }
+
+          const tdReferral = document.createElement("td");
+          const refCode = lead.referral_code || (inv && inv.referralCode) || "";
+          if (refCode && String(refCode).trim() !== "") {
+            const badge = document.createElement("span");
+            badge.className =
+              "px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 text-indigo-700";
+            badge.textContent = refCode;
+            tdReferral.appendChild(badge);
+          } else {
+            tdReferral.textContent = "-";
+          }
+
+          const tdActions = document.createElement("td");
+          tdActions.className = "text-nowrap";
+
+          const editBtn = document.createElement("button");
+          editBtn.type = "button";
+          editBtn.className = "btn btn-sm btn-outline-primary me-1";
+          editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
+          editBtn.addEventListener("click", async () => {
+            await handleEditLead(lead.id);
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "btn btn-sm btn-outline-danger";
+          deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+          deleteBtn.addEventListener("click", async () => {
+            await handleDeleteLead(lead.id);
+          });
+
+          tdActions.appendChild(editBtn);
+          tdActions.appendChild(deleteBtn);
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdProgram);
+          tr.appendChild(tdStage);
+          tr.appendChild(tdReferral);
+          tr.appendChild(tdWa);
+          tr.appendChild(tdActions);
+
+          tableNextPaymentBody.appendChild(tr);
+        });
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatDateTimeMs(ms) {
+        if (!ms || typeof ms !== "number" || ms <= 0) return "-";
+        const date = new Date(ms);
+        if (isNaN(date.getTime())) return "-";
+        return date.toLocaleString("id-ID");
+      }
+
+      function formatAssignedPic(lead) {
+        const ids = Array.isArray(lead && lead.assigned_ids)
+          ? lead.assigned_ids
+          : [];
+        if (!ids.length) return "-";
+        const names = ids.map((id) => usersMap[id] || id).filter(Boolean);
+        return names.length ? names.join(", ") : "-";
+      }
+
+      function renderInvoiceDetailModalContent(invData, leadData) {
+        const phoneNumber = resolveInvoiceWhatsapp(invData);
+        const scheduleText = resolveInvoiceScheduleFromBatch(invData);
+        const batchText = resolveInvoiceBatchProgram(invData);
+        const dealAmount = invData.paidAmount || invData.finalBasePrice || 0;
+        const basePrice = resolveOriginalPrice(
+          invData.productName || "",
+          invData,
+        );
+        const proofUrl = String(invData.transferProofUrl || "").trim();
+        const invoiceNumber = invData.invoiceNumber || invData.id || "-";
+        const userName = (leadData && leadData.name) || invData.leadName || "-";
+        const userProgram =
+          (leadData && leadData.interest_program) || invData.productName || "-";
+        const userStage = (leadData && leadData.stage) || "-";
+        const userReferral = (leadData && leadData.referral_code) || "-";
+        const userAds = (leadData && leadData.ads_channel) || "-";
+        const userWhatsapp = phoneNumber || "-";
+        const picNames = formatAssignedPic(leadData || {});
+
+        const userCertificateName =
+          (leadData && (leadData.peserta_name || leadData.certificate_name)) ||
+          invData.pesertaName ||
+          invData.peserta_name ||
+          invData.certificate_name ||
+          invData.nama_sertifikat ||
+          "-";
+        const userEmail =
+          (leadData && (leadData.peserta_email || leadData.email)) ||
+          invData.pesertaEmail ||
+          invData.peserta_email ||
+          invData.email ||
+          "-";
+        const userInstagram =
+          (leadData && (leadData.peserta_ig || leadData.instagram)) ||
+          invData.pesertaIg ||
+          invData.peserta_ig ||
+          invData.instagram ||
+          invData.ig ||
+          "-";
+        const userJob =
+          (leadData && (leadData.peserta_job || leadData.job)) ||
+          invData.pesertaJob ||
+          invData.peserta_job ||
+          invData.job ||
+          invData.pekerjaan ||
+          "-";
+        const userAge =
+          (leadData && (leadData.peserta_age || leadData.age)) ||
+          invData.pesertaAge ||
+          invData.peserta_age ||
+          invData.age ||
+          invData.usia ||
+          "-";
+        const userGender =
+          (leadData && (leadData.peserta_gender || leadData.gender)) ||
+          invData.pesertaGender ||
+          invData.peserta_gender ||
+          invData.gender ||
+          invData.jenis_kelamin ||
+          "-";
+        const userCity =
+          (leadData && (leadData.peserta_city || leadData.city)) ||
+          invData.pesertaCity ||
+          invData.peserta_city ||
+          invData.city ||
+          "-";
+        const userMaritalStatus =
+          (leadData &&
+            (leadData.peserta_marital_status || leadData.marital_status)) ||
+          invData.pesertaMaritalStatus ||
+          invData.peserta_marital_status ||
+          invData.marital_status ||
+          invData.status_menikah ||
+          "-";
+        const userAdditionalInfo =
+          (leadData && (leadData.notes_info || leadData.additional_info)) ||
+          invData.notesInfo ||
+          invData.notes_info ||
+          invData.additional_info ||
+          invData.informasi_tambahan ||
+          invData.catatan ||
+          "-";
+
+        const proofHtml = proofUrl
+          ? '<a href="' +
+            escapeHtml(proofUrl) +
+            '" target="_blank" rel="noopener noreferrer" class="text-blue-600">Lihat Bukti</a>'
+          : "-";
+
+        const userRows = [
+          { label: "Nama User", value: userName },
+          { label: "Nama untuk Sertifikat", value: userCertificateName },
+          { label: "WhatsApp", value: userWhatsapp },
+          { label: "Email", value: userEmail },
+          { label: "Instagram", value: userInstagram },
+          { label: "Pekerjaan", value: userJob },
+          { label: "Usia", value: userAge },
+          { label: "Gender", value: userGender },
+          { label: "Kota Domisili", value: userCity },
+          { label: "Status Menikah", value: userMaritalStatus },
+          { label: "Program User", value: userProgram },
+          { label: "Stage", value: userStage },
+          { label: "Referral", value: userReferral },
+          { label: "Ads Channel", value: userAds },
+          { label: "PIC", value: picNames },
+          { label: "Informasi Tambahan", value: userAdditionalInfo },
+        ];
+
+        const invoiceRows = [
+          { label: "Invoice", value: invoiceNumber },
+          { label: "Program Invoice", value: invData.productName || "-" },
+          { label: "Batch Program", value: batchText },
+          { label: "Jadwal", value: scheduleText },
+          { label: "Payment Type", value: invData.paymentType || "-" },
+          { label: "Metode", value: invData.paymentMethod || "-" },
+          { label: "Bank", value: invData.bankName || "-" },
+          {
+            label: "Status Verifikasi",
+            value: mapVerificationStatusLabel(invData.verificationStatus),
+          },
+          {
+            label: "Nominal Bayar",
+            value: dealAmount > 0 ? "Rp " + formatCurrencyId(dealAmount) : "-",
+          },
+          {
+            label: "Harga Asli",
+            value: basePrice > 0 ? "Rp " + formatCurrencyId(basePrice) : "-",
+          },
+          { label: "Dibuat", value: formatDateTimeMs(invData.createdAtMs) },
+          { label: "Dibayar", value: formatDateTimeMs(invData.paidAtMs) },
+          { label: "Bukti Transfer", value: proofHtml, isHtml: true },
+        ];
+
+        const renderRows = (rows) => {
+          return rows
+            .map((row) => {
+              const displayValue = row.isHtml
+                ? String(row.value || "-")
+                : escapeHtml(row.value);
+              return (
+                "<tr>" +
+                '<td class="py-2 pe-3 text-slate-500 font-semibold align-top" style="width: 140px;">' +
+                escapeHtml(row.label) +
+                "</td>" +
+                '<td class="py-2 text-slate-800">' +
+                displayValue +
+                "</td>" +
+                "</tr>"
+              );
+            })
+            .join("");
+        };
+
+        return (
+          "" +
+          '<div class="row g-3">' +
+          '<div class="col-12 col-lg-6">' +
+          '<div class="rounded-3xl border border-slate-200 bg-white p-4 h-100">' +
+          '<div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-3">Data User</div>' +
+          '<div class="table-responsive"><table class="table table-borderless mb-0 text-sm">' +
+          renderRows(userRows) +
+          "</table></div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="col-12 col-lg-6">' +
+          '<div class="rounded-3xl border border-slate-200 bg-white p-4 h-100">' +
+          '<div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-3">Data Invoice</div>' +
+          '<div class="table-responsive"><table class="table table-borderless mb-0 text-sm">' +
+          renderRows(invoiceRows) +
+          "</table></div>" +
+          "</div>" +
+          "</div>" +
+          "</div>"
+        );
+      }
+
+      async function showInvoiceDetailModal(inv, leadFromTable) {
+        const modalEl = document.getElementById("invoiceDetailModal");
+        const contentEl = document.getElementById("invoiceDetailContent");
+        if (!modalEl || !contentEl || !inv) return;
+
+        contentEl.innerHTML =
+          '<p class="text-center text-slate-400 py-4">Memuat data dari API...</p>';
+
+        try {
+          const modalInstance =
+            window.bootstrap && window.bootstrap.Modal
+              ? window.bootstrap.Modal.getOrCreateInstance(modalEl)
+              : null;
+          if (modalInstance) modalInstance.show();
+
+          let latestInvoiceData = Object.assign({}, inv);
+          const groupedBasePrice = inv.basePrice || 0;
+          const groupedFinalBasePrice = inv.finalBasePrice || 0;
+          if (inv.id) {
+            const invoiceRef = doc(db, "invoices", inv.id);
+            const invoiceSnap = await getDoc(invoiceRef);
+            if (invoiceSnap.exists()) {
+              latestInvoiceData = Object.assign(
+                {},
+                latestInvoiceData,
+                invoiceSnap.data() || {},
+                { id: inv.id },
+              );
+            }
+          }
+          // Preserve grouped basePrice / finalBasePrice if higher (match table values)
+          if (groupedBasePrice > (latestInvoiceData.basePrice || 0))
+            latestInvoiceData.basePrice = groupedBasePrice;
+          if (groupedFinalBasePrice > (latestInvoiceData.finalBasePrice || 0))
+            latestInvoiceData.finalBasePrice = groupedFinalBasePrice;
+
+          const leadNameKey = String(latestInvoiceData.leadName || "")
+            .trim()
+            .toLowerCase();
+          const leadData =
+            (allLeads || []).find((lead) => {
+              return (
+                String(lead.name || "")
+                  .trim()
+                  .toLowerCase() === leadNameKey
+              );
+            }) ||
+            leadFromTable ||
+            null;
+
+          contentEl.innerHTML = renderInvoiceDetailModalContent(
+            latestInvoiceData,
+            leadData,
+          );
+        } catch (e) {
+          contentEl.innerHTML =
+            '<p class="text-center text-rose-500 py-4">Gagal memuat detail invoice dari API.</p>';
+        }
+      }
+
+      function renderUploadProofTable() {
+        if (!tableUploadProofBody) return;
+        tableUploadProofBody.innerHTML = "";
+        const range = getSelectedDateRange();
+        const startMs = range.start.getTime();
+        const endMs = range.end.getTime();
+        const term =
+          filterSearchUpload && filterSearchUpload.value
+            ? String(filterSearchUpload.value).toLowerCase().trim()
+            : "";
+
+        const rawInvoices = Array.isArray(allInvoices)
+          ? allInvoices.filter((inv) => {
+              if (!inv.transferProofUrl) return false;
+              const invDate = getInvoicePaidDate(inv) || getInvoiceDate(inv);
+              if (!invDate) return false;
+              const invMs = invDate.getTime();
+              if (invMs < startMs || invMs > endMs) return false;
+              if (!term) return true;
+              const name = String(inv.leadName || "").toLowerCase();
+              const program = String(inv.productName || "").toLowerCase();
+              const batchProgram = String(
+                inv.batchLabel || inv.className || "",
+              ).toLowerCase();
+              const schedule = String(
+                resolveInvoiceScheduleFromBatch(inv) || "",
+              ).toLowerCase();
+              return (
+                name.includes(term) ||
+                program.includes(term) ||
+                batchProgram.includes(term) ||
+                schedule.includes(term)
+              );
+            })
+          : [];
+
+        /* --- Deduplicate: group by leadName + productName, merge into single row --- */
+        const groupedMap = {};
+        rawInvoices.forEach((inv) => {
+          const key =
+            String(inv.leadName || "")
+              .trim()
+              .toLowerCase() +
+            "||" +
+            String(inv.productName || "")
+              .trim()
+              .toLowerCase();
+          if (!groupedMap[key]) {
+            groupedMap[key] = Object.assign({}, inv, { _groupedIds: [inv.id] });
+          } else {
+            const existing = groupedMap[key];
+            existing._groupedIds.push(inv.id);
+            // Keep the higher paidAmount (not accumulated, to match modal detail)
+            if ((inv.paidAmount || 0) > (existing.paidAmount || 0))
+              existing.paidAmount = inv.paidAmount;
+            // Keep best available fields (prefer non-empty values)
+            if (!existing.batchLabel && inv.batchLabel)
+              existing.batchLabel = inv.batchLabel;
+            if (!existing.className && inv.className)
+              existing.className = inv.className;
+            if (!existing.batchSchedule && inv.batchSchedule)
+              existing.batchSchedule = inv.batchSchedule;
+            if (!existing.classSchedule && inv.classSchedule)
+              existing.classSchedule = inv.classSchedule;
+            if (!existing.schedule && inv.schedule)
+              existing.schedule = inv.schedule;
+            if (!existing.sessionSchedule && inv.sessionSchedule)
+              existing.sessionSchedule = inv.sessionSchedule;
+            if (!existing.classMeta && inv.classMeta)
+              existing.classMeta = inv.classMeta;
+            if (!existing.paymentMethod && inv.paymentMethod)
+              existing.paymentMethod = inv.paymentMethod;
+            if (!existing.bankName && inv.bankName)
+              existing.bankName = inv.bankName;
+            if (!existing.enrollmentWhatsapp && inv.enrollmentWhatsapp)
+              existing.enrollmentWhatsapp = inv.enrollmentWhatsapp;
+            if (!existing.transferProofUrl && inv.transferProofUrl)
+              existing.transferProofUrl = inv.transferProofUrl;
+            // Keep highest finalBasePrice / basePrice
+            if ((inv.finalBasePrice || 0) > (existing.finalBasePrice || 0))
+              existing.finalBasePrice = inv.finalBasePrice;
+            if ((inv.basePrice || 0) > (existing.basePrice || 0))
+              existing.basePrice = inv.basePrice;
+          }
+        });
+        const invoices = Object.values(groupedMap);
+
+        if (!invoices.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 10;
+          td.className = "text-center text-slate-400 py-3";
+          td.textContent = "Belum ada bukti transfer untuk range tanggal ini.";
+          tr.appendChild(td);
+          tableUploadProofBody.appendChild(tr);
+          return;
+        }
+
+        invoices.forEach((inv) => {
+          const tr = document.createElement("tr");
+
+          const tdName = document.createElement("td");
+          tdName.textContent = inv.leadName || "-";
+
+          const tdProgram = document.createElement("td");
+          /* Resolve program name from leads API (interest_program) to match Next Payment Pipeline */
+          const leadNameKey = String(inv.leadName || "")
+            .trim()
+            .toLowerCase();
+          const matchedLead = (allLeads || []).find(
+            (lead) =>
+              String(lead.name || "")
+                .trim()
+                .toLowerCase() === leadNameKey,
+          );
+          tdProgram.textContent =
+            matchedLead && matchedLead.interest_program
+              ? matchedLead.interest_program
+              : inv.productName || "-";
+
+          const tdBatchProgram = document.createElement("td");
+          tdBatchProgram.textContent = resolveInvoiceBatchProgram(inv);
+
+          const tdJadwal = document.createElement("td");
+          tdJadwal.textContent = resolveInvoiceScheduleFromBatch(inv);
+
+          const tdNominal = document.createElement("td");
+          const amount = inv.paidAmount || inv.finalBasePrice || 0;
+          tdNominal.textContent =
+            amount > 0 ? "Rp " + formatCurrencyId(amount) : "-";
+
+          const tdHargaAsli = document.createElement("td");
+          const originalPrice = resolveOriginalPrice(
+            inv.productName || "",
+            inv,
+          );
+          tdHargaAsli.textContent =
+            originalPrice > 0 ? "Rp " + formatCurrencyId(originalPrice) : "-";
+
+          const tdMethod = document.createElement("td");
+          const methodParts = [];
+          if (inv.paymentMethod) methodParts.push(inv.paymentMethod);
+          if (inv.bankName) methodParts.push(inv.bankName);
+          tdMethod.textContent = methodParts.join(" • ") || "-";
+
+          const tdWa = document.createElement("td");
+          const number = resolveInvoiceWhatsapp(inv);
+          if (number) {
+            tdWa.textContent = formatPhoneDisplay(number);
+          } else {
+            tdWa.textContent = "-";
+          }
+
+          const tdDetail = document.createElement("td");
+          const detailBtn = document.createElement("button");
+          detailBtn.type = "button";
+          detailBtn.className = "btn btn-sm btn-outline-primary";
+          detailBtn.textContent = "Detail";
+          detailBtn.addEventListener("click", async () => {
+            await showInvoiceDetailModal(inv, matchedLead);
+          });
+          tdDetail.appendChild(detailBtn);
+
+          const tdActions = document.createElement("td");
+          tdActions.className = "text-nowrap";
+
+          const editBtn = document.createElement("button");
+          editBtn.type = "button";
+          editBtn.className = "btn btn-sm btn-outline-primary me-1";
+          editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
+          editBtn.addEventListener("click", async () => {
+            await handleEditInvoice(inv.id);
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "btn btn-sm btn-outline-danger";
+          deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+          deleteBtn.addEventListener("click", async () => {
+            await handleDeleteInvoice(inv._groupedIds || [inv.id]);
+          });
+
+          tdActions.appendChild(editBtn);
+          tdActions.appendChild(deleteBtn);
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdProgram);
+          tr.appendChild(tdBatchProgram);
+          tr.appendChild(tdJadwal);
+          tr.appendChild(tdNominal);
+          tr.appendChild(tdHargaAsli);
+          tr.appendChild(tdMethod);
+          tr.appendChild(tdWa);
+          tr.appendChild(tdDetail);
+          tr.appendChild(tdActions);
+
+          tableUploadProofBody.appendChild(tr);
+        });
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+          window.lucide.createIcons();
+        }
+      }
+
+      async function refreshLeadsAndTables() {
+        await loadLeadsAnalytics();
+        await loadInvoicesAnalytics();
+        updateDashboardSummary();
+        populateProgramFilterOptions();
+        renderNextPaymentTable();
+        renderUploadProofTable();
+      }
+
+      function enableSwipeScroll() {
+        const containers = document.querySelectorAll(".swipe-scroll");
+        containers.forEach((container) => {
+          let isDown = false;
+          let startX = 0;
+          let scrollLeft = 0;
+
+          container.addEventListener("mousedown", (e) => {
+            isDown = true;
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+          });
+
+          container.addEventListener("mouseleave", () => {
+            isDown = false;
+          });
+
+          container.addEventListener("mouseup", () => {
+            isDown = false;
+          });
+
+          container.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = x - startX;
+            container.scrollLeft = scrollLeft - walk;
+          });
+        });
+      }
+
+      async function handleEditLead(leadId) {
+        const target = (allLeads || []).find((lead) => lead.id === leadId);
+        if (!target) return;
+
+        const name = window.prompt("Edit nama lead", target.name || "");
+        if (name === null) return;
+        const city = window.prompt("Edit kota", target.city || "");
+        if (city === null) return;
+        const program = window.prompt(
+          "Edit program",
+          target.interest_program || "",
+        );
+        if (program === null) return;
+        const stage = window.prompt("Edit stage", target.stage || "LEADS");
+        if (stage === null) return;
+        const whatsapp = window.prompt(
+          "Edit nomor WhatsApp",
+          target.whatsapp || "",
+        );
+        if (whatsapp === null) return;
+
+        try {
+          await setDoc(
+            doc(db, "leads", leadId),
+            {
+              name: String(name || "").trim(),
+              city: String(city || "").trim(),
+              interest_program: String(program || "").trim(),
+              stage: String(stage || "").trim(),
+              whatsapp: String(whatsapp || "").trim(),
+            },
+            { merge: true },
+          );
+          await refreshLeadsAndTables();
+        } catch (e) {
+          window.alert("Gagal mengedit data lead.");
+        }
+      }
+
+      async function handleDeleteLead(leadId) {
+        if (!leadId) return;
+        const ok = window.confirm("Hapus lead ini?");
+        if (!ok) return;
+        try {
+          await deleteDoc(doc(db, "leads", leadId));
+          await refreshLeadsAndTables();
+        } catch (e) {
+          window.alert("Gagal menghapus lead.");
+        }
+      }
+
+      async function handleEditInvoice(invoiceId) {
+        const target = (allInvoices || []).find((inv) => inv.id === invoiceId);
+        if (!target) return;
+
+        const leadName = window.prompt("Edit nama lead", target.leadName || "");
+        if (leadName === null) return;
+        const productName = window.prompt(
+          "Edit program",
+          target.productName || "",
+        );
+        if (productName === null) return;
+        const paidAmountInput = window.prompt(
+          "Edit nominal dibayar",
+          String(target.paidAmount || 0),
+        );
+        if (paidAmountInput === null) return;
+        const finalPriceInput = window.prompt(
+          "Edit harga deal",
+          String(target.finalBasePrice || 0),
+        );
+        if (finalPriceInput === null) return;
+        const paymentMethod = window.prompt(
+          "Edit metode pembayaran",
+          target.paymentMethod || "",
+        );
+        if (paymentMethod === null) return;
+        const bankName = window.prompt("Edit nama bank", target.bankName || "");
+        if (bankName === null) return;
+
+        const paidAmount = parseInt(String(paidAmountInput || "0"), 10) || 0;
+        const finalBasePrice =
+          parseInt(String(finalPriceInput || "0"), 10) || 0;
+
+        try {
+          await setDoc(
+            doc(db, "invoices", invoiceId),
+            {
+              leadName: String(leadName || "").trim(),
+              productName: String(productName || "").trim(),
+              paidAmount,
+              finalBasePrice,
+              paymentMethod: String(paymentMethod || "").trim(),
+              bankName: String(bankName || "").trim(),
+            },
+            { merge: true },
+          );
+          await refreshLeadsAndTables();
+        } catch (e) {
+          window.alert("Gagal mengedit invoice.");
+        }
+      }
+
+      async function handleDeleteInvoice(invoiceIds) {
+        const ids = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
+        if (!ids.length) return;
+        const ok = window.confirm("Hapus invoice ini?");
+        if (!ok) return;
+        try {
+          await Promise.all(
+            ids.map((id) => deleteDoc(doc(db, "invoices", id))),
+          );
+          await refreshLeadsAndTables();
+        } catch (e) {
+          window.alert("Gagal menghapus invoice.");
+        }
+      }
+
+      async function initLeadsDashboard() {
+        setGlobalDateTo1Month();
+
+        try {
+          await Promise.all([
+            loadUsersForPic(),
+            loadLeadsAnalytics(),
+            loadInvoicesAnalytics(),
+            loadProductCatalog(),
+          ]);
+        } catch (e) {}
+        updateDashboardSummary();
+        populateProgramFilterOptions();
+        renderNextPaymentTable();
+        renderUploadProofTable();
+        enableSwipeScroll();
+
+        if (globalStartDateFilter) {
+          globalStartDateFilter.addEventListener("change", onGlobalDateChange);
+        }
+        if (globalEndDateFilter) {
+          globalEndDateFilter.addEventListener("change", onGlobalDateChange);
+        }
+        if (btnDate1Month) {
+          btnDate1Month.addEventListener("click", () => {
+            setGlobalDateTo1Month();
+            onGlobalDateChange();
+          });
+        }
+        if (filterSearchDaily) {
+          filterSearchDaily.addEventListener("input", () => {
+            renderNextPaymentTable();
+          });
+        }
+        if (filterSearchUpload) {
+          filterSearchUpload.addEventListener("input", () => {
+            renderUploadProofTable();
+          });
+        }
+        if (filterProgramNext) {
+          filterProgramNext.addEventListener("change", () => {
+            renderNextPaymentTable();
+          });
+        }
+
+        // Logic Manual Add Next Payment Pipeline
+        const btnOpenManualAdd = document.getElementById("btnOpenManualAdd");
+        const manualAddModal = document.getElementById("manualAddModal");
+        const btnCloseManualAdd = document.getElementById("btnCloseManualAdd");
+        const btnCancelManualAdd =
+          document.getElementById("btnCancelManualAdd");
+        const formManualAdd = document.getElementById("formManualAdd");
+
+        function closeManualAddModal() {
+          if (manualAddModal) manualAddModal.classList.add("hidden");
+          if (formManualAdd) formManualAdd.reset();
+        }
+
+        if (btnOpenManualAdd && manualAddModal) {
+          btnOpenManualAdd.addEventListener("click", () => {
+            manualAddModal.classList.remove("hidden");
+            const dateInput = document.getElementById("manualAddBatch");
+            if (dateInput) {
+              const sd = getSelectedDateRange().start;
+              const yy = sd.getFullYear();
+              const mm = String(sd.getMonth() + 1).padStart(2, "0");
+              const dd = String(sd.getDate()).padStart(2, "0");
+              dateInput.value = `${yy}-${mm}-${dd}`;
+            }
+          });
+        }
+
+        if (btnCloseManualAdd)
+          btnCloseManualAdd.addEventListener("click", closeManualAddModal);
+        if (btnCancelManualAdd)
+          btnCancelManualAdd.addEventListener("click", closeManualAddModal);
+
+        if (formManualAdd) {
+          formManualAdd.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const btnSave = document.getElementById("btnSaveManualAdd");
+            const originalText = btnSave.textContent;
+            btnSave.textContent = "Menyimpan...";
+            btnSave.disabled = true;
+
+            const nameInput = document.getElementById("manualAddName");
+            const programInput = document.getElementById("manualAddProgram");
+            const batchInput = document.getElementById("manualAddBatch");
+            const stageInput = document.getElementById("manualAddStage");
+            const nominalInput = document.getElementById("manualAddNominal");
+
+            const newLead = {
+              name: nameInput.value.trim(),
+              interest_program: programInput.value,
+              due_date: batchInput.value, // Used as createdDate implicitly for sorting
+              stage: stageInput.value,
+              nominal: nominalInput.value
+                ? parseInt(nominalInput.value, 10)
+                : 0,
+              created_at: serverTimestamp(),
+              source: "manual_add_next_payment",
+            };
+
+            try {
+              const leadsRef = collection(db, "leads");
+              await addDoc(leadsRef, newLead);
+
+              closeManualAddModal();
+
+              // Reload data
+              await loadLeadsAnalytics();
+              renderNextPaymentTable();
+              updateDashboardSummary();
+
+              alert("Berhasil menambahkan pipeline secara manual");
+            } catch (err) {
+              console.error("Gagal menyimpan data manual", err);
+              alert("Gagal menyimpan data: " + err.message);
+            } finally {
+              btnSave.textContent = originalText;
+              btnSave.disabled = false;
+            }
+          });
+        }
+      }
+
+      if (btnAddAdsChannel) {
+        btnAddAdsChannel.addEventListener("click", (e) => {
+          e.preventDefault();
+          saveAdsChannel();
+        });
+      }
+      if (adsChannelInput) {
+        adsChannelInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            saveAdsChannel();
+          }
+        });
+      }
+      if (btnAddInterest) {
+        btnAddInterest.addEventListener("click", (e) => {
+          e.preventDefault();
+          saveInterest();
+        });
+      }
+      if (interestNameInput) {
+        interestNameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            saveInterest();
+          }
+        });
+      }
+
+      loadAdsChannels().then(loadInterests);
+    </script>
+
+    <!-- Modal Form Add Manual Next Payment -->
+    <div
+      id="manualAddModal"
+      class="fixed inset-0 w-screen h-screen z-[9999] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all m-auto"
+      >
+        <div
+          class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50"
+        >
+          <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
+            Add Manual Pipeline
+          </h3>
+          <button
+            type="button"
+            id="btnCloseManualAdd"
+            class="text-slate-400 hover:text-slate-600 transition"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <form id="formManualAdd" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1"
+                >Nama Leads <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="text"
+                id="manualAddName"
+                required
+                placeholder="Masukkan nama"
+                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1"
+                >Program <span class="text-rose-500">*</span></label
+              >
+              <!-- Akan diisi otomatis oleh function populateProgramFilterOptions() -->
+              <select
+                id="manualAddProgram"
+                required
+                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value="">Memuat program...</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1"
+                >Batch Program / Jadwal
+                <span class="text-rose-500">*</span></label
+              >
+              <input
+                type="date"
+                id="manualAddBatch"
+                required
+                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1"
+                >Stage <span class="text-rose-500">*</span></label
+              >
+              <select
+                id="manualAddStage"
+                required
+                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value="NEXT PAYMENT">Next Payment</option>
+                <option value="PAID">Paid</option>
+                <option value="VERIFIED">Verified</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1"
+                >Nominal (Rp)</label
+              >
+              <input
+                type="number"
+                id="manualAddNominal"
+                placeholder="0"
+                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+              <button
+                type="button"
+                id="btnCancelManualAdd"
+                class="px-4 py-2 font-bold text-xs rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                id="btnSaveManualAdd"
+                class="px-5 py-2 font-bold text-xs rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition"
+              >
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

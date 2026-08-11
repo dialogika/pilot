@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Position</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-title {
+            color: #0B2B6A;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+        }
+
+        .filter-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 1.25rem;
+            box-shadow: 0 10px 30px rgba(11, 43, 106, 0.04);
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(11, 43, 106, 0.05);
+        }
+
+        .candidate-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            padding: 1.75rem;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid transparent;
+        }
+
+        #positionsGrid .col-xl-4,
+        #positionsGrid .col-lg-4,
+        #positionsGrid .col-md-6 {
+            display: flex;
+        }
+
+        #positionsGrid .candidate-card {
+            height: 100%;
+            width: 100%;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(11, 43, 106, 0.08);
+            border-color: rgba(11, 43, 106, 0.1);
+        }
+
+        .avatar-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0B2B6A;
+            margin-bottom: 2px;
+        }
+
+        .head-count-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .info-group {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 1.25rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .info-item:first-child {
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .status-pill {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .st-new {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .st-hired {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .st-process {
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .btn-load {
+            background: #F26522;
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 16px;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(242, 101, 34, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-load:hover {
+            background: #e0561b;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .sticky-menu-trigger {
+            position: fixed;
+            right: 30px;
+            top: 30%;
+            z-index: 1000;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+            color: #ffffff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sticky-menu-trigger:hover {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) scale(0.9);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .menu-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .menu-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1f2933;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover {
+            background: #0B2B6A;
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35);
+            border-color: #0B2B6A;
+        }
+
+        .menu-item i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 1.5;
+        }
+
+        .menu-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .menu-item {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+
+<body class="p-8">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+
+            <div class="container-fluid">
+
+                <div class="container">
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+                        <div>
+                            <h1 class="page-title">Company Position</h1>
+                            <p class="text-muted small mb-0">Overview of active recruitment and head counts</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="btn-group" role="group" aria-label="View toggle"
+                                style="background-color: #fff; border-radius: 10px;">
+                                <button type="button" id="viewGridBtn"
+                                    class="btn btn-light border-0 bg-white rounded-4 px-3 py-2 btn-sm active">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button type="button" id="viewListBtn"
+                                    class="btn btn-light border-0 bg-white  rounded-4 px-3 py-2 btn-sm">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                            <button
+                                class="btn btn-white border-0 bg-white shadow-sm rounded-4 px-4 fw-bold text-muted btn-sm"><i
+                                    class="fas fa-file-export me-2"></i> Export</button>
+                            <button id="positionAddBtn"
+                                class="btn btn-dlg-blue rounded-4 px-4 fw-bold border-0 btn-sm">+ Add Position</button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-panel">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group border-0 bg-light rounded-4 px-2">
+                                    <span class="input-group-text bg-transparent border-0"><i
+                                            class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="positionSearchInput"
+                                        class="form-control bg-transparent border-0 py-2 shadow-none"
+                                        placeholder="Search position...">
+                                </div>
+                            </div>
+                            <div class="col-md-8 d-flex flex-column align-items-md-end gap-2">
+                                <div class="d-flex justify-content-md-end gap-2 flex-wrap">
+                                    <select id="positionDeptFilter"
+                                        class="form-select border-0 bg-light rounded-4 w-auto shadow-none py-2 px-3 fw-bold"
+                                        style="font-size: 13px;">
+                                        <option value="All">All</option>
+                                        <option value="Closing">Closing</option>
+                                        <option value="Branding">Branding</option>
+                                        <option value="Rebuy">Rebuy</option>
+                                        <option value="Happy">Happy</option>
+                                        <option value="Team">Team</option>
+                                    </select>
+                                    <select id="positionStatusFilter"
+                                        class="form-select border-0 bg-light rounded-4 w-auto shadow-none py-2 px-3 fw-bold"
+                                        style="font-size: 13px;">
+                                        <option value="All">All Status</option>
+                                        <option value="Open">Open</option>
+                                        <option value="Close">Close</option>
+                                    </select>
+                                    <select id="positionDateFilter"
+                                        class="form-select border-0 bg-light rounded-4 w-auto shadow-none py-2 px-3 fw-bold"
+                                        style="font-size: 13px;">
+                                        <option value="all">All Time</option>
+                                        <option value="last7">Last 7 days</option>
+                                        <option value="last30">Last month</option>
+                                        <option value="last90">Last 3 months</option>
+                                        <option value="custom">Custom range</option>
+                                    </select>
+                                </div>
+                                <div id="positionDateRangeWrapper"
+                                    class="d-none d-flex justify-content-md-end gap-2 flex-wrap">
+                                    <input type="date" id="positionDateStart"
+                                        class="form-control form-control-sm w-auto">
+                                    <input type="date" id="positionDateEnd" class="form-control form-control-sm w-auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="positionsGridWrapper">
+                        <div class="row g-4" id="positionsGrid"></div>
+                    </div>
+
+                    <div id="positionsListWrapper" class="d-none">
+                        <div class="table-responsive rounded-4 shadow-sm bg-white">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Position</th>
+                                        <th scope="col">Count</th>
+                                        <th scope="col">Job Description</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Active</th>
+                                        <th scope="col">Applicant</th>
+                                        <th scope="col">Department</th>
+                                        <th scope="col" class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="positionsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button id="positionsLoadMoreBtn"
+                            class="btn btn-dlg-blue rounded-4 px-4 fw-bold border-0 ">Explore More Positions</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="positionEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Edit Position</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <hr style="margin-top: 8px;" />
+                <div class="modal-body">
+                    <form id="positionEditForm">
+                        <input type="hidden" id="positionEditId">
+                        <div class="mb-3">
+                            <label for="positionEditName" class="form-label fw-semibold">Nama Posisi</label>
+                            <input type="text" class="form-control" id="positionEditName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="positionEditDepartment" class="form-label fw-semibold">Department</label>
+                            <select class="form-select" id="positionEditDepartment" required></select>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="positionEditHeadCount" class="form-label fw-semibold">Head Count</label>
+                                <input type="number" min="0" class="form-control" id="positionEditHeadCount">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="positionEditActive" class="form-label fw-semibold">Active Person</label>
+                                <input type="number" min="0" class="form-control" id="positionEditActive">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="positionEditApplicant" class="form-label fw-semibold">Job Applicant</label>
+                                <input type="number" min="0" class="form-control" id="positionEditApplicant">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="positionEditJobdesk" class="form-label fw-bold">Job Description</label>
+                            <textarea class="form-control" id="positionEditJobdesk" rows="3"
+                                placeholder="Enter job description..."></textarea>
+                        </div>
+                        <div class="mt-3">
+                            <label for="positionEditStatus" class="form-label fw-semibold">Status</label>
+                            <select class="form-select" id="positionEditStatus">
+                                <option value="Open">Open</option>
+                                <option value="Close">Close</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="positionEditForm" class="btn btn-dlg-blue">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="positionAddModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Add Position</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <hr style="margin-top: 8px;" />
+                <div class="modal-body">
+                    <form id="positionAddForm">
+                        <div class="mb-3">
+                            <label for="positionAddName" class="form-label fw-semibold">Nama Posisi</label>
+                            <input type="text" class="form-control" id="positionAddName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="positionAddDepartment" class="form-label fw-semibold">Department</label>
+                            <select class="form-select" id="positionAddDepartment" required></select>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="positionAddHeadCount" class="form-label fw-semibold">Head Count</label>
+                                <input type="number" min="0" class="form-control" id="positionAddHeadCount" value="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="positionAddActive" class="form-label fw-semibold">Active Person</label>
+                                <input type="number" min="0" class="form-control" id="positionAddActive" value="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="positionAddApplicant" class="form-label fw-semibold">Job Applicant</label>
+                                <input type="number" min="0" class="form-control" id="positionAddApplicant" value="0">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="positionAddJobdesk" class="form-label fw-semibold">Job Description</label>
+                            <textarea class="form-control" id="positionAddJobdesk" rows="3"
+                                placeholder="Enter job description..."></textarea>
+                        </div>
+                        <div class="mt-3">
+                            <label for="positionAddStatus" class="form-label fw-semibold">Status</label>
+                            <select class="form-select" id="positionAddStatus">
+                                <option value="Open">Open</option>
+                                <option value="Close">Close</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="positionAddForm" class="btn btn-dlg-blue">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            getDocs,
+            collection,
+            query,
+            where,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            setDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const colorPalette = [
+            'linear-gradient(135deg, #667eea, #764ba2)', 'linear-gradient(135deg, #ff9a9e, #fecfef)',
+            'linear-gradient(135deg, #38f9d7, #43e97b)', 'linear-gradient(135deg, #fa709a, #fee140)',
+            'linear-gradient(135deg, #6a11cb, #2575fc)', 'linear-gradient(135deg, #f093fb, #f5576c)',
+            'linear-gradient(135deg, #5ee7df, #b490ca)', 'linear-gradient(135deg, #c3cfe2, #c3cfe2)',
+            'linear-gradient(135deg, #f6d365, #fda085)', 'linear-gradient(135deg, #a1c4fd, #c2e9fb)',
+            'linear-gradient(135deg, #d4fc79, #96e6a1)', 'linear-gradient(135deg, #84fab0, #8fd3f4)',
+            'linear-gradient(135deg, #e0c3fc, #8ec5fc)', 'linear-gradient(135deg, #4facfe, #00f2fe)',
+            'linear-gradient(135deg, #30cfd0, #330867)'
+        ];
+
+        const statuses = ['Open', 'Close'];
+        const statusClasses = ['st-new', 'st-hired'];
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        window.db = db;
+        window.auth = auth;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+        window.serverTimestamp = serverTimestamp;
+
+        let positionsData = [];
+        let positionsCollection = "position";
+        let departmentsCache = null;
+        let departmentsColorById = {};
+        let currentView = "grid";
+        const POSITION_PAGE_SIZE = 9;
+        let positionVisibleCount = POSITION_PAGE_SIZE;
+        const positionFilterState = {
+            search: "",
+            department: "All",
+            status: "All",
+            datePreset: "all",
+            customStart: null,
+            customEnd: null
+        };
+
+        function renderPositionsGrid(items) {
+            const gridWrapper = document.getElementById("positionsGridWrapper");
+            const listWrapper = document.getElementById("positionsListWrapper");
+            const grid = document.getElementById("positionsGrid");
+            if (!gridWrapper || !listWrapper || !grid) return;
+
+            gridWrapper.classList.remove("d-none");
+            listWrapper.classList.add("d-none");
+
+            grid.innerHTML = "";
+            items.forEach((item, index) => {
+                const color = colorPalette[index % colorPalette.length];
+                const deptBadge = item.departmentLabel
+                    ? `<span class="badge rounded-pill" style="background-color: ${item.departmentColor || '#e5e7eb'}; color: #fff;">
+                        ${item.departmentLabel.toUpperCase()}
+                   </span>`
+                    : "";
+                grid.innerHTML += `
+                <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="candidate-card">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="avatar-box" style="background: ${color}">
+                                ${item.initials}
+                            </div>
+                            <div>
+                                <div class="role-title">${item.name}</div>
+                                <div class="head-count-tag">Head Count: ${item.headCount}</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 text-muted" style="font-size: 0.85rem;">
+                            <div class="jobdesk-text" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5rem; white-space: pre-wrap;">${item.jobdesk || '-'}</div>
+                            ${item.jobdesk && item.jobdesk.length > 80 ? `<a href="javascript:void(0)" class="text-primary toggle-jobdesk small text-decoration-none mt-1 d-inline-block fw-semibold">Show more</a>` : ''}
+                        </div>
+
+                        <div class="info-group">
+                            <div class="info-item">
+                                <span class="info-label">Active</span>
+                                <span class="info-value">${item.activeCount} person</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Applicant</span>
+                                <span class="info-value">${item.applicantCount} person</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-2">
+                            <div class="d-flex flex-column align-items-start gap-1">
+                                ${deptBadge}
+                                <span class="status-pill ${item.statusClass}">
+                                    ${item.status}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2 text-muted small">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item" type="button" data-position-edit="${item.id}">Edit</button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" type="button" data-position-delete="${item.id}">Delete</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            });
+        }
+
+        function renderPositionsList(items) {
+            const gridWrapper = document.getElementById("positionsGridWrapper");
+            const listWrapper = document.getElementById("positionsListWrapper");
+            const tbody = document.getElementById("positionsTableBody");
+            if (!gridWrapper || !listWrapper || !tbody) return;
+
+            gridWrapper.classList.add("d-none");
+            listWrapper.classList.remove("d-none");
+
+            tbody.innerHTML = "";
+            items.forEach((item) => {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.headCount}</td>
+                    <td>
+                        <div class="jobdesk-text text-truncate" style="max-width: 150px; white-space: pre-wrap;">${item.jobdesk || '-'}</div>
+                        ${item.jobdesk && item.jobdesk.length > 25 ? `<a href="javascript:void(0)" class="text-primary toggle-jobdesk toggle-jobdesk-list small text-decoration-none fw-semibold">Show more</a>` : ''}
+                    </td>
+                    <td>
+                        <span class="status-pill ${item.statusClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td>${item.activeCount}</td>
+                    <td>${item.applicantCount}</td>
+                    <td>${item.departmentLabel || item.department}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-1" data-position-edit="${item.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-position-delete="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            });
+        }
+
+        function normalizePositionDate(value) {
+            if (!value) return null;
+            let dateObj = null;
+            if (typeof value.toDate === "function") {
+                dateObj = value.toDate();
+            } else if (value instanceof Date) {
+                dateObj = value;
+            } else if (typeof value === "string" || typeof value === "number") {
+                const tmp = new Date(value);
+                if (!isNaN(tmp.getTime())) {
+                    dateObj = tmp;
+                }
+            }
+            if (!dateObj || isNaN(dateObj.getTime())) return null;
+            return dateObj;
+        }
+
+        async function loadCompanyPositions() {
+            positionsData = [];
+
+            await ensureDepartmentsCache();
+
+            let snap = await getDocs(collection(db, "position"));
+            if (snap.empty) {
+                try {
+                    const fallbackSnap = await getDocs(collection(db, "positions"));
+                    snap = fallbackSnap;
+                    positionsCollection = "positions";
+                } catch (e) {
+                    console.warn("Fallback positions collection 'positions' not readable", e);
+                }
+            } else {
+                positionsCollection = "position";
+            }
+
+            snap.forEach(docSnap => {
+                const data = docSnap.data() || {};
+                const name = data.name || data.label || data.title || data.position || "Unknown Position";
+                const headCount = data.headCount ?? data.quota ?? 0;
+                const activeCount = data.activeCount ?? 0;
+                const applicantCount = data.applicantCount ?? 0;
+                const jobdesk = data.jobdesk || "";
+                const department = data.department || "";
+                const createdRaw = data.createdAt || data.created || data.created_at || data.date || data.createdDate || null;
+
+                const initials = name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+
+                const rawStatus = (data.status || "").toString();
+                let status = "Open";
+                let statusClass = "st-new";
+                if (/close/i.test(rawStatus)) {
+                    status = "Close";
+                    statusClass = "st-hired";
+                }
+
+                const departmentLabel = departmentsCache && department ? (departmentsCache[department] || department) : department;
+                const departmentColor = departmentsColorById && department ? (departmentsColorById[department] || "") : "";
+
+                positionsData.push({
+                    id: docSnap.id,
+                    collection: positionsCollection,
+                    name,
+                    headCount,
+                    activeCount,
+                    applicantCount,
+                    jobdesk,
+                    department,
+                    departmentLabel,
+                    departmentColor,
+                    initials,
+                    status,
+                    statusClass,
+                    createdAt: normalizePositionDate(createdRaw)
+                });
+            });
+
+            positionVisibleCount = POSITION_PAGE_SIZE;
+            applyFiltersAndRender();
+        }
+
+        async function ensureDepartmentsCache() {
+            if (departmentsCache) return;
+            let snap = await getDocs(collection(db, "department"));
+            if (snap.empty) {
+                try {
+                    const altSnap = await getDocs(collection(db, "departments"));
+                    snap = altSnap;
+                } catch (e) {
+                    console.warn("Fallback departments collection 'departments' not readable", e);
+                }
+            }
+            const map = {};
+            const colors = {};
+            snap.forEach(d => {
+                const r = d.data() || {};
+                const key = d.id;
+                const label = r.name || r.label || r.title || r.department || key;
+                const color = r.color || r.badgeColor || r.bgColor || r.backgroundColor || "";
+                map[key] = label;
+                if (color) {
+                    colors[key] = color;
+                }
+            });
+            departmentsCache = map;
+            departmentsColorById = colors;
+        }
+
+        let editingPositionId = null;
+        let addPositionModalInstance = null;
+
+        function getFilteredPositions() {
+            let items = positionsData.slice();
+
+            const term = positionFilterState.search.trim().toLowerCase();
+            if (term) {
+                items = items.filter(item => {
+                    const name = item.name ? item.name.toLowerCase() : "";
+                    const dept = item.departmentLabel ? item.departmentLabel.toLowerCase() : "";
+                    return name.includes(term) || dept.includes(term);
+                });
+            }
+
+            if (positionFilterState.department !== "All") {
+                items = items.filter(item => {
+                    if (!item.departmentLabel) return false;
+                    return item.departmentLabel.toLowerCase() === positionFilterState.department.toLowerCase();
+                });
+            }
+
+            if (positionFilterState.status !== "All") {
+                items = items.filter(item => {
+                    return (item.status || "").toLowerCase() === positionFilterState.status.toLowerCase();
+                });
+            }
+
+            const preset = positionFilterState.datePreset;
+            if (preset !== "all") {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                let start = null;
+                let end = today;
+                if (preset === "last7") {
+                    start = new Date(today.getTime() - 7 * 86400000);
+                } else if (preset === "last30") {
+                    start = new Date(today.getTime() - 30 * 86400000);
+                } else if (preset === "last90") {
+                    start = new Date(today.getTime() - 90 * 86400000);
+                } else if (preset === "custom" && positionFilterState.customStart && positionFilterState.customEnd) {
+                    const s = new Date(positionFilterState.customStart);
+                    const e = new Date(positionFilterState.customEnd);
+                    if (!isNaN(s.getTime()) && !isNaN(e.getTime())) {
+                        start = s;
+                        end = e;
+                    }
+                }
+                if (start) {
+                    items = items.filter(item => {
+                        if (!item.createdAt) return true;
+                        const d = item.createdAt;
+                        return d >= start && d <= end;
+                    });
+                }
+            }
+
+            return items;
+        }
+
+        function applyFiltersAndRender() {
+            const allItems = getFilteredPositions();
+            const visibleItems = allItems.slice(0, positionVisibleCount);
+            if (currentView === "grid") {
+                renderPositionsGrid(visibleItems);
+            } else {
+                renderPositionsList(visibleItems);
+            }
+            const loadMoreBtn = document.getElementById("positionsLoadMoreBtn");
+            if (loadMoreBtn) {
+                loadMoreBtn.classList.toggle("d-none", positionVisibleCount >= allItems.length);
+            }
+        }
+
+        async function openEditPositionModal(positionId) {
+            const item = positionsData.find(p => p.id === positionId);
+            if (!item) return;
+
+            await ensureDepartmentsCache();
+
+            const modalEl = document.getElementById("positionEditModal");
+            const idInput = document.getElementById("positionEditId");
+            const nameInput = document.getElementById("positionEditName");
+            const deptSelect = document.getElementById("positionEditDepartment");
+            const headInput = document.getElementById("positionEditHeadCount");
+            const activeInput = document.getElementById("positionEditActive");
+            const applicantInput = document.getElementById("positionEditApplicant");
+            const jobdeskInput = document.getElementById("positionEditJobdesk");
+            const statusSelect = document.getElementById("positionEditStatus");
+            if (!modalEl || !idInput || !nameInput || !deptSelect || !headInput || !activeInput || !applicantInput || !jobdeskInput || !statusSelect) return;
+
+            editingPositionId = item.id;
+            idInput.value = item.id;
+            nameInput.value = item.name || "";
+            headInput.value = item.headCount ?? "";
+            activeInput.value = item.activeCount ?? "";
+            applicantInput.value = item.applicantCount ?? "";
+            jobdeskInput.value = item.jobdesk || "";
+
+            if (/close/i.test(item.status)) {
+                statusSelect.value = "Close";
+            } else {
+                statusSelect.value = "Open";
+            }
+
+            deptSelect.innerHTML = "";
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.textContent = "Select department";
+            deptSelect.appendChild(defaultOpt);
+            Object.keys(departmentsCache || {}).forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.textContent = departmentsCache[key];
+                deptSelect.appendChild(opt);
+            });
+            if (item.department) {
+                deptSelect.value = item.department;
+            }
+
+            const bsModal = new bootstrap.Modal(modalEl);
+            bsModal.show();
+        }
+
+        async function openAddPositionModal() {
+            await ensureDepartmentsCache();
+
+            const modalEl = document.getElementById("positionAddModal");
+            const nameInput = document.getElementById("positionAddName");
+            const deptSelect = document.getElementById("positionAddDepartment");
+            const headInput = document.getElementById("positionAddHeadCount");
+            const activeInput = document.getElementById("positionAddActive");
+            const applicantInput = document.getElementById("positionAddApplicant");
+            const jobdeskInput = document.getElementById("positionAddJobdesk");
+            const statusSelect = document.getElementById("positionAddStatus");
+            if (!modalEl || !nameInput || !deptSelect || !headInput || !activeInput || !applicantInput || !jobdeskInput || !statusSelect) return;
+
+            nameInput.value = "";
+            headInput.value = "0";
+            activeInput.value = "0";
+            applicantInput.value = "0";
+            jobdeskInput.value = "";
+            statusSelect.value = "Open";
+
+            deptSelect.innerHTML = "";
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.textContent = "Select department";
+            deptSelect.appendChild(defaultOpt);
+            Object.keys(departmentsCache || {}).forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.textContent = departmentsCache[key];
+                deptSelect.appendChild(opt);
+            });
+
+            addPositionModalInstance = new bootstrap.Modal(modalEl);
+            addPositionModalInstance.show();
+        }
+
+        async function saveEditedPosition(event) {
+            event.preventDefault();
+            if (!editingPositionId) return;
+
+            const idInput = document.getElementById("positionEditId");
+            const nameInput = document.getElementById("positionEditName");
+            const deptSelect = document.getElementById("positionEditDepartment");
+            const headInput = document.getElementById("positionEditHeadCount");
+            const activeInput = document.getElementById("positionEditActive");
+            const applicantInput = document.getElementById("positionEditApplicant");
+            const jobdeskInput = document.getElementById("positionEditJobdesk");
+            const statusSelect = document.getElementById("positionEditStatus");
+            if (!idInput || !nameInput || !deptSelect || !headInput || !activeInput || !applicantInput || !jobdeskInput || !statusSelect) return;
+
+            const id = idInput.value;
+            const payload = {};
+            payload.name = nameInput.value.trim();
+            payload.department = deptSelect.value || "";
+            payload.headCount = parseInt(headInput.value || "0", 10);
+            payload.activeCount = parseInt(activeInput.value || "0", 10);
+            payload.applicantCount = parseInt(applicantInput.value || "0", 10);
+            payload.jobdesk = jobdeskInput.value || "";
+            payload.status = statusSelect.value;
+
+            const item = positionsData.find(p => p.id === id);
+            const collName = item && item.collection ? item.collection : positionsCollection;
+
+            await updateDoc(doc(db, collName, id), payload);
+
+            const modalEl = document.getElementById("positionEditModal");
+            if (modalEl) {
+                const bsModal = bootstrap.Modal.getInstance(modalEl);
+                if (bsModal) bsModal.hide();
+            }
+
+            await loadCompanyPositions();
+        }
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+        renderRightbarRecruit();
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        const viewGridBtn = document.getElementById("viewGridBtn");
+        const viewListBtn = document.getElementById("viewListBtn");
+
+        if (viewGridBtn && viewListBtn) {
+            viewGridBtn.addEventListener("click", () => {
+                currentView = "grid";
+                viewGridBtn.classList.add("active");
+                viewListBtn.classList.remove("active");
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+
+            viewListBtn.addEventListener("click", () => {
+                currentView = "list";
+                viewListBtn.classList.add("active");
+                viewGridBtn.classList.remove("active");
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const positionEditForm = document.getElementById("positionEditForm");
+        if (positionEditForm) {
+            positionEditForm.addEventListener("submit", saveEditedPosition);
+        }
+
+        const searchInput = document.getElementById("positionSearchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", (ev) => {
+                positionFilterState.search = ev.target.value || "";
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const deptFilter = document.getElementById("positionDeptFilter");
+        if (deptFilter) {
+            deptFilter.addEventListener("change", (ev) => {
+                positionFilterState.department = ev.target.value || "All";
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const statusFilter = document.getElementById("positionStatusFilter");
+        if (statusFilter) {
+            statusFilter.addEventListener("change", (ev) => {
+                positionFilterState.status = ev.target.value || "All";
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const dateFilter = document.getElementById("positionDateFilter");
+        const dateStartInput = document.getElementById("positionDateStart");
+        const dateEndInput = document.getElementById("positionDateEnd");
+        const dateRangeWrapper = document.getElementById("positionDateRangeWrapper");
+
+        if (dateFilter) {
+            dateFilter.addEventListener("change", (ev) => {
+                const value = ev.target.value || "all";
+                positionFilterState.datePreset = value;
+                if (value === "custom" && dateRangeWrapper) {
+                    dateRangeWrapper.classList.remove("d-none");
+                } else if (dateRangeWrapper) {
+                    dateRangeWrapper.classList.add("d-none");
+                    positionFilterState.customStart = null;
+                    positionFilterState.customEnd = null;
+                    if (dateStartInput) dateStartInput.value = "";
+                    if (dateEndInput) dateEndInput.value = "";
+                }
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        if (dateStartInput) {
+            dateStartInput.addEventListener("change", (ev) => {
+                positionFilterState.customStart = ev.target.value || null;
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        if (dateEndInput) {
+            dateEndInput.addEventListener("change", (ev) => {
+                positionFilterState.customEnd = ev.target.value || null;
+                positionVisibleCount = POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const loadMoreBtn = document.getElementById("positionsLoadMoreBtn");
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", () => {
+                positionVisibleCount += POSITION_PAGE_SIZE;
+                applyFiltersAndRender();
+            });
+        }
+
+        const addBtn = document.getElementById("positionAddBtn");
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                openAddPositionModal();
+            });
+        }
+
+        const positionAddForm = document.getElementById("positionAddForm");
+        if (positionAddForm) {
+            positionAddForm.addEventListener("submit", saveNewPosition);
+        }
+
+        async function saveNewPosition(event) {
+            event.preventDefault();
+
+            const nameInput = document.getElementById("positionAddName");
+            const deptSelect = document.getElementById("positionAddDepartment");
+            const headInput = document.getElementById("positionAddHeadCount");
+            const activeInput = document.getElementById("positionAddActive");
+            const applicantInput = document.getElementById("positionAddApplicant");
+            const jobdeskInput = document.getElementById("positionAddJobdesk");
+            const statusSelect = document.getElementById("positionAddStatus");
+            if (!nameInput || !deptSelect || !headInput || !activeInput || !applicantInput || !jobdeskInput || !statusSelect) return;
+
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            const payload = {};
+            payload.name = name;
+            payload.department = deptSelect.value || "";
+            payload.headCount = parseInt(headInput.value || "0", 10);
+            payload.activeCount = parseInt(activeInput.value || "0", 10);
+            payload.applicantCount = parseInt(applicantInput.value || "0", 10);
+            payload.jobdesk = jobdeskInput.value || "";
+            payload.status = statusSelect.value || "Open";
+            payload.createdAt = serverTimestamp();
+
+            const collName = positionsCollection || "position";
+            await addDoc(collection(db, collName), payload);
+
+            const modalEl = document.getElementById("positionAddModal");
+            if (modalEl) {
+                const bsModal = bootstrap.Modal.getInstance(modalEl) || addPositionModalInstance;
+                if (bsModal) bsModal.hide();
+            }
+
+            await loadCompanyPositions();
+        }
+
+        async function deletePosition(positionId) {
+            const item = positionsData.find(p => p.id === positionId);
+            if (!item) return;
+            const name = item.name || "this position";
+            const confirmed = window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`);
+            if (!confirmed) return;
+            const collName = item.collection || positionsCollection;
+            await deleteDoc(doc(db, collName, positionId));
+            await loadCompanyPositions();
+        }
+
+        document.addEventListener("click", (ev) => {
+            const toggleBtn = ev.target.closest(".toggle-jobdesk");
+            if (toggleBtn) {
+                const container = toggleBtn.previousElementSibling;
+                if (toggleBtn.textContent === "Show more") {
+                    toggleBtn.textContent = "Show less";
+                    if (toggleBtn.classList.contains("toggle-jobdesk-list")) {
+                        container.classList.remove("text-truncate");
+                        container.style.maxWidth = "300px";
+                    } else {
+                        container.style.webkitLineClamp = "unset";
+                    }
+                } else {
+                    toggleBtn.textContent = "Show more";
+                    if (toggleBtn.classList.contains("toggle-jobdesk-list")) {
+                        container.classList.add("text-truncate");
+                        container.style.maxWidth = "150px";
+                    } else {
+                        container.style.webkitLineClamp = "2";
+                    }
+                }
+                return;
+            }
+
+            const editBtn = ev.target.closest("[data-position-edit]");
+            if (editBtn) {
+                const id = editBtn.getAttribute("data-position-edit");
+                if (id) {
+                    openEditPositionModal(id);
+                    return;
+                }
+            }
+            const deleteBtn = ev.target.closest("[data-position-delete]");
+            if (deleteBtn) {
+                const id = deleteBtn.getAttribute("data-position-delete");
+                if (id) {
+                    deletePosition(id);
+                }
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            await loadCompanyPositions();
+        });
+    </script>
+</body>
+
+</html>

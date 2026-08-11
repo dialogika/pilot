@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar Management - Team Dialogika</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #f3f4f6;
+            padding: 20px 30px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-title {
+            font-weight: 800;
+            color: #111;
+            font-size: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--dlg-blue);
+            box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
+        }
+
+        .settings-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        }
+
+        /* ─── Modern Webinar Cards ─── */
+        .webinar-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .webinar-card:hover {
+            box-shadow: 0 12px 40px rgba(11, 43, 106, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
+            border-color: #c7d2fe;
+        }
+
+        .webinar-card-active {
+            border-color: #10b981;
+            border-width: 2px;
+        }
+
+        .webinar-card-active:hover {
+            border-color: #059669;
+        }
+
+        .webinar-card-poster {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f0f4ff, #e2e8f0);
+        }
+
+        .webinar-card-poster img {
+            width: 100%;
+            display: block;
+        }
+
+        .webinar-poster-preview {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .webinar-poster-placeholder {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #f0f4ff, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+        }
+
+        .webinar-status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 5px 14px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            letter-spacing: 0.3px;
+            z-index: 2;
+        }
+
+        .webinar-status-badge.active {
+            background: rgba(209, 250, 229, 0.95);
+            color: #065f46;
+        }
+
+        .webinar-status-badge.inactive {
+            background: rgba(241, 245, 249, 0.95);
+            color: #64748b;
+        }
+
+        .webinar-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .webinar-card-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .webinar-card-desc {
+            font-size: 0.825rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.6em;
+        }
+
+        .webinar-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            margin-top: auto;
+        }
+
+        .webinar-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .webinar-card-meta-item i {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            width: 16px;
+            text-align: center;
+        }
+
+        .webinar-card-meta-item .text-success { color: #10b981 !important; }
+        .webinar-card-meta-item .text-warning { color: #f59e0b !important; }
+
+        .webinar-card-footer {
+            display: flex;
+            gap: 8px;
+            padding: 14px 20px;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfd;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .webinar-card-footer .btn-card-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 0;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .webinar-card-footer .btn-card-action:hover {
+            background: #f8fafc;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .webinar-card-footer .btn-card-action.action-edit:hover {
+            border-color: #818cf8;
+            color: #4f46e5;
+            background: #eef2ff;
+        }
+
+        .webinar-card-footer .btn-card-action.action-activate:hover {
+            border-color: #34d399;
+            color: #059669;
+            background: #ecfdf5;
+        }
+
+        .webinar-card-footer .btn-card-action.action-deactivate:hover {
+            border-color: #fbbf24;
+            color: #d97706;
+            background: #fffbeb;
+        }
+
+        .webinar-card-footer .btn-card-action.action-delete:hover {
+            border-color: #f87171;
+            color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .webinar-order-badge {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .poster-upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        .poster-upload-zone:hover {
+            border-color: var(--dlg-blue);
+            background: #eff6ff;
+        }
+
+        .poster-upload-zone.has-image {
+            border-style: solid;
+            border-color: #10b981;
+            padding: 10px;
+        }
+
+        .poster-upload-preview {
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .custom-toast {
+            min-width: 300px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.3s ease;
+        }
+
+        .custom-toast-success {
+            background: #059669;
+        }
+
+        .custom-toast-error {
+            background: #dc2626;
+        }
+
+        .custom-toast-warning {
+            background: #d97706;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-action:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-action-edit:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .btn-action-delete:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .btn-action-activate:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .form-check-input:checked {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        /* ─── Quill Editor ─── */
+        #webinarMetaDescEditor {
+            background: #fff;
+            border-radius: 0 0 6px 6px;
+        }
+        #webinarMetaDescEditor .ql-editor {
+            min-height: 200px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        #webinarMetaDescEditor .ql-toolbar {
+            border-radius: 6px 6px 0 0;
+            border-color: #d1d5db;
+            background: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        #webinarMetaDescEditor .ql-container {
+            border-color: #d1d5db;
+            border-radius: 0 0 6px 6px;
+        }
+        #webinarMetaDescEditor .ql-editor:focus {
+            box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h4 class="fw-bold mb-0">Webinar Management</h4>
+                    <small class="text-muted">Kelola section webinar secara dinamis. Hanya satu webinar yang boleh aktif
+                        dalam satu waktu.</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center gap-2"
+                        onclick="openMemberModal()">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Daftar Member</span>
+                    </button>
+                    <button class="btn btn-dark rounded-pill px-4 d-flex align-items-center gap-2"
+                        onclick="openAddModal()">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Tambah Webinar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                            style="width:48px;height:48px;background:#ede9fe;">
+                            <i class="bi bi-collection-play-fill text-purple" style="font-size:1.3rem;color:#7c3aed;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold" style="font-size:0.7rem;">Total
+                                Webinar</div>
+                            <h3 class="fw-extrabold mb-0" id="statTotalWebinar">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                            style="width:48px;height:48px;background:#d1fae5;">
+                            <i class="bi bi-broadcast" style="font-size:1.3rem;color:#059669;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold" style="font-size:0.7rem;">Webinar
+                                Aktif</div>
+                            <h3 class="fw-extrabold mb-0" id="statActiveWebinar">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                            style="width:48px;height:48px;background:#fef3c7;">
+                            <i class="bi bi-eye-fill" style="font-size:1.3rem;color:#d97706;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold" style="font-size:0.7rem;">Status
+                                Publik</div>
+                            <div class="fw-bold mb-0" id="statPublicStatus" style="font-size:0.95rem;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Webinar Grid -->
+            <div id="webinarGrid" class="row g-4">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <div class="empty-state-icon"><i class="bi bi-collection-play"></i></div>
+                <h5 class="fw-bold text-slate-700">Belum ada webinar</h5>
+                <p class="text-muted mb-3">Klik tombol "Tambah Webinar" untuk membuat section webinar pertama
+                    Anda.</p>
+                <button class="btn btn-dark rounded-pill px-4" onclick="openAddModal()">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Webinar Pertama
+                </button>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL: Add / Edit Webinar -->
+    <div class="modal fade" id="webinarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="webinarModalTitle">Tambah Webinar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="webinarForm">
+                        <input type="hidden" id="webinarId">
+
+                        <!-- Nama Webinar -->
+                        <div class="mb-4">
+                            <label class="form-label">Nama Webinar <span class="text-danger">*</span></label>
+                            <input type="text" id="webinarName" class="form-control"
+                                placeholder="cth: Webinar 1.0, Webinar 2.0" required>
+                            <small class="text-muted">Nama unik untuk mengidentifikasi webinar ini.</small>
+                        </div>
+
+                        <!-- Meta Title -->
+                        <div class="mb-4">
+                            <label class="form-label">Meta Title <span class="text-danger">*</span></label>
+                            <input type="text" id="webinarMetaTitle" class="form-control"
+                                placeholder="cth: Dialogika Webinar 1.0 - Membangun Karir di Bidang IT" required>
+                            <small class="text-muted">Judul yang akan tampil pada tag &lt;title&gt; halaman
+                                publik.</small>
+                        </div>
+
+                        <!-- Meta Description -->
+                        <div class="mb-4">
+                            <label class="form-label">Meta Description <span class="text-danger">*</span></label>
+                            <div id="webinarMetaDescEditor" style="height:280px;"></div>
+                            <small class="text-muted">Deskripsi webinar dengan format rich text (WYSIWYG). Tampilan di halaman publik akan sama persis dengan yang dibuat di editor ini.</small>
+                        </div>
+
+                        <!-- Poster Upload -->
+                        <div class="mb-4">
+                            <label class="form-label">Poster Webinar</label>
+                            <div class="poster-upload-zone" id="posterUploadZone" onclick="triggerPosterUpload()">
+                                <div id="posterPlaceholder">
+                                    <i class="bi bi-cloud-arrow-up" style="font-size:2rem;color:#94a3b8;"></i>
+                                    <p class="mb-0 mt-2 text-muted fw-semibold">Klik atau drag gambar untuk upload</p>
+                                    <small class="text-muted">Format: JPG, PNG, WebP</small>
+                                </div>
+                                <img id="posterPreview" class="poster-upload-preview" style="display:none;"
+                                    alt="Poster Preview">
+                            </div>
+                            <input type="file" id="posterFileInput" accept="image/jpeg,image/png,image/webp"
+                                style="display:none;" onchange="handlePosterSelect(event)">
+                            <input type="hidden" id="posterExistingUrl">
+                            <small class="text-muted d-block mt-1" id="posterFileName"></small>
+                        </div>
+
+                        <!-- WhatsApp Link -->
+                        <div class="mb-4">
+                            <label class="form-label">Link Grup WhatsApp</label>
+                            <input type="url" id="webinarWhatsapp" class="form-control"
+                                placeholder="cth: https://chat.whatsapp.com/xxxxx">
+                            <small class="text-muted">Link grup WhatsApp untuk peserta webinar.</small>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="webinarIsActive">
+                            <label class="form-check-label fw-bold" for="webinarIsActive">Aktifkan Webinar
+                                Ini</label>
+                            <div id="activateWarning" class="mt-1" style="display:none;">
+                                <small class="text-warning fw-semibold">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    Mengaktifkan webinar ini akan menonaktifkan webinar lain yang sedang aktif.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="button" class="btn btn-dark rounded-pill px-4" id="btnSaveWebinar"
+                                onclick="saveWebinar()">
+                                <span id="btnSaveLabel">Simpan</span>
+                                <span id="btnSaveSpinner" class="spinner-border spinner-border-sm ms-2"
+                                    style="display:none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-light rounded-pill px-4 border"
+                                data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Delete Confirmation -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-danger">Hapus Webinar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2">Apakah Anda yakin ingin menghapus webinar <strong id="deleteWebinarName"></strong>?
+                    </p>
+                    <p class="text-muted small mb-0">Tindakan ini tidak dapat dibatalkan.</p>
+                    <input type="hidden" id="deleteWebinarId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4"
+                        onclick="confirmDelete()">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Daftar Member Webinar -->
+    <div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">Daftar Member Webinar</h5>
+                        <small class="text-muted">Data pendaftar yang mengisi form join grup WhatsApp.</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search -->
+                    <div class="position-relative mb-3">
+                        <i class="bi bi-search position-absolute" style="left:14px;top:50%;transform:translateY(-50%);color:#94a3b8;"></i>
+                        <input type="text" id="memberSearchInput" class="form-control ps-5"
+                            placeholder="Cari nama, domisili, profesi, nomor WhatsApp, sumber tahu, riwayat webinar..."
+                            style="border-radius:12px;padding-top:10px;padding-bottom:10px;">
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div class="text-muted" style="font-size:0.75rem;" id="memberInfoText">Memuat data...</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="memberPrevBtn" disabled>
+                                <i class="bi bi-chevron-left me-1"></i>Sebelumnya
+                            </button>
+                            <span class="badge bg-light text-dark border" id="memberPageLabel" style="font-size:0.7rem;font-weight:600;">Halaman 1</span>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="memberNextBtn" disabled>
+                                Berikutnya<i class="bi bi-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="memberTableWrap" style="overflow-x:auto;border:1px solid #e2e8f0;border-radius:14px;">
+                        <table class="table table-hover align-middle mb-0" style="min-width:880px;font-size:0.78rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="padding:10px 12px;">Nama</th>
+                                    <th>WhatsApp</th>
+                                    <th>Domisili</th>
+                                    <th>Profesi</th>
+                                    <th>Sumber Tahu</th>
+                                    <th>Pernah Ikut</th>
+                                    <th>Webinar</th>
+                                    <th>Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="memberEmpty" class="text-center text-muted py-5" style="display:none;">
+                        <i class="bi bi-inbox display-5 d-block mb-2 text-secondary opacity-50"></i>
+                        <div id="memberEmptyText">Belum ada data member.</div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" id="memberLoadMoreBtn" style="display:none;">
+                        <i class="bi bi-arrow-down-circle me-1"></i>Muat Lebih Banyak
+                    </button>
+                    <span class="text-muted" style="font-size:0.7rem;" id="memberLoadHint"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <!-- Firebase SDK Modular -->
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, getDoc, getDocs, serverTimestamp, onSnapshot, orderBy, limit, startAfter, doc, deleteDoc, updateDoc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // ─── Firebase Config ───
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        let currentUser = null;
+        let webinarsCache = [];
+        let posterFile = null; // selected file for upload
+        let quillEditor = null; // Quill WYSIWYG editor instance
+
+        // ─── Auth Guard ───
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const localData = JSON.parse(localStorage.getItem('userData'));
+                document.getElementById('user-name-display').innerText = localData?.name || user.email;
+                document.getElementById('user-photo-display').src = localData?.photo || "https://i.pravatar.cc/300";
+                document.getElementById('user-role-display').innerText = localData?.position || "Staff";
+                listenToWebinars();
+            } else {
+                window.location.href = "../index.html";
+            }
+        });
+
+        // ─── Real-time Webinar Listener ───
+        function listenToWebinars() {
+            try {
+                const q = query(collection(db, "webinars"), orderBy("order", "asc"));
+                onSnapshot(q, (snapshot) => {
+                    webinarsCache = [];
+                    snapshot.forEach((docSnap) => {
+                        webinarsCache.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    renderWebinars();
+                    updateStats();
+                }, (error) => {
+                    console.error("Failed to listen webinars:", error);
+                    showToast("Gagal memuat data webinar.", "error");
+                });
+            } catch (e) {
+                console.error("Listener setup failed:", e);
+            }
+        }
+
+        // ─── Render Webinar Cards ───
+        function renderWebinars() {
+            const grid = document.getElementById('webinarGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (!webinarsCache.length) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            grid.innerHTML = '';
+
+            webinarsCache.forEach((w) => {
+                const isActive = w.is_active === true;
+                const cardClass = isActive ? 'webinar-card webinar-card-active' : 'webinar-card';
+
+                const posterHtml = w.poster_url
+                    ? `<img src="${w.poster_url}" alt="${escapeHtml(w.name)}">`
+                    : `<div class="webinar-poster-placeholder"><i class="bi bi-image" style="font-size:2.5rem;"></i></div>`;
+
+                const statusBadge = isActive
+                    ? '<span class="webinar-status-badge active"><i class="bi bi-broadcast"></i>Aktif</span>'
+                    : '<span class="webinar-status-badge inactive">Nonaktif</span>';
+
+                const cleanDesc = stripHtml(w.meta_description || '');
+                const descPreview = cleanDesc.length > 120
+                    ? cleanDesc.substring(0, 120).trim() + '...'
+                    : cleanDesc;
+
+                const metaTitlePreview = (w.meta_title || '').length > 50
+                    ? (w.meta_title || '').substring(0, 50) + '...'
+                    : (w.meta_title || '-');
+
+                const activateBtnClass = isActive ? 'action-deactivate' : 'action-activate';
+                const activateBtnIcon = isActive ? 'bi-pause-circle' : 'bi-play-circle';
+                const activateBtnLabel = isActive ? 'Nonaktifkan' : 'Aktifkan';
+
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-xl-4';
+                col.innerHTML = `
+                    <div class="${cardClass}">
+                        <div class="webinar-card-poster">
+                            ${posterHtml}
+                            ${statusBadge}
+                        </div>
+                        <div class="webinar-card-body">
+                            <h6 class="webinar-card-title">${escapeHtml(w.name)}</h6>
+                            ${descPreview ? `<p class="webinar-card-desc">${escapeHtml(descPreview)}</p>` : ''}
+                            <div class="webinar-card-meta">
+                                <div class="webinar-card-meta-item">
+                                    <i class="bi bi-tag"></i>
+                                    <span>${escapeHtml(metaTitlePreview)}</span>
+                                </div>
+                                <div class="webinar-card-meta-item">
+                                    <i class="bi bi-whatsapp"></i>
+                                    ${w.whatsapp_link
+                                        ? '<span class="text-success">WhatsApp Linked</span>'
+                                        : '<span class="text-warning">No Link</span>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="webinar-card-footer">
+                            <button class="btn-card-action action-edit" title="Edit" onclick="openEditModal('${w.id}')">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </button>
+                            <button class="btn-card-action ${activateBtnClass}" title="${activateBtnLabel}" onclick="toggleActive('${w.id}', ${!isActive})">
+                                <i class="bi ${activateBtnIcon}"></i> ${activateBtnLabel}
+                            </button>
+                            <button class="btn-card-action action-delete" title="Hapus" onclick="openDeleteModal('${w.id}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                            <span class="webinar-order-badge">#${w.order ?? 0}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        // ─── Update Stats ───
+        function updateStats() {
+            const total = webinarsCache.length;
+            const activeCount = webinarsCache.filter(w => w.is_active === true).length;
+            const activeWebinar = webinarsCache.find(w => w.is_active === true);
+
+            document.getElementById('statTotalWebinar').textContent = total;
+            document.getElementById('statActiveWebinar').textContent = activeCount;
+
+            const publicStatus = document.getElementById('statPublicStatus');
+            if (activeWebinar) {
+                publicStatus.innerHTML = `<span class="text-success">${escapeHtml(activeWebinar.name)}</span>`;
+            } else {
+                publicStatus.innerHTML = '<span class="text-muted">Tidak ada webinar aktif</span>';
+            }
+        }
+
+        // ─── Modal Helpers ───
+        window.openAddModal = function () {
+            document.getElementById('webinarModalTitle').textContent = 'Tambah Webinar Baru';
+            document.getElementById('webinarId').value = '';
+            document.getElementById('webinarName').value = '';
+            document.getElementById('webinarMetaTitle').value = '';
+            if (quillEditor) quillEditor.setContents([]);
+            document.getElementById('webinarWhatsapp').value = '';
+            document.getElementById('webinarIsActive').checked = false;
+            document.getElementById('posterExistingUrl').value = '';
+            document.getElementById('posterFileInput').value = '';
+            document.getElementById('posterFileName').textContent = '';
+            resetPosterPreview();
+            updateActivateWarning();
+            const modal = new bootstrap.Modal(document.getElementById('webinarModal'));
+            modal.show();
+        };
+
+        window.openEditModal = function (id) {
+            const w = webinarsCache.find(x => x.id === id);
+            if (!w) return;
+
+            document.getElementById('webinarModalTitle').textContent = 'Edit Webinar';
+            document.getElementById('webinarId').value = id;
+            document.getElementById('webinarName').value = w.name || '';
+            document.getElementById('webinarMetaTitle').value = w.meta_title || '';
+            if (quillEditor) {
+                if (w.meta_description) {
+                    quillEditor.clipboard.dangerouslyPasteHTML(w.meta_description);
+                } else {
+                    quillEditor.setContents([]);
+                }
+            }
+            document.getElementById('webinarWhatsapp').value = w.whatsapp_link || '';
+            document.getElementById('webinarIsActive').checked = w.is_active === true;
+            document.getElementById('posterExistingUrl').value = w.poster_url || '';
+            document.getElementById('posterFileInput').value = '';
+            document.getElementById('posterFileName').textContent = w.poster_url ? 'Poster sudah diupload' : '';
+            posterFile = null;
+
+            const preview = document.getElementById('posterPreview');
+            const placeholder = document.getElementById('posterPlaceholder');
+            const zone = document.getElementById('posterUploadZone');
+            if (w.poster_url) {
+                preview.src = w.poster_url;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                zone.classList.add('has-image');
+            } else {
+                resetPosterPreview();
+            }
+
+            updateActivateWarning();
+            const modal = new bootstrap.Modal(document.getElementById('webinarModal'));
+            modal.show();
+        };
+
+        window.openDeleteModal = function (id) {
+            const w = webinarsCache.find(x => x.id === id);
+            if (!w) return;
+            document.getElementById('deleteWebinarName').textContent = w.name || '';
+            document.getElementById('deleteWebinarId').value = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        };
+
+        // ─── Poster Upload ───
+        function resetPosterPreview() {
+            const preview = document.getElementById('posterPreview');
+            const placeholder = document.getElementById('posterPlaceholder');
+            const zone = document.getElementById('posterUploadZone');
+            preview.style.display = 'none';
+            preview.src = '';
+            placeholder.style.display = 'block';
+            zone.classList.remove('has-image');
+            posterFile = null;
+        }
+
+        window.triggerPosterUpload = function () {
+            document.getElementById('posterFileInput').click();
+        };
+
+        window.handlePosterSelect = function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            posterFile = file;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById('posterPreview');
+                const placeholder = document.getElementById('posterPlaceholder');
+                const zone = document.getElementById('posterUploadZone');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                zone.classList.add('has-image');
+                document.getElementById('posterFileName').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // ─── Initialize Quill Rich Text Editor & Poster Drag-and-Drop ───
+        document.addEventListener('DOMContentLoaded', () => {
+            const editorEl = document.getElementById('webinarMetaDescEditor');
+            if (editorEl && typeof Quill !== 'undefined') {
+                quillEditor = new Quill('#webinarMetaDescEditor', {
+                    theme: 'snow',
+                    placeholder: 'Tulis deskripsi webinar di sini...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            ['bold', 'italic', 'underline'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'align': [] }],
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            ['link'],
+                            ['clean'],
+                            ['undo', 'redo']
+                        ],
+                        history: {
+                            delay: 1000,
+                            maxStack: 100,
+                            userOnly: true
+                        }
+                    }
+                });
+            }
+
+            // Poster Drag & Drop
+            const zone = document.getElementById('posterUploadZone');
+            if (!zone) return;
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '#6366f1';
+                zone.style.background = '#eff6ff';
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.style.borderColor = '';
+                zone.style.background = '';
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '';
+                zone.style.background = '';
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    document.getElementById('posterFileInput').files = e.dataTransfer.files;
+                    handlePosterSelect({ target: { files: [file] } });
+                }
+            });
+        });
+
+        // ─── Activate Warning ───
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('webinarIsActive');
+            if (toggle) {
+                toggle.addEventListener('change', updateActivateWarning);
+            }
+        });
+
+        function updateActivateWarning() {
+            const toggle = document.getElementById('webinarIsActive');
+            const warning = document.getElementById('activateWarning');
+            const editId = document.getElementById('webinarId').value;
+
+            if (toggle.checked) {
+                const hasOtherActive = webinarsCache.some(w => w.is_active === true && w.id !== editId);
+                warning.style.display = hasOtherActive ? 'block' : 'none';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        // ─── Save Webinar (Add / Edit) ───
+        window.saveWebinar = async function () {
+            const id = document.getElementById('webinarId').value.trim();
+            const name = document.getElementById('webinarName').value.trim();
+            const metaTitle = document.getElementById('webinarMetaTitle').value.trim();
+            const metaDesc = quillEditor ? quillEditor.root.innerHTML : '';
+            const metaDescText = quillEditor ? quillEditor.getText().trim() : '';
+            const whatsappLink = document.getElementById('webinarWhatsapp').value.trim();
+            const isActive = document.getElementById('webinarIsActive').checked;
+            const existingPoster = document.getElementById('posterExistingUrl').value.trim();
+
+            // Validation
+            if (!name) return showToast("Nama webinar wajib diisi.", "error");
+            if (!metaTitle) return showToast("Meta Title wajib diisi.", "error");
+            if (!metaDescText) return showToast("Meta Description wajib diisi.", "error");
+
+            // Button loading state
+            const btn = document.getElementById('btnSaveWebinar');
+            const label = document.getElementById('btnSaveLabel');
+            const spinner = document.getElementById('btnSaveSpinner');
+            btn.disabled = true;
+            label.textContent = 'Menyimpan...';
+            spinner.style.display = 'inline-block';
+
+            try {
+                // Upload poster if new file selected
+                let posterUrl = existingPoster;
+                if (posterFile) {
+                    const timestamp = Date.now();
+                    const ext = posterFile.name.split('.').pop();
+                    const storageRef = ref(storage, `webinars/${timestamp}_${name.replace(/\s+/g, '_')}.${ext}`);
+                    const uploadResult = await uploadBytes(storageRef, posterFile);
+                    posterUrl = await getDownloadURL(uploadResult.ref);
+                    posterFile = null;
+                }
+
+                // If activating this webinar, deactivate all others first (batch write)
+                if (isActive) {
+                    const othersActive = webinarsCache.filter(w => w.is_active === true && w.id !== id);
+                    if (othersActive.length > 0) {
+                        const batch = writeBatch(db);
+                        othersActive.forEach(w => {
+                            const wRef = doc(db, "webinars", w.id);
+                            batch.update(wRef, { is_active: false, updated_at: serverTimestamp() });
+                        });
+                        await batch.commit();
+                    }
+                }
+
+                // Calculate order for new webinar
+                const maxOrder = webinarsCache.reduce((max, w) => Math.max(max, Number(w.order) || 0), 0);
+
+                if (id) {
+                    // Update existing
+                    await updateDoc(doc(db, "webinars", id), {
+                        name: name,
+                        meta_title: metaTitle,
+                        meta_description: metaDesc,
+                        poster_url: posterUrl || '',
+                        whatsapp_link: whatsappLink || '',
+                        is_active: isActive,
+                        updated_at: serverTimestamp()
+                    });
+                    showToast(`Webinar "${name}" berhasil diperbarui.`, "success");
+                } else {
+                    // Create new
+                    await addDoc(collection(db, "webinars"), {
+                        name: name,
+                        meta_title: metaTitle,
+                        meta_description: metaDesc,
+                        poster_url: posterUrl || '',
+                        whatsapp_link: whatsappLink || '',
+                        is_active: isActive,
+                        order: maxOrder + 1,
+                        created_at: serverTimestamp(),
+                        updated_at: serverTimestamp()
+                    });
+                    showToast(`Webinar "${name}" berhasil ditambahkan.`, "success");
+                }
+
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('webinarModal'));
+                if (modal) modal.hide();
+
+            } catch (error) {
+                console.error("Error saving webinar:", error);
+                showToast("Gagal menyimpan webinar: " + (error.message || error.toString()), "error");
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'Simpan';
+                spinner.style.display = 'none';
+            }
+        };
+
+        // ─── Toggle Active ───
+        window.toggleActive = async function (id, activate) {
+            try {
+                if (activate) {
+                    // Validate: deactivate all others
+                    const othersActive = webinarsCache.filter(w => w.is_active === true && w.id !== id);
+                    if (othersActive.length > 0) {
+                        const confirmed = confirm(
+                            `Mengaktifkan webinar ini akan menonaktifkan ${othersActive.length} webinar lain yang sedang aktif. Lanjutkan?`
+                        );
+                        if (!confirmed) return;
+
+                        const batch = writeBatch(db);
+                        othersActive.forEach(w => {
+                            batch.update(doc(db, "webinars", w.id), {
+                                is_active: false,
+                                updated_at: serverTimestamp()
+                            });
+                        });
+                        await batch.commit();
+                    }
+
+                    await updateDoc(doc(db, "webinars", id), {
+                        is_active: true,
+                        updated_at: serverTimestamp()
+                    });
+
+                    const w = webinarsCache.find(x => x.id === id);
+                    showToast(`Webinar "${w?.name || ''}" diaktifkan.`, "success");
+                } else {
+                    await updateDoc(doc(db, "webinars", id), {
+                        is_active: false,
+                        updated_at: serverTimestamp()
+                    });
+
+                    const w = webinarsCache.find(x => x.id === id);
+                    showToast(`Webinar "${w?.name || ''}" dinonaktifkan.`, "warning");
+                }
+            } catch (error) {
+                console.error("Error toggling webinar status:", error);
+                showToast("Gagal mengubah status webinar.", "error");
+            }
+        };
+
+        // ─── Delete Webinar ───
+        window.confirmDelete = async function () {
+            const id = document.getElementById('deleteWebinarId').value;
+            if (!id) return;
+
+            try {
+                const w = webinarsCache.find(x => x.id === id);
+                await deleteDoc(doc(db, "webinars", id));
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                if (modal) modal.hide();
+
+                showToast(`Webinar "${w?.name || ''}" berhasil dihapus.`, "success");
+            } catch (error) {
+                console.error("Error deleting webinar:", error);
+                showToast("Gagal menghapus webinar.", "error");
+            }
+        };
+
+        // ─── Toast ───
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `custom-toast custom-toast-${type} mb-2`;
+            toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'x-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${escapeHtml(message)}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ─── Utility ───
+        function stripHtml(html) {
+            if (!html) return '';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ─── Daftar Member Webinar (member_webinar) ───
+        const MEMBER_PAGE_SIZE = 25;
+        let memberModalInstance = null;
+        let memberSearchTimer = null;
+        const memberState = {
+            buffer: [],        // docs yang sudah dimuat (semua halaman)
+            pageIndex: 0,      // halaman aktif saat mode browse
+            lastVisible: null, // cursor Firestore (DocumentSnapshot terakhir)
+            hasMore: true,
+            loading: false,
+            search: ""
+        };
+
+        function memberMatchesQuery(doc, q) {
+            const needle = q.toLowerCase();
+            if (!needle) return true;
+            const textFields = [doc.namaLengkap, doc.domisili, doc.profesi, doc.pernahIkutWebinar, doc.webinarName]
+                .map((v) => String(v || "").toLowerCase());
+            if (textFields.some((h) => h.includes(needle))) return true;
+            const sumber = Array.isArray(doc.sumberTahu) ? doc.sumberTahu : [];
+            if (sumber.some((s) => String(s || "").toLowerCase().includes(needle))) return true;
+            // Pencarian nomor WhatsApp: cocokkan berdasarkan digit saja
+            const waDigits = String(doc.nomorWhatsapp || "").replace(/\D/g, "");
+            const qDigits = needle.replace(/\D/g, "");
+            if (qDigits && waDigits.includes(qDigits)) return true;
+            return false;
+        }
+
+        function memberVisibleDocs() {
+            if (memberState.search) {
+                return memberState.buffer.filter((d) => memberMatchesQuery(d, memberState.search));
+            }
+            const start = memberState.pageIndex * MEMBER_PAGE_SIZE;
+            return memberState.buffer.slice(start, start + MEMBER_PAGE_SIZE);
+        }
+
+        function memberFormatDate(ts) {
+            if (!ts) return "-";
+            let d = ts;
+            if (d && typeof d.toDate === "function") d = d.toDate();
+            if (d instanceof Date && !isNaN(d.getTime())) {
+                return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+            }
+            return "-";
+        }
+
+        function renderMemberModal() {
+            const body = document.getElementById("memberTableBody");
+            const wrap = document.getElementById("memberTableWrap");
+            const empty = document.getElementById("memberEmpty");
+            const emptyText = document.getElementById("memberEmptyText");
+            const info = document.getElementById("memberInfoText");
+            const pageLabel = document.getElementById("memberPageLabel");
+            const prevBtn = document.getElementById("memberPrevBtn");
+            const nextBtn = document.getElementById("memberNextBtn");
+            const loadMoreBtn = document.getElementById("memberLoadMoreBtn");
+            const loadHint = document.getElementById("memberLoadHint");
+            const searching = !!memberState.search;
+
+            const visible = memberVisibleDocs();
+
+            if (visible.length) {
+                body.innerHTML = visible.map((m) => {
+                    const sumber = Array.isArray(m.sumberTahu) && m.sumberTahu.length
+                        ? m.sumberTahu.map((s) => `<span class="badge rounded-pill text-bg-light border me-1" style="font-weight:500;color:#334155;">${escapeHtml(s)}</span>`).join("")
+                        : '<span class="text-muted">-</span>';
+                    const profesiBadge = m.profesi
+                        ? `<span class="badge rounded-pill text-bg-${m.profesi === "Pelajar" ? "info" : m.profesi === "Mahasiswa" ? "primary" : "success"}" style="font-weight:600;">${escapeHtml(m.profesi)}</span>`
+                        : '<span class="text-muted">-</span>';
+                    const pernahBadge = m.pernahIkutWebinar
+                        ? (String(m.pernahIkutWebinar).toLowerCase().includes("sudah")
+                            ? '<span class="badge rounded-pill text-bg-warning" style="font-weight:600;">Sudah pernah</span>'
+                            : '<span class="badge rounded-pill text-bg-secondary" style="font-weight:600;">Pertama kali</span>')
+                        : '<span class="text-muted">-</span>';
+                    const waDigits = String(m.nomorWhatsapp || "").replace(/\D/g, "");
+                    return `<tr>
+                        <td class="fw-semibold" style="padding:10px 12px;">${escapeHtml(m.namaLengkap) || "-"}</td>
+                        <td>${waDigits ? `<a href="https://wa.me/${waDigits}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">${escapeHtml(m.nomorWhatsapp)}</a>` : '<span class="text-muted">-</span>'}</td>
+                        <td>${escapeHtml(m.domisili) || '<span class="text-muted">-</span>'}</td>
+                        <td>${profesiBadge}</td>
+                        <td style="max-width:230px;">${sumber}</td>
+                        <td>${pernahBadge}</td>
+                        <td style="max-width:160px;">${escapeHtml(m.webinarName) || '<span class="text-muted">-</span>'}</td>
+                        <td class="text-muted" style="white-space:nowrap;">${memberFormatDate(m.createdAt)}</td>
+                    </tr>`;
+                }).join("");
+                if (wrap) wrap.style.display = "";
+                if (empty) empty.style.display = "none";
+            } else {
+                body.innerHTML = "";
+                if (wrap) wrap.style.display = "none";
+                if (empty) {
+                    empty.style.display = "block";
+                    if (emptyText) {
+                        emptyText.textContent = memberState.search
+                            ? 'Tidak ada hasil yang cocok pada data yang sudah dimuat. Klik "Muat Lebih Banyak" untuk mencari pada data berikutnya.'
+                            : "Belum ada data member webinar.";
+                    }
+                }
+            }
+
+            const totalLoaded = memberState.buffer.length;
+            const maxPage = Math.max(0, Math.ceil(totalLoaded / MEMBER_PAGE_SIZE) - 1);
+
+            if (memberState.loading) {
+                info.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memuat data...';
+                if (prevBtn) prevBtn.disabled = true;
+                if (nextBtn) nextBtn.disabled = true;
+                if (loadMoreBtn) loadMoreBtn.disabled = true;
+                if (pageLabel) pageLabel.textContent = "Halaman " + (memberState.pageIndex + 1);
+                if (loadHint) loadHint.textContent = "";
+                return;
+            }
+
+            if (searching) {
+                info.textContent = `${visible.length} hasil dari ${totalLoaded} data yang dimuat`;
+                if (prevBtn) prevBtn.style.display = "none";
+                if (nextBtn) nextBtn.style.display = "none";
+                if (pageLabel) pageLabel.style.display = "none";
+            } else {
+                info.textContent = `Menampilkan ${visible.length} data — halaman ${memberState.pageIndex + 1}`;
+                if (prevBtn) { prevBtn.style.display = ""; prevBtn.disabled = memberState.pageIndex === 0; }
+                if (nextBtn) { nextBtn.style.display = ""; nextBtn.disabled = !memberState.hasMore && memberState.pageIndex >= maxPage; }
+                if (pageLabel) { pageLabel.style.display = ""; pageLabel.textContent = `Halaman ${memberState.pageIndex + 1}`; }
+            }
+
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = memberState.hasMore ? "" : "none";
+                loadMoreBtn.disabled = false;
+            }
+            if (loadHint) {
+                loadHint.textContent = memberState.hasMore
+                    ? "Klik untuk memuat 25 data berikutnya"
+                    : (totalLoaded ? `Semua data telah dimuat (${totalLoaded})` : "");
+            }
+        }
+
+        async function memberLoadNextPage() {
+            if (memberState.loading || !memberState.hasMore) return;
+            memberState.loading = true;
+            renderMemberModal();
+            try {
+                let q = query(
+                    collection(db, "member_webinar"),
+                    orderBy("createdAt", "desc"),
+                    orderBy("__name__", "desc"),
+                    limit(MEMBER_PAGE_SIZE)
+                );
+                if (memberState.lastVisible) q = query(q, startAfter(memberState.lastVisible));
+                const snap = await getDocs(q);
+                const docs = [];
+                snap.forEach((ds) => docs.push({ id: ds.id, ...ds.data() }));
+                if (docs.length < MEMBER_PAGE_SIZE) memberState.hasMore = false;
+                memberState.buffer = memberState.buffer.concat(docs);
+                if (docs.length) memberState.lastVisible = snap.docs[snap.docs.length - 1];
+            } catch (e) {
+                console.error("Gagal memuat member_webinar:", e);
+                showToast("Gagal memuat data member.", "error");
+            } finally {
+                memberState.loading = false;
+                renderMemberModal();
+            }
+        }
+
+        window.openMemberModal = function () {
+            const modalEl = document.getElementById("memberModal");
+            if (!modalEl) return;
+            memberState.buffer = [];
+            memberState.pageIndex = 0;
+            memberState.lastVisible = null;
+            memberState.hasMore = true;
+            memberState.loading = false;
+            memberState.search = "";
+            const searchInput = document.getElementById("memberSearchInput");
+            if (searchInput) searchInput.value = "";
+            if (!memberModalInstance) memberModalInstance = new bootstrap.Modal(modalEl);
+            memberModalInstance.show();
+            renderMemberModal();
+            memberLoadNextPage();
+        };
+
+        // Event bindings (sekali saja)
+        const memberSearchInput = document.getElementById("memberSearchInput");
+        if (memberSearchInput) {
+            memberSearchInput.addEventListener("input", () => {
+                clearTimeout(memberSearchTimer);
+                memberSearchTimer = setTimeout(() => {
+                    memberState.search = memberSearchInput.value.trim();
+                    memberState.pageIndex = 0;
+                    renderMemberModal();
+                }, 250);
+            });
+        }
+        const memberPrevBtn = document.getElementById("memberPrevBtn");
+        const memberNextBtn = document.getElementById("memberNextBtn");
+        const memberLoadMoreBtn = document.getElementById("memberLoadMoreBtn");
+        if (memberPrevBtn) {
+            memberPrevBtn.addEventListener("click", () => {
+                if (memberState.pageIndex > 0) {
+                    memberState.pageIndex--;
+                    renderMemberModal();
+                }
+            });
+        }
+        if (memberNextBtn) {
+            memberNextBtn.addEventListener("click", async () => {
+                const maxPage = Math.max(0, Math.ceil(memberState.buffer.length / MEMBER_PAGE_SIZE) - 1);
+                if (memberState.pageIndex < maxPage) {
+                    memberState.pageIndex++;
+                    renderMemberModal();
+                } else if (memberState.hasMore) {
+                    await memberLoadNextPage();
+                    memberState.pageIndex = Math.max(0, Math.ceil(memberState.buffer.length / MEMBER_PAGE_SIZE) - 1);
+                    renderMemberModal();
+                }
+            });
+        }
+        if (memberLoadMoreBtn) {
+            memberLoadMoreBtn.addEventListener("click", () => memberLoadNextPage());
+        }
+
+        // ─── Logout ───
+        window.logout = async () => {
+            await signOut(auth);
+            localStorage.removeItem('userData');
+            window.location.href = "../index.html";
+        };
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Sync — Unit Tests</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 32px; }
+        h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { font-size: 0.85rem; color: #94a3b8; margin-bottom: 24px; }
+        .test-suite { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .suite-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: #f8fafc; }
+        .test-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; margin-bottom: 4px; font-size: 0.82rem; font-weight: 600; }
+        .test-row.pass { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+        .test-row.fail { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+        .test-row.running { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+        .icon { width: 18px; text-align: center; font-weight: 800; }
+        .summary { margin-top: 24px; padding: 16px 20px; border-radius: 14px; font-size: 0.9rem; font-weight: 700; }
+        .summary.all-pass { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .summary.has-fail { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .detail { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; padding-left: 28px; }
+    </style>
+</head>
+<body>
+
+<h1>🧪 Class Sync — Unit Tests</h1>
+<p class="subtitle">Testing real-time cross-tab synchronization module</p>
+
+<div id="testOutput"></div>
+<div id="testSummary"></div>
+
+<script type="module">
+    // ────────────────────────────────────────────────
+    //  Mini test runner
+    // ────────────────────────────────────────────────
+    const results = [];
+    const output = document.getElementById("testOutput");
+    const summaryEl = document.getElementById("testSummary");
+
+    function createSuiteEl(title) {
+        const el = document.createElement("div");
+        el.className = "test-suite";
+        const h = document.createElement("div");
+        h.className = "suite-title";
+        h.textContent = title;
+        el.appendChild(h);
+        output.appendChild(el);
+        return el;
+    }
+
+    function addResult(suiteEl, name, passed, detail) {
+        results.push({ name, passed });
+        const row = document.createElement("div");
+        row.className = "test-row " + (passed ? "pass" : "fail");
+        row.innerHTML = '<span class="icon">' + (passed ? "✓" : "✗") + "</span><span>" + name + "</span>";
+        suiteEl.appendChild(row);
+        if (detail) {
+            const d = document.createElement("div");
+            d.className = "detail";
+            d.textContent = detail;
+            suiteEl.appendChild(d);
+        }
+    }
+
+    function showSummary() {
+        const total = results.length;
+        const passed = results.filter(r => r.passed).length;
+        const failed = total - passed;
+        summaryEl.className = "summary " + (failed === 0 ? "all-pass" : "has-fail");
+        summaryEl.textContent = (failed === 0 ? "✅ " : "❌ ") + passed + "/" + total + " tests passed" + (failed ? " — " + failed + " failed" : "");
+    }
+
+    // ────────────────────────────────────────────────
+    //  Import module under test
+    // ────────────────────────────────────────────────
+    import {
+        broadcastMessage,
+        onBroadcastMessage,
+        scheduleRender,
+        createSyncBadge,
+        updateSyncBadge,
+        highlightNewCards,
+        injectSyncStyles,
+        destroySyncResources
+    } from "./class-sync.js";
+
+    // ────────────────────────────────────────────────
+    //  Suite 1: BroadcastChannel
+    // ────────────────────────────────────────────────
+    const suite1 = createSuiteEl("Suite 1 · BroadcastChannel Communication");
+
+    // Test 1.1: broadcastMessage does not throw
+    try {
+        broadcastMessage({ type: "TEST", value: 42 });
+        addResult(suite1, "broadcastMessage() does not throw", true);
+    } catch (e) {
+        addResult(suite1, "broadcastMessage() does not throw", false, String(e));
+    }
+
+    // Test 1.2: onBroadcastMessage returns unsubscribe function
+    try {
+        const unsub = onBroadcastMessage(() => {});
+        const isFunction = typeof unsub === "function";
+        addResult(suite1, "onBroadcastMessage() returns unsubscribe function", isFunction);
+        unsub();
+    } catch (e) {
+        addResult(suite1, "onBroadcastMessage() returns unsubscribe function", false, String(e));
+    }
+
+    // Test 1.3: Messages are received by listener (same-origin fast-path)
+    await new Promise((resolve) => {
+        let received = false;
+        const unsub = onBroadcastMessage((msg) => {
+            if (msg.type === "UNIT_TEST_PING") received = true;
+        });
+        // BroadcastChannel messages from the same page are NOT received by the same page's
+        // listener (only other pages/tabs). So we test that the wiring doesn't crash.
+        broadcastMessage({ type: "UNIT_TEST_PING" });
+        setTimeout(() => {
+            // In same-page context, BroadcastChannel does NOT deliver to self
+            addResult(suite1, "broadcastMessage + listener wiring works without error", true,
+                "Note: BroadcastChannel doesn't deliver to self — cross-tab tested manually");
+            unsub();
+            resolve();
+        }, 200);
+    });
+
+    // ────────────────────────────────────────────────
+    //  Suite 2: Throttled / Debounced Render
+    // ────────────────────────────────────────────────
+    const suite2 = createSuiteEl("Suite 2 · Throttled/Debounced Render");
+
+    // Test 2.1: scheduleRender batches multiple calls
+    await new Promise((resolve) => {
+        let callCount = 0;
+        for (let i = 0; i < 5; i++) {
+            scheduleRender(() => { callCount++; }, 100);
+        }
+        setTimeout(() => {
+            const passed = callCount === 1;
+            addResult(suite2, "5 rapid scheduleRender() calls result in exactly 1 render", passed,
+                "Expected: 1, Got: " + callCount);
+            resolve();
+        }, 300);
+    });
+
+    // Test 2.2: scheduleRender executes the LAST callback
+    await new Promise((resolve) => {
+        let value = "";
+        scheduleRender(() => { value = "first"; }, 100);
+        scheduleRender(() => { value = "second"; }, 100);
+        scheduleRender(() => { value = "third"; }, 100);
+        setTimeout(() => {
+            const passed = value === "third";
+            addResult(suite2, "Only the last scheduled callback executes", passed,
+                "Expected: 'third', Got: '" + value + "'");
+            resolve();
+        }, 300);
+    });
+
+    // ────────────────────────────────────────────────
+    //  Suite 3: Sync Badge
+    // ────────────────────────────────────────────────
+    const suite3 = createSuiteEl("Suite 3 · Sync Status Badge");
+
+    // Test 3.1: createSyncBadge creates DOM element
+    try {
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+        const badge = createSyncBadge(container);
+        const exists = !!badge && badge.id === "syncStatusBadge";
+        addResult(suite3, "createSyncBadge() creates badge element with correct ID", exists);
+        container.remove();
+    } catch (e) {
+        addResult(suite3, "createSyncBadge() creates badge element", false, String(e));
+    }
+
+    // Test 3.2: updateSyncBadge changes state classes
+    try {
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+        createSyncBadge(container);
+
+        updateSyncBadge("syncing");
+        const badge = document.getElementById("syncStatusBadge");
+        const hasSyncing = badge.classList.contains("sync-badge-syncing");
+
+        updateSyncBadge("offline");
+        const hasOffline = badge.classList.contains("sync-badge-offline");
+        const noSyncing = !badge.classList.contains("sync-badge-syncing");
+
+        updateSyncBadge("live");
+        const hasLive = badge.classList.contains("sync-badge-live");
+
+        const allPassed = hasSyncing && hasOffline && noSyncing && hasLive;
+        addResult(suite3, "updateSyncBadge() cycles through live/syncing/offline correctly", allPassed);
+        container.remove();
+    } catch (e) {
+        addResult(suite3, "updateSyncBadge() state changes", false, String(e));
+    }
+
+    // ────────────────────────────────────────────────
+    //  Suite 4: CSS Injection
+    // ────────────────────────────────────────────────
+    const suite4 = createSuiteEl("Suite 4 · Style Injection");
+
+    try {
+        injectSyncStyles();
+        const styleEl = document.getElementById("classSyncStyles");
+        const exists = !!styleEl;
+        addResult(suite4, "injectSyncStyles() creates <style> element", exists);
+
+        // Call again — should not duplicate
+        injectSyncStyles();
+        const count = document.querySelectorAll("#classSyncStyles").length;
+        addResult(suite4, "Duplicate call does not create duplicate <style>", count === 1,
+            "Found " + count + " element(s)");
+    } catch (e) {
+        addResult(suite4, "injectSyncStyles()", false, String(e));
+    }
+
+    // ────────────────────────────────────────────────
+    //  Suite 5: Highlight Animation
+    // ────────────────────────────────────────────────
+    const suite5 = createSuiteEl("Suite 5 · Highlight Animation");
+
+    // Test 5.1: highlightNewCards adds class to matching cards
+    try {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `
+            <div data-doc-id="abc123" class="cal-card">Card A</div>
+            <div data-doc-id="def456" class="cal-card">Card B</div>
+            <div data-doc-id="ghi789" class="cal-card">Card C</div>
+        `;
+        document.body.appendChild(wrapper);
+
+        highlightNewCards(["abc123", "ghi789"]);
+
+        const cardA = wrapper.querySelector('[data-doc-id="abc123"]');
+        const cardB = wrapper.querySelector('[data-doc-id="def456"]');
+        const cardC = wrapper.querySelector('[data-doc-id="ghi789"]');
+
+        const aHighlighted = cardA.classList.contains("cal-card-new");
+        const bNotHighlighted = !cardB.classList.contains("cal-card-new");
+        const cHighlighted = cardC.classList.contains("cal-card-new");
+
+        addResult(suite5, "Matching doc IDs get highlight class", aHighlighted && cHighlighted,
+            "abc123: " + aHighlighted + ", ghi789: " + cHighlighted);
+        addResult(suite5, "Non-matching doc IDs do NOT get highlight class", bNotHighlighted,
+            "def456 highlighted: " + !bNotHighlighted);
+
+        wrapper.remove();
+    } catch (e) {
+        addResult(suite5, "highlightNewCards()", false, String(e));
+    }
+
+    // Test 5.2: Highlight class is removed after timeout
+    await new Promise((resolve) => {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = '<div data-doc-id="timeout-test" class="cal-card">Card</div>';
+        document.body.appendChild(wrapper);
+        highlightNewCards(["timeout-test"]);
+
+        // The highlight should be removed after 3 seconds
+        setTimeout(() => {
+            const card = wrapper.querySelector('[data-doc-id="timeout-test"]');
+            const removed = !card.classList.contains("cal-card-new");
+            addResult(suite5, "Highlight class auto-removed after 3s", removed);
+            wrapper.remove();
+            resolve();
+        }, 3200);
+    });
+
+    // ────────────────────────────────────────────────
+    //  Suite 6: Scenario — Single Class Addition
+    // ────────────────────────────────────────────────
+    const suite6 = createSuiteEl("Suite 6 · Scenario: Single Class Addition");
+
+    // Simulate what happens when 1 class is added:
+    // 1. broadcastMessage fires
+    // 2. onSnapshot fires (simulated by calling scheduleRender)
+    // 3. highlightNewCards is called after render
+    await new Promise((resolve) => {
+        let renderExecuted = false;
+        let highlightApplied = false;
+
+        const wrapper = document.createElement("div");
+        document.body.appendChild(wrapper);
+
+        // Simulate: broadcast received
+        broadcastMessage({ type: "CLASS_ADDED", docId: "single-test-001", className: "Test Class 1" });
+
+        // Simulate: onSnapshot fires and triggers scheduleRender
+        scheduleRender(() => {
+            renderExecuted = true;
+            // After render, inject a mock card and highlight it
+            wrapper.innerHTML = '<div data-doc-id="single-test-001" class="cal-card">Test Class 1</div>';
+            highlightNewCards(["single-test-001"]);
+            const card = wrapper.querySelector('[data-doc-id="single-test-001"]');
+            highlightApplied = card && card.classList.contains("cal-card-new");
+        }, 100);
+
+        setTimeout(() => {
+            addResult(suite6, "Render callback executed after single class addition", renderExecuted);
+            addResult(suite6, "New class card receives highlight animation", highlightApplied);
+            wrapper.remove();
+            resolve();
+        }, 400);
+    });
+
+    // ────────────────────────────────────────────────
+    //  Suite 7: Scenario — Batch 5 Classes Addition
+    // ────────────────────────────────────────────────
+    const suite7 = createSuiteEl("Suite 7 · Scenario: Batch 5 Classes Addition");
+
+    await new Promise((resolve) => {
+        let renderCount = 0;
+        let lastBatchIds = [];
+
+        const wrapper = document.createElement("div");
+        document.body.appendChild(wrapper);
+
+        // Simulate 5 rapid onSnapshot fires (as Firestore batch-fires for each doc)
+        const batchDocIds = ["batch-001", "batch-002", "batch-003", "batch-004", "batch-005"];
+
+        batchDocIds.forEach((docId, i) => {
+            // Each snapshot change triggers scheduleRender
+            scheduleRender(() => {
+                renderCount++;
+                lastBatchIds = batchDocIds;
+                // After final render, inject all 5 cards
+                wrapper.innerHTML = batchDocIds.map(id =>
+                    '<div data-doc-id="' + id + '" class="cal-card">Class ' + id + '</div>'
+                ).join("");
+                highlightNewCards(batchDocIds);
+            }, 100); // all within same debounce window
+        });
+
+        setTimeout(() => {
+            addResult(suite7, "5 rapid snapshot changes result in exactly 1 render (throttling)", renderCount === 1,
+                "Expected: 1, Got: " + renderCount);
+
+            // Check all 5 cards are highlighted
+            let allHighlighted = true;
+            batchDocIds.forEach((docId) => {
+                const card = wrapper.querySelector('[data-doc-id="' + docId + '"]');
+                if (!card || !card.classList.contains("cal-card-new")) allHighlighted = false;
+            });
+            addResult(suite7, "All 5 new class cards receive highlight animation", allHighlighted);
+
+            wrapper.remove();
+            resolve();
+        }, 400);
+    });
+
+    // ────────────────────────────────────────────────
+    //  Suite 8: Cleanup
+    // ────────────────────────────────────────────────
+    const suite8 = createSuiteEl("Suite 8 · Resource Cleanup");
+
+    try {
+        destroySyncResources();
+        addResult(suite8, "destroySyncResources() completes without error", true);
+    } catch (e) {
+        addResult(suite8, "destroySyncResources() completes without error", false, String(e));
+    }
+
+    // ────────────────────────────────────────────────
+    //  Show summary
+    // ────────────────────────────────────────────────
+    showSummary();
+</script>
+
+</body>
+</html>

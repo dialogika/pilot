@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Dashboard | Dialogika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .premium-card {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .premium-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 32px;
+            color: white;
+        }
+
+        .glass-stats {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: #1e293b;
+        }
+
+        .progress-gradient {
+            background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+        }
+
+        .step-bubble {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .drop-zone {
+            min-height: 150px;
+            transition: background-color 0.2s ease;
+        }
+
+        .drop-zone.over {
+            background-color: rgba(99, 102, 241, 0.05);
+            border-style: dashed;
+        }
+
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .nav-link-custom {
+            transition: all 0.2s;
+        }
+
+        .nav-link-custom:hover {
+            color: #2563eb !important;
+            background-color: #eff6ff;
+        }
+
+        /* Override style.css if needed */
+        .main-content {
+            margin-left: 290px;
+            padding: 40px;
+            width: calc(100% - 290px);
+        }
+
+        @media (max-width: 991px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+        }
+
+        .product-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 50;
+            min-width: 320px;
+            max-height: 340px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            animation: productDropSlide 0.15s ease;
+            display: none;
+        }
+
+        .product-dropdown.open {
+            display: block;
+        }
+
+        @keyframes productDropSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .product-dropdown-item:hover {
+            background: #f1f5f9;
+        }
+
+        .product-dropdown-item.active {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+
+        .product-dropdown-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+        }
+
+        .product-dropdown-backdrop.open {
+            display: block;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="max-w-6xl mx-auto space-y-8">
+
+                <!-- HEADER SECTION -->
+                <div class="header-bg p-8 md:p-12 relative overflow-hidden">
+                    <div
+                        class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                        <div class="space-y-4">
+                            <span class="text-blue-400 font-bold text-xs uppercase tracking-[0.2em]">Class Referral
+                                Management</span>
+                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Referral Management for Class
+                                Products</h1>
+                            <div class="flex flex-wrap gap-3">
+                                <div
+                                    class="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-sm border border-white/5 backdrop-blur-sm">
+                                    <i class="bi bi-person text-blue-400"></i>
+                                    <span>Referral Owner</span>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-sm border border-white/5 backdrop-blur-sm">
+                                    <i class="bi bi-calendar-event text-blue-400"></i>
+                                    <span>Periode: 2025</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Usage Stats Card -->
+                        <div class="glass-stats p-6 w-full md:w-80 shadow-2xl">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Referral
+                                        Performance</h4>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-3xl font-black text-slate-800">42</span>
+                                        <span class="text-slate-400 font-bold">/ 100</span>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-lg">42%
+                                    Used</span>
+                            </div>
+                            <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-3">
+                                <div class="h-full progress-gradient" style="width: 42%;"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-tight">
+                                Angka di atas menunjukkan penggunaan referral berhasil dibandingkan kuota maksimum untuk
+                                semua kelas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- <div class="mt-8 pt-6 border-t border-white/10 flex items-center gap-2 text-slate-400 text-xs">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Masa berlaku referral berakhir dalam 47 hari</span>
+                    </div> -->
+                </div>
+
+                <!-- MAIN GRID -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                    <!-- Left Column -->
+                    <div class="lg:col-span-8 space-y-8">
+
+                        <!-- Product & Class Catalog -->
+                        <div class="premium-card p-8">
+                            <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i class="bi bi-info-circle text-blue-600"></i> Class Product Overview
+                            </h3>
+
+                            <div class="mb-6 relative">
+                                <button type="button" id="productDropdownBtn"
+                                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-sm w-full justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span id="productBtnLabel" class="truncate">Pilih Produk</span>
+                                    </div>
+                                    <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform"
+                                        id="productDropdownChevron" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div id="productDropdownBackdrop" class="product-dropdown-backdrop"></div>
+                                <div id="productDropdownPanel" class="product-dropdown"></div>
+                            </div>
+
+                            <div id="productMetaContainer" class="grid grid-cols-2 gap-y-6 gap-x-12 mb-6"></div>
+
+                            <div class="mt-2" id="productSpecificationsSection">
+                                <h4 class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                                    Specifications
+                                </h4>
+                                <ul id="productSpecificationsList"
+                                    class="list-disc pl-5 text-xs text-slate-600 space-y-1"></ul>
+                            </div>
+
+
+                        </div>
+
+                        <!-- Curriculum -->
+                        <div class="premium-card p-8">
+                            <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i class="bi bi-path-center text-blue-600"></i> Curriculum
+                            </h3>
+                            <div id="productCurriculumContainer" class="space-y-6"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column (Sidebar) -->
+                    <div class="lg:col-span-4 space-y-8">
+
+                        <!-- Highlights -->
+                        <div class="premium-card p-8">
+                            <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i class="bi bi-graph-up-arrow text-blue-600"></i> Highlights
+                            </h3>
+                            <div id="highlightsContainer" class="space-y-4">
+                                <div
+                                    class="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Product</p>
+                                        <p id="highlightProductName" class="text-sm font-bold text-slate-800">-</p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                                        <i class="bi bi-list-check"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total
+                                            Features</p>
+                                        <p id="highlightFeatureCount" class="text-sm font-bold text-slate-800">0</p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-100">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                        <i class="bi bi-currency-dollar"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base
+                                            Price</p>
+                                        <p id="highlightBasePrice" class="text-sm font-bold text-slate-800">-</p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-2xl border border-purple-100">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Sessions</p>
+                                        <p id="highlightSessions" class="text-sm font-bold text-slate-800">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Create Referral Code Section -->
+                        <div class="premium-card p-6 mt-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="w-9 h-9 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-ticket-perforated"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">Referral Code</h4>
+                                    <p class="text-[10px] text-slate-400">Buat kode referral baru</p>
+                                </div>
+                            </div>
+                            <button type="button" id="btnOpenReferralModal"
+                                class="w-full py-3 bg-gradient-to-b from-emerald-600 to-emerald-800 text-white rounded-2xl font-bold hover:from-emerald-700 hover:to-emerald-900 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 text-sm">
+                                <i class="bi bi-plus-lg"></i> Create Referral
+                            </button>
+                            <p id="referralStatusText" class="text-[10px] text-slate-400 text-center mt-2 hidden"></p>
+                            <button type="button" id="btnOpenReferralListModal"
+                                class="w-full py-3 mt-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 text-sm">
+                                <i class="bi bi-list-ul"></i> Lihat Daftar Referral
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- FEATURE MANAGEMENT (DRAG & DROP) -->
+                <div class="premium-card p-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-slate-800">Feature Management</h3>
+                            <p class="text-sm text-slate-500">Customize your product experience by moving modules.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button id="btnSetReferralFeatures"
+                                class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-full shadow transition-all duration-200 hover:shadow-indigo-200 hover:shadow-lg">
+                                <i class="bx bxs-customize text-base"></i>
+                                Set Fitur per Referral
+                            </button>
+                            <span
+                                class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase tracking-widest border border-slate-200">Drag
+                                &amp; Drop to exclude</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span id="active-count-badge" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <h4 class="text-sm font-black text-slate-700 uppercase tracking-widest">Key Features
+                                    (<span id="active-count">0</span>)</h4>
+                            </div>
+                            <div id="active-zone"
+                                class="drop-zone p-4 bg-emerald-50/50 border-2 border-emerald-100 rounded-[2rem] space-y-3 min-h-[200px]"
+                                ondrop="drop(event)" ondragover="allowDrop(event)">
+                                <!-- Features populated dynamically from selected product -->
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <h4 class="text-sm font-black text-slate-700 uppercase tracking-widest">Excluded Modules
+                                    (<span id="excluded-count">0</span>)</h4>
+                            </div>
+                            <div id="excluded-zone"
+                                class="drop-zone p-4 bg-rose-50/50 border-2 border-rose-100 border-dashed rounded-[2rem] space-y-3 flex flex-col items-center justify-center text-rose-300 min-h-[200px]"
+                                ondrop="drop(event)" ondragover="allowDrop(event)">
+                                <div id="placeholder-text" class="text-center py-8">
+                                    <i class="bi bi-box-arrow-in-right text-3xl mb-2 block"></i>
+                                    <p class="text-xs font-bold uppercase tracking-widest">Drop here to exclude</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FEATURE MANAGEMENT -->
+
+            </div>
+        </main>
+
+        <!-- ===== SET REFERRAL FEATURES DRAWER ===== -->
+        <!-- Overlay -->
+        <div id="refFeatOverlay"
+            class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity duration-300"
+            onclick="closeRefFeatDrawer()"></div>
+
+        <!-- Drawer Panel -->
+        <aside id="refFeatDrawer"
+            class="fixed top-0 right-0 h-full w-full max-w-[480px] bg-white shadow-2xl z-50 flex flex-col transform translate-x-full transition-transform duration-300 ease-out">
+
+            <!-- Drawer Header -->
+            <div
+                class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-indigo-600 to-blue-600">
+                <div>
+                    <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+                        <i class="bx bxs-customize text-lg"></i>
+                        Set Fitur per Kode Referral
+                    </h2>
+                    <p class="text-xs text-indigo-200 mt-0.5">Pilih referral → centang fitur yang tersedia</p>
+                </div>
+                <button onclick="closeRefFeatDrawer()"
+                    class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors">
+                    <i class="bx bx-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Drawer Body -->
+            <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+                <!-- Pilih Referral -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pilih Kode
+                        Referral</label>
+                    <div class="relative">
+                        <select id="refFeatCodeSelect"
+                            class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 pr-10"
+                            onchange="loadRefFeatConfig()">
+                            <option value="">— Pilih kode referral —</option>
+                        </select>
+                        <i
+                            class="bx bx-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                    <p id="refFeatCodeHint" class="text-[11px] text-slate-400 mt-1.5 hidden">Konfigurasi disimpan untuk
+                        kode ini.</p>
+                </div>
+
+                <!-- Feature Checklist -->
+                <div id="refFeatChecklistWrap" class="hidden">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Fitur yang
+                        Tersedia <span class="text-emerald-500">(centang = aktif untuk pelanggan referral
+                            ini)</span></label>
+                    <div id="refFeatChecklist" class="space-y-2"></div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="refFeatEmpty" class="flex flex-col items-center justify-center py-16 text-slate-300">
+                    <i class="bx bx-code-alt text-5xl mb-3"></i>
+                    <p class="text-sm font-semibold">Pilih kode referral dulu</p>
+                    <p class="text-xs">untuk mengatur fitur yang tersedia</p>
+                </div>
+
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="px-6 py-4 border-t border-slate-100 flex flex-col gap-3">
+                <button id="refFeatSaveBtn" onclick="saveRefFeatConfig()"
+                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold rounded-2xl text-sm transition-all duration-200 flex items-center justify-center gap-2"
+                    disabled>
+                    <i class="bx bx-save"></i>
+                    Simpan Konfigurasi
+                </button>
+                <button onclick="resetRefFeatConfig()"
+                    class="w-full py-2.5 border border-rose-200 text-rose-500 hover:bg-rose-50 font-bold rounded-2xl text-xs transition-colors">
+                    <i class="bx bx-reset mr-1"></i>Reset ke Default (semua aktif)
+                </button>
+
+                <!-- Saved configs summary -->
+                <div id="refFeatSavedList" class="mt-1"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Referral Creation Drawer -->
+    <div id="referralModal" class="relative z-[9999] hidden" aria-labelledby="slide-over-title" role="dialog"
+        aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-0 flex items-center justify-center p-4">
+                    <div
+                        class="pointer-events-auto w-full max-w-4xl bg-white shadow-2xl flex flex-col max-h-[90vh] rounded-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+
+                        <!-- Header -->
+                        <div
+                            class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white z-10 shrink-0">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-ticket-perforated text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-extrabold text-slate-800 leading-none">Create Referral</h2>
+                                    <p class="text-xs text-slate-400 font-medium mt-1">Buat kode referral baru</p>
+                                </div>
+                            </div>
+                            <button type="button" id="btnCloseReferralModal"
+                                class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-500 hover:text-slate-700">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <!-- Scrollable Content -->
+                        <div class="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <!-- LEFT COLUMN -->
+                                <div class="space-y-6">
+                                    <!-- Pemegang Referral -->
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Pemegang
+                                            Referral</label>
+                                        <select id="rdRefHolderType"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 appearance-none transition-all">
+                                            <option value="system">System (Default)</option>
+                                            <option value="user">Specific User / Student</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Produk Terkait -->
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Produk
+                                            Terkait</label>
+                                        <div id="rdRefProductDropdown"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm flex items-center justify-between cursor-pointer hover:border-emerald-300 transition-colors group">
+                                            <span id="rdRefProductSummary"
+                                                class="text-slate-500 group-hover:text-slate-700 transition-colors">Pilih
+                                                minimal 1 product</span>
+                                            <i
+                                                class="bi bi-chevron-down text-slate-400 text-xs group-hover:text-emerald-500 transition-colors"></i>
+                                        </div>
+                                        <div id="rdRefProductOptions"
+                                            class="mt-2 bg-white border border-slate-100 rounded-2xl p-2 max-h-60 overflow-y-auto hidden shadow-xl shadow-slate-200/50 z-20 relative animate-in fade-in zoom-in-95 duration-200">
+                                            <p class="text-[11px] text-slate-400 p-2 text-center">Memuat daftar
+                                                product...</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nama Pemegang (conditional) -->
+                                    <div id="rdRefOwnerNameWrapper"
+                                        class="hidden animate-in slide-in-from-top-2 duration-200">
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nama
+                                            Pemegang</label>
+                                        <input id="rdRefOwnerName" type="text" placeholder="Nama user / student"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-slate-700 placeholder:font-medium">
+                                    </div>
+
+                                    <!-- Kode Referral -->
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Kode
+                                            Referral</label>
+                                        <div class="relative group">
+                                            <input id="rdRefCode" type="text" placeholder="DLGFRIEND"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-mono tracking-widest uppercase text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-slate-700 placeholder:font-medium placeholder:opacity-40">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT COLUMN -->
+                                <div class="space-y-6">
+                                    <!-- Fungsi Referral -->
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fungsi
+                                            Referral</label>
+                                        <select id="rdRefFunctionType"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 appearance-none transition-all">
+                                            <option value="">Pilih fungsi referral</option>
+                                            <option value="discount">Discount</option>
+                                            <option value="cashback" disabled>Cashback (Soon)</option>
+                                            <option value="charity" disabled>Charity (Soon)</option>
+                                            <option value="point" disabled>Point (Soon)</option>
+                                            <option value="addon" disabled>Add On (Soon)</option>
+                                            <option value="reward" disabled>Reward (Soon)</option>
+                                            <option value="exclusivity" disabled>Exclusivity (Soon)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Discount Fields (conditional) -->
+                                    <div id="rdRefDiscountWrapper"
+                                        class="grid grid-cols-2 gap-4 hidden animate-in slide-in-from-top-2 duration-200">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Potongan
+                                                (%)</label>
+                                            <input id="rdRefDiscountPercent" type="number" min="0" max="100"
+                                                placeholder="10"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nilai
+                                                Potongan</label>
+                                            <input id="rdRefDiscountAmount" type="text" placeholder="250.000"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                        </div>
+                                    </div>
+
+                                    <!-- Usage & Validity -->
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Maks
+                                                Pakai</label>
+                                            <input id="rdRefMaxUsage" type="number" min="1" placeholder="10"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Berlaku
+                                                (Bln)</label>
+                                            <input id="rdRefMonthsValid" type="number" min="1" placeholder="2"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                            <p class="text-[10px] text-slate-400 mt-1 font-medium">*Def: 2 bln</p>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Terpakai</label>
+                                            <input id="rdRefUsedCount" type="number" min="0" placeholder="0"
+                                                class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- BENEFIT / FEATURE CONFIGURATION -->
+                            <div class="mt-10 pt-8 border-t border-slate-100">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Benefit
+                                            / Feature Configuration</h4>
+                                        <p class="text-[11px] text-slate-400 mt-1 font-medium italic">Atur fitur yang
+                                            akan tampil dicoret jika tidak dipilih untuk kode referral ini.</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="toggleAllCreationFeatures(true)"
+                                            class="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">Check
+                                            All</button>
+                                        <button type="button" onclick="toggleAllCreationFeatures(false)"
+                                            class="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 px-2 py-1 rounded-lg">Uncheck
+                                            All</button>
+                                    </div>
+                                </div>
+
+                                <div id="creationRefFeatChecklist" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <!-- Populated via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="px-6 py-3 bg-white border-t border-slate-100 z-10 shrink-0 space-y-2">
+                            <button type="button" id="btnOpenDiscountCalculator"
+                                class="w-full py-2.5 bg-white border border-slate-200 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm flex items-center justify-center gap-2 text-xs text-slate-700 hidden group">
+                                <i
+                                    class="fa-solid fa-calculator text-blue-600 group-hover:scale-110 transition-transform"></i>
+                                Kalkulator Discount
+                            </button>
+
+                            <div class="flex gap-3">
+                                <button type="button" id="btnSaveReferralDashboard"
+                                    class="flex-1 py-3 bg-[linear-gradient(to_bottom,#006a4e_5%,#003f2e_100%)] text-white rounded-xl font-bold hover:bg-[linear-gradient(to_bottom,#003f2e_10%,#006a4e_95%)] transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-900/30 active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i> Simpan Referral
+                                </button>
+                                <button type="button" id="btnResetReferralForm"
+                                    class="px-4 py-3 bg-slate-50 text-slate-500 rounded-xl font-bold hover:bg-slate-100 hover:text-red-500 transition-all border border-slate-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                                    title="Reset Form">
+                                    <i class="bi bi-arrow-counterclockwise text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral List Modal -->
+    <div id="referralListModal" class="relative z-[9999] hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl animate-in fade-in zoom-in-95 duration-200">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-list-stars text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-extrabold text-slate-900" id="modal-title">Daftar Referral
+                                    </h3>
+                                    <p class="text-xs text-slate-400 font-medium mt-1">Kelola semua kode referral</p>
+                                </div>
+                            </div>
+                            <button type="button" id="btnCloseReferralListModal"
+                                class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-500 hover:text-slate-700">
+                                <span class="sr-only">Close</span>
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter -->
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+                            <div class="relative w-full md:w-72">
+                                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="refSearchInput" type="text" placeholder="Cari kode atau pemegang..."
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-slate-700">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" data-ref-filter="all"
+                                    class="ref-filter-btn px-4 py-2.5 text-xs font-bold bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">Semua</button>
+                                <button type="button" data-ref-filter="active"
+                                    class="ref-filter-btn px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-emerald-600 transition-all">Aktif</button>
+                                <button type="button" data-ref-filter="expired"
+                                    class="ref-filter-btn px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-red-500 transition-all">Expired</button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div
+                            class="overflow-hidden rounded-2xl border border-slate-100 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 bg-slate-50 z-10 shadow-sm">
+                                    <tr class="text-[11px] uppercase tracking-[0.15em] font-extrabold text-slate-400">
+                                        <th class="p-4">Pemegang & Kode</th>
+                                        <th class="p-4">Masa Berlaku</th>
+                                        <th class="p-4">Penggunaan</th>
+                                        <th class="p-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="refTableBody" class="divide-y divide-slate-50 text-sm"></tbody>
+                            </table>
+                            <div class="bg-slate-50/30 p-4 text-center border-t border-slate-50">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                                    id="refFooterSummary">Referral List</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(16px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Render Elements -->
+        <script type="module">
+            import { renderTopBar } from "../element/topbar.js";
+            import { renderSidebar } from "../element/sidebar.js";
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const topbarTarget = document.getElementById('topbarContainer');
+                if (topbarTarget) renderTopBar(topbarTarget);
+
+                const sidebarTarget = document.getElementById('sidebarContainer');
+                if (sidebarTarget) renderSidebar(sidebarTarget);
+            });
+        </script>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            import { initializeFirestore, collection, getDocs, doc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+                authDomain: "pre-dialogika.firebaseapp.com",
+                projectId: "pre-dialogika",
+                storageBucket: "pre-dialogika.firebasestorage.app",
+                messagingSenderId: "343771410480",
+                appId: "1:343771410480:web:32881c9868522090237df5",
+                measurementId: "G-SXN811P3N0"
+            };
+
+            const firebaseApp = initializeApp(firebaseConfig);
+            const auth = getAuth(firebaseApp);
+            const db = initializeFirestore(firebaseApp, {
+                experimentalForceLongPolling: true,
+                useFetchStreams: false
+            });
+
+            window.db = db;
+            window.collection = collection;
+            window.getDocs = getDocs;
+            window.dlgDb = db;
+            window.dlgCollection = collection;
+            window.dlgGetDocs = getDocs;
+            window.dlgDoc = doc;
+            window.dlgGetDoc = getDoc;
+            window.dlgSetDoc = setDoc;
+            window.dlgQuery = query;
+            window.dlgOrderBy = orderBy;
+
+            const productsState = {
+                list: [],
+                selectedId: null
+            };
+            window.__productsState = productsState;
+
+            const formatNumber = (value) => {
+                const n = Number(value) || 0;
+                return new Intl.NumberFormat("id-ID").format(n);
+            };
+
+            const mapProductData = (d, id) => {
+                const materials = Array.isArray(d.materials) ? d.materials : [];
+                const curriculum = materials.map((item) => ({
+                    order: item.order || "",
+                    title: item.title || "",
+                    description: item.description || ""
+                }));
+
+                // Try alternative field names for features
+                const rawFeatures = Array.isArray(d.features) ? d.features
+                    : Array.isArray(d.keyFeatures) ? d.keyFeatures
+                        : Array.isArray(d.key_features) ? d.key_features
+                            : [];
+
+                // Try alternative field names for specifications
+                const rawSpecs = Array.isArray(d.specifications) ? d.specifications
+                    : Array.isArray(d.specs) ? d.specs
+                        : [];
+
+                console.log('[ReferralDashboard] mapProductData:', id, '| keys:', Object.keys(d), '| features:', rawFeatures.length, '| specs:', rawSpecs.length);
+
+                return {
+                    productId: d.productId || id,
+                    name: d.name || "",
+                    description: d.description || "",
+                    type: d.type || "Online",
+                    basePrice: d.basePrice || 0,
+                    totalSessions: d.totalSessions || 0,
+                    visual: {
+                        badgeText: d.badgeText || "NEW",
+                        badgeColor: d.badgeColor || "#6366f1",
+                        thumbnailUrl: d.thumbnailUrl || null
+                    },
+                    features: rawFeatures,
+                    curriculum,
+                    specifications: rawSpecs,
+                    outcomes: Array.isArray(d.targetOutcomes) ? d.targetOutcomes : [],
+                    status: d.status || "active",
+                    createdAt: d.createdAt || null,
+                    updatedAt: d.updatedAt || null
+                };
+            };
+
+            // Feature keys harus sama persis dengan data-feat-key di first-class.html
+            const FIRST_CLASS_FEATURES = [
+                { key: "fc-feat-1", label: "Garansi mengulang kelas" },
+                { key: "fc-feat-2", label: "10x pertemuan: 2 Bulan*" },
+                { key: "fc-feat-3", label: "Maksimal peserta 7 orang" },
+                { key: "fc-feat-4", label: "Minimal peserta 3 orang" },
+                { key: "fc-feat-5", label: "Durasi kelas 90 menit" },
+                { key: "fc-feat-6", label: "Dapat Certificate" },
+                { key: "fc-feat-7", label: "Bisa DP dan Dicicil" },
+                { key: "fc-feat-8", label: "Gratis webinar setiap bulan" },
+                { key: "fc-feat-9", label: "E-book & E-module" },
+                { key: "fc-feat-10", label: "Komunitas alumni" },
+                { key: "fc-feat-11", label: "Jumlah peserta sedikit" },
+                { key: "fc-feat-12", label: "Evaluasi tiap sesi" },
+                { key: "fc-feat-13", label: "Ada WAG support" },
+                { key: "fc-feat-14", label: "Ada reminder kelas" },
+                { key: "fc-feat-15", label: "Dapat materi setiap minggu" }
+            ];
+            // Expose globally so the 'Set Referral Features' drawer can read the list
+            window.FIRST_CLASS_FEATURES_GLOBAL = FIRST_CLASS_FEATURES;
+
+            const useFallbackProducts = () => {
+                if (productsState.list.length) return;
+                productsState.list = [
+                    {
+                        productId: "FIRST-CLASS-JOGJA",
+                        name: "First Class: Yogyakarta",
+                        description: "Fokus pembelajaran: bisa bicara tanpa persiapan dan teratur didalam berbicara.",
+                        type: "Offline",
+                        basePrice: 1950000,
+                        totalSessions: 10,
+                        visual: {
+                            badgeText: "HOT",
+                            badgeColor: "#ef4444",
+                            thumbnailUrl: null
+                        },
+                        features: FIRST_CLASS_FEATURES,
+                        curriculum: [
+                            { order: "01", title: "Ice Breaking & Mindset", description: "Membangun kepercayaan diri peserta." },
+                            { order: "02", title: "Public Speaking Basic", description: "Fundamental teknik berbicara di depan umum." }
+                        ],
+                        specifications: [
+                            "Maksimal 7 peserta per batch",
+                            "Durasi 90 menit per sesi"
+                        ],
+                        outcomes: [],
+                        status: "active",
+                        createdAt: null,
+                        updatedAt: null
+                    }
+                ];
+                renderProductList();
+                if (productsState.list.length) {
+                    setSelectedProduct(productsState.list[0].productId);
+                }
+            };
+
+            let productDropdownOpen = false;
+
+            const toggleProductDropdown = (forceClose) => {
+                const panel = document.getElementById('productDropdownPanel');
+                const backdrop = document.getElementById('productDropdownBackdrop');
+                const chevron = document.getElementById('productDropdownChevron');
+                const btn = document.getElementById('productDropdownBtn');
+                if (!panel || !backdrop) return;
+
+                if (forceClose) productDropdownOpen = false;
+                else productDropdownOpen = !productDropdownOpen;
+
+                if (productDropdownOpen) {
+                    panel.classList.add('open');
+                    backdrop.classList.add('open');
+                    if (btn) { btn.classList.add('border-indigo-300', 'shadow-sm'); btn.classList.remove('border-slate-200'); }
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                } else {
+                    panel.classList.remove('open');
+                    backdrop.classList.remove('open');
+                    if (btn) { btn.classList.remove('border-indigo-300', 'shadow-sm'); btn.classList.add('border-slate-200'); }
+                    if (chevron) chevron.style.transform = '';
+                }
+            };
+
+            const updateProductBtnLabel = () => {
+                const btnLabel = document.getElementById('productBtnLabel');
+                const selected = productsState.list.find(p => p.productId === productsState.selectedId);
+                if (btnLabel) {
+                    btnLabel.textContent = selected ? (selected.name || selected.productId) : 'Pilih Produk';
+                }
+            };
+
+            const renderProductList = () => {
+                const panel = document.getElementById('productDropdownPanel');
+                if (!panel) return;
+                panel.innerHTML = '';
+
+                updateProductBtnLabel();
+
+                if (!productsState.list.length) {
+                    panel.innerHTML = '<div class="px-4 py-6 text-center"><i class="bi bi-inbox text-3xl text-slate-300 mb-1 block"></i><p class="text-[11px] font-bold text-slate-400">Produk belum tersedia</p></div>';
+                    return;
+                }
+
+                const header = document.createElement('div');
+                header.className = 'px-3 py-1.5 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]';
+                header.textContent = 'Pilih Produk (' + productsState.list.length + ')';
+                panel.appendChild(header);
+
+                productsState.list.forEach((product) => {
+                    const isActive = productsState.selectedId === product.productId;
+                    const item = document.createElement('div');
+                    item.className = 'product-dropdown-item' + (isActive ? ' active' : '');
+
+                    item.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[12px] font-bold text-slate-800 truncate">${product.name || product.productId}</div>
+                        <div class="text-[9px] text-slate-400">${product.type || 'Online'} · ${product.totalSessions || 0} sessions</div>
+                    </div>
+                    ${isActive ? '<i class="bi bi-check-circle-fill text-indigo-500 text-sm flex-shrink-0"></i>' : ''}
+                `;
+
+                    item.addEventListener('click', () => {
+                        setSelectedProduct(product.productId);
+                        toggleProductDropdown(true);
+                        renderProductList();
+                    });
+                    panel.appendChild(item);
+                });
+            };
+
+            // Setup dropdown events after DOM ready
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('productDropdownBtn');
+                const backdrop = document.getElementById('productDropdownBackdrop');
+                if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProductDropdown(); });
+                if (backdrop) backdrop.addEventListener('click', () => toggleProductDropdown(true));
+            });
+
+            const renderProductDetails = () => {
+                // Expose for cross-script access (e.g. preview from Referral Feat drawer)
+                window.__renderProductDetails = renderProductDetails;
+                const product = productsState.list.find((p) => p.productId === productsState.selectedId);
+                // Selalu gunakan FIRST_CLASS_FEATURES sebagai daftar fitur,
+                // agar Feature Management selalu cocok dengan halaman first-class.html
+                if (product) {
+                    product.features = FIRST_CLASS_FEATURES;
+                }
+                const metaContainer = document.getElementById("productMetaContainer");
+                const specsList = document.getElementById("productSpecificationsList");
+                const curriculumContainer = document.getElementById("productCurriculumContainer");
+                const specsSection = document.getElementById("productSpecificationsSection");
+                const activeZone = document.getElementById("active-zone");
+                const excludedZone = document.getElementById("excluded-zone");
+
+                if (!metaContainer || !specsList || !curriculumContainer) return;
+
+                metaContainer.innerHTML = "";
+                specsList.innerHTML = "";
+                curriculumContainer.innerHTML = "";
+
+                // Clear active zone completely
+                if (activeZone) {
+                    activeZone.innerHTML = '';
+                }
+                // Clear excluded zone and restore placeholder
+                if (excludedZone) {
+                    excludedZone.innerHTML = '';
+                    const placeholder = document.createElement('div');
+                    placeholder.id = 'placeholder-text';
+                    placeholder.className = 'text-center py-8';
+                    placeholder.innerHTML = '<i class="bi bi-box-arrow-in-right text-3xl mb-2 block"></i><p class="text-xs font-bold uppercase tracking-widest">Drop here to exclude</p>';
+                    excludedZone.appendChild(placeholder);
+                    excludedZone.classList.add('justify-center', 'items-center');
+                }
+
+                if (!product) {
+                    if (specsSection) specsSection.style.display = 'none';
+                    updateCounters();
+                    return;
+                }
+
+                console.log('[ReferralDashboard] Rendering product:', product.name, '| specs:', product.specifications, '| features:', product.features);
+
+                // Always show specs section
+                if (specsSection) specsSection.style.display = '';
+
+                const metaItems = [
+                    { label: "Product", value: product.name || "-" },
+                    { label: "Type", value: product.type || "-" },
+                    { label: "Sessions", value: (product.totalSessions || 0) + " sessions" },
+                    { label: "Base Price", value: "Rp " + formatNumber(product.basePrice || 0) }
+                ];
+
+                metaItems.forEach((item) => {
+                    const wrapper = document.createElement("div");
+                    const label = document.createElement("span");
+                    label.className = "block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1";
+                    label.textContent = item.label;
+                    const value = document.createElement("p");
+                    value.className = "text-sm font-bold text-slate-700";
+                    value.textContent = item.value;
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(value);
+                    metaContainer.appendChild(wrapper);
+                });
+
+                // Specifications
+                if (Array.isArray(product.specifications) && product.specifications.length) {
+                    product.specifications.forEach((spec) => {
+                        const li = document.createElement("li");
+                        li.textContent = String(spec);
+                        specsList.appendChild(li);
+                    });
+                } else {
+                    const emptyLi = document.createElement("li");
+                    emptyLi.className = "text-slate-300 italic";
+                    emptyLi.textContent = "Belum ada spesifikasi";
+                    specsList.appendChild(emptyLi);
+                }
+
+                // Key Features → populate active-zone as draggable items
+                const featIconColors = [
+                    { bg: "bg-amber-50", text: "text-amber-500", icon: "bi-star" },
+                    { bg: "bg-purple-50", text: "text-purple-600", icon: "bi-award" },
+                    { bg: "bg-indigo-50", text: "text-indigo-600", icon: "bi-lightning" },
+                    { bg: "bg-blue-50", text: "text-blue-500", icon: "bi-gem" },
+                    { bg: "bg-emerald-50", text: "text-emerald-600", icon: "bi-check-circle" },
+                    { bg: "bg-rose-50", text: "text-rose-500", icon: "bi-heart" },
+                    { bg: "bg-cyan-50", text: "text-cyan-600", icon: "bi-diagram-3" },
+                    { bg: "bg-orange-50", text: "text-orange-500", icon: "bi-rocket-takeoff" }
+                ];
+
+                if (activeZone && Array.isArray(product.features) && product.features.length) {
+                    // Baca excluded keys dari localStorage agar state tetap saat reload
+                    let savedExcluded = [];
+                    try { savedExcluded = JSON.parse(localStorage.getItem('dlg_excluded_features') || '[]'); } catch (e) { }
+
+                    product.features.forEach((feat, idx) => {
+                        const colorSet = featIconColors[idx % featIconColors.length];
+
+                        let featKey = '';
+                        let title = '';
+                        let subtitle = '';
+
+                        if (typeof feat === 'string') {
+                            title = feat;
+                            featKey = 'fc-feat-' + (idx + 1);
+                        } else {
+                            title = feat.label || '';
+                            featKey = feat.key || ('fc-feat-' + (idx + 1));
+                            if (feat.type === 'boolean') {
+                                subtitle = feat.value ? 'Included' : 'Not included';
+                            } else if (feat.value !== undefined && feat.value !== null && feat.value !== '') {
+                                subtitle = String(feat.value);
+                            }
+                        }
+
+                        const isExcluded = savedExcluded.includes(featKey);
+
+                        const featEl = document.createElement('div');
+                        featEl.id = 'feat-' + (idx + 1);
+                        featEl.setAttribute('data-feat-key', featKey);
+                        featEl.className = 'draggable-item p-4 bg-white border rounded-2xl shadow-sm flex items-center gap-4 ' +
+                            (isExcluded ? 'border-rose-100 bg-rose-50/30' : 'border-emerald-100');
+                        featEl.setAttribute('draggable', 'true');
+                        featEl.addEventListener('dragstart', (ev) => {
+                            ev.dataTransfer.setData('text', ev.currentTarget.id);
+                            ev.currentTarget.classList.add('dragging');
+                        });
+
+                        // Decorative color icon (left side)
+                        const iconWrap = document.createElement('div');
+                        iconWrap.className = 'w-10 h-10 rounded-xl ' + colorSet.bg + ' ' + colorSet.text + ' flex items-center justify-center flex-shrink-0';
+                        const decorIcon = document.createElement('i');
+                        decorIcon.className = 'bi ' + colorSet.icon;
+                        iconWrap.appendChild(decorIcon);
+
+                        // Feature body
+                        const body = document.createElement('div');
+                        body.className = 'flex-grow';
+                        const h4 = document.createElement('h4');
+                        h4.className = 'text-sm font-bold text-slate-800';
+                        h4.textContent = title;
+                        body.appendChild(h4);
+                        if (subtitle) {
+                            const p = document.createElement('p');
+                            p.className = 'text-[10px] text-slate-400';
+                            p.textContent = subtitle;
+                            body.appendChild(p);
+                        }
+
+                        // Status icon (check / x) — diubah saat drag-drop
+                        const statusIcon = document.createElement('i');
+                        statusIcon.className = 'bx feat-status-icon text-xl flex-shrink-0 ' +
+                            (isExcluded ? 'bxs-x-circle' : 'bxs-check-circle');
+                        statusIcon.style.color = isExcluded ? '#f43f5e' : '#10b981';
+
+                        featEl.appendChild(iconWrap);
+                        featEl.appendChild(body);
+                        featEl.appendChild(statusIcon);
+
+                        // Masukkan ke zone yang sesuai
+                        if (isExcluded) {
+                            excludedZone.appendChild(featEl);
+                        } else {
+                            activeZone.appendChild(featEl);
+                        }
+                    });
+                } else if (activeZone) {
+                    const emptyDiv = document.createElement("div");
+                    emptyDiv.className = "p-4 text-xs text-slate-300 italic text-center";
+                    emptyDiv.textContent = "Belum ada fitur untuk produk ini";
+                    activeZone.appendChild(emptyDiv);
+                }
+
+                // Update counters & highlights
+                updateCounters();
+
+                // Update sidebar Highlights
+                const hlName = document.getElementById('highlightProductName');
+                const hlFeatures = document.getElementById('highlightFeatureCount');
+                const hlPrice = document.getElementById('highlightBasePrice');
+                const hlSessions = document.getElementById('highlightSessions');
+                if (hlName) hlName.textContent = product.name || '-';
+                if (hlFeatures) hlFeatures.textContent = (Array.isArray(product.features) ? product.features.length : 0) + ' fitur';
+                if (hlPrice) hlPrice.textContent = 'Rp ' + formatNumber(product.basePrice || 0);
+                if (hlSessions) hlSessions.textContent = (product.totalSessions || 0) + ' sessions';
+
+                if (Array.isArray(product.curriculum) && product.curriculum.length) {
+                    product.curriculum.forEach((item, idx) => {
+                        const row = document.createElement("div");
+                        row.className = "flex gap-4";
+                        const bubble = document.createElement("div");
+                        bubble.className = "step-bubble";
+                        bubble.textContent = item.order || String(idx + 1).padStart(2, "0");
+                        const body = document.createElement("div");
+                        body.className = "pt-1";
+                        const title = document.createElement("h4");
+                        title.className = "text-sm font-bold text-slate-800";
+                        title.textContent = item.title || "-";
+                        const desc = document.createElement("p");
+                        desc.className = "text-xs text-slate-400";
+                        desc.textContent = item.description || "";
+                        body.appendChild(title);
+                        if (desc.textContent) {
+                            body.appendChild(desc);
+                        }
+                        row.appendChild(bubble);
+                        row.appendChild(body);
+                        curriculumContainer.appendChild(row);
+                    });
+                }
+            };
+
+            const setSelectedProduct = (productId) => {
+                productsState.selectedId = productId;
+                updateProductBtnLabel();
+                renderProductDetails();
+            };
+
+            const loadProducts = async () => {
+                try {
+                    if (!window.db || !window.getDocs || !window.collection) {
+                        useFallbackProducts();
+                        return;
+                    }
+                    const snap = await getDocs(collection(db, "products"));
+                    const list = [];
+                    snap.forEach((docSnap) => {
+                        const d = docSnap.data() || {};
+                        const id = docSnap.id;
+                        list.push(mapProductData(d, id));
+                    });
+                    productsState.list = list;
+                    renderProductList();
+                    if (productsState.list.length) {
+                        setSelectedProduct(productsState.list[0].productId);
+                    } else {
+                        useFallbackProducts();
+                    }
+                } catch (e) {
+                    console.error("[ReferralDashboard] Failed to load products", e);
+                    useFallbackProducts();
+                }
+            };
+
+            onAuthStateChanged(auth, (user) => {
+                // Auth redirect dinonaktifkan sementara.
+                // Aktifkan kembali jika ingin proteksi login:
+                // if (!user) { window.location.href = "../index.html"; return; }
+                loadProducts();
+            });
+        </script>
+
+        <!-- Drag and Drop Handler -->
+        <script>
+            function allowDrop(ev) {
+                ev.preventDefault();
+                ev.currentTarget.classList.add('over');
+            }
+
+            // Remove the 'over' class when drag leaves the zone
+            document.addEventListener('dragleave', (ev) => {
+                if (ev.target.classList.contains('drop-zone')) {
+                    ev.target.classList.remove('over');
+                }
+            });
+
+            function drag(ev) {
+                ev.dataTransfer.setData("text", ev.target.id);
+                ev.target.classList.add('dragging');
+            }
+
+            function drop(ev) {
+                ev.preventDefault();
+                const zone = ev.currentTarget;
+                zone.classList.remove('over');
+
+                const data = ev.dataTransfer.getData("text");
+                const element = document.getElementById(data);
+                if (!element) return;
+                element.classList.remove('dragging');
+
+                zone.appendChild(element);
+
+                // Icon swap
+                const icon = element.querySelector('i.feat-status-icon');
+                if (zone.id === 'excluded-zone') {
+                    if (icon) { icon.className = 'bx bxs-x-circle feat-status-icon'; icon.style.color = '#f43f5e'; }
+                    element.classList.remove('border-emerald-100');
+                    element.classList.add('border-rose-100', 'bg-rose-50/30');
+                } else {
+                    if (icon) { icon.className = 'bx bxs-check-circle feat-status-icon'; icon.style.color = '#10b981'; }
+                    element.classList.remove('border-rose-100', 'bg-rose-50/30');
+                    element.classList.add('border-emerald-100');
+                }
+
+                updateCounters();
+                syncExcludedToStorage();
+            }
+
+            function updateCounters() {
+                const activeZone = document.getElementById('active-zone');
+                const excludedZone = document.getElementById('excluded-zone');
+                const placeholder = document.getElementById('placeholder-text');
+
+                const activeItems = activeZone.querySelectorAll('.draggable-item').length;
+                const excludedItems = excludedZone.querySelectorAll('.draggable-item').length;
+
+                document.getElementById('active-count').innerText = activeItems;
+                document.getElementById('excluded-count').innerText = excludedItems;
+
+                if (excludedItems > 0) {
+                    if (placeholder) placeholder.style.display = 'none';
+                    excludedZone.classList.remove('justify-center', 'items-center');
+                } else {
+                    if (placeholder) placeholder.style.display = 'block';
+                    excludedZone.classList.add('justify-center', 'items-center');
+                }
+
+                activeZone.querySelectorAll('.draggable-item').forEach(item => {
+                    item.classList.remove('border-rose-100', 'bg-rose-50/30');
+                    item.classList.add('border-emerald-100');
+                    const ic = item.querySelector('i.feat-status-icon');
+                    if (ic) { ic.className = 'bx bxs-check-circle feat-status-icon'; ic.style.color = '#10b981'; }
+                });
+                excludedZone.querySelectorAll('.draggable-item').forEach(item => {
+                    item.classList.remove('border-emerald-100');
+                    item.classList.add('border-rose-100', 'bg-rose-50/30');
+                    const ic = item.querySelector('i.feat-status-icon');
+                    if (ic) { ic.className = 'bx bxs-x-circle feat-status-icon'; ic.style.color = '#f43f5e'; }
+                });
+            }
+
+            // Simpan daftar feature key yang di-exclude ke localStorage
+            // agar first-class.html bisa membacanya dan mengubah icon-nya
+            function syncExcludedToStorage() {
+                const excludedZone = document.getElementById('excluded-zone');
+                const excludedKeys = [];
+                excludedZone.querySelectorAll('.draggable-item[data-feat-key]').forEach(el => {
+                    excludedKeys.push(el.getAttribute('data-feat-key'));
+                });
+                localStorage.setItem('dlg_excluded_features', JSON.stringify(excludedKeys));
+            }
+        </script>
+
+        <!-- ===== SET REFERRAL FEATURES LOGIC ===== -->
+        <script>
+            (function () {
+                const RF_STORAGE_KEY = 'dlg_referral_feat_config'; // { [refCode]: [excludedKeys] }
+                const REF_STORAGE_KEY = 'dlg_invoice_referrals';
+                const REF_STORAGE_KEY_LEGACY = 'dlg_referrals';
+
+                // Expose opener to global scope for button onclick
+                window.openRefFeatDrawer = function () {
+                    populateRefDropdown();
+                    document.getElementById('refFeatOverlay').classList.remove('hidden');
+                    document.getElementById('refFeatDrawer').classList.remove('translate-x-full');
+                    renderSavedList();
+                };
+
+                window.closeRefFeatDrawer = function () {
+                    document.getElementById('refFeatOverlay').classList.add('hidden');
+                    document.getElementById('refFeatDrawer').classList.add('translate-x-full');
+                };
+
+                // Populate dropdown with referral codes from localStorage
+                function populateRefDropdown() {
+                    const sel = document.getElementById('refFeatCodeSelect');
+                    if (!sel) return;
+                    // Keep first placeholder option
+                    sel.innerHTML = '<option value="">— Pilih kode referral —</option>';
+
+                    let refs = window.currentReferrals || []; // Use global data
+                    if (!refs.length) {
+                        try {
+                            const rawPrimary = localStorage.getItem(REF_STORAGE_KEY);
+                            const rawLegacy = localStorage.getItem(REF_STORAGE_KEY_LEGACY);
+                            refs = JSON.parse(rawPrimary || rawLegacy || '[]');
+                            if (!rawPrimary && rawLegacy && Array.isArray(refs)) {
+                                localStorage.setItem(REF_STORAGE_KEY, JSON.stringify(refs));
+                            }
+                        } catch (e) {
+                            refs = [];
+                        }
+                    }
+                    // Fallback to localStorage key if global is empty (e.g. strict reload)
+
+                    if (!refs.length) {
+                        sel.innerHTML += '<option disabled>Belum ada data referral</option>';
+                        return;
+                    }
+                    refs.forEach(function (r) {
+                        const code = r.code || r.referralCode || r.id || '';
+                        const label = r.ownerName ? `${code} — ${r.ownerName}` : code;
+                        if (!code) return;
+                        const opt = document.createElement('option');
+                        opt.value = code;
+                        opt.textContent = label;
+                        sel.appendChild(opt);
+                    });
+                }
+
+                // Render feature checklist based on selected referral
+                window.loadRefFeatConfig = function () {
+                    const code = document.getElementById('refFeatCodeSelect').value;
+                    const wrap = document.getElementById('refFeatChecklistWrap');
+                    const empty = document.getElementById('refFeatEmpty');
+                    const hint = document.getElementById('refFeatCodeHint');
+                    const saveBtn = document.getElementById('refFeatSaveBtn');
+
+                    if (!code) {
+                        wrap.classList.add('hidden');
+                        empty.classList.remove('hidden');
+                        if (hint) hint.classList.add('hidden');
+                        if (saveBtn) saveBtn.disabled = true;
+                        return;
+                    }
+
+                    wrap.classList.remove('hidden');
+                    empty.classList.add('hidden');
+                    if (hint) hint.classList.remove('hidden');
+                    if (saveBtn) saveBtn.disabled = false;
+
+                    // Load saved excluded keys for this ref code from Referral Object
+                    let excluded = [];
+                    const refs = window.currentReferrals || [];
+                    const ref = refs.find(r => r.code === code);
+                    if (ref && Array.isArray(ref.excludedFeatures)) {
+                        excluded = ref.excludedFeatures;
+                    }  else {
+                        // Fallback/Legacy: check localStorage
+                         let allConfigs = {};
+                         try { allConfigs = JSON.parse(localStorage.getItem(RF_STORAGE_KEY) || '{}'); } catch (e) { allConfigs = {}; }
+                         if(allConfigs[code]) excluded = allConfigs[code];
+                    }
+
+                    // Build checklist
+                    const container = document.getElementById('refFeatChecklist');
+                    container.innerHTML = '';
+
+                    // FIRST_CLASS_FEATURES is defined in the product data script
+                    const features = window.FIRST_CLASS_FEATURES_GLOBAL || [];
+
+                    features.forEach(function (feat) {
+                        const isActive = !excluded.includes(feat.key);
+                        const item = document.createElement('label');
+                        item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ' +
+                            (isActive
+                                ? 'bg-emerald-50/60 border-emerald-100 hover:bg-emerald-50'
+                                : 'bg-rose-50/40 border-rose-100 hover:bg-rose-50/70');
+                        item.setAttribute('data-feat-key', feat.key);
+
+                        const cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.checked = isActive;
+                        cb.value = feat.key;
+                        cb.className = 'w-4 h-4 accent-indigo-600 flex-shrink-0';
+                        cb.addEventListener('change', function () {
+                            if (cb.checked) {
+                                item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-emerald-50/60 border-emerald-100 hover:bg-emerald-50';
+                            } else {
+                                item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-rose-50/40 border-rose-100 hover:bg-rose-50/70';
+                            }
+                        });
+
+                        const icon = document.createElement('i');
+                        icon.className = 'bx ' + (isActive ? 'bxs-check-circle text-emerald-500' : 'bxs-x-circle text-rose-400') + ' text-lg flex-shrink-0';
+                        cb.addEventListener('change', function () {
+                            icon.className = 'bx ' + (cb.checked ? 'bxs-check-circle text-emerald-500' : 'bxs-x-circle text-rose-400') + ' text-lg flex-shrink-0';
+                        });
+
+                        const txt = document.createElement('span');
+                        txt.className = 'text-sm font-semibold text-slate-700 flex-1';
+                        txt.textContent = feat.label;
+
+                        item.appendChild(cb);
+                        item.appendChild(icon);
+                        item.appendChild(txt);
+                        container.appendChild(item);
+                    });
+                };
+
+                // Save config
+                window.saveRefFeatConfig = async function () {
+                    const code = document.getElementById('refFeatCodeSelect').value;
+                    if (!code) return;
+
+                    const checkboxes = document.querySelectorAll('#refFeatChecklist input[type=checkbox]');
+                    const excluded = [];
+                    checkboxes.forEach(function (cb) {
+                        if (!cb.checked) excluded.push(cb.value);
+                    });
+
+                    // 1. Update in memory (window.currentReferrals)
+                    if (!window.currentReferrals) window.currentReferrals = [];
+                    const refIndex = window.currentReferrals.findIndex(r => r.code === code);
+
+                    const btn = document.getElementById('refFeatSaveBtn');
+                    const orig = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Menyimpan...';
+
+                    try {
+                         // We need to save the ENTIRE referrals list to Firestore because it's a single document
+                        let updatedReferrals = [...window.currentReferrals];
+
+                        if (refIndex >= 0) {
+                            updatedReferrals[refIndex].excludedFeatures = excluded;
+                            // Update timestamp? Maybe not strictly needed for just config change, but good practice
+                        } else {
+                            // Should not happen if selected from dropdown
+                            console.error("Referral not found in memory");
+                            return;
+                        }
+
+                        // Save to Firestore
+                        // We need access to saveReferralsToFirestore which is not globally exposed currently.
+                        // We can manually do it here or expose a helper.
+                        // Let's manually do it using window.dlgDb
+                        if (window.dlgDb && window.dlgDoc && window.dlgSetDoc) {
+                             const refDoc = window.dlgDoc(window.dlgDb, 'settings', 'referrals');
+                             await window.dlgSetDoc(refDoc, { referrals: updatedReferrals }, { merge: true });
+                        }
+
+                        // Also update localStorage for backup and legacy compatibility
+                        localStorage.setItem(REF_STORAGE_KEY, JSON.stringify(updatedReferrals));
+                        localStorage.setItem(REF_STORAGE_KEY_LEGACY, JSON.stringify(updatedReferrals));
+                         // Legacy
+                        let allConfigs = {};
+                        try { allConfigs = JSON.parse(localStorage.getItem(RF_STORAGE_KEY) || '{}'); } catch (e) { allConfigs = {}; }
+                        allConfigs[code] = excluded;
+                        localStorage.setItem(RF_STORAGE_KEY, JSON.stringify(allConfigs));
+
+
+                         // Tampilkan notif
+                        btn.innerHTML = '<i class="bx bx-check-circle mr-1"></i>Tersimpan!';
+                        btn.classList.add('bg-emerald-600');
+                        btn.classList.remove('bg-indigo-600');
+                        setTimeout(function () {
+                            btn.innerHTML = orig;
+                            btn.classList.remove('bg-emerald-600');
+                            btn.classList.add('bg-indigo-600');
+                            btn.disabled = false;
+                        }, 2000);
+
+                        renderSavedList();
+
+                    } catch (e) {
+                        console.error("Failed to save feature config", e);
+                        btn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Gagal!';
+                        setTimeout(() => {
+                             btn.innerHTML = orig;
+                             btn.disabled = false;
+                        }, 2000);
+                    }
+                };
+
+                // Reset config for selected referral
+                window.resetRefFeatConfig = function () {
+                    const code = document.getElementById('refFeatCodeSelect').value;
+                    if (code) {
+                        let allConfigs = {};
+                        try { allConfigs = JSON.parse(localStorage.getItem(RF_STORAGE_KEY) || '{}'); } catch (e) { allConfigs = {}; }
+                        delete allConfigs[code];
+                        localStorage.setItem(RF_STORAGE_KEY, JSON.stringify(allConfigs));
+                        window.loadRefFeatConfig();
+                        renderSavedList();
+                    }
+                };
+
+                // Show summary of all saved configs at bottom of drawer
+                function renderSavedList() {
+                    const container = document.getElementById('refFeatSavedList');
+                    if (!container) return;
+
+                    let refs = window.currentReferrals || [];
+                    const rfConfigs = {}; // map code -> excluded
+                    refs.forEach(r => {
+                         if(r.excludedFeatures && r.excludedFeatures.length) {
+                             rfConfigs[r.code] = r.excludedFeatures;
+                         }
+                    });
+
+                    // Merge with legacy if needed, or just use refs.
+                    // For now, let's prioritize refs.
+                    const codes = Object.keys(rfConfigs);
+                    if (!codes.length) { container.innerHTML = ''; return; }
+
+                    const feats = window.FIRST_CLASS_FEATURES_GLOBAL || [];
+                    container.innerHTML = '<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Konfigurasi Tersimpan</p>';
+                    codes.forEach(function (code) {
+                        const excluded = rfConfigs[code] || [];
+                        const activeCount = feats.length - excluded.length;
+                        const div = document.createElement('div');
+                        div.className = 'flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl border border-slate-100 mb-1.5';
+                        div.innerHTML = `
+                            <div>
+                                <span class="text-xs font-bold text-slate-700">${code}</span>
+                                <span class="ml-2 text-[10px] text-slate-400">${activeCount} fitur aktif, ${excluded.length} di-exclude</span>
+                            </div>
+                            <button onclick="applyRefConfig('${code}')"
+                                class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-lg transition-colors">
+                                Preview
+                            </button>`;
+                        container.appendChild(div);
+                    });
+                }
+
+                // Apply a referral config to the feature zones (for preview)
+                window.applyRefConfig = function (code) {
+                    const refs = window.currentReferrals || [];
+                    const ref = refs.find(r => r.code === code);
+                    const excluded = ref ? (ref.excludedFeatures || []) : [];
+                    localStorage.setItem('dlg_excluded_features', JSON.stringify(excluded));
+                    window.closeRefFeatDrawer();
+                    // Re-render product details to reflect
+                    if (window.__renderProductDetails) window.__renderProductDetails();
+                };
+
+                // Wire up open button
+                document.addEventListener('DOMContentLoaded', function () {
+                    const btn = document.getElementById('btnSetReferralFeatures');
+                    if (btn) btn.addEventListener('click', window.openRefFeatDrawer);
+                });
+            })();
+        </script>
+
+        <!-- Referral Modal Handler -->
+        <script>
+            (function () {
+                const STORAGE_KEY = 'dlg_referrals';
+                const STORAGE_KEY_LIST = 'dlg_invoice_referrals';
+
+                const modal = document.getElementById('referralModal');
+                const btnOpen = document.getElementById('btnOpenReferralModal');
+                const btnClose = document.getElementById('btnCloseReferralModal');
+                const btnSave = document.getElementById('btnSaveReferralDashboard');
+                const btnReset = document.getElementById('btnResetReferralForm');
+                const statusText = document.getElementById('referralStatusText');
+
+                // Referral Feature Storage Key (must match the other script)
+                const RF_STORAGE_KEY = 'dlg_referral_feat_config';
+
+                window.toggleAllCreationFeatures = function (checked) {
+                    const checks = document.querySelectorAll('#creationRefFeatChecklist input[type=checkbox]');
+                    checks.forEach(cb => {
+                        cb.checked = checked;
+                        cb.dispatchEvent(new Event('change'));
+                    });
+                };
+
+                function populateCreationFeatureChecklist(excludedKeys = []) {
+                    const container = document.getElementById('creationRefFeatChecklist');
+                    if (!container) return;
+                    container.innerHTML = '';
+
+                    const features = window.FIRST_CLASS_FEATURES_GLOBAL || [];
+                    features.forEach(feat => {
+                        const isExcluded = excludedKeys.includes(feat.key);
+                        const isActive = !isExcluded;
+
+                        const item = document.createElement('label');
+                        item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ' +
+                            (isActive ? 'bg-emerald-50/60 border-emerald-100 hover:bg-emerald-50' : 'bg-rose-50/40 border-rose-100 hover:bg-rose-50/70');
+                        item.setAttribute('data-feat-key', feat.key);
+
+                        const cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.checked = isActive;
+                        cb.value = feat.key;
+                        cb.className = 'w-4 h-4 accent-indigo-600 flex-shrink-0';
+
+                        const icon = document.createElement('i');
+                        icon.className = 'bx ' + (isActive ? 'bxs-check-circle text-emerald-500' : 'bxs-x-circle text-rose-400') + ' text-lg flex-shrink-0';
+
+                        const txt = document.createElement('span');
+                        txt.className = 'text-xs font-extrabold text-slate-700 flex-1 truncate';
+                        txt.textContent = feat.label;
+
+                        cb.addEventListener('change', () => {
+                            if (cb.checked) {
+                                item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-emerald-50/60 border-emerald-100 hover:bg-emerald-50';
+                                icon.className = 'bx bxs-check-circle text-emerald-500 text-lg flex-shrink-0';
+                            } else {
+                                item.className = 'flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-rose-50/40 border-rose-100 hover:bg-rose-50/70';
+                                icon.className = 'bx bxs-x-circle text-rose-400 text-lg flex-shrink-0';
+                            }
+                        });
+
+                        item.appendChild(cb);
+                        item.appendChild(icon);
+                        item.appendChild(txt);
+                        container.appendChild(item);
+                    });
+                }
+                const holderType = document.getElementById('rdRefHolderType');
+                const ownerWrapper = document.getElementById('rdRefOwnerNameWrapper');
+                const functionType = document.getElementById('rdRefFunctionType');
+                const discountWrapper = document.getElementById('rdRefDiscountWrapper');
+                const productDropdown = document.getElementById('rdRefProductDropdown');
+                const productOptions = document.getElementById('rdRefProductOptions');
+                const productSummary = document.getElementById('rdRefProductSummary');
+
+                let selectedProducts = [];
+
+                function openModal() {
+                    if (!modal) return;
+                    modal.classList.remove('hidden');
+                    populateProductCheckboxes();
+                    populateCreationFeatureChecklist();
+                }
+
+                // Expose for Editing
+                window.openEditReferralModal = function (item) {
+                    if (!modal) return;
+                    modal.classList.remove('hidden');
+
+                    // 1. Basic Fields
+                    if (document.getElementById("rdRefCode")) document.getElementById("rdRefCode").value = item.code || "";
+                    if (document.getElementById("rdRefMaxUsage")) document.getElementById("rdRefMaxUsage").value = item.maxUsage || "";
+                    if (document.getElementById("rdRefMonthsValid")) document.getElementById("rdRefMonthsValid").value = item.monthsValid || "";
+                    if (document.getElementById("rdRefUsedCount")) document.getElementById("rdRefUsedCount").value = item.usedCount || "";
+                    if (document.getElementById("rdRefHolderType")) document.getElementById("rdRefHolderType").value = item.holderType || "system";
+                    if (document.getElementById("rdRefOwnerName")) document.getElementById("rdRefOwnerName").value = item.holderName || item.ownerName || "";
+                    if (document.getElementById("rdRefFunctionType")) document.getElementById("rdRefFunctionType").value = item.functionType || "";
+
+                    // Trigger changes
+                    if (document.getElementById("rdRefFunctionType")) document.getElementById("rdRefFunctionType").dispatchEvent(new Event('change'));
+                    if (document.getElementById("rdRefHolderType")) document.getElementById("rdRefHolderType").dispatchEvent(new Event('change'));
+
+                    const rawPercent = item.discountPercent ?? item.discountPercentage ?? item.discontPercentage ?? item.discontPercent;
+                    const rawAmount = item.discountAmount ?? item.discontAmount;
+                    const percentField = document.getElementById("rdRefDiscountPercent");
+                    const amountField = document.getElementById("rdRefDiscountAmount");
+                    if (percentField) {
+                        percentField.value = rawPercent !== undefined && rawPercent !== null ? rawPercent : "";
+                    }
+                    if (amountField) {
+                        if (rawAmount !== undefined && rawAmount !== null && rawAmount !== "") {
+                            const numericAmount = typeof rawAmount === "number" ? rawAmount : parseInt(String(rawAmount).replace(/\D/g, ''), 10);
+                            amountField.value = Number.isFinite(numericAmount)
+                                ? new Intl.NumberFormat('id-ID').format(numericAmount)
+                                : "";
+                        } else {
+                            amountField.value = "";
+                        }
+                    }
+
+                    // 2. Products
+                    selectedProducts = Array.isArray(item.products) ? [...item.products] : [];
+                    populateProductCheckboxes();
+                    updateProductSummary();
+
+                    // 3. Features Configuration
+                    // Use item.excludedFeatures directly
+                    const excludedKeys = Array.isArray(item.excludedFeatures) ? item.excludedFeatures : [];
+                    // Fallback to legacy
+                     if (!excludedKeys.length) {
+                         let allFeatConfigs = {};
+                         try { allFeatConfigs = JSON.parse(localStorage.getItem(RF_STORAGE_KEY) || '{}'); } catch (e) { allFeatConfigs = {}; }
+                         if (allFeatConfigs[item.code]) {
+                             excludedKeys.push(...allFeatConfigs[item.code]);
+                         }
+                     }
+                    populateCreationFeatureChecklist(excludedKeys);
+                };
+
+                function closeModal() {
+                    if (modal) modal.classList.add('hidden');
+                }
+
+                if (btnOpen) btnOpen.addEventListener('click', openModal);
+                if (btnClose) btnClose.addEventListener('click', closeModal);
+                if (modal) modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                });
+
+                // Toggle owner name field
+                if (holderType) holderType.addEventListener('change', () => {
+                    if (ownerWrapper) {
+                        ownerWrapper.classList.toggle('hidden', holderType.value !== 'user');
+                    }
+                });
+
+                // Toggle discount fields
+                if (functionType) functionType.addEventListener('change', () => {
+                    if (discountWrapper) {
+                        const isDiscount = functionType.value === 'discount';
+                        discountWrapper.classList.toggle('hidden', !isDiscount);
+                        const btnCalc = document.getElementById('btnOpenDiscountCalculator');
+                        if (btnCalc) btnCalc.classList.toggle('hidden', !isDiscount);
+                    }
+                });
+
+                // Product dropdown toggle
+                if (productDropdown) productDropdown.addEventListener('click', () => {
+                    if (productOptions) productOptions.classList.toggle('hidden');
+                });
+
+                function populateProductCheckboxes() {
+                    if (!productOptions) return;
+                    // Access productsState from the module scope via a small delay
+                    setTimeout(() => {
+                        const products = window.__productsState ? window.__productsState.list : [];
+                        if (!products.length) {
+                            productOptions.innerHTML = '<p class="text-[11px] text-slate-400">Belum ada produk tersedia</p>';
+                            return;
+                        }
+                        productOptions.innerHTML = '';
+                        products.forEach((p) => {
+                            const label = document.createElement('label');
+                            label.className = 'flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 cursor-pointer';
+                            const cb = document.createElement('input');
+                            cb.type = 'checkbox';
+                            cb.value = p.productId;
+                            cb.className = 'w-4 h-4 accent-emerald-600 rounded';
+                            if (selectedProducts.includes(p.productId)) cb.checked = true;
+                            cb.addEventListener('change', () => {
+                                if (cb.checked) {
+                                    if (!selectedProducts.includes(p.productId)) selectedProducts.push(p.productId);
+                                } else {
+                                    selectedProducts = selectedProducts.filter(id => id !== p.productId);
+                                }
+                                updateProductSummary();
+                                recalculateOnProductChange();
+                            });
+                            const span = document.createElement('span');
+                            span.className = 'text-sm font-semibold text-slate-700';
+                            span.textContent = p.name || p.productId;
+                            label.appendChild(cb);
+                            label.appendChild(span);
+                            productOptions.appendChild(label);
+                        });
+                    }, 100);
+                }
+
+                function updateProductSummary() {
+                    if (!productSummary) return;
+                    if (selectedProducts.length === 0) {
+                        productSummary.textContent = 'Pilih minimal 1 product';
+                        productSummary.className = 'text-sm text-slate-500';
+                    } else {
+                        productSummary.textContent = selectedProducts.length + ' product dipilih';
+                        productSummary.className = 'text-sm text-emerald-600 font-bold';
+                    }
+                }
+
+                function showStatus(msg, isError) {
+                    if (!statusText) return;
+                    statusText.textContent = msg;
+                    statusText.className = 'text-[10px] text-center mt-2 font-bold ' + (isError ? 'text-red-500' : 'text-emerald-600');
+                    statusText.classList.remove('hidden');
+                    setTimeout(() => statusText.classList.add('hidden'), 4000);
+                }
+
+                function resetForm() {
+                    const fields = ['rdRefCode', 'rdRefOwnerName', 'rdRefDiscountPercent', 'rdRefDiscountAmount', 'rdRefMaxUsage', 'rdRefMonthsValid', 'rdRefUsedCount'];
+                    fields.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    if (holderType) holderType.value = 'system';
+                    if (functionType) functionType.value = '';
+                    if (ownerWrapper) ownerWrapper.classList.add('hidden');
+                    if (discountWrapper) discountWrapper.classList.add('hidden');
+                    selectedProducts = [];
+                    updateProductSummary();
+                    // Uncheck all checkboxes
+                    if (productOptions) {
+                        productOptions.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+                    }
+                    populateCreationFeatureChecklist();
+                }
+
+                if (btnReset) btnReset.addEventListener('click', resetForm);
+
+                // Discount Calculator Logic
+                function calculateDiscount(source) {
+                    const percentField = document.getElementById('rdRefDiscountPercent');
+                    const amountField = document.getElementById('rdRefDiscountAmount');
+
+                    if (!percentField || !amountField) return;
+
+                    // 1. Get total base price of selected products
+                    const products = window.__productsState ? window.__productsState.list : [];
+                    let totalBasePrice = 0;
+
+                    if (selectedProducts.length > 0) {
+                        selectedProducts.forEach(id => {
+                            const p = products.find(x => x.productId === id);
+                            if (p && p.basePrice) {
+                                totalBasePrice += Number(p.basePrice) || 0;
+                            }
+                        });
+                    }
+
+                    if (totalBasePrice === 0) return; // Cannot calculate without base price
+
+                    // 2. Calculate based on source
+                    if (source === 'percent') {
+                        const pct = parseFloat(percentField.value);
+                        if (!isNaN(pct) && pct >= 0) {
+                            const amt = Math.round(totalBasePrice * (pct / 100));
+                            amountField.value = new Intl.NumberFormat('id-ID').format(amt);
+                        }
+                    } else if (source === 'amount') {
+                        const valStr = amountField.value.replace(/\D/g, ''); // strip non-digits
+                        const amt = parseInt(valStr, 10);
+                        if (!isNaN(amt) && amt >= 0) {
+                            const pct = (amt / totalBasePrice) * 100;
+                            percentField.value = parseFloat(pct.toFixed(2)); // max 2 decimals
+                            // Format amount field back to IDR style while typing? Optional, maybe confusing.
+                            // ample logic: amountField.value = new Intl.NumberFormat('id-ID').format(amt);
+                        }
+                    }
+                }
+
+                const discountPercentField = document.getElementById('rdRefDiscountPercent');
+                const discountAmountField = document.getElementById('rdRefDiscountAmount');
+
+                if (discountPercentField) {
+                    discountPercentField.addEventListener('input', () => calculateDiscount('percent'));
+                }
+                if (discountAmountField) {
+                    discountAmountField.addEventListener('input', (e) => {
+                        // simple formatter on input?
+                        const raw = e.target.value.replace(/\D/g, '');
+                        if (raw) {
+                            e.target.value = new Intl.NumberFormat('id-ID').format(parseInt(raw, 10));
+                        }
+                        calculateDiscount('amount');
+                    });
+                }
+
+                // Creating the calc button event just in case (maybe shows info)
+                const btnCalc = document.getElementById('btnOpenDiscountCalculator');
+                if (btnCalc) {
+                    btnCalc.addEventListener('click', () => {
+                        // Recalculate based on current percent preference or show info
+                        const products = window.__productsState ? window.__productsState.list : [];
+                        let totalBasePrice = 0;
+                        selectedProducts.forEach(id => {
+                            const p = products.find(x => x.productId === id);
+                            if (p && p.basePrice) totalBasePrice += Number(p.basePrice) || 0;
+                        });
+
+                        if (totalBasePrice === 0) {
+                            alert("Pilih produk terlebih dahulu untuk menghitung diskon otomatis.");
+                            return;
+                        }
+
+                        alert(`Total Harga Dasar Produk Terpilih: Rp ${new Intl.NumberFormat('id-ID').format(totalBasePrice)}\n\nMasukkan Persentase atau Nilai Potongan untuk menghitung otomatis.`);
+                    });
+                }
+
+                // Also recalculate when products change?
+                // Since we don't know which field is "primary", maybe just update the totalBasePrice context but don't overwrite values unless user acts.
+                // But if user adds a product, the Amount stays same -> Percent drops. OR Percent stays same -> Amount rises.
+                // Usually Percent is constant. Let's update Amount if Percent is present.
+                function recalculateOnProductChange() {
+                    const percentField = document.getElementById('rdRefDiscountPercent');
+                    if (percentField && percentField.value) {
+                        calculateDiscount('percent');
+                    }
+                }
+
+                // Load existing referrals from Firestore
+                async function loadReferralsFromFirestore() {
+                    if (!window.dlgDb || !window.dlgDoc || !window.dlgGetDoc) return [];
+                    try {
+                        const ref = window.dlgDoc(window.dlgDb, 'settings', 'referrals');
+                        const snap = await window.dlgGetDoc(ref);
+                        if (!snap.exists()) return [];
+                        const d = snap.data() || {};
+                        return Array.isArray(d.referrals) ? d.referrals : [];
+                    } catch (e) {
+                        console.error('[ReferralDashboard] loadReferrals error', e);
+                        return [];
+                    }
+                }
+
+                // Save referrals to Firestore
+                async function saveReferralsToFirestore(referrals) {
+                    if (!window.dlgDb || !window.dlgDoc || !window.dlgSetDoc) return false;
+                    try {
+                        const ref = window.dlgDoc(window.dlgDb, 'settings', 'referrals');
+                        await window.dlgSetDoc(ref, { referrals: referrals }, { merge: true });
+                        return true;
+                    } catch (e) {
+                        console.error('[ReferralDashboard] saveReferrals error', e);
+                        return false;
+                    }
+                }
+
+                // Save handler
+                if (btnSave) btnSave.addEventListener('click', async () => {
+                    const code = (document.getElementById('rdRefCode')?.value || '').trim().toUpperCase();
+                    if (!code) {
+                        showStatus('Kode referral wajib diisi!', true);
+                        return;
+                    }
+                    if (!selectedProducts.length) {
+                        showStatus('Pilih minimal 1 produk!', true);
+                        return;
+                    }
+                    const fType = functionType?.value || '';
+                    if (!fType) {
+                        showStatus('Pilih fungsi referral!', true);
+                        return;
+                    }
+
+                    btnSave.disabled = true;
+                    btnSave.innerHTML = '<i class="bi bi-hourglass-split animate-spin"></i> Menyimpan...';
+
+                    try {
+                        const existing = await loadReferralsFromFirestore();
+
+                        // Check for duplicate code
+                        const dup = existing.find(r => (r.code || '').toUpperCase() === code);
+
+                        const now = Date.now();
+                        const monthsValid = parseInt(document.getElementById('rdRefMonthsValid')?.value || '2', 10) || 2;
+                        const expiresAt = now + (monthsValid * 30 * 24 * 60 * 60 * 1000);
+
+                        const payload = {
+                            code: code,
+                            holderType: holderType?.value || 'system',
+                            ownerName: (document.getElementById('rdRefOwnerName')?.value || '').trim(),
+                            products: selectedProducts.slice(),
+                            functionType: fType,
+                            discountPercent: parseFloat(document.getElementById('rdRefDiscountPercent')?.value || '0') || 0,
+                            discountAmount: parseInt((document.getElementById('rdRefDiscountAmount')?.value || '0').replace(/\D/g, ''), 10) || 0,
+                            maxUsage: parseInt(document.getElementById('rdRefMaxUsage')?.value || '10', 10) || 10,
+                            usedCount: parseInt(document.getElementById('rdRefUsedCount')?.value || '0', 10) || 0,
+                            monthsValid: monthsValid,
+                            createdAt: now,
+                            createdAtMs: now,
+                            expiresAt: expiresAt
+                        };
+
+                        // Collect Features Configuration
+                        const featChecks = document.querySelectorAll('#creationRefFeatChecklist input[type=checkbox]');
+                        const excludedKeys = [];
+                        featChecks.forEach(cb => {
+                            if (!cb.checked) excludedKeys.push(cb.value);
+                        });
+
+                        payload.excludedFeatures = excludedKeys; // Add to payload
+
+                        // Save feature config to localStorage
+                        let allFeatConfigs = {};
+                        try { allFeatConfigs = JSON.parse(localStorage.getItem(RF_STORAGE_KEY) || '{}'); } catch (e) { allFeatConfigs = {}; }
+                        allFeatConfigs[code] = excludedKeys;
+                        localStorage.setItem(RF_STORAGE_KEY, JSON.stringify(allFeatConfigs));
+
+                        let updated;
+                        if (dup) {
+                            // Update existing
+                            updated = existing.map(r => (r.code || '').toUpperCase() === code ? { ...r, ...payload, createdAt: r.createdAt || now, createdAtMs: r.createdAtMs || now } : r);
+                        } else {
+                            updated = [...existing, payload];
+                        }
+
+                        // Sync both storage keys to keep list + legacy modules consistent
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+                        localStorage.setItem(STORAGE_KEY_LIST, JSON.stringify(updated));
+                        
+                        // Update global state
+                        window.currentReferrals = updated;
+
+                        const ok = await saveReferralsToFirestore(updated);
+                        if (ok) {
+                            showStatus(dup ? 'Referral berhasil diupdate!' : 'Referral berhasil disimpan!', false);
+                            resetForm();
+                            closeModal();
+                        } else {
+                            showStatus('Gagal menyimpan ke Firestore', true);
+                        }
+                    } catch (e) {
+                        console.error('[ReferralDashboard] save error', e);
+                        showStatus('Error: ' + e.message, true);
+                    } finally {
+                        btnSave.disabled = false;
+                        btnSave.innerHTML = '<i class="bi bi-floppy"></i> Simpan Referral';
+                    }
+                });
+            })();
+        </script>
+        <!-- Referral List Logic -->
+        <script>
+            (function () {
+                window.currentReferrals = []; // Expose globally
+                let currentInvoices = [];
+                let refFilterStatus = "all";
+                let refSearchKeyword = "";
+                const STORAGE_KEY_REFERRALS = "dlg_invoice_referrals";
+                const STORAGE_KEY_REFERRALS_LEGACY = "dlg_referrals";
+
+                function persistReferralStorage(referrals) {
+                    const serialized = JSON.stringify(Array.isArray(referrals) ? referrals : []);
+                    localStorage.setItem(STORAGE_KEY_REFERRALS, serialized);
+                    localStorage.setItem(STORAGE_KEY_REFERRALS_LEGACY, serialized);
+                }
+
+                function hydrateFirestoreAliases() {
+                    if (!window.dlgCollection && window.collection) {
+                        window.dlgCollection = window.collection;
+                    }
+                    if (!window.dlgGetDocs && window.getDocs) {
+                        window.dlgGetDocs = window.getDocs;
+                    }
+
+                    return !!(
+                        window.dlgDb &&
+                        window.dlgCollection &&
+                        window.dlgGetDocs &&
+                        window.dlgDoc &&
+                        window.dlgGetDoc &&
+                        window.dlgSetDoc
+                    );
+                }
+
+                // Helper to wait for Firestore
+                async function waitForFirestore() {
+                    if (hydrateFirestoreAliases()) return true;
+                    let attempts = 0;
+                    while (!hydrateFirestoreAliases() && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        attempts++;
+                    }
+                    return hydrateFirestoreAliases();
+                }
+
+                function getReferralOwnerLabel(r) {
+                    const type = r.holderType || "system";
+                    const name = (r.holderName || "").trim();
+                    const ownerName = (r.ownerName || "").trim();
+                    const finalName = name || ownerName;
+                    if (type === "user" && finalName) {
+                        return "User: " + finalName;
+                    }
+                    return "System";
+                }
+
+                function getReferralFunctionLabel(r) {
+                    const t = (r.functionType || "").toLowerCase();
+                    if (!t) return "";
+                    if (t === "discount") return "Discount";
+                    return r.functionType;
+                }
+
+                function getReferralInitials(r) {
+                    const label = getReferralOwnerLabel(r);
+                    const parts = label.split(" ");
+                    if (!parts.length) return "RF";
+                    const cleanLabel = label.replace("User: ", "");
+                    const cleanParts = cleanLabel.split(" ");
+                    const first = cleanParts[0] || "";
+                    const second = cleanParts[1] || "";
+                    const a = first.charAt(0);
+                    const b = second.charAt(0);
+                    const letters = (a + b).toUpperCase().replace(/[^A-Z]/g, "");
+                    if (letters) return letters;
+                    return (r.code || "RF").slice(0, 2).toUpperCase();
+                }
+
+                function getReferralExpiryMeta(r) {
+                    const months = parseInt(r.monthsValid || 2);
+                    const created = typeof r.createdAtMs === "number" && r.createdAtMs > 0 ? r.createdAtMs :
+                        (typeof r.createdAt === "number" && r.createdAt > 0 ? r.createdAt : null);
+
+                    if (!created) {
+                        return {
+                            expiryLabel: "Masa berlaku " + months + " bulan",
+                            statusLabel: "",
+                            isActive: true
+                        };
+                    }
+                    const createdDate = new Date(created);
+                    const expiryDate = new Date(created);
+                    expiryDate.setMonth(expiryDate.getMonth() + months);
+                    const now = new Date();
+                    const isActive = expiryDate.getTime() >= now.getTime();
+                    const diffMs = expiryDate.getTime() - now.getTime();
+                    const diffDays = Math.max(Math.ceil(diffMs / (1000 * 60 * 60 * 24)), 0);
+
+                    const expiryLabel = "Hingga " + expiryDate.toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    });
+                    let statusLabel = "";
+                    if (isActive) {
+                        statusLabel = "Active - " + diffDays + " Days Left";
+                    } else {
+                        statusLabel = "Expired";
+                    }
+                    return {
+                        expiryLabel: expiryLabel,
+                        statusLabel: statusLabel,
+                        isActive: isActive
+                    };
+                }
+
+                async function loadInvoicesFromFirestore() {
+                    const ready = await waitForFirestore();
+                    if (!ready) return;
+                    try {
+                        const snap = await window.dlgGetDocs(window.dlgCollection(window.dlgDb, "invoices"));
+                        const list = [];
+                        snap.forEach(function (docSnap) {
+                            const d = docSnap.data() || {};
+                            list.push({
+                                id: docSnap.id,
+                                invoiceNumber: d.invoiceNumber || "",
+                                referralCode: d.referralCode || "",
+                                paidAmount: typeof d.paidAmount === "number" ? d.paidAmount : 0,
+                                paidAtMs: typeof d.paidAtMs === "number" ? d.paidAtMs : 0,
+                                leadName: d.leadName || ""
+                            });
+                        });
+                        currentInvoices = list;
+                        renderReferrals();
+                    } catch (e) {
+                        console.error("Error loading invoices:", e);
+                    }
+                }
+
+                async function loadReferralsFromFirestore() {
+                    const ready = await waitForFirestore();
+                    if (!ready) return null;
+                    try {
+                        const ref = window.dlgDoc(window.dlgDb, "settings", "referrals");
+                        const snap = await window.dlgGetDoc(ref);
+                        if (!snap.exists()) return null;
+                        const d = snap.data() || {};
+                        const referrals = d.referrals || [];
+                        return Array.isArray(referrals) ? referrals : [];
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                function loadReferrals() {
+                    try {
+                        const rawPrimary = localStorage.getItem(STORAGE_KEY_REFERRALS);
+                        const rawLegacy = localStorage.getItem(STORAGE_KEY_REFERRALS_LEGACY);
+
+                        const parsedPrimary = rawPrimary ? JSON.parse(rawPrimary) : null;
+                        if (Array.isArray(parsedPrimary)) return parsedPrimary;
+
+                        const parsedLegacy = rawLegacy ? JSON.parse(rawLegacy) : [];
+                        if (Array.isArray(parsedLegacy)) {
+                            if (!rawPrimary) {
+                                persistReferralStorage(parsedLegacy);
+                            }
+                            return parsedLegacy;
+                        }
+
+                        return [];
+                    } catch (e) {
+                        return [];
+                    }
+                }
+
+                async function saveReferrals(referrals) {
+                    persistReferralStorage(referrals);
+                    const ready = await waitForFirestore();
+                    if (!ready) return false;
+                    try {
+                        const ref = window.dlgDoc(window.dlgDb, "settings", "referrals");
+                        await window.dlgSetDoc(ref, { referrals: referrals }, { merge: true });
+                        return true;
+                    } catch (e) {
+                        console.error("Error syncing referrals:", e);
+                        return false;
+                    }
+                }
+
+                function renderReferrals() {
+                    const tbody = document.getElementById("refTableBody");
+                    const footer = document.getElementById("refFooterSummary");
+                    if (!tbody) return;
+
+                    tbody.innerHTML = "";
+                    const keyword = (refSearchKeyword || "").toLowerCase();
+                    let visibleCount = 0;
+
+                    const sorted = [...window.currentReferrals].sort((a, b) => {
+                        const ta = a.createdAtMs || a.createdAt || 0;
+                        const tb = b.createdAtMs || b.createdAt || 0;
+                        return tb - ta;
+                    });
+
+                    sorted.forEach(function (r, idx) {
+                        const originalIdx = window.currentReferrals.indexOf(r);
+                        const ownerLabel = getReferralOwnerLabel(r);
+                        const initials = getReferralInitials(r);
+                        const functionLabel = getReferralFunctionLabel(r);
+                        const max = parseInt(r.maxUsage || 0);
+
+                        const usedInvoices = currentInvoices.filter(function (inv) {
+                            const codeInv = (inv.referralCode || "").toUpperCase();
+                            const codeRef = (r.code || "").toUpperCase();
+                            if (!(codeInv && codeRef && codeInv === codeRef)) return false;
+                            const isPaid = (typeof inv.paidAtMs === "number" && inv.paidAtMs > 0) ||
+                                (typeof inv.paidAmount === "number" && inv.paidAmount > 0);
+                            return isPaid;
+                        });
+
+                        const used = usedInvoices.length;
+                        const percent = max > 0 ? Math.min(100, Math.round(used / max * 100)) : 0;
+                        const expiryMeta = getReferralExpiryMeta(r);
+
+                        if (refFilterStatus === "active" && !expiryMeta.isActive) return;
+                        if (refFilterStatus === "expired" && expiryMeta.isActive) return;
+                        if (keyword) {
+                            const haystack = [r.code || "", ownerLabel].join(" ").toLowerCase();
+                            if (haystack.indexOf(keyword) === -1) return;
+                        }
+
+                        visibleCount++;
+                        const historyId = "refHistory-" + originalIdx;
+
+                        const baseRow = document.createElement("tr");
+                        const rowClasses = expiryMeta.isActive ? "group hover:bg-slate-50/50 transition-all border-b border-slate-50" : "group hover:bg-slate-50/50 transition-all opacity-60 border-b border-slate-50";
+                        baseRow.className = rowClasses;
+
+                        baseRow.innerHTML = `
+                        <td class="p-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full ${expiryMeta.isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-600"} flex items-center justify-center font-bold text-xs">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-tight">${ownerLabel}</p>
+                                    <p class="text-base font-extrabold text-slate-800 font-mono tracking-wider">${r.code || "-"}</p>
+                                    ${functionLabel ? `<p class="text-[10px] font-semibold text-emerald-600 mt-1 uppercase tracking-widest">${functionLabel}</p>` : ""}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700 italic">${expiryMeta.expiryLabel}</span>
+                                ${expiryMeta.statusLabel ? `<span class="text-[10px] font-bold ${expiryMeta.isActive ? "text-emerald-500 bg-emerald-50" : "text-red-500 bg-red-50"} px-2 py-0.5 rounded-full w-fit mt-1 uppercase tracking-tighter">${expiryMeta.statusLabel}</span>` : ""}
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="w-full max-w-[140px]">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-slate-700">${used} / ${max}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold">${percent}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="progress-bar h-full ${expiryMeta.isActive ? "bg-emerald-500" : "bg-slate-400"}" style="width: ${percent}%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <button type="button" data-history-id="${historyId}" class="toggle-ref-history w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white transition-all" title="Lihat Riwayat Invoice">
+                                    <i class="bi bi-clock-history"></i>
+                                </button>
+                                <button type="button" data-idx="${originalIdx}" class="edit-ref w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all" title="Edit Referral">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" data-idx="${originalIdx}" class="delete-ref w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-500 hover:text-white transition-all" title="Hapus Referral">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                        tbody.appendChild(baseRow);
+
+                        const historyRow = document.createElement("tr");
+                        historyRow.id = historyId;
+                        historyRow.className = "hidden bg-slate-50/80";
+
+                        let historyItemsHtml = "";
+                        if (usedInvoices.length) {
+                            usedInvoices.sort((a, b) => b.paidAtMs - a.paidAtMs);
+                            const slice = usedInvoices.slice(0, 4);
+                            slice.forEach(function (inv) {
+                                const invNumber = inv.invoiceNumber || ("#" + (inv.id || ""));
+                                const customer = inv.leadName || "-";
+                                historyItemsHtml += `
+                                <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">${invNumber}</p>
+                                        <p class="text-[10px] text-slate-500 font-medium">Customer: ${customer}</p>
+                                    </div>
+                                </div>
+                            `;
+                            });
+                            if (usedInvoices.length > 4) {
+                                historyItemsHtml += `<p class="text-[10px] text-slate-400 text-center mt-2 italic">+ ${usedInvoices.length - 4} lainnya</p>`;
+                            }
+                        } else {
+                            historyItemsHtml = '<p class="text-[11px] text-slate-500">Belum ada invoice yang tercatat menggunakan kode ini.</p>';
+                        }
+
+                        historyRow.innerHTML = `
+                        <td colspan="4" class="p-6">
+                            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-inner">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-widest"><i class="bi bi-clock-history mr-2 text-blue-500"></i> Riwayat Penggunaan Invoice</h4>
+                                    <span class="text-[10px] font-bold text-slate-400 italic">Digunakan di ${usedInvoices.length} Invoice</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    ${historyItemsHtml}
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                        tbody.appendChild(historyRow);
+                    });
+
+                    if (footer) {
+                        footer.textContent = `Referral Terdaftar: ${window.currentReferrals.length} • Ditampilkan: ${visibleCount}`;
+                    }
+                }
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    window.currentReferrals = loadReferrals();
+                    renderReferrals();
+
+                    setTimeout(async () => {
+                        const refsFromFs = await loadReferralsFromFirestore();
+                        if (Array.isArray(refsFromFs)) {
+                            window.currentReferrals = refsFromFs;
+                            persistReferralStorage(window.currentReferrals);
+                            renderReferrals();
+                        }
+                        await loadInvoicesFromFirestore();
+                        checkSystemDefaultPopup();
+                    }, 1500);
+
+                    const btnOpen = document.getElementById("btnOpenReferralListModal");
+                    const btnClose = document.getElementById("btnCloseReferralListModal");
+                    const modal = document.getElementById("referralListModal");
+
+                    if (btnOpen && modal) {
+                        btnOpen.addEventListener("click", () => {
+                            modal.classList.remove("hidden");
+                            renderReferrals();
+                            loadInvoicesFromFirestore();
+                        });
+                    }
+                    if (btnClose && modal) {
+                        btnClose.addEventListener("click", () => modal.classList.add("hidden"));
+                    }
+                    if (modal) {
+                        modal.addEventListener("click", (e) => {
+                            if (e.target.classList.contains('bg-opacity-75')) {
+                                modal.classList.add("hidden");
+                            }
+                        });
+                    }
+
+                    const filterButtons = document.querySelectorAll(".ref-filter-btn");
+                    if (filterButtons.length) {
+                        filterButtons.forEach(btn => {
+                            btn.addEventListener("click", function () {
+                                refFilterStatus = this.getAttribute("data-ref-filter") || "all";
+                                filterButtons.forEach(b => {
+                                    b.classList.remove("bg-white", "border-slate-200", "shadow-sm", "text-emerald-600", "text-red-500");
+                                    b.classList.add("text-slate-400");
+                                    if (b.getAttribute("data-ref-filter") === "all") b.classList.remove("border");
+                                });
+
+                                this.classList.remove("text-slate-400");
+                                if (refFilterStatus === "all") {
+                                    this.classList.add("bg-white", "border", "border-slate-200", "shadow-sm");
+                                } else if (refFilterStatus === "active") {
+                                    this.classList.add("text-emerald-600");
+                                } else if (refFilterStatus === "expired") {
+                                    this.classList.add("text-red-500");
+                                }
+                                renderReferrals();
+                            });
+                        });
+                    }
+
+                    const searchInput = document.getElementById("refSearchInput");
+                    if (searchInput) {
+                        searchInput.addEventListener("input", function () {
+                            refSearchKeyword = this.value;
+                            renderReferrals();
+                        });
+                    }
+
+                    const tbody = document.getElementById("refTableBody");
+                    if (tbody) {
+                        tbody.addEventListener("click", async function (e) {
+                            const target = e.target;
+
+                            const toggleBtn = target.closest(".toggle-ref-history");
+                            if (toggleBtn) {
+                                const id = toggleBtn.getAttribute("data-history-id");
+                                const row = document.getElementById(id);
+                                if (row) row.classList.toggle("hidden");
+                                return;
+                            }
+
+                            const deleteBtn = target.closest(".delete-ref");
+                            if (deleteBtn) {
+                                    const idx = parseInt(deleteBtn.getAttribute("data-idx"));
+                                    if (confirm("Hapus kode referral ini?")) {
+                                        window.currentReferrals.splice(idx, 1);
+                                        await saveReferrals(window.currentReferrals);
+                                        renderReferrals();
+                                    }
+                                return;
+                            }
+
+                            const editBtn = target.closest(".edit-ref");
+                            if (editBtn) {
+                                const idx = parseInt(editBtn.getAttribute("data-idx"));
+                                const item = window.currentReferrals[idx];
+                                if (item && window.openEditReferralModal) {
+                                    const listModal = document.getElementById("referralListModal");
+                                    if (listModal) listModal.classList.add("hidden");
+                                    window.openEditReferralModal(item);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // === SYSTEM DEFAULT POPUP CHECK ===
+                function checkSystemDefaultPopup() {
+                    const refs = window.currentReferrals || [];
+                    // Filter referrals with holderType 'system' or undefined
+                    const systemRefs = refs.filter(r => {
+                        const type = (r.holderType || 'system').toLowerCase();
+                        return type === 'system';
+                    });
+
+                    // Track conflicts: productId -> [list of referral objects]
+                    const productConflict = {};
+                    systemRefs.forEach(r => {
+                        const products = Array.isArray(r.products) ? r.products : [];
+                        products.forEach(pid => {
+                            if (!productConflict[pid]) productConflict[pid] = [];
+                            productConflict[pid].push(r);
+                        });
+                    });
+
+                    // Identify which referrals are involved in any product conflict
+                    const conflictingRefsSet = new Set();
+                    Object.keys(productConflict).forEach(pid => {
+                        if (productConflict[pid].length > 1) {
+                            productConflict[pid].forEach(r => conflictingRefsSet.add(r));
+                        }
+                    });
+
+                    // If no products have more than one system referral, we are good
+                    if (conflictingRefsSet.size === 0) return;
+
+                    const systemDefaults = Array.from(conflictingRefsSet);
+
+                    // Populate the popup
+                    const listContainer = document.getElementById('sysDefaultCodeList');
+                    const countBadge = document.getElementById('sysDefaultCount');
+                    if (!listContainer) return;
+
+                    if (countBadge) countBadge.textContent = systemDefaults.length;
+
+                    listContainer.innerHTML = '';
+                    systemDefaults.forEach(r => {
+                        const code = r.code || '-';
+                        const funcLabel = r.functionType === 'discount'
+                            ? `Discount ${r.discountPercent || 0}%`
+                            : (r.functionType || '-');
+                        const el = document.createElement('div');
+                        el.className = 'flex items-center justify-between p-3 bg-white rounded-xl border border-amber-100';
+                        el.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="bi bi-ticket-perforated text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-extrabold text-slate-800 font-mono tracking-wider">${code}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium">${funcLabel}</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 rounded-full border border-amber-200">System</span>
+                        `;
+                        listContainer.appendChild(el);
+                    });
+
+                    // Show popup
+                    const popup = document.getElementById('sysDefaultPopup');
+                    if (popup) popup.classList.remove('hidden');
+                }
+
+                // Close popup handler
+                window.closeSysDefaultPopup = function () {
+                    const popup = document.getElementById('sysDefaultPopup');
+                    if (popup) popup.classList.add('hidden');
+                };
+
+                // Open referral list from popup
+                window.openRefListFromPopup = function () {
+                    window.closeSysDefaultPopup();
+                    const listModal = document.getElementById('referralListModal');
+                    if (listModal) {
+                        listModal.classList.remove('hidden');
+                        renderReferrals();
+                        loadInvoicesFromFirestore();
+                    }
+                };
+            })();
+        </script>
+    <!-- System Default Warning Popup -->
+    <div id="sysDefaultPopup" class="relative z-[10000] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <!-- Header -->
+                    <div class="px-6 pt-7 pb-4 text-center">
+                        <div class="mx-auto w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-amber-100">
+                            <i class="bi bi-exclamation-triangle-fill text-amber-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-slate-800">Duplikat System Default Terdeteksi</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Terdapat <span id="sysDefaultCount" class="font-extrabold text-amber-600">0</span> kode referral yang berstatus <span class="font-bold text-amber-600">System Default</span>. Seharusnya hanya boleh ada <span class="font-bold">1 kode</span> system default.</p>
+                    </div>
+                    <!-- Code list -->
+                    <div class="px-6 pb-4">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kode System Default</p>
+                        <div id="sysDefaultCodeList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                    <!-- Instruction -->
+                    <div class="px-6 pb-4">
+                        <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                            <div class="flex gap-3">
+                                <i class="bi bi-info-circle-fill text-amber-500 flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-amber-800 leading-relaxed font-medium">Silakan hapus salah satu atau beberapa kode referral system default sehingga hanya tersisa <strong>1 kode</strong>. Anda bisa menghapus melalui menu <strong>Daftar Referral</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="px-6 pb-6 flex gap-3">
+                        <button type="button" onclick="openRefListFromPopup()"
+                            class="flex-1 py-3 bg-gradient-to-b from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-amber-200 flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                            <i class="bi bi-list-ul"></i> Buka Daftar Referral
+                        </button>
+                        <button type="button" onclick="closeSysDefaultPopup()"
+                            class="px-5 py-3 bg-slate-50 text-slate-500 rounded-2xl font-bold hover:bg-slate-100 transition-all border border-slate-200 text-sm active:scale-[0.98]">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+/* ==========================================================================
+   assets/css/theme.css — Design token DIALOGIKA (SATU-SATUNYA tempat token).
+   ==========================================================================
+   ATURAN WAJIB (MASTER-PLAN §8.1):
+   1. JANGAN hardcode hex/px baru di tengah kode halaman — pakai variabel
+      Bootstrap (--bs-*) atau variabel Dialogika di bawah ini.
+   2. Ganti tema/dark mode = cukup ubah di sini, seluruh aplikasi ikut.
+   3. Base framework: Bootstrap 5.3+ (CDN, tanpa build tool).
+   ========================================================================== */
+
+:root {
+  /* --- Brand tokens DIALOGIKA --- */
+  --dg-navy: #14336E;
+  --dg-blue: #1958A5;
+  --dg-blue-light: #1C79C7;
+  --dg-yellow: #F8D91D;
+  --dg-radius: 0.75rem;
+  --dg-font: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  /* --- Override variabel Bootstrap agar SEMUA komponen bawaan (button,
+         badge, link, dst) otomatis ikut tema DIALOGIKA --- */
+  --bs-primary: var(--dg-navy);
+  --bs-primary-rgb: 20, 51, 110;
+  --bs-link-color: var(--dg-blue);
+  --bs-link-hover-color: var(--dg-blue-light);
+  --bs-border-radius: var(--dg-radius);
+  --bs-border-radius-sm: 0.5rem;
+  --bs-border-radius-lg: 1rem;
+  --bs-body-font-family: var(--dg-font);
+}
+
+/* --- Dark mode (Bootstrap 5.3 native via data-bs-theme) --- */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0f1420;
+  --bs-body-color: #e8ebf3;
+  --dg-navy: #3a5da8; /* navy asli terlalu gelap untuk dark bg */
+}
+
+body {
+  font-family: var(--dg-font);
+}

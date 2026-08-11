@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Dialogika</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .main-container {
+            max-width: 1000px;
+            margin: 20px auto 40px auto;
+        }
+
+        .profile-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #64748b;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fbfcfd;
+        }
+
+        .form-control:focus {
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+            background-color: #fff;
+        }
+
+        .photo-upload-section {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .profile-preview i {
+            font-size: 2.5rem;
+            color: #94a3b8;
+        }
+
+        .btn-save {
+            background-color: #334155;
+            border: none;
+            padding: 10px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .btn-save:hover {
+            background-color: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn-upload {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .input-group-text {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .profile-card-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .profile-summary-card {
+            display: flex;
+            justify-content: center;
+        }
+
+        .card-wrapper {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 420px;
+            height: 260px;
+            margin: 0 auto;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            overflow: hidden;
+            color: white;
+        }
+        .profile-summary-card .card-wrapper.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front {
+            background-image: url('../assets/img/card-front.jpg');
+            background-color: #07276B;
+            background-size: cover;
+            background-position: center;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .card-chip {
+            width: 50px;
+            height: 35px;
+            background: linear-gradient(135deg, #d4af37, #f2e298);
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .photo-area {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            text-align: center;
+        }
+        .photo-preview-card {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.1);
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(255,255,255,0.5);
+            margin-bottom: 5px;
+        }
+        .birth-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            display: block;
+        }
+        .birth-date-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+        }
+        .card-number-container {
+            margin-top: 35px;
+        }
+        .card-number {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 20px;
+            letter-spacing: 2px;
+            width: 100%;
+        }
+        .card-password-display {
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.9);
+        }
+        .card-bottom {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .detail-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        .detail-value-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .detail-value-pos {
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #FFD700;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #07276B 0%, #1E81D0 100%);
+        }
+        .card-back::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+        }
+        .magnetic-strip {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            height: 45px;
+            background: #1a1a1a;
+        }
+        .signature-strip {
+            position: absolute;
+            top: 100px;
+            left: 15px;
+            right: 15px;
+            height: 35px;
+            background: white;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            background-image: url("https://www.transparenttextures.com/patterns/diagonal-stripes.png");
+        }
+        .email-display-back {
+            color: #333;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+        }
+        .cvv-label {
+            position: absolute;
+            top: 85px;
+            left: 15px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+        .visa-logo-back {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+        }
+        .back-details {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            text-align: left;
+            font-size: 10px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+    </style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="profile-summary-card" style="margin-bottom: -125px;">
+                <div class="card-wrapper" id="profileCardWrapper">
+                    <div class="card-inner">
+                        <div class="card-face card-front">
+                            <div class="card-top">
+                                <div class="card-chip"></div>
+                                <div class="photo-area">
+                                    <div class="photo-preview-card" id="cardPhotoPreview"></div>
+                                    <span class="birth-label">Birth Date</span>
+                                    <div class="birth-date-display" id="cardBirthFront">MM/YY</div>
+                                </div>
+                            </div>
+                            <div class="card-number-container">
+                                <div class="card-number" id="cardIDDisplay">#### #### #### ####</div>
+                                <div class="card-password-display" id="cardPassDisplay">****</div>
+                            </div>
+                            <div class="card-bottom">
+                                <div>
+                                    <div class="detail-label">Card Holder</div>
+                                    <div class="detail-value-name" id="cardName">FULL NAME</div>
+                                    <div class="detail-value-pos" id="cardPosDisplay">POSITION</div>
+                                </div>
+                                <img style="max-height:25px;" src="https://www.dialogika.co/assets/img/white-logo.webp" alt="Dialogika" class="logo-img">
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <div class="magnetic-strip"></div>
+                            <span class="cvv-label">EMAIL</span>
+                            <div class="signature-strip">
+                                <div class="email-display-back" id="cardEmailBack">email@example.com</div>
+                            </div>
+                            <div class="back-details">
+                                <div id="cardPhone">Tel: -</div>
+                                <div id="cardIG">IG: -</div>
+                                <div id="cardLinked">In: -</div>
+                            </div>
+                            <img src="https://www.dialogika.co/assets/img/white-logo.webp" style="max-height:25px;" alt="Dialogika" class="logo-img visa-logo-back">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container main-container">
+                <div class="profile-card profile-card-wrapper" style="padding-top: 125px;">
+                    <h2 class="mb-4 fw-bold" style="color: #0f172a;">Edit Profile</h2>
+
+                    <form id="profileForm">
+                        <div class="photo-upload-section">
+                            <div class="profile-preview">
+                                <img id="profilePhotoPreview" src="https://i.pravatar.cc/300" alt="Profile" style="width:100%;height:100%;object-fit:cover;display:none;">
+                                <i class="fa-solid fa-user" id="profilePhotoIcon"></i>
+                            </div>
+                            <div>
+                                <label class="form-label d-block">Profile Photo</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-upload btn-sm" id="profileUploadPhotoBtn">Upload New Photo</button>
+                                    <button type="button" class="btn btn-light btn-sm text-danger border" id="profileRemovePhotoBtn">Remove</button>
+                                </div>
+                                <input id="profilePhotoFileInput" type="file" accept="image/*" style="display:none;">
+                                <small class="text-muted d-block mt-2">Recommended: .jpg or .png, min 400x400px</small>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-address-card"></i> Basic Information
+                        </div>
+                        
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" id="profileNameInput" placeholder="Full Name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nickname</label>
+                                <input type="text" class="form-control" id="profileNicknameInput" placeholder="How should we call you?">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Birth Date</label>
+                                <input type="date" class="form-control" id="profileBirthDateInput">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="profileEmailInput" placeholder="example@company.com" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department</label>
+                                <select class="form-select" id="profileDepartmentSelect">
+                                    <option selected disabled>SELECT DEPARTMENT</option>
+                                    <option>INFORMATION TECHNOLOGY</option>
+                                    <option>HUMAN RESOURCES</option>
+                                    <option>MARKETING</option>
+                                    <option>FINANCE</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Position</label>
+                                <select class="form-select" id="profilePositionInput">
+                                    <option selected disabled>SELECT POSITION</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-share-nodes"></i> Contact & Social Media
+                        </div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">WhatsApp Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-whatsapp"></i></span>
+                                    <input type="tel" class="form-control" id="profileWhatsappInput" placeholder="+62 ..." />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Instagram Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-instagram"></i></span>
+                                    <input type="text" class="form-control" id="profileInstagramInput" placeholder="@username" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">LinkedIn Profile URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-brands fa-linkedin-in"></i></span>
+                                    <input type="text" class="form-control" id="profileLinkedinInput" placeholder="linkedin.com/in/username" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-location-dot"></i> Address Details
+                        </div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-12">
+                                <label class="form-label">Full Address</label>
+                                <textarea class="form-control" id="profileAddressInput" rows="2" placeholder="Street name, Building, etc."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Country</label>
+                                <select class="form-select" id="profileCountrySelect"><option>Indonesia</option></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" id="profileCityInput" placeholder="City">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="profilePostalCodeInput" placeholder="12345">
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-lock"></i> Security
+                        </div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="profileNewPasswordInput" placeholder="Enter new password">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="profileConfirmPasswordInput" placeholder="Re-type new password">
+                            </div>
+                            <div class="col-12">
+                                <small class="text-muted">Leave both password fields empty if you don't want to change password.</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+                            <button type="button" class="btn btn-dlg-red shadow-none">Cancel</button>
+                            <button type="submit" class="btn btn-dlg-blue shadow-none">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
+            authDomain: "pre-dialogika.firebaseapp.com",
+            projectId: "pre-dialogika",
+            storageBucket: "pre-dialogika.firebasestorage.app",
+            messagingSenderId: "343771410480",
+            appId: "1:343771410480:web:32881c9868522090237df5",
+            measurementId: "G-SXN811P3N0"
+        };
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.getDoc = getDoc;
+        window.doc = doc;
+        if (typeof window.initGlobalUsers === 'function') {
+            try { window.initGlobalUsers(); } catch (e) {}
+        }
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem('userData');
+            } catch (e) {}
+            window.location.href = "/index.html";
+        };
+
+        async function applyProfileFromLocal() {
+            try {
+                const raw = localStorage.getItem('userData');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                const name = data.name || data.email || "";
+                const email = data.email || "";
+                const photo = data.photo || "";
+                const position = data.position || "Staff";
+
+                const nameInput = document.getElementById('profileNameInput');
+                const emailInput = document.getElementById('profileEmailInput');
+                const positionInput = document.getElementById('profilePositionInput');
+                const birthInput = document.getElementById('profileBirthDateInput');
+                const deptSelect = document.getElementById('profileDepartmentSelect');
+                const addressInput = document.getElementById('profileAddressInput');
+                const countrySelect = document.getElementById('profileCountrySelect');
+                const cityInput = document.getElementById('profileCityInput');
+                const postalInput = document.getElementById('profilePostalCodeInput');
+                const whatsappInput = document.getElementById('profileWhatsappInput');
+                const instagramInput = document.getElementById('profileInstagramInput');
+                const linkedinInput = document.getElementById('profileLinkedinInput');
+                const previewImg = document.getElementById('profilePhotoPreview');
+                const previewIcon = document.getElementById('profilePhotoIcon');
+                const cardName = document.getElementById('cardName');
+                const cardPos = document.getElementById('cardPosDisplay');
+                const cardEmailBack = document.getElementById('cardEmailBack');
+                const cardPhone = document.getElementById('cardPhone');
+                const cardIG = document.getElementById('cardIG');
+                const cardLinked = document.getElementById('cardLinked');
+                const cardPhotoPreview = document.getElementById('cardPhotoPreview');
+                const cardBirthFront = document.getElementById('cardBirthFront');
+                const cardIdDisplay = document.getElementById('cardIDDisplay');
+                const cardPassDisplay = document.getElementById('cardPassDisplay');
+
+                if (nameInput) nameInput.value = name;
+                if (emailInput) emailInput.value = email;
+                if (positionInput) positionInput.value = position;
+                if (previewImg && photo) {
+                    previewImg.src = photo;
+                    previewImg.style.display = 'block';
+                    if (previewIcon) previewIcon.style.display = 'none';
+                }
+                if (cardName) cardName.innerText = (name || email || 'FULL NAME').toUpperCase();
+                if (cardPos) cardPos.innerText = String(position || 'Member').toUpperCase();
+                if (cardEmailBack) cardEmailBack.innerText = email || 'email@example.com';
+                if (cardIdDisplay && data.uid) {
+                    const uidStr = String(data.uid).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                    const padded = (uidStr + '################').slice(0, 16);
+                    const grouped = padded.match(/.{1,4}/g) || [];
+                    cardIdDisplay.innerText = grouped.join(' ');
+                }
+
+                if (!data.uid) return;
+                const userSnap = await getDoc(doc(db, "users", data.uid));
+                if (!userSnap.exists()) return;
+                const userDetail = userSnap.data() || {};
+                const employment = userDetail.employment || {};
+                const socials = userDetail.socials || {};
+
+                if (birthInput && userDetail.birth) {
+                    birthInput.value = userDetail.birth;
+                }
+                if (cardBirthFront && userDetail.birth) {
+                    const d = new Date(userDetail.birth);
+                    if (!isNaN(d.getTime())) {
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const yy = String(d.getFullYear()).slice(-2);
+                        cardBirthFront.innerText = `${mm}/${yy}`;
+                    }
+                }
+
+                if (previewImg && userDetail.photo) {
+                    previewImg.src = userDetail.photo;
+                    previewImg.style.display = 'block';
+                    if (previewIcon) previewIcon.style.display = 'none';
+                }
+                if (cardPhotoPreview && userDetail.photo) {
+                    cardPhotoPreview.style.backgroundImage = `url(${userDetail.photo})`;
+                } else if (cardPhotoPreview && photo) {
+                    cardPhotoPreview.style.backgroundImage = `url(${photo})`;
+                }
+
+                if (deptSelect) {
+                    const depName = employment.department || "";
+                    if (depName) {
+                        const depNorm = String(depName).trim().toLowerCase();
+                        for (let i = 0; i < deptSelect.options.length; i++) {
+                            const optNorm = String(deptSelect.options[i].value || '').trim().toLowerCase();
+                            if (optNorm === depNorm) {
+                                deptSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (positionInput) {
+                    const posName = employment.position || "";
+                    if (posName) {
+                        const posNorm = String(posName).trim().toLowerCase();
+                        let found = false;
+                        for (let i = 0; i < positionInput.options.length; i++) {
+                            const optNorm = String(positionInput.options[i].value || '').trim().toLowerCase();
+                            if (optNorm === posNorm) {
+                                positionInput.selectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            const opt = document.createElement('option');
+                            opt.value = posName;
+                            opt.text = posName;
+                            positionInput.appendChild(opt);
+                            positionInput.value = posName;
+                        }
+                    }
+                }
+
+                const phone = userDetail.phone || userDetail.whatsapp || (userDetail.contact && userDetail.contact.whatsapp) || "";
+                if (cardPhone) cardPhone.innerText = phone ? `Tel: ${phone}` : 'Tel: -';
+                if (whatsappInput && phone) whatsappInput.value = phone;
+                if (cardIG) cardIG.innerText = socials.instagram ? `IG: ${socials.instagram}` : 'IG: -';
+                if (instagramInput && socials.instagram) instagramInput.value = socials.instagram;
+                if (cardLinked) cardLinked.innerText = socials.linkedin ? `In: ${socials.linkedin}` : 'In: -';
+                if (linkedinInput && socials.linkedin) linkedinInput.value = socials.linkedin;
+
+                if (cardPassDisplay) {
+                    const storedLength = userDetail.password_length || null;
+                    if (storedLength && typeof storedLength === 'number' && storedLength > 0) {
+                        cardPassDisplay.innerText = '*'.repeat(storedLength);
+                    } else {
+                        cardPassDisplay.innerText = '****';
+                    }
+                }
+
+                const addr = userDetail.address || {};
+                const addrFull = addr.full || userDetail.address_full || userDetail.addressFull || "";
+                const addrCity = addr.city || userDetail.city || "";
+                const addrPostal = addr.postal_code || addr.postalCode || userDetail.postal_code || userDetail.postalCode || "";
+                const addrCountry = addr.country || userDetail.country || "";
+
+                if (addressInput && addrFull) addressInput.value = addrFull;
+                if (cityInput && addrCity) cityInput.value = addrCity;
+                if (postalInput && addrPostal) postalInput.value = addrPostal;
+                if (countrySelect && addrCountry) {
+                    let has = false;
+                    for (let i = 0; i < countrySelect.options.length; i++) {
+                        if (countrySelect.options[i].value === addrCountry || countrySelect.options[i].text === addrCountry) {
+                            countrySelect.selectedIndex = i;
+                            has = true;
+                            break;
+                        }
+                    }
+                    if (!has) {
+                        const opt = document.createElement('option');
+                        opt.value = addrCountry;
+                        opt.text = addrCountry;
+                        countrySelect.appendChild(opt);
+                        countrySelect.value = addrCountry;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function patchLocalUserData(patch) {
+            try {
+                const raw = localStorage.getItem('userData');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                localStorage.setItem('userData', JSON.stringify({ ...data, ...patch }));
+            } catch (e) {}
+        }
+
+        function applyPhotoToUi(photoUrl) {
+            const url = photoUrl || "https://i.pravatar.cc/300";
+            const topbarPhoto = document.getElementById('user-photo-display');
+            const dropdownPhoto = document.getElementById('profile-dropdown-photo');
+            if (topbarPhoto) topbarPhoto.src = url;
+            if (dropdownPhoto) dropdownPhoto.src = url;
+
+            const previewImg = document.getElementById('profilePhotoPreview');
+            const previewIcon = document.getElementById('profilePhotoIcon');
+            if (previewImg) {
+                if (photoUrl) {
+                    previewImg.src = photoUrl;
+                    previewImg.style.display = 'block';
+                    if (previewIcon) previewIcon.style.display = 'none';
+                } else {
+                    previewImg.style.display = 'none';
+                    if (previewIcon) previewIcon.style.display = 'block';
+                }
+            }
+        }
+
+        async function uploadProfilePhoto(file) {
+            const uid = (auth.currentUser && auth.currentUser.uid) || (() => {
+                try { return JSON.parse(localStorage.getItem('userData') || 'null')?.uid || ""; } catch (e) { return ""; }
+            })();
+            if (!uid || !file) return;
+            const storageRef = ref(storage, `users/${uid}/profile_photo`);
+            await uploadBytes(storageRef, file);
+            const photoUrl = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, "users", uid), { photo: photoUrl });
+            patchLocalUserData({ photo: photoUrl });
+            applyPhotoToUi(photoUrl);
+        }
+
+        async function removeProfilePhoto() {
+            const uid = (auth.currentUser && auth.currentUser.uid) || (() => {
+                try { return JSON.parse(localStorage.getItem('userData') || 'null')?.uid || ""; } catch (e) { return ""; }
+            })();
+            if (!uid) return;
+            try {
+                await deleteObject(ref(storage, `users/${uid}/profile_photo`));
+            } catch (e) {}
+            await updateDoc(doc(db, "users", uid), { photo: "" });
+            patchLocalUserData({ photo: "" });
+            applyPhotoToUi("");
+        }
+
+        async function loadDepartmentsAndPositions() {
+            const deptSelect = document.getElementById('profileDepartmentSelect');
+            const posSelect = document.getElementById('profilePositionInput');
+
+            try {
+                const deptSnap = await getDocs(collection(db, "departments"));
+                if (deptSelect) {
+                    deptSelect.innerHTML = '<option value="" disabled selected>SELECT DEPARTMENT</option>';
+                    deptSnap.forEach(docSnap => {
+                        const d = docSnap.data() || {};
+                        const name = d.name || docSnap.id || "Untitled";
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.text = name.toUpperCase();
+                        deptSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load departments for profile", e);
+                if (deptSelect) {
+                    deptSelect.innerHTML = '<option value="">Failed to load departments</option>';
+                }
+            }
+
+            try {
+                const posSnap = await getDocs(collection(db, "positions"));
+                if (posSelect) {
+                    posSelect.innerHTML = '<option value="" disabled selected>SELECT POSITION</option>';
+                    posSnap.forEach(docSnap => {
+                        const data = docSnap.data() || {};
+                        const name = data.name || "";
+                        if (!name) return;
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.text = name;
+                        posSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load positions for profile", e);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "/index.html";
+                return;
+            }
+            await loadDepartmentsAndPositions();
+            await applyProfileFromLocal();
+
+            const cardWrapper = document.getElementById('profileCardWrapper');
+            if (cardWrapper) {
+                cardWrapper.onclick = () => {
+                    cardWrapper.classList.toggle('flipped');
+                };
+            }
+
+            const uploadBtn = document.getElementById('profileUploadPhotoBtn');
+            const removeBtn = document.getElementById('profileRemovePhotoBtn');
+            const fileInput = document.getElementById('profilePhotoFileInput');
+            const formEl = document.getElementById('profileForm');
+            const newPassInput = document.getElementById('profileNewPasswordInput');
+            const confirmPassInput = document.getElementById('profileConfirmPasswordInput');
+
+            if (uploadBtn && fileInput) {
+                uploadBtn.onclick = () => fileInput.click();
+                fileInput.onchange = async () => {
+                    const file = fileInput.files && fileInput.files[0];
+                    if (!file) return;
+                    try {
+                        await uploadProfilePhoto(file);
+                    } catch (e) {
+                        alert("Gagal upload foto profile: " + (e && e.message ? e.message : e));
+                    } finally {
+                        fileInput.value = '';
+                    }
+                };
+            }
+
+            if (removeBtn) {
+                removeBtn.onclick = async () => {
+                    try {
+                        await removeProfilePhoto();
+                    } catch (e) {
+                        alert("Gagal menghapus foto profile: " + (e && e.message ? e.message : e));
+                    }
+                };
+            }
+
+            if (formEl) {
+                formEl.addEventListener('submit', async (ev) => {
+                    ev.preventDefault();
+                    const newPass = newPassInput ? newPassInput.value.trim() : "";
+                    const confirmPass = confirmPassInput ? confirmPassInput.value.trim() : "";
+
+                    if (newPass || confirmPass) {
+                        if (newPass.length < 6) {
+                            alert("Password minimal 6 karakter.");
+                            return;
+                        }
+                        if (newPass !== confirmPass) {
+                            alert("Konfirmasi password tidak sama.");
+                            return;
+                        }
+                        try {
+                            if (!auth.currentUser) {
+                                alert("User tidak terautentikasi. Silakan login ulang.");
+                                return;
+                            }
+                            await updatePassword(auth.currentUser, newPass);
+                            const uid = auth.currentUser.uid;
+                            try {
+                                await updateDoc(doc(db, "users", uid), { password_length: newPass.length });
+                            } catch (e) {}
+                            alert("Password berhasil diperbarui.");
+                            if (newPassInput) newPassInput.value = "";
+                            if (confirmPassInput) confirmPassInput.value = "";
+                        } catch (e) {
+                            alert("Gagal mengganti password: " + (e && e.message ? e.message : e));
+                            return;
+                        }
+                    }
+
+                    alert("Profile saved (data lain masih belum disimpan ke Firestore).");
+                });
+            }
+        });
+    </script>
+</body>
+</html>
