@@ -1,523 +1,198 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/webp" href="assets/img/favicon.webp">
-    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Team Dialogika</title>
-
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <style>
-        :root {
-            /* --- Dialogika Color Palette --- */
-            --dlg-blue: #0B2B6A;
-            --topbar-height: 70px;
-            --bg-body: #F8FAFC;
-        }
-
-        /* --- PERBAIKAN UTAMA DI SINI --- */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-body);
-            color: #1f2937;
-            /* Membuat body menjadi Flex container vertikal */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            /* Pastikan tinggi minimal setinggi layar */
-            margin: 0;
-        }
-
-        /* --- TOP BAR (Fixed) --- */
-        .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--topbar-height);
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* Center Logo */
-            padding: 0 30px;
-            z-index: 1001;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        /* --- MAIN CONTENT WRAPPER --- */
-        /* Bagian ini akan mengisi ruang kosong agar footer terdorong ke bawah */
-        main.main-content-wrapper {
-            flex: 1;
-            /* Mengambil sisa ruang yang tersedia */
-            display: flex;
-            align-items: center;
-            /* Vertikal Center */
-            justify-content: center;
-            /* Horizontal Center */
-            padding: 20px;
-            margin-top: var(--topbar-height);
-            /* Kompensasi header fixed */
-            width: 100%;
-        }
-
-        .login-card {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            /* Menghapus margin persen manual agar flexbox yang mengatur posisi */
-            margin: 0;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            color: var(--dlg-blue);
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        }
-
-        .btn-login {
-            width: 100%;
-            color: #fff;
-            padding: 12px;
-            /* Sedikit diperbesar untuk touch target mobile */
-            border-radius: 7px;
-            border: 0px;
-            font-size: 14px;
-            font-weight: 600;
-            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
-            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .btn-login:hover {
-            background: #0b2b6a;
-            box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
-        }
-
-        .btn-login:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .error-message {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
-            border: 1px solid #ffcdd2;
-        }
-
-        .auth-links {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-top: 10px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        .auth-links a {
-            text-decoration: none;
-            color: #666;
-            transition: color 0.3s;
-        }
-
-        .auth-links a:hover {
-            color: #4a90e2;
-            text-decoration: underline;
-        }
-
-        /* --- FOOTER FIXED STYLE --- */
-        footer {
-            width: 100%;
-            margin-top: auto;
-            /* Kunci agar footer menempel ke bawah jika konten pendek */
-            background: #0B2B6A;
-            z-index: 10;
-        }
-
-        #footer {
-            font-size: 14px;
-            background: #0B2B6A;
-            color: #fff;
-            padding: 0;
-        }
-
-        #footer .container {
-            padding-top: 20px;
-            padding-bottom: 20px;
-        }
-
-        #footer .credits {
-            padding-top: 5px;
-            font-size: 13px;
-            color: #444444;
-        }
-
-        #footer .social-links a {
-            font-size: 18px;
-            display: inline-block;
-            background: #fff;
-            color: #0b2b6a;
-            line-height: 1;
-            padding: 8px 0;
-            margin-right: 4px;
-            border-radius: 50%;
-            text-align: center;
-            width: 36px;
-            height: 36px;
-            transition: 0.3s;
-            box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
-            -webkit-box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
-            -moz-box-shadow: 0px -10px 15px -6px rgba(114, 4, 207, 0.75) inset;
-        }
-
-        #footer .social-links a:hover {
-            background: #7204cf;
-            color: #fff;
-            text-decoration: none;
-            box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
-            -webkit-box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
-            -moz-box-shadow: 0px 0px 4px 2px rgba(114, 4, 207, 0.75);
-        }
-
-        /* Responsif Mobile */
-        @media (max-width: 768px) {
-            .btn-login {
-                padding: 10px;
-            }
-
-            /* Pada mobile, jika keyboard muncul, pastikan footer tidak menutupi form */
-            main.main-content-wrapper {
-                padding: 15px;
-                min-height: calc(100vh - var(--topbar-height) - 100px);
-                /* Estimasi tinggi */
-            }
-
-            #footer .container {
-                flex-direction: column;
-                text-align: center !important;
-                gap: 15px;
-            }
-
-            .me-md-auto {
-                text-align: center !important;
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/webp" href="assets/img/favicon.webp">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp">
+  <title>Login — Team Dialogika</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
 </head>
-
 <body>
+  <div class="dg-login-shell">
+    <div class="dg-login-card">
+      <div class="text-center mb-4">
+        <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" height="40" class="mb-3">
+        <h4 class="mb-1">Masuk ke Team Dialogika</h4>
+        <p class="text-body-secondary small mb-0">team.dialogika.co</p>
+      </div>
 
-    <!-- 1. TOP BAR FIXED -->
-    <nav class="top-bar">
-        <!-- CENTER: LOGO DIALOGIKA -->
-        <div class="logo-center">
-            <img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" height="35">
+      <div id="errorMessage" class="alert alert-danger py-2 small d-none"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="mb-3">
+          <label class="form-label small" for="email">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="nama@email.com" required autocomplete="username">
         </div>
-    </nav>
-
-    <!-- 2. MAIN CONTENT (LOGIN CARD) -->
-    <!-- Class main-content-wrapper akan handle centering dan flex-grow -->
-    <main class="main-content-wrapper">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>Welcome Back Champion!</h1>
-                <p>Silakan login untuk melanjutkan</p>
-            </div>
-
-            <div id="errorMessage" class="error-message"></div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="nama@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Masukkan password" required>
-                </div>
-
-                <button type="submit" id="submitBtn" class="btn-login">Login</button>
-            </form>
-
-            <div class="auth-links">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
-                <a href="register.html">Register</a>
-            </div>
+        <div class="mb-3">
+          <label class="form-label small" for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Masukkan password" required autocomplete="current-password">
         </div>
-    </main>
+        <button type="submit" id="submitBtn" class="btn btn-primary w-100">Masuk</button>
+      </form>
 
-    <!-- Modal Forgot Password -->
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="forgotPasswordModalLabel"
-                        style="color: var(--dlg-blue); font-weight: 600;">Reset Password</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p style="font-size: 14px; color: #666;">Masukkan alamat email Anda yang terdaftar, dan kami akan
-                        mengirimkan tautan untuk mengatur ulang password.</p>
-                    <div id="forgotErrorMessage" class="error-message"
-                        style="display: none; padding: 10px; margin-bottom: 15px;"></div>
-                    <div id="forgotSuccessMessage" class="alert alert-success"
-                        style="display: none; font-size: 14px; padding: 10px; margin-bottom: 15px;"></div>
-                    <form id="forgotPasswordForm">
-                        <div class="form-group mb-0">
-                            <label for="forgotEmail">Email</label>
-                            <input type="email" id="forgotEmail" class="form-control" placeholder="nama@email.com"
-                                required style="padding: 10px 15px;">
-                        </div>
-                        <button type="submit" id="forgotSubmitBtn" class="btn-login mt-3">Kirim Link Reset</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mt-3 small">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Lupa Password?</a>
+        <a href="register.html">Daftar</a>
+      </div>
     </div>
+  </div>
 
-    <!-- 3. FOOTER -->
-    <footer>
-        <div id="footer">
-            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-
-                <div class="me-md-auto text-center text-md-start">
-                    <div class="copyright">
-                        &copy; Copyright <strong><span>Dialogika</span></strong> | PT. Dialogika Persona Indonesia
-                    </div>
-                </div>
-
-                <div class="social-links text-center text-md-right">
-                    <a href="https://link.dialogika.co/twitter" class="twitter"><i class="bi bi-twitter"></i></a>
-                    <a href="https://link.dialogika.co/facebook" class="facebook"><i class="bi bi-facebook"></i></a>
-                    <a href="https://link.dialogika.co/instagram" class="instagram"><i class="bi bi-instagram"></i></a>
-                    <a href="https://wa.link/emi1qx" class="instagram"><i class="bi bi-whatsapp"></i></a>
-                    <a href="https://link.dialogika.co/linkedin" class="instagram"><i class="bi bi-linkedin"></i></a>
-                </div>
-
-            </div>
+  <!-- Modal Forgot Password -->
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Reset Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-    </footer>
+        <div class="modal-body">
+          <p class="small text-body-secondary">Masukkan email yang terdaftar, kami akan mengirim tautan untuk mengatur ulang password.</p>
+          <div id="forgotErrorMessage" class="alert alert-danger py-2 small d-none"></div>
+          <div id="forgotSuccessMessage" class="alert alert-success py-2 small d-none"></div>
+          <form id="forgotPasswordForm">
+            <div class="mb-3">
+              <label class="form-label small" for="forgotEmail">Email</label>
+              <input type="email" id="forgotEmail" class="form-control" placeholder="nama@email.com" required>
+            </div>
+            <button type="submit" id="forgotSubmitBtn" class="btn btn-primary w-100">Kirim Link Reset</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Firebase SDK Modular -->
-    <script type="module">
-        // 1. Import Firebase Functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <script type="module">
+    import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { auth, db } from "./assets/js/firebase-config.js";
 
-        // 2. Konfigurasi Firebase Anda (PASTIKAN SAMA DENGAN REGISTER.HTML)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
-        };
+    // Jika sudah login, langsung lanjut ke dashboard.
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "home.html";
+      }
+    });
 
-        // Inisialisasi Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const form = document.getElementById("loginForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorMsg = document.getElementById("errorMessage");
 
-        // --- CEK SESI AKTIF ---
-        onAuthStateChanged(auth, (user) => {
-            if (user && localStorage.getItem('userData')) {
-                window.location.href = "home.html";
-            }
-        });
+    // --- PROSES LOGIN ---
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        const form = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const errorMsg = document.getElementById('errorMessage');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memeriksa...';
+      errorMsg.classList.add("d-none");
 
-        // --- PROSES LOGIN ---
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-            // UI State
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memeriksa...`;
-            errorMsg.style.display = 'none';
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        // Ambil profil dari Firestore berdasarkan UID.
+        const userDoc = await getDoc(doc(db, "users", user.uid));
 
-            try {
-                // A. Login ke Firebase Auth
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
 
-                // B. Ambil Data Profil dari Firestore (Nama, Foto, Posisi, dll)
-                // Kita ambil berdasarkan UID yang baru saja login
-                const userDoc = await getDoc(doc(db, "users", user.uid));
+          // Cek apakah akun aktif.
+          if (userData.status !== "Active") {
+            await signOut(auth);
+            throw new Error("account_inactive");
+          }
 
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+          // Simpan profil untuk keperluan tampilan (bukan untuk keputusan auth).
+          localStorage.setItem("userData", JSON.stringify({
+            uid: user.uid,
+            name: userData.name,
+            photo: userData.photo,
+            email: userData.email,
+            position: userData.employment && userData.employment.position,
+          }));
 
-                    // Cek apakah akun aktif
-                    if (userData.status !== "Active") {
-                        await signOut(auth); // Pastikan session dihapus
-                        throw new Error("account_inactive");
-                    }
+          // Catat presence (online).
+          try {
+            await setDoc(doc(db, "user_presence", user.uid), {
+              user_id: user.uid,
+              name: userData.name || user.email,
+              photo: userData.photo || "",
+              last_active_at: serverTimestamp(),
+            }, { merge: true });
+          } catch (err) {
+            console.error("Failed to record login presence", err);
+          }
 
-                    localStorage.setItem('userData', JSON.stringify({
-                        uid: user.uid,
-                        name: userData.name,
-                        photo: userData.photo,
-                        email: userData.email,
-                        position: userData.employment.position
-                    }));
+          submitBtn.innerHTML = "Login Berhasil!";
+          setTimeout(() => { window.location.href = "home.html"; }, 500);
+        } else {
+          const pendingDoc = await getDoc(doc(db, "pending_users", user.uid));
+          if (pendingDoc.exists()) {
+            await signOut(auth);
+            throw new Error("pending_approval");
+          }
+          throw new Error("Profil tidak ditemukan di database.");
+        }
+      } catch (error) {
+        console.error("Login Error:", error);
+        errorMsg.classList.remove("d-none");
 
-                    try {
-                        const presenceRef = doc(getFirestore(app), "user_presence", user.uid);
-                        await setDoc(presenceRef, {
-                            user_id: user.uid,
-                            name: userData.name || user.email,
-                            photo: userData.photo || "",
-                            last_active_at: serverTimestamp()
-                        }, { merge: true });
-                    } catch (e) {
-                        console.error("Failed to record login presence", e);
-                    }
+        let pesan = "Email atau Password salah.";
+        if (error.code === "auth/user-not-found") pesan = "Akun tidak terdaftar.";
+        if (error.code === "auth/wrong-password") pesan = "Password salah.";
+        if (error.code === "auth/invalid-credential") pesan = "Email atau Password salah.";
+        if (error.message === "pending_approval") pesan = "Akun Anda sedang menunggu persetujuan Administrator.";
+        if (error.message === "account_inactive") pesan = "Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.";
+        if (error.code === "permission-denied") pesan = "Login berhasil, tetapi akun ini belum punya izin akses. Hubungi admin untuk diberikan akses.";
 
-                    submitBtn.innerHTML = "Login Berhasil!";
+        errorMsg.innerText = pesan;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Masuk";
+      }
+    });
 
-                    setTimeout(() => {
-                        window.location.href = "home.html";
-                    }, 800);
-                } else {
-                    const pendingDoc = await getDoc(doc(db, "pending_users", user.uid));
-                    if (pendingDoc.exists()) {
-                        await signOut(auth);
-                        throw new Error("pending_approval");
-                    } else {
-                        throw new Error("Data profil tidak ditemukan di database.");
-                    }
-                }
+    // --- PROSES FORGOT PASSWORD ---
+    const forgotForm = document.getElementById("forgotPasswordForm");
+    const forgotSubmitBtn = document.getElementById("forgotSubmitBtn");
+    const forgotErrorMsg = document.getElementById("forgotErrorMessage");
+    const forgotSuccessMsg = document.getElementById("forgotSuccessMessage");
 
-            } catch (error) {
-                console.error('Login Error:', error);
-                errorMsg.style.display = 'block';
+    forgotForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-                let pesan = "Email atau Password salah.";
-                if (error.code === 'auth/user-not-found') pesan = "Akun tidak terdaftar.";
-                if (error.code === 'auth/wrong-password') pesan = "Password salah.";
-                if (error.code === 'auth/invalid-credential') pesan = "Email atau Password salah.";
-                if (error.message === 'pending_approval') pesan = "Akun Anda sedang menunggu persetujuan Administrator.";
-                if (error.message === 'account_inactive') pesan = "Akun Anda telah dinonaktifkan. Silakan hubungi Administrator jika ini adalah sebuah kesalahan.";
-                if (error.code === 'permission-denied') {
-                    pesan = "Login berhasil, tetapi akun ini belum punya izin akses data di sistem. Hubungi admin untuk diberikan akses.";
-                }
+      forgotSubmitBtn.disabled = true;
+      forgotSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
+      forgotErrorMsg.classList.add("d-none");
+      forgotSuccessMsg.classList.add("d-none");
 
-                errorMsg.innerText = pesan;
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = "Login";
-            }
-        });
+      const email = document.getElementById("forgotEmail").value.trim();
 
-        // --- PROSES FORGOT PASSWORD ---
-        const forgotForm = document.getElementById('forgotPasswordForm');
-        const forgotSubmitBtn = document.getElementById('forgotSubmitBtn');
-        const forgotErrorMsg = document.getElementById('forgotErrorMessage');
-        const forgotSuccessMsg = document.getElementById('forgotSuccessMessage');
+      try {
+        await sendPasswordResetEmail(auth, email);
+        forgotSuccessMsg.innerText = "Tautan reset password telah dikirim. Silakan cek kotak masuk atau folder spam.";
+        forgotSuccessMsg.classList.remove("d-none");
+        forgotForm.reset();
+      } catch (error) {
+        forgotErrorMsg.classList.remove("d-none");
+        let pesan = "Terjadi kesalahan saat mengirim tautan reset.";
+        if (error.code === "auth/user-not-found") pesan = "Email tidak terdaftar.";
+        if (error.code === "auth/invalid-email") pesan = "Format email tidak valid.";
+        forgotErrorMsg.innerText = pesan;
+      } finally {
+        forgotSubmitBtn.disabled = false;
+        forgotSubmitBtn.innerHTML = "Kirim Link Reset";
+      }
+    });
+  </script>
 
-        forgotForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            forgotSubmitBtn.disabled = true;
-            forgotSubmitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...`;
-            forgotErrorMsg.style.display = 'none';
-            forgotSuccessMsg.style.display = 'none';
-
-            const email = document.getElementById('forgotEmail').value;
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                forgotSuccessMsg.innerText = "Tautan reset password telah dikirim ke email Anda. Silakan cek kotak masuk atau folder spam.";
-                forgotSuccessMsg.style.display = 'block';
-                forgotForm.reset();
-            } catch (error) {
-                console.error('Forgot Password Error:', error);
-                forgotErrorMsg.style.display = 'block';
-                let pesan = "Terjadi kesalahan saat mengirim tautan reset.";
-                if (error.code === 'auth/user-not-found') pesan = "Email tidak terdaftar.";
-                if (error.code === 'auth/invalid-email') pesan = "Format email tidak valid.";
-                if (error.code === 'auth/missing-email') pesan = "Email wajib diisi.";
-                forgotErrorMsg.innerText = pesan;
-            } finally {
-                forgotSubmitBtn.disabled = false;
-                forgotSubmitBtn.innerHTML = "Kirim Link Reset";
-            }
-        });
-    </script>
-
-    <!-- Bootstrap JS for Modal -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
