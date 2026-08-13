@@ -147,16 +147,16 @@
 
 <script>
 /* ================= KONFIGURASI =================
-   Firestore project pre-dialogika, koleksi wa_leads.
+   Firestore project dialogika-co, koleksi wa_leads.
    Field: nomor(int), nama, whatsapp, status, follow_up(int), program, offering,
    alamat, notes, date_in, date_close, channel, work, last_response,
    last_update, next_follow_up, nominal_deal(int).
    Tanggal disimpan sebagai string ISO "YYYY-MM-DDTHH:mm".
    WhatsApp Agent (Hermes) menulis dokumen dengan struktur field yang sama via REST:
-   POST https://firestore.googleapis.com/v1/projects/pre-dialogika/databases/(default)/documents/wa_leads?key=API_KEY
-================================================ */
-const KEY = 'AIzaSyBaO-zl70HgAPq9rtRgoGceS-qvkjnDuG0';
-const BASE = 'https://firestore.googleapis.com/v1/projects/pre-dialogika/databases/(default)/documents';
+   POST https://firestore.googleapis.com/v1/projects/dialogika-co/databases/(default)/documents/wa_leads?key=API_KEY
+ ================================================ */
+const KEY = 'AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs';
+const BASE = 'https://firestore.googleapis.com/v1/projects/dialogika-co/databases/(default)/documents';
 const COL = 'wa_leads';
 const STR_FIELDS = ['nama','whatsapp','status','program','offering','alamat','notes','date_in','date_close','channel','work','last_response','last_update','next_follow_up'];
 const INT_FIELDS = ['nomor','follow_up','nominal_deal'];

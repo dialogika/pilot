@@ -6,16 +6,13 @@ import { getInterviewScheduleStatus, filterAndSortInterviewSchedules } from "./r
 import { promptTeamDivision, resolveCandidateDivision, syncAcceptedCandidateToTeamManagement } from "./team-management-sync.js";
 import { getCategoryTemplateDefs, getStoredTemplates, saveTemplates, setTemplatesLastModified } from "./template-manager.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, auth, db, storage } from "../assets/js/firebase-config.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, collection, getDoc, getDocs, onSnapshot, addDoc, updateDoc, setDoc, deleteDoc, serverTimestamp, arrayUnion, query, where, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // ===== FIREBASE INIT =====
-const firebaseConfig = { apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0", authDomain: "pre-dialogika.firebaseapp.com", projectId: "pre-dialogika", storageBucket: "pre-dialogika.firebasestorage.app", messagingSenderId: "343771410480", appId: "1:343771410480:web:32881c9868522090237df5", measurementId: "G-SXN811P3N0" };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+
 
 window.app = app; window.auth = auth; window.db = db;
 window.collection = collection; window.getDoc = getDoc; window.getDocs = getDocs;

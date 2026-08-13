@@ -3,7 +3,8 @@
 // Konfigurasi Firebase TUNGGAL untuk seluruh aplikasi — jangan duplikat
 // config ini di file lain. Kalau ganti project/key, cukup ubah di sini.
 //
-// Project: dialogika-co (BUKAN pre-dialogika — project lama, read-only).
+// Project: dialogika-co (CANONICAL / aktif). pre-dialogika = project lama,
+// read-only — jangan pernah .set/.update/.delete ke sana.
 //
 // Cara pakai di halaman:
 //   import { db } from "/assets/js/firebase-config.js";
@@ -22,7 +23,7 @@ const firebaseConfig = {
   projectId: "dialogika-co",
   storageBucket: "dialogika-co.firebasestorage.app",
   messagingSenderId: "664395741941",
-  appId: "1:664395741941:web:f20ff01c166e4423d823bc",
+  appId: "1:664395741941:web:f20ff01c166e4423d823bc"
 };
 
 // Guard supaya tidak initializeApp dua kali kalau file ini di-import di banyak halaman/komponen.

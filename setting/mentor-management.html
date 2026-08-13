@@ -693,17 +693,10 @@
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, db } from "../assets/js/firebase-config.js";
         import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
-        };
+        
 
         const topbarTarget = document.getElementById("topbarContainer");
         if (topbarTarget) {
@@ -714,8 +707,6 @@
             renderSidebar(sidebarTarget);
         }
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         window.db = db;
 
         if (window.lucide) {

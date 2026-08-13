@@ -478,26 +478,17 @@
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, db } from "../assets/js/firebase-config.js";
         import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, setDoc, getDoc, deleteDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { onBroadcastMessage, scheduleRender, createSyncBadge, updateSyncBadge, highlightNewCards, injectSyncStyles, destroySyncResources } from "../assets/js/class-sync.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
-        };
+        
 
         const topbarTarget = document.getElementById("topbarContainer");
         if (topbarTarget) renderTopBar(topbarTarget);
         const sidebarTarget = document.getElementById("sidebarContainer");
         if (sidebarTarget) renderSidebar(sidebarTarget);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
 
         const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
         const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];

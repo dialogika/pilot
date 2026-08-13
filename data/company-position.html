@@ -537,6 +537,7 @@
         import { renderSidebar } from "../element/sidebar.js";
         import { renderRightbarRecruit } from "../element/rightbar-recruit.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, auth, db } from "../assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore,
@@ -553,15 +554,7 @@
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyzzEYbJkkl-N8snrQf14qvj8De4YliV0",
-            authDomain: "pre-dialogika.firebaseapp.com",
-            projectId: "pre-dialogika",
-            storageBucket: "pre-dialogika.firebasestorage.app",
-            messagingSenderId: "343771410480",
-            appId: "1:343771410480:web:32881c9868522090237df5",
-            measurementId: "G-SXN811P3N0"
-        };
+        
 
         const colorPalette = [
             'linear-gradient(135deg, #667eea, #764ba2)', 'linear-gradient(135deg, #ff9a9e, #fecfef)',
@@ -577,9 +570,6 @@
         const statuses = ['Open', 'Close'];
         const statusClasses = ['st-new', 'st-hired'];
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
         window.db = db;
         window.auth = auth;
         window.collection = collection;
