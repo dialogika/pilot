@@ -2,8 +2,8 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/webp" href="assets/img/favicon.webp">
-    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp">
+    <link rel="icon" type="image/webp" href="assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Team Dialogika</title>
 
@@ -28,13 +28,15 @@
       rel="stylesheet"
     />
     <link href="assets/css/style.css" rel="stylesheet" />
+<script src="assets/js/theme.js" defer></script>
     <style>
+
       /* New Project Placeholder Card */
       .btn-new-project-placeholder {
-        border: 2px dashed #cbd5e1;
+        border: 2px dashed var(--border-sep);
         border-radius: 16px;
-        background-color: #f8fafc;
-        color: #64748b;
+        background-color: var(--surface-toolbar);
+        color: var(--text-muted);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -49,7 +51,7 @@
       .btn-new-project-placeholder:hover {
         border-color: var(--dlg-blue);
         color: var(--dlg-blue);
-        background-color: #eff6ff;
+        background-color: var(--surface-active);
         transform: translateY(-5px);
       }
 
@@ -83,7 +85,7 @@
 
       .form-label {
         font-weight: 700;
-        color: #374151;
+        color: var(--text);
         margin-bottom: 8px;
         font-size: 0.95rem;
       }
@@ -109,7 +111,7 @@
       }
 
       .modal-editor-toolbar {
-        background: #fff;
+        background: var(--surface);
         border-bottom: 1px solid #f3f4f6;
         padding: 5px 10px;
         display: flex;
@@ -121,7 +123,7 @@
         min-height: 120px;
         padding: 15px;
         outline: none;
-        background: #fff;
+        background: var(--surface);
       }
 
       /* Toggle Switch */
@@ -182,7 +184,8 @@
         word-break: break-all;
         min-width: 0;
       }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="assets/js/auth-guard.js"></script>
@@ -190,15 +193,26 @@
 
   <body>
     <div id="topbarContainer"></div>
+    <div id="sidebarContainer"></div>
 
     <div class="dashboard-container">
-      <div id="sidebarContainer"></div>
-
-      <!-- 3. MAIN CONTENT (Code-28 Rich Content) -->
+      <!-- 3. MAIN CONTENT  -->
       <main class="main-content">
         <div class="mb-4">
           <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
           <small class="text-muted">Here is your daily update.</small>
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+            <span
+              id="dashboard-role-badge"
+              class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 small"
+              >Role: -</span
+            >
+            <span
+              id="dashboard-position-badge"
+              class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 small"
+              >Position: -</span
+            >
+          </div>
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -890,98 +904,7 @@
           </div>
         </div>
       </div>
-
-      <!-- MOBILE BOTTOM NAVIGATION -->
-      <div class="bottom-nav">
-        <a href="#" class="nav-item-mobile active"
-          ><i class="bi bi-house-door-fill"></i
-        ></a>
-        <a href="#" class="nav-item-mobile"><i class="bi bi-search"></i></a>
-
-        <button
-          class="nav-btn-plus"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#actionSheet"
-        >
-          <i class="bi bi-plus-lg"></i>
-        </button>
-
-        <a href="#" class="nav-item-mobile position-relative">
-          <i class="bi bi-bell"></i>
-          <span
-            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-            style="
-              width: 10px;
-              height: 10px;
-              margin-left: -15px;
-              margin-top: 10px;
-            "
-          ></span>
-        </a>
-        <a href="#" class="nav-item-mobile"><i class="bi bi-person"></i></a>
-      </div>
-
-      <!-- MOBILE ACTION SHEET -->
-      <div
-        class="offcanvas offcanvas-bottom custom-bottom-sheet"
-        tabindex="-1"
-        id="actionSheet"
-      >
-        <div class="offcanvas-header justify-content-center pb-0">
-          <div
-            style="
-              width: 40px;
-              height: 4px;
-              background: #e2e8f0;
-              border-radius: 10px;
-            "
-          ></div>
-        </div>
-        <div class="offcanvas-body pt-4">
-          <h6 class="fw-bold mb-3 ps-2">Create New</h6>
-          <a href="#" class="action-option">
-            <div
-              class="d-flex align-items-center justify-content-center rounded-3 me-3"
-              style="
-                width: 40px;
-                height: 40px;
-                background: #e0f2fe;
-                color: #0284c7;
-              "
-            >
-              <i class="bi bi-sticky"></i>
-            </div>
-            <div>
-              <span class="d-block fw-bold small">Capture</span
-              ><small class="text-muted" style="font-size: 0.7rem"
-                >Quick ideas & memos</small
-              >
-            </div>
-          </a>
-          <a href="#" class="action-option">
-            <div
-              class="d-flex align-items-center justify-content-center rounded-3 me-3"
-              style="
-                width: 40px;
-                height: 40px;
-                background: #f0fdf4;
-                color: #16a34a;
-              "
-            >
-              <i class="bi bi-check2-square"></i>
-            </div>
-            <div>
-              <span class="d-block fw-bold small">Reminder</span
-              ><small class="text-muted" style="font-size: 0.7rem"
-                >Assign to yourself or team</small
-              >
-            </div>
-          </a>
-        </div>
-      </div>
     </div>
-
     <!-- --- MODAL: NEW PROJECT --- -->
     <div
       class="modal fade"
@@ -1136,6 +1059,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Home Dashboard Module -->
-    <script type="module" src="assets/home/home-dashboard.js"></script>
+    <script type="module" src="pages/home/home-dashboard.js"></script>
   </body>
 </html>

@@ -16,16 +16,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+
+
         body { font-family: 'Poppins', sans-serif; }
         .text-muted-custom { color: #636e72; font-size: 0.85rem; }
         .stat-number { font-size: 1.8rem; font-weight: 700; color: #2d3436; }
         .btn-weekly {
-            background-color: #fff; border: 1px solid #e0e0e0; padding: 10px 20px;
+            background-color: var(--surface); border: 1px solid #e0e0e0; padding: 10px 20px;
             border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px;
         }
         .btn-filter-action {
             padding: 10px 18px; border-radius: 12px; font-weight: 500;
-            border: 1px solid #e0e0e0; background-color: #fff; font-size: 0.9rem;
+            border: 1px solid #e0e0e0; background-color: var(--surface); font-size: 0.9rem;
         }
         .btn-filter-action.active { background-color: #0B2B6A; color: #fff; border-color: #0B2B6A; }
         .btn-filter-action:hover:not(.active) { background-color: #f0f0f0; }
@@ -53,8 +55,8 @@
         }
         .important-note-title { font-size: 1.1rem; }
         .important-note-text { font-size: 0.95rem; line-height: 1.8; opacity: 0.95; }
-        .important-note-box .btn-edit-notes { background-color: #f9fafb; color: #111827; border: none; }
-        .important-note-box .btn-edit-notes:hover { background-color: #e5e7eb; color: #111827; }
+        .important-note-box .btn-edit-notes { background-color: var(--surface-muted); color: var(--text-strong); border: none; }
+        .important-note-box .btn-edit-notes:hover { background-color: var(--surface-hover-strong); color: var(--text-strong); }
         .card { border: none; border-radius: 18px; }
         .stats-clickable { cursor: pointer; }
         .stats-clickable:focus-visible { outline: 3px solid rgba(13, 110, 253, 0.35); outline-offset: 2px; }
@@ -62,51 +64,7 @@
             width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
             border: 1px solid rgba(0, 0, 0, 0.08);
         }
-        .sticky-menu-trigger {
-            position: fixed; right: 30px; top: 30%; z-index: 1000; cursor: pointer;
-            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%); color: #ffffff;
-            width: 60px; height: 60px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center;
-            box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sticky-menu-trigger:hover { transform: scale(1.05) rotate(90deg); }
-        .menu-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
-            z-index: 999; opacity: 0; visibility: hidden; transition: all 0.4s ease;
-        }
-        .menu-overlay.active { opacity: 1; visibility: visible; }
-        .menu-container {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -60%) scale(0.9); z-index: 1001;
-            width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
-            padding: 32px; border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            opacity: 0; visibility: hidden;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .menu-container.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-        .menu-header { text-align: center; margin-bottom: 24px; }
-        .menu-header h2 { font-size: 1.4rem; font-weight: 600; color: #334155; }
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-        .menu-item {
-            background: #ffffff; padding: 24px 16px; border-radius: 16px; text-align: center;
-            text-decoration: none; color: #1f2933; transition: all 0.3s ease;
-            border: 1px solid #e2e8f0; display: flex; flex-direction: column;
-            align-items: center; gap: 12px;
-        }
-        .menu-item:hover {
-            background: #0B2B6A; color: #ffffff; transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(11, 43, 106, 0.35); border-color: #0B2B6A;
-        }
-        .menu-item i { width: 40px; height: 40px; stroke-width: 1.5; }
-        .menu-item span { font-weight: 600; font-size: 0.95rem; }
-        .close-btn { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #64748b; transition: color 0.3s; }
-        .close-btn:hover { color: #ef4444; }
         @media (max-width: 600px) {
-            .menu-grid { grid-template-columns: repeat(2, 1fr); }
-            .menu-item { padding: 20px 10px; }
         }
         .interview-tabs {
             border-bottom: 2px solid #f1f1f1; margin-bottom: 1rem; display: flex;
@@ -126,7 +84,7 @@
         .interview-actions {
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; justify-content: center; gap: 0.25rem;
-            background: white; border-radius: 8px; padding: 0.25rem;
+            background: var(--surface); border-radius: 8px; padding: 0.25rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             opacity: 0; visibility: hidden; transition: all 0.2s ease;
             margin-bottom: 0.25rem; z-index: 10;
@@ -168,11 +126,11 @@
             border-radius: 12px; background: #eef2f7;
         }
         .section-tab, .interview-tab {
-            border: 0; background: transparent; color: #64748b; font-weight: 700;
+            border: 0; background: transparent; color: var(--text-muted); font-weight: 700;
             font-size: 0.82rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap;
         }
         .section-tab.active, .interview-tab.active {
-            background: #ffffff; color: #0b2b6a;
+            background: var(--surface); color: #0b2b6a;
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
         }
         .metric-card-label { min-height: 34px; }
@@ -184,7 +142,9 @@
         @media (max-width: 991px) {
             .dashboard-grid-2 { grid-template-columns: 1fr; }
         }
-    </style>
+    
+
+</style>
     <script type="module" src="../assets/js/auth-guard.js"></script>
 </head>
 

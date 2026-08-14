@@ -12,10 +12,11 @@
     <link href="../assets/css/style.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
         }
         .cert-container {
             display: flex;
@@ -23,7 +24,7 @@
             align-items: flex-start;
         }
         .controls-panel {
-            background: white;
+            background: var(--surface);
             padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -32,7 +33,7 @@
         }
         .preview-panel {
             flex-grow: 1;
-            background: white;
+            background: var(--surface);
             padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -61,7 +62,7 @@
         }
         .batch-entry-item.active {
             border-color: #93c5fd;
-            background: #eff6ff;
+            background: var(--surface-active);
         }
         .log-modal-backdrop {
             position: fixed;
@@ -87,8 +88,8 @@
             display: flex;
             flex-direction: column;
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
+            border: 1px solid var(--border);
+            background: var(--surface);
             box-shadow: 0 20px 45px rgba(2, 6, 23, 0.25);
             transform: translateY(14px) scale(0.98);
             opacity: 0;
@@ -107,7 +108,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #475569;
+            color: var(--text-muted);
             font-size: 12px;
         }
         @media (max-width: 767px) {
@@ -124,7 +125,8 @@
                 align-self: flex-start;
             }
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

@@ -20,11 +20,12 @@
         rel="stylesheet">
 
     <style>
+
         .btn-new-project-placeholder {
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed var(--border-sep);
             border-radius: 16px;
-            background-color: #f8fafc;
-            color: #64748b;
+            background-color: var(--surface-toolbar);
+            color: var(--text-muted);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,7 +40,7 @@
         .btn-new-project-placeholder:hover {
             border-color: var(--dlg-blue);
             color: var(--dlg-blue);
-            background-color: #eff6ff;
+            background-color: var(--surface-active);
             transform: translateY(-5px);
         }
 
@@ -72,7 +73,7 @@
 
         .form-label {
             font-weight: 700;
-            color: #374151;
+            color: var(--text);
             margin-bottom: 8px;
             font-size: 0.95rem;
         }
@@ -97,7 +98,7 @@
         }
 
         .modal-editor-toolbar {
-            background: #fff;
+            background: var(--surface);
             border-bottom: 1px solid #f3f4f6;
             padding: 5px 10px;
             display: flex;
@@ -109,7 +110,7 @@
             min-height: 120px;
             padding: 15px;
             outline: none;
-            background: #fff;
+            background: var(--surface);
         }
 
         .form-check-input:checked {
@@ -145,7 +146,7 @@
 
         .permit-root {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
         }
 
         .permit-glass {
@@ -170,7 +171,8 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

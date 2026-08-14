@@ -25,11 +25,12 @@
     />
     <link href="../assets/css/style.css" rel="stylesheet" />
     <style>
+
       .announcement-card {
         border: 0;
         border-radius: 16px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        background: #fff;
+        background: var(--surface);
         position: relative;
         overflow: hidden;
       }
@@ -89,7 +90,7 @@
         overflow: hidden;
       }
       .modal-editor-toolbar {
-        background: #fff;
+        background: var(--surface);
         border-bottom: 1px solid #f3f4f6;
         padding: 5px 10px;
         display: flex;
@@ -99,11 +100,11 @@
         min-height: 140px;
         padding: 15px;
         outline: none;
-        background: #fff;
+        background: var(--surface);
       }
       .modal-editor-content:empty:before {
         content: attr(data-placeholder);
-        color: #94a3b8;
+        color: var(--text-faint-2);
       }
       .type-pill {
         border-radius: 999px;
@@ -111,8 +112,8 @@
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        border: 1px solid #e5e7eb;
-        background: #fff;
+        border: 1px solid var(--border-strong);
+        background: var(--surface);
       }
       .type-pill.active-pill.pill-info {
         background: #0d6efd;
@@ -143,7 +144,8 @@
         word-break: break-word;
         white-space: normal;
       }
-    </style>
+    
+</style>
 
     <script type="module" src="../assets/js/auth-guard.js"></script>
   </head>

@@ -17,6 +17,7 @@
     <!-- Font Awesome untuk Icon tambahan -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+
         :root {
             --primary-color: #ff5b37;
             --secondary-color: #64748b;
@@ -51,7 +52,7 @@
         }
 
         .stats-card {
-            background: white;
+            background: var(--surface);
             border: none;
             border-radius: 20px;
             padding: 24px;
@@ -76,30 +77,30 @@
             border-radius: 24px;
             box-shadow: var(--card-shadow);
             overflow: hidden;
-            background: white;
+            background: var(--surface);
         }
         .table { margin-bottom: 0; }
         .table thead th {
             background-color: #fcfdfe;
-            color: #94a3b8;
+            color: var(--text-faint-2);
             font-weight: 700;
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.05em;
             padding: 20px 24px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--border-soft);
         }
         .table tbody td {
             padding: 18px 24px;
             vertical-align: middle;
-            color: #475569;
+            color: var(--text-muted);
             border-bottom: 1px solid #f8fafc;
         }
         .table tbody tr:hover { background-color: #fbfcfe; }
 
         .avatar-ring {
             padding: 2px;
-            border: 2px solid #f1f5f9;
+            border: 2px solid var(--border-soft);
             border-radius: 50%;
         }
 
@@ -117,11 +118,11 @@
         .badge-soft-warning { background: #fefce8; color: #b45309; }
 
         .form-select-custom, .form-control-custom {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 12px;
             font-size: 14px;
             padding: 8px 16px;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
         }
         .form-select-custom:focus {
             border-color: var(--primary-color);
@@ -136,11 +137,11 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
-            border: 1px solid #f1f5f9;
-            color: #64748b;
-            background: white;
+            border: 1px solid var(--border-soft);
+            color: var(--text-muted);
+            background: var(--surface);
         }
-        .btn-action:hover { background: #f8fafc; color: var(--primary-color); }
+        .btn-action:hover { background: var(--surface-toolbar); color: var(--primary-color); }
 
         .internship-avatar {
             width: 40px;
@@ -170,15 +171,16 @@
             position: sticky;
             left: 0;
             z-index: 3;
-            background-color: #ffffff;
+            background-color: var(--surface);
         }
         .internship-col-status {
             position: sticky;
             left: 220px;
             z-index: 3;
-            background-color: #ffffff;
+            background-color: var(--surface);
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

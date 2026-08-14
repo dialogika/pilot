@@ -12,11 +12,13 @@
     <link href="../assets/css/style.css" rel="stylesheet" />
 
     <style>
+
+
         .project-context-card {
             max-width: 800px;
             width: 90%;
-            background: white;
-            color: #1f2937;
+            background: var(--surface);
+            color: var(--text);
             margin: 20px auto -20px auto;
             padding: 15px 25px 35px 25px;
             border-radius: 16px 16px 0 0;
@@ -27,53 +29,11 @@
             justify-content: center;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         }
-        .ph-badge {
-            background: #FDE047;
-            color: #854D0E;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            position: absolute;
-            left: 30px;
-            top: 38%;
-            transform: translateY(-50%);
-        }
-        .ph-crumb-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            color: white;
-        }
-        .ph-crumb-link {
-            text-decoration: none;
-            color: #d1d5db;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        .ph-crumb-link:hover {
-            color: white;
-        }
-        .ph-crumb-active {
-            color: white;
-            font-weight: 700;
-            border-bottom: 2px solid #FDE047;
-            padding-bottom: 2px;
-        }
-        .ph-sep {
-            font-size: 0.8rem;
-            color: white;
-        }
         .main-list-card {
             
             width: 100%;
             margin: 0 auto 50px auto;
-            background: white;
+            background: var(--surface);
             border-radius: 16px;
             box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.3);
             padding: 40px 40px 32px 40px;
@@ -85,7 +45,9 @@
             font-size: 1.4rem;
             font-weight: 700;
         }
-    </style>
+    
+
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

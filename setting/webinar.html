@@ -16,6 +16,7 @@
     <link href="../assets/css/style.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+
         .modal-content {
             border-radius: 12px;
             border: none;
@@ -39,7 +40,7 @@
 
         .form-label {
             font-weight: 700;
-            color: #374151;
+            color: var(--text);
             margin-bottom: 8px;
             font-size: 0.95rem;
         }
@@ -59,18 +60,18 @@
         }
 
         .settings-card {
-            background: #ffffff;
+            background: var(--surface);
             border-radius: 20px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-strong);
             padding: 24px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
         }
 
         /* ─── Modern Webinar Cards ─── */
         .webinar-card {
-            background: #ffffff;
+            background: var(--surface);
             border-radius: 18px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-strong);
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -119,7 +120,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #94a3b8;
+            color: var(--text-faint-2);
         }
 
         .webinar-status-badge {
@@ -146,7 +147,7 @@
 
         .webinar-status-badge.inactive {
             background: rgba(241, 245, 249, 0.95);
-            color: #64748b;
+            color: var(--text-muted);
         }
 
         .webinar-card-body {
@@ -160,7 +161,7 @@
         .webinar-card-title {
             font-size: 1rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-strong);
             margin: 0;
             line-height: 1.4;
             display: -webkit-box;
@@ -171,7 +172,7 @@
 
         .webinar-card-desc {
             font-size: 0.825rem;
-            color: #64748b;
+            color: var(--text-muted);
             line-height: 1.6;
             margin: 0;
             display: -webkit-box;
@@ -186,7 +187,7 @@
             flex-direction: column;
             gap: 8px;
             padding-top: 12px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--border-soft);
             margin-top: auto;
         }
 
@@ -195,7 +196,7 @@
             align-items: center;
             gap: 6px;
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: var(--text-faint-2);
         }
 
         .webinar-card-meta-item i {
@@ -212,7 +213,7 @@
             display: flex;
             gap: 8px;
             padding: 14px 20px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--border-soft);
             background: #fafbfd;
             border-radius: 0 0 18px 18px;
         }
@@ -225,9 +226,9 @@
             gap: 5px;
             padding: 8px 0;
             border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            color: #64748b;
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
+            color: var(--text-muted);
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
@@ -235,9 +236,9 @@
         }
 
         .webinar-card-footer .btn-card-action:hover {
-            background: #f8fafc;
+            background: var(--surface-toolbar);
             border-color: #d1d5db;
-            color: #374151;
+            color: var(--text);
         }
 
         .webinar-card-footer .btn-card-action.action-edit:hover {
@@ -266,8 +267,8 @@
 
         .webinar-order-badge {
             font-size: 0.65rem;
-            color: #94a3b8;
-            background: #f1f5f9;
+            color: var(--text-faint-2);
+            background: var(--surface-hover);
             padding: 2px 8px;
             border-radius: 6px;
             font-weight: 600;
@@ -277,18 +278,18 @@
         }
 
         .poster-upload-zone {
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed var(--border-sep);
             border-radius: 12px;
             padding: 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            background: #f8fafc;
+            background: var(--surface-toolbar);
         }
 
         .poster-upload-zone:hover {
             border-color: var(--dlg-blue);
-            background: #eff6ff;
+            background: var(--surface-active);
         }
 
         .poster-upload-zone.has-image {
@@ -363,14 +364,14 @@
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            background: #fff;
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
             cursor: pointer;
             transition: all 0.15s ease;
         }
 
         .btn-action:hover {
-            background: #f1f5f9;
+            background: var(--surface-hover);
         }
 
         .btn-action-edit:hover {
@@ -395,7 +396,7 @@
 
         /* ─── Quill Editor ─── */
         #webinarMetaDescEditor {
-            background: #fff;
+            background: var(--surface);
             border-radius: 0 0 6px 6px;
         }
         #webinarMetaDescEditor .ql-editor {
@@ -407,7 +408,7 @@
         #webinarMetaDescEditor .ql-toolbar {
             border-radius: 6px 6px 0 0;
             border-color: #d1d5db;
-            background: #f9fafb;
+            background: var(--surface-muted);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -419,7 +420,8 @@
         #webinarMetaDescEditor .ql-editor:focus {
             box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

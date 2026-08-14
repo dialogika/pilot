@@ -9,6 +9,7 @@ import {
   logoutUser,
   getUserDepartment,
 } from "./home-firebase.js";
+import { db, doc, getDoc, getDocs, collection } from "./home-firebase.js";
 import { formatGreeting } from "./home-utils.js";
 import {
   startPresenceTracking,
@@ -36,7 +37,6 @@ import {
   loadDailyReportApprovals,
   approveUser,
   rejectUser,
-  openDailyReportModal,
   approveReport,
   approveIndividualTasks,
   cancelApproveIndividual,
@@ -62,17 +62,47 @@ export async function initializeDashboard() {
     // Render shared layout (topbar + sidebar)
     const topbarTarget = document.getElementById("topbarContainer");
     if (topbarTarget) renderTopBar(topbarTarget);
-    const sidebarTarget = document.getElementById("sidebarContainer");
-    if (sidebarTarget) renderSidebar(sidebarTarget);
 
-    // Initialize auth and get user data
+    // Initialize auth and get user data FIRST (role needed for sidebar)
     const { user, userData } = await initializeAuth();
+
+    // Resolve role from the user's custom claim (fall back to userData)
+    let role = null;
+    try {
+      const tokenResult = await user.getIdTokenResult();
+      role = tokenResult.claims?.role || null;
+    } catch (e) {
+      console.error("Failed to read role claim:", e);
+    }
+    role = role || userData?.access?.role_id || userData?.roleId || null;
+
+    // Render sidebar with the resolved role (role-aware nav filtering)
+    const sidebarTarget = document.getElementById("sidebarContainer");
+    if (sidebarTarget)
+      renderSidebar(sidebarTarget, { role, activePage: "dashboard" });
 
     // Populate user display in topbar/sidebar
     populateUserDisplay(user, userData);
 
     // Update welcome message
     updateWelcomeMessage(userData);
+
+    // Show role + position badges
+    const roleBadge = document.getElementById("dashboard-role-badge");
+    if (roleBadge) {
+      roleBadge.textContent =
+        "" + (role ? role[0].toUpperCase() + role.slice(1) : "-");
+    }
+    const positionBadge = document.getElementById("dashboard-position-badge");
+    if (positionBadge) {
+      const position =
+        userData?.position ||
+        userData?.employment?.position ||
+        userData?.employment?.name ||
+        "Member";
+      positionBadge.textContent = "" + position;
+      resolvePositionName(positionBadge, position);
+    }
 
     // Initialize presence tracking
     startPresenceTracking();
@@ -188,8 +218,22 @@ function populateUserDisplay(user, userData) {
   if (userNameDisplay) userNameDisplay.innerText = localData.name || user.email;
   if (userPhotoDisplay)
     userPhotoDisplay.src = localData.photo || "https://i.pravatar.cc/300";
-  if (userRoleDisplay)
-    userRoleDisplay.innerText = localData.position || "Staff";
+
+  // Show readable position: prefer employment.position/role, else resolve the ID.
+  if (userRoleDisplay) {
+    const readable =
+      localData.employment?.position ||
+      localData.employment?.role ||
+      localData.positionLabel ||
+      localData.position_name ||
+      "";
+    if (readable && readable.length < 10) {
+      userRoleDisplay.innerText = readable;
+    } else {
+      userRoleDisplay.innerText = "Loading...";
+      resolvePositionName(userRoleDisplay, localData.position || readable, "");
+    }
+  }
 }
 
 /**
@@ -372,6 +416,59 @@ export function cleanupDashboard() {
   window.toggleSidebar = null;
 
   isInitialized = false;
+}
+
+/**
+ * Resolve a position doc ID into a readable name, if it looks like an ID.
+ */
+async function resolvePositionName(el, rawValue, prefix = "Position: ") {
+  if (!rawValue || rawValue.trim().length < 10 || rawValue.includes(" ")) {
+    return;
+  }
+  const key = rawValue.trim();
+  const getName = (d) => d && (d.name || d.title || d.position || d.label);
+
+  // Try the known-allowed collection FIRST (positions is in the rules).
+  for (const coll of ["positions", "position"]) {
+    try {
+      const ref = doc(db, coll, key);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const name = getName(snap.data());
+        if (name) {
+          const parts = [name];
+          if (prefix && snap.data().department)
+            parts.push(`(${snap.data().department})`);
+          el.textContent = parts.join(" ");
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to read ${coll}/${key}:`, e);
+    }
+  }
+
+  // Fallback: scan the allowed positions collection for a matching id field.
+  try {
+    const listSnap = await getDocs(collection(db, "positions"));
+    let matched = "";
+    listSnap.forEach((docSnap) => {
+      if (matched) return;
+      const d = docSnap.data() || {};
+      if (
+        d.id === key ||
+        d.position_id === key ||
+        d._id === key ||
+        docSnap.id === key
+      ) {
+        const name = getName(d);
+        if (name) matched = name;
+      }
+    });
+    if (matched) el.textContent = prefix + matched;
+  } catch (e) {
+    console.warn("Failed to scan positions:", e);
+  }
 }
 
 /**

@@ -4,7 +4,7 @@
 
 import { db } from "./home-firebase.js";
 import { 
-  collection, query, where, getDocs, getCountFromServer 
+  collection, query, where, getDocs, getCountFromServer, doc, getDoc 
 } from "./home-firebase.js";
 import { getMs, isRecentByFields, normalizeStatus, addMonths } from "./home-utils.js";
 
@@ -110,25 +110,6 @@ async function fetchDocsByStatus(collectionName, statuses, options) {
 }
 
 /**
- * Get documents from multiple paths
- * @param {Array} pathList - List of paths
- * @returns {Promise<any>} Documents snapshot
- */
-async function getDocsFromPaths(pathList) {
-  if (!db) return null;
-  
-  for (const path of pathList) {
-    try {
-      const snap = await getDocs(collection(db, ...path));
-      return snap;
-    } catch (e) {
-      console.warn("Menu badge path failed:", path.join("/"), e);
-    }
-  }
-  return null;
-}
-
-/**
  * Refresh branding schedule badge
  */
 async function refreshBrandingScheduleBadge() {
@@ -210,14 +191,12 @@ export async function refreshMenuBadges() {
       candidateDocs.filter((ds) => isRecentByFields(ds.data() || {}, cutoffMs)).length
     );
     
-    // Operational expenses badge
+    // Operational expenses badge — fetch by cutoff only (single-field query,
+    // no composite index), filter status in memory.
     const expenseDocs = await fetchDocsByCutoff(
       "operational_expenses",
       cutoffMs,
-      {
-        whereFilters: [where("status", "in", ["requested", "reviewing"])],
-        allowFullScan: false,
-      }
+      { allowFullScan: false }
     );
     const expenseCount = expenseDocs.filter((ds) => {
       const data = ds.data() || {};
@@ -282,38 +261,34 @@ export async function refreshMenuBadges() {
       permitDocs.length + reimburseDocs.length
     );
     
-    // Referral badge
-    const referralSnap = await getDocsFromPaths([
-      ["settings", "referrals"],
-      ["referrals"],
-      ["settings_referrals"],
-    ]);
-    
-    if (referralSnap) {
-      let referralCount = 0;
-      const nowMs = Date.now();
-      
-      referralSnap.forEach((docSnap) => {
-        const data = docSnap.data() || {};
-        const createdAtMs = getMs(
-          data.createdAtMs ||
-          data.created_at_ms ||
-          data.createdAt ||
-          data.created_at
-        );
-        
-        if (createdAtMs == null) return;
-        
-        const monthsValid = Number(data.monthsValid ?? data.months_valid ?? 0);
-        const expiresAt = addMonths(new Date(createdAtMs), monthsValid).getTime();
-        
-        if (nowMs > expiresAt) referralCount++;
-      });
-      
-      setMenuBadge("referral-kelas", referralCount);
-    } else {
-      setMenuBadge("referral-kelas", 0);
+    // Referral badge — data disimpan sebagai ARRAY dalam satu dokumen
+    // settings/referrals = { referrals: [...] }, bukan sebuah collection.
+    let expiredReferrals = 0;
+    try {
+      const referralDoc = await getDoc(doc(db, "settings", "referrals"));
+      if (referralDoc.exists()) {
+        const data = referralDoc.data() || {};
+        const referrals = data.referrals || [];
+        const nowMs = Date.now();
+        referrals.forEach((r) => {
+          const createdAtMs = getMs(
+            r.createdAtMs || r.created_at_ms || r.createdAt || r.created_at
+          );
+          if (createdAtMs == null) return;
+          const monthsValid = Number(
+            r.monthsValid ?? r.months_valid ?? 0
+          );
+          const expiresAt = addMonths(
+            new Date(createdAtMs),
+            monthsValid
+          ).getTime();
+          if (nowMs > expiresAt) expiredReferrals++;
+        });
+      }
+    } catch (e) {
+      console.warn("Referral badge failed:", e);
     }
+    setMenuBadge("referral-kelas", expiredReferrals);
     
     // Class management badge
     const classAvailabilityAll = await fetchDocsByStatus(

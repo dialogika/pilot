@@ -14,6 +14,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+
         body { font-family: 'Poppins', sans-serif; background: #f8fbff; }
 
         .piket-hero {
@@ -39,8 +40,8 @@
         }
 
         .piket-stat-card, .piket-panel, .schedule-card, .type-chip {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: var(--surface);
+            border: 1px solid var(--border);
             box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
         }
 
@@ -76,14 +77,14 @@
         }
 
         .assignment-card {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 18px;
-            background: #f8fafc;
+            background: var(--surface-toolbar);
             padding: 12px;
         }
 
         .task-bullet {
-            border-left: 3px solid #cbd5e1;
+            border-left: 3px solid var(--border-sep);
             padding-left: 8px;
             margin-top: 6px;
         }
@@ -106,8 +107,8 @@
         }
 
         .assignment-group-single .assignment-member-item {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 10px;
             height: 100%;
@@ -127,9 +128,9 @@
         }
 
         .form-shell {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 18px;
-            background: #f8fafc;
+            background: var(--surface-toolbar);
             padding: 16px;
         }
 
@@ -137,7 +138,7 @@
             display: block;
             font-size: 11px;
             font-weight: 800;
-            color: #64748b;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             margin-bottom: 6px;
@@ -155,30 +156,30 @@
         .admin-only.viewer-hidden, body.viewer-mode .admin-only { display: none !important; }
 
         .empty-state {
-            border: 1px dashed #cbd5e1;
+            border: 1px dashed var(--border-sep);
             border-radius: 24px;
-            background: #ffffff;
+            background: var(--surface);
             padding: 46px 18px;
             text-align: center;
-            color: #64748b;
+            color: var(--text-muted);
         }
 
         .assignment-row-form {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 18px;
-            background: #ffffff;
+            background: var(--surface);
             padding: 14px;
         }
 
         .task-row-form {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: var(--surface-toolbar);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 12px;
         }
 
         .type-card-row {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 12px;
         }
@@ -213,7 +214,8 @@
                 max-height: calc(100vh - 1rem);
             }
         }
-    </style>
+    
+</style>
 
     <script type="module" src="../assets/js/auth-guard.js"></script>
 </head>

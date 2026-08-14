@@ -20,6 +20,7 @@
     />
     <link href="../assets/css/style.css" rel="stylesheet" />
     <style>
+
       body {
         background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
       }
@@ -77,7 +78,7 @@
       }
 
       .metric-label {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.82rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -85,7 +86,7 @@
       }
 
       .metric-value {
-        color: #0f172a;
+        color: var(--text-strong);
         font-size: 2rem;
         font-weight: 800;
         line-height: 1;
@@ -115,8 +116,8 @@
         gap: 2px;
         padding: 10px 18px;
         border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         cursor: pointer;
         min-width: 190px;
         transition: all 0.15s ease;
@@ -136,7 +137,7 @@
       .batch-pill .batch-pill-label {
         font-weight: 700;
         font-size: 0.85rem;
-        color: #0f172a;
+        color: var(--text-strong);
         white-space: nowrap;
       }
 
@@ -146,7 +147,7 @@
 
       .batch-pill .batch-pill-count {
         font-size: 0.76rem;
-        color: #64748b;
+        color: var(--text-muted);
         font-weight: 600;
       }
 
@@ -164,7 +165,7 @@
         border-radius: 16px;
         border: 1.5px dashed #94a3b8;
         background: transparent;
-        color: #475569;
+        color: var(--text-muted);
         font-weight: 600;
         font-size: 0.85rem;
       }
@@ -180,8 +181,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--surface-toolbar);
+        border: 1px solid var(--border);
         border-radius: 16px;
         padding: 14px 18px;
         margin-bottom: 20px;
@@ -189,21 +190,21 @@
 
       .batch-info-bar .batch-info-title {
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
         display: flex;
         align-items: center;
         gap: 8px;
       }
 
       .batch-info-bar .batch-info-sub {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.82rem;
       }
 
       .batch-empty-state {
         text-align: center;
         padding: 60px 24px;
-        color: #64748b;
+        color: var(--text-muted);
       }
 
       .batch-empty-state i {
@@ -247,8 +248,8 @@
         font-size: 0.78rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #64748b;
-        background: #f8fafc;
+        color: var(--text-muted);
+        background: var(--surface-toolbar);
         border-bottom-width: 1px;
         white-space: nowrap;
       }
@@ -259,7 +260,7 @@
       }
 
       .table-modern tbody tr.row-selected {
-        background: #eff6ff;
+        background: var(--surface-active);
       }
 
       .row-checkbox,
@@ -280,8 +281,8 @@
       }
 
       .price-chip.normal {
-        background: #f1f5f9;
-        color: #475569;
+        background: var(--surface-hover);
+        color: var(--text-muted);
       }
 
       .price-chip.promo {
@@ -317,7 +318,7 @@
       .empty-state {
         text-align: center;
         padding: 48px 24px;
-        color: #64748b;
+        color: var(--text-muted);
       }
 
       .empty-state i {
@@ -329,17 +330,17 @@
         width: 36px;
         height: 36px;
         border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
-        color: #475569;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-muted);
         display: inline-flex;
         align-items: center;
         justify-content: center;
       }
 
       .table-action-btn:hover {
-        background: #f8fafc;
-        color: #0f172a;
+        background: var(--surface-toolbar);
+        color: var(--text-strong);
       }
 
       .table-action-btn.danger:hover {
@@ -358,7 +359,7 @@
       }
 
       .pagination-info {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.9rem;
       }
 
@@ -369,7 +370,7 @@
       }
 
       .pagination-modern .page-link {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
         color: #334155;
         min-width: 42px;
         text-align: center;
@@ -385,8 +386,8 @@
       }
 
       .pagination-modern .page-item.disabled .page-link {
-        background: #f8fafc;
-        color: #94a3b8;
+        background: var(--surface-toolbar);
+        color: var(--text-faint-2);
       }
 
       .modal-content {
@@ -473,11 +474,11 @@
       }
 
       .batch-static-field {
-        background: #f1f5f9;
+        background: var(--surface-hover);
         border-radius: 14px;
         padding: 10px 14px;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--text-strong);
         display: flex;
         align-items: center;
         gap: 8px;
@@ -495,7 +496,8 @@
           padding: 20px;
         }
       }
-    </style>
+    
+</style>
     <script type="module" src="../assets/js/auth-guard.js"></script>
   </head>
 

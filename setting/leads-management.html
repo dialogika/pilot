@@ -23,6 +23,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+
       .modal-content {
         border-radius: 12px;
         border: none;
@@ -43,7 +44,7 @@
 
       .form-label {
         font-weight: 700;
-        color: #374151;
+        color: var(--text);
         margin-bottom: 8px;
         font-size: 0.95rem;
       }
@@ -61,7 +62,7 @@
       }
       .input-focus {
         transition: all 0.2s;
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid var(--border);
       }
       .input-focus:focus {
         border-color: #4f46e5;
@@ -70,22 +71,22 @@
       }
 
       .settings-card {
-        background: #ffffff;
+        background: var(--surface);
         border-radius: 20px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-strong);
         padding: 24px;
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
       }
       .settings-card h5 {
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       .settings-card small {
-        color: #64748b;
+        color: var(--text-muted);
       }
       .card-elite {
-        background: #ffffff;
-        border: 1px solid #f1f5f9;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
         box-shadow:
           0 10px 25px -5px rgba(0, 0, 0, 0.02),
           0 8px 10px -6px rgba(0, 0, 0, 0.02);
@@ -140,7 +141,8 @@
         min-width: 120px;
         white-space: nowrap;
       }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

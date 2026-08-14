@@ -1,5 +1,24 @@
-export function renderSidebar(target) {
+export function renderSidebar(target, opts) {
   if (!target) return;
+  const role = (opts && opts.role) || null;
+
+  // Nav visibility per role. Items WITHOUT data-roles always show.
+  // Items WITH data-roles show only if the current role is listed.
+  // owner/admin/team = management (full); staff/intern/mentor/member = scoped.
+  // UPDATE-2026-08-11 assumption (needs confirmation): adjust the lists below.
+  const NAV_ROLE_GATE = {
+    shortcut: ["owner", "admin", "team"],
+    pings: ["owner", "admin", "team"],
+    "system-settings": ["owner", "admin"],
+  };
+
+  function roleCanShow(gateKey) {
+    if (!gateKey) return true;
+    const allowed = NAV_ROLE_GATE[gateKey];
+    if (!allowed) return true;
+    if (!role) return false; // unknown role -> hide management-only items
+    return allowed.includes(role);
+  }
 
   // Provide a shared sidebar toggle for pages that render topbar+sidebar
   // but do not define window.toggleSidebar locally.
@@ -275,10 +294,10 @@ export function renderSidebar(target) {
                     <a href="javascript:void(0)" class="sidebar-submenu-link">Branding</a>
                 </div>
 
-                <a href="#" class="sidebar-link"><i class="bi bi-list-columns-reverse"></i> Shortcut 
+                <a href="#" class="sidebar-link" data-gate="shortcut"><i class="bi bi-list-columns-reverse"></i> Shortcut 
                     <span class="menu-badge menu-badge-inline menu-badge-hidden" data-menu-badge="shortcut"></span>
                 </a>
-                <a href="javascript:void(0)" class="sidebar-link" onclick="alert('Under Development')"><i class="bi bi-chat-dots"></i> Pings
+                <a href="javascript:void(0)" class="sidebar-link" data-gate="pings" onclick="alert('Under Development')"><i class="bi bi-chat-dots"></i> Pings
                     <span class="menu-badge menu-badge-inline menu-badge-hidden" data-menu-badge="pings"></span>
                 </a>
                 <a href="/setting/announcement.html" class="sidebar-link"><i class="bi bi-bell"></i> Announcement!
@@ -292,7 +311,7 @@ export function renderSidebar(target) {
                 </a>
 
                 <div class="nav-category mt-4">System</div>
-                <a href="javascript:void(0)" class="sidebar-link" onclick="alert('Under Development')"><i class="bi bi-gear"></i>System Settings
+                <a href="javascript:void(0)" class="sidebar-link" data-gate="system-settings" onclick="alert('Under Development')"><i class="bi bi-gear"></i>System Settings
                     <span class="menu-badge menu-badge-inline menu-badge-hidden" data-menu-badge="system-settings"></span>
                 </a>
                 <a href="javascript:void(0)" class="sidebar-link text-danger" id="logoutBtn">
@@ -358,6 +377,12 @@ export function renderSidebar(target) {
 
   var cachedTasks = null;
   var cachedTasksTime = 0;
+
+  // --- ROLE-BASED NAV FILTERING (applied once the sidebar HTML is in place) ---
+  target.querySelectorAll("[data-gate]").forEach(function (el) {
+    var gateKey = el.getAttribute("data-gate");
+    if (!roleCanShow(gateKey)) el.style.display = "none";
+  });
 
   async function getTasksCached(w) {
     var now = Date.now();

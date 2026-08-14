@@ -22,6 +22,7 @@
     />
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
         background-color: #fcfdfe;
@@ -31,15 +32,15 @@
         backdrop-filter: blur(10px);
       }
       .card-elite {
-        background: #ffffff;
-        border: 1px solid #f1f5f9;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
         box-shadow:
           0 10px 25px -5px rgba(0, 0, 0, 0.02),
           0 8px 10px -6px rgba(0, 0, 0, 0.02);
       }
       .input-focus {
         transition: all 0.2s;
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid var(--border);
       }
       .input-focus:focus {
         border-color: #4f46e5;
@@ -50,8 +51,8 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--surface-toolbar);
+        border: 1px solid var(--border);
         border-radius: 999px;
         padding: 6px;
       }
@@ -61,14 +62,14 @@
         border-radius: 999px;
         font-size: 13px;
         font-weight: 700;
-        color: #64748b;
+        color: var(--text-muted);
         background: transparent;
         border: 0;
         transition: all 0.2s ease;
       }
       .tab-btn.active {
-        color: #0f172a;
-        background: #ffffff;
+        color: var(--text-strong);
+        background: var(--surface);
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
       }
       .tab-btn.active::after {
@@ -93,29 +94,29 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        background: #f8fafc;
-        color: #64748b;
+        background: var(--surface-toolbar);
+        color: var(--text-muted);
         font-size: 11px;
         letter-spacing: 0.12em;
         text-transform: uppercase;
         font-weight: 700;
         padding: 12px 16px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--border);
         text-align: center;
       }
       .table-modern tbody td {
         padding: 12px 16px;
         vertical-align: middle;
         font-size: 13px;
-        color: #0f172a;
-        border-bottom: 1px solid #f1f5f9;
+        color: var(--text-strong);
+        border-bottom: 1px solid var(--border-soft);
         text-align: center;
       }
       .table-modern tbody tr {
         height: 64px;
       }
       .table-zebra tbody tr:nth-child(even) {
-        background: #f8fafc;
+        background: var(--surface-toolbar);
       }
       /* Status row colors must override zebra striping */
       .table-zebra tbody tr:nth-child(even).bg-emerald-50 {
@@ -146,7 +147,7 @@
       .name-text .primary {
         font-weight: 700;
         font-size: 13px;
-        color: #0f172a;
+        color: var(--text-strong);
         line-height: 1.2;
       }
       .status-badge {
@@ -194,8 +195,8 @@
         border-radius: 10px;
         font-size: 12px;
         font-weight: 700;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         transition:
           background-color 0.18s ease,
           color 0.18s ease,
@@ -208,7 +209,7 @@
         color: #e11d48;
       }
       .action-btn.delete {
-        color: #64748b;
+        color: var(--text-muted);
       }
       .action-btn.approve:hover {
         background: #ecfdf3;
@@ -231,29 +232,29 @@
         width: 34px;
         height: 34px;
         border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: #64748b;
+        color: var(--text-muted);
         transition:
           background-color 0.18s ease,
           border-color 0.18s ease,
           color 0.18s ease;
       }
       .menu-trigger:hover {
-        background: #f8fafc;
+        background: var(--surface-toolbar);
         border-color: #cbd5f5;
-        color: #1f2937;
+        color: var(--text);
       }
       .menu-panel {
         position: absolute;
         right: 0;
         top: calc(100% + 8px);
         min-width: 190px;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 14px;
         padding: 6px;
         box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.35);
@@ -277,19 +278,19 @@
         border-radius: 10px;
         font-size: 12px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
         background: transparent;
         border: none;
         text-align: left;
       }
       .menu-item:hover {
-        background: #f1f5f9;
+        background: var(--surface-hover);
       }
       .menu-item.danger {
         color: #dc2626;
       }
       .menu-item.disabled {
-        color: #94a3b8;
+        color: var(--text-faint-2);
         cursor: not-allowed;
       }
       .menu-item.disabled:hover {
@@ -373,7 +374,8 @@
           right: 30%;
         }
       }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

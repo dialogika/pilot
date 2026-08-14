@@ -13,8 +13,9 @@
     <link href="../assets/css/style.css" rel="stylesheet" />
     
     <style>
+
         /* (Style Gauge & Card Container tetap sama seperti sebelumnya) */
-        .project-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 24px; box-shadow: 0 20px 50px rgba(11, 43, 106, 0.1); padding: 50px 40px;
+        .project-container { max-width: 1400px; margin: 20px auto; background: var(--surface); border-radius: 24px; box-shadow: 0 20px 50px rgba(11, 43, 106, 0.1); padding: 50px 40px;
             margin-top: 40px; /* Tambah margin atas agar badge tidak kepotong browser */
                 border: 0px solid #e5e7eb;
                 
@@ -49,13 +50,13 @@
         .gauge-bg { stroke: #f3f4f6; }
         .gauge-fill { stroke: url(#gaugeGradient); stroke-dashoffset: 251.2; transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .gauge-ticks-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .gauge-ticks-label span { position: absolute; font-size: 0.85rem; font-weight: 700; color: #9ca3af; }
+        .gauge-ticks-label span { position: absolute; font-size: 0.85rem; font-weight: 700; color: var(--text-faint); }
         .tick-0 { bottom: 45px; left: 0px; } .tick-25 { top: 40px; left: 25px; } .tick-50 { top: -5px; left: 50%; transform: translateX(-50%); } .tick-75 { top: 40px; right: 25px; } .tick-100 { bottom: 45px; right: 0px; }
         .gauge-center-text { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; color: #0B2B6A; }
         
         /* Update pada bagian invite-section & avatar-pile */
         .invite-section {
-            background: #F8FAFC;
+            background: var(--surface-toolbar);
             border-radius: 50px;
             /* Padding disesuaikan agar muat banyak avatar */
             padding: 12px 20px 12px 30px;
@@ -64,7 +65,7 @@
             justify-content: space-between;
             gap: 30px; /* Jarak antara label kiri dan avatar */
             margin-bottom: 40px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             flex-wrap: wrap; /* Agar responsif di mobile */
         }
 
@@ -118,8 +119,8 @@
         }
 
         .btn-add-people {
-            background: white;
-            border: 1px solid #cbd5e1;
+            background: var(--surface);
+            border: 1px solid var(--border-sep);
             color: #334155;
             padding: 8px 20px;
             border-radius: 30px;
@@ -131,15 +132,15 @@
         .btn-add-people:hover {
             border-color: var(--dlg-blue);
             color: var(--dlg-blue);
-            background: #eff6ff;
+            background: var(--surface-active);
         }
 
 
         /* --- TOOLS GRID STYLING --- */
         .tool-card {
-            background: white;
+            background: var(--surface);
             border-radius: 16px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-strong);
             height: 100%;
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex; flex-direction: column;
@@ -151,7 +152,7 @@
         }
         .tool-header {
             padding: 15px; text-align: center; border-bottom: 1px solid #f3f4f6;
-            background: #f9fafb; border-radius: 16px 16px 0 0;
+            background: var(--surface-muted); border-radius: 16px 16px 0 0;
         }
         .tool-title { font-weight: 700; color: var(--dlg-blue); margin: 0; font-size: 1.1rem; }
         .tool-body { padding: 20px; flex-grow: 1; }
@@ -160,10 +161,10 @@
         .msg-item { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
         .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
         .msg-content h6 { font-size: 0.9rem; margin: 0; font-weight: 600; }
-        .msg-content p { font-size: 0.8rem; color: #6b7280; margin: 0; line-height: 1.3; }
+        .msg-content p { font-size: 0.8rem; color: var(--text-muted-2); margin: 0; line-height: 1.3; }
         
         .kanban-mini { display: flex; height: 100%; gap: 5px; }
-        .kanban-col { flex: 1; background: #f3f4f6; border-radius: 8px; text-align: center; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center;}
+        .kanban-col { flex: 1; background: var(--surface-2); border-radius: 8px; text-align: center; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center;}
         .kanban-col.done { background: #dcfce7; color: #166534; }
         .kanban-col.process { background: #fef9c3; color: #854d0e; }
         .kanban-count { font-size: 1.2rem; font-weight: 700; display: block; }
@@ -179,7 +180,8 @@
         .desc-text { transition: all 0.3s; }
         .desc-more-btn { color: var(--dlg-blue); font-weight: 600; cursor: pointer; text-decoration: none; font-size: 0.9rem; }
         .desc-more-btn:hover { text-decoration: underline; }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

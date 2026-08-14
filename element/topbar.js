@@ -1,3 +1,6 @@
+import { db } from "../assets/js/firebase-config.js";
+import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 export function renderTopBar(target) {
     if (!target) return;
     target.innerHTML = `
@@ -19,6 +22,9 @@ export function renderTopBar(target) {
                 <span id="user-name-display" class="d-block fw-bold small text-dark">Loading...</span>
                 <small id="user-role-display" class="text-muted" style="font-size:0.7rem">User</small>
             </div>
+            <button class="btn btn-outline-secondary btn-sm theme-toggle" type="button" title="Toggle dark/light mode" aria-label="Toggle theme">
+                <i class="bi bi-moon-stars" data-icon-dark="bi bi-moon-stars" data-icon-light="bi bi-sun"></i>
+            </button>
             <div class="profile-dropdown-wrapper">
                 <div class="profile-img-container" id="profileDropdownToggle">
                     <img id="user-photo-display" src="https://i.pravatar.cc/300" alt="Profile" class="profile-img">
@@ -112,48 +118,41 @@ export function renderTopBar(target) {
         const roleDisplay = target.querySelector('#user-role-display');
         if (!roleDisplay) return;
 
-        // Wait for window.db to be ready if it's not immediately available
-        const waitForDb = () => new Promise(resolve => {
-            if (window.db || window.dlgDb) return resolve(window.db || window.dlgDb);
-            const check = setInterval(() => {
-                if (window.db || window.dlgDb) {
-                    clearInterval(check);
-                    resolve(window.db || window.dlgDb);
-                }
-            }, 100);
-            // Timeout after 5s
-            setTimeout(() => { clearInterval(check); resolve(null); }, 5000);
-        });
-
-        const db = await waitForDb();
-        if (!db) return;
-
         let currentRole = roleDisplay.textContent;
         // Logic: if no spaces and >10 chars, treat as ID
         if (currentRole && currentRole.trim().length > 10 && !currentRole.includes(' ')) {
-            try {
-                // Dynamically import Firestore SDK to avoid module issues if not already imported
-                const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            const key = currentRole.trim();
+            const getName = (d) => d && (d.name || d.title || d.position || d.label);
 
-                // Try 'position' collection first
-                let ref = doc(db, "position", currentRole);
-                let snap = await getDoc(ref);
-
-                // Fallback to 'positions' if not found
-                if (!snap.exists()) {
-                    ref = doc(db, "positions", currentRole);
-                    snap = await getDoc(ref);
-                }
-
-                if (snap.exists()) {
-                    const d = snap.data();
-                    const realName = d.name || d.title || d.position || d.label;
-                    if (realName) {
-                        roleDisplay.textContent = realName;
+            // Try the allowed 'positions' collection first, then 'position'.
+            for (const coll of ["positions", "position"]) {
+                try {
+                    const snap = await getDoc(doc(db, coll, key));
+                    if (snap.exists()) {
+                        const name = getName(snap.data());
+                        if (name) {
+                            roleDisplay.textContent = name;
+                            return;
+                        }
                     }
+                } catch (err) {
+                    console.warn("Failed to resolve position name (" + coll + "):", err);
                 }
+            }
+
+            // Fallback: scan the allowed 'positions' collection for a matching id field.
+            try {
+                const listSnap = await getDocs(collection(db, "positions"));
+                listSnap.forEach((docSnap) => {
+                    if (roleDisplay.textContent === key) return;
+                    const d = docSnap.data() || {};
+                    if (d.id === key || d.position_id === key || d._id === key || docSnap.id === key) {
+                        const name = getName(d);
+                        if (name) roleDisplay.textContent = name;
+                    }
+                });
             } catch (err) {
-                console.warn("Failed to resolve position name:", err);
+                console.warn("Failed to scan positions:", err);
             }
         }
     })();
@@ -242,4 +241,6 @@ export function renderTopBar(target) {
     }
 
     attachSearchUnderDevelopment(searchInput, searchButton);
+
+    if (window.DLGTheme && window.DLGTheme.syncIcons) window.DLGTheme.syncIcons();
 }

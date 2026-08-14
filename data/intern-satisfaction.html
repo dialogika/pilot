@@ -21,15 +21,16 @@
       rel="stylesheet"
     />
     <style>
+
       body {
         font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-        background-color: #f1f5f9;
-        color: #0f172a;
+        background-color: var(--surface-hover);
+        color: var(--text-strong);
       }
       .summary-card {
         border-radius: 24px;
-        border: 1px solid #e2e8f0;
-        background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+        border: 1px solid var(--border);
+        background: linear-gradient(135deg, var(--surface) 0%, #eef2ff 100%);
         box-shadow: 0 18px 44px -22px rgba(79, 70, 229, 0.35);
         padding: 28px 30px;
       }
@@ -45,25 +46,25 @@
       .summary-big {
         font-size: 40px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text-strong);
         letter-spacing: -0.03em;
       }
       .summary-big small {
         font-size: 16px;
         font-weight: 600;
-        color: #64748b;
+        color: var(--text-muted);
       }
       .summary-respondents {
         font-size: 13px;
-        color: #64748b;
+        color: var(--text-muted);
         font-weight: 500;
       }
       .summary-icon {
         width: 64px;
         height: 64px;
         border-radius: 18px;
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -74,8 +75,8 @@
       /* ── category cards ── */
       .cat-stat-card {
         border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         box-shadow: 0 10px 26px -16px rgba(15, 23, 42, 0.25);
         padding: 20px;
         height: 100%;
@@ -88,11 +89,11 @@
       .cat-stat-title {
         font-size: 14px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       .cat-stat-sub {
         font-size: 11px;
-        color: #94a3b8;
+        color: var(--text-faint-2);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.06em;
@@ -100,7 +101,7 @@
       .cat-stat-score {
         font-size: 22px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       /* ── stars generic ── */
       .star {
@@ -119,8 +120,8 @@
       }
       /* ── toolbar ── */
       .toolbar-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 18px;
         padding: 12px 14px;
         box-shadow: 0 6px 18px -14px rgba(15, 23, 42, 0.2);
@@ -129,7 +130,7 @@
       .toolbar-card select {
         font-size: 13px;
         border-radius: 12px;
-        border-color: #e2e8f0;
+        border-color: var(--border);
       }
       .toolbar-card input:focus,
       .toolbar-card select:focus {
@@ -141,9 +142,9 @@
         display: block;
         width: 100%;
         text-align: left;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
         border-radius: 20px;
-        background: #fff;
+        background: var(--surface);
         padding: 18px;
         box-shadow: 0 8px 22px -18px rgba(15, 23, 42, 0.28);
         transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
@@ -176,19 +177,19 @@
       .resp-name {
         font-size: 14px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
         line-height: 1.25;
       }
       .resp-sub {
         font-size: 11.5px;
-        color: #64748b;
+        color: var(--text-muted);
         font-weight: 500;
       }
       .resp-reason {
         font-size: 11px;
-        color: #64748b;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        color: var(--text-muted);
+        background: var(--surface-toolbar);
+        border: 1px solid var(--border);
         border-radius: 999px;
         padding: 3px 10px;
         display: inline-flex;
@@ -200,36 +201,36 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--surface-toolbar);
+        border: 1px solid var(--border);
         border-radius: 999px;
         padding: 3px 9px;
         font-size: 10.5px;
         font-weight: 700;
-        color: #475569;
+        color: var(--text-muted);
         white-space: nowrap;
       }
       .resp-date {
         font-size: 11px;
-        color: #94a3b8;
+        color: var(--text-faint-2);
         font-weight: 500;
       }
       /* ── modal ── */
       #detailModal .modal-content {
         border-radius: 22px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
       }
       .detail-section {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
         border-radius: 18px;
-        background: #f8fafc;
+        background: var(--surface-toolbar);
         padding: 18px 20px;
         margin-bottom: 16px;
       }
       .detail-section-title {
         font-size: 13px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text-strong);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         margin-bottom: 12px;
@@ -246,7 +247,7 @@
         justify-content: space-between;
         gap: 12px;
         padding: 9px 0;
-        border-bottom: 1px dashed #e2e8f0;
+        border-bottom: 1px dashed var(--border);
       }
       .q-row:last-child {
         border-bottom: 0;
@@ -259,12 +260,12 @@
       .q-score {
         font-size: 12px;
         font-weight: 700;
-        color: #475569;
+        color: var(--text-muted);
         white-space: nowrap;
       }
       .essay-block-detail {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 14px;
         padding: 14px 16px;
         margin-bottom: 12px;
@@ -272,7 +273,7 @@
       .essay-question {
         font-size: 12.5px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
         margin-bottom: 6px;
       }
       .essay-answer {
@@ -281,8 +282,8 @@
         white-space: pre-wrap;
       }
       .comment-block {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 14px;
         padding: 12px 14px;
         font-size: 13px;
@@ -292,7 +293,7 @@
       .info-grid .info-label {
         font-size: 10.5px;
         font-weight: 700;
-        color: #94a3b8;
+        color: var(--text-faint-2);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 2px;
@@ -300,7 +301,7 @@
       .info-grid .info-value {
         font-size: 13.5px;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--text-strong);
         word-break: break-word;
       }
       .modal-avatar {
@@ -324,7 +325,7 @@
       .empty-state {
         text-align: center;
         padding: 56px 20px;
-        color: #94a3b8;
+        color: var(--text-faint-2);
       }
       .pgn-btn {
         min-width: 34px;
@@ -373,7 +374,8 @@
         color: #991b1b;
         background: #fee2e2;
       }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

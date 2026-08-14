@@ -21,6 +21,7 @@
       rel="stylesheet"
     />
     <style>
+
       body {
         font-family:
           "Plus Jakarta Sans",
@@ -29,18 +30,18 @@
           BlinkMacSystemFont,
           "Segoe UI",
           sans-serif;
-        background-color: #f1f5f9;
-        color: #0f172a;
+        background-color: var(--surface-hover);
+        color: var(--text-strong);
       }
       .member-card {
         border-radius: 24px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         box-shadow: 0 18px 40px -22px rgba(15, 23, 42, 0.35);
       }
       #memberDetailModal .modal-content {
         border-radius: 24px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
       }
       #memberDetailModal .modal-title {
         font-weight: 700;
@@ -77,13 +78,13 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        background: #f1f5f9;
-        border-bottom: 2px solid #cbd5e1;
+        background: var(--surface-hover);
+        border-bottom: 2px solid var(--border-sep);
       }
       .tbl-head th {
         font-size: 11px;
         font-weight: 700;
-        color: #475569;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         padding: 12px 14px;
@@ -97,7 +98,7 @@
       }
       .tbl-head th:first-child {
         z-index: 8;
-        background: #f1f5f9;
+        background: var(--surface-hover);
       }
       .tbl-head th:first-child:hover {
         background: #e2e8f0;
@@ -105,7 +106,7 @@
       .tbl-head th .sa {
         margin-left: 4px;
         font-size: 9px;
-        color: #94a3b8;
+        color: var(--text-faint-2);
       }
       .tbl-head th.s-asc .sa,
       .tbl-head th.s-desc .sa {
@@ -113,14 +114,14 @@
       }
 
       #memberTableBody tr:nth-child(even) {
-        background: #f8fafc;
+        background: var(--surface-toolbar);
       }
       #memberTableBody td:first-child {
         z-index: 3;
-        background: #ffffff;
+        background: var(--surface);
       }
       #memberTableBody tr:nth-child(even) td:first-child {
-        background: #f8fafc;
+        background: var(--surface-toolbar);
       }
       #memberTableBody tr:hover td:first-child,
       #memberTableBody tr:nth-child(even):hover td:first-child {
@@ -159,8 +160,8 @@
       }
       .b-pay-oth {
         display: inline-block;
-        background: #f1f5f9;
-        color: #475569;
+        background: var(--surface-hover);
+        color: var(--text-muted);
         border-radius: 999px;
         padding: 2px 10px;
         font-size: 11px;
@@ -170,26 +171,26 @@
         font-variant-numeric: tabular-nums;
         text-align: right;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--text-strong);
         white-space: nowrap;
       }
       .td-ts {
         font-size: 12px;
         white-space: nowrap;
-        color: #64748b;
+        color: var(--text-muted);
       }
       .td-nama {
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       .btn-copy-wa {
         font-size: 10px;
         padding: 1px 7px;
         border-radius: 6px;
         margin-left: 6px;
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        color: #475569;
+        background: var(--surface-hover);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
         cursor: pointer;
         transition: background 0.15s;
       }
@@ -223,8 +224,8 @@
         margin-bottom: 20px;
       }
       .stat-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 18px;
         padding: 18px 22px;
         display: flex;
@@ -238,7 +239,7 @@
       }
       .stat-card:hover {
         box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.18);
-        border-color: #cbd5e1;
+        border-color: var(--border-sep);
       }
       .stat-card.active {
         border-color: #6366f1;
@@ -247,19 +248,19 @@
       .stat-card-label {
         font-size: 11px;
         font-weight: 700;
-        color: #94a3b8;
+        color: var(--text-faint-2);
         text-transform: uppercase;
         letter-spacing: 0.08em;
       }
       .stat-card-value {
         font-size: 26px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--text-strong);
         line-height: 1.1;
       }
       .stat-card-sub {
         font-size: 12px;
-        color: #64748b;
+        color: var(--text-muted);
         font-weight: 500;
       }
       .stat-card.sc-full .stat-card-value {
@@ -277,7 +278,7 @@
         align-items: center;
         justify-content: space-between;
         background: #e2e8f0;
-        border-top: 2px solid #cbd5e1;
+        border-top: 2px solid var(--border-sep);
         border-radius: 0 0 16px 16px;
         padding: 12px 16px;
       }
@@ -286,7 +287,7 @@
         font-weight: 900;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       .tbl-foot-fixed .tfoot-total {
         font-size: 13px;
@@ -299,14 +300,14 @@
         font-size: 12px;
         color: #334155;
         vertical-align: middle;
-        border-top: 1px solid #cbd5e1;
+        border-top: 1px solid var(--border-sep);
       }
       .tbl-foot .tfoot-label {
         font-size: 11px;
         font-weight: 900;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #0f172a;
+        color: var(--text-strong);
         position: sticky; /* tambahkan */
         left: 0; /* tambahkan */
         z-index: 6; /* naikkan, harus di atas kolom lain */
@@ -381,10 +382,11 @@
         font-size: 13px;
         color: #334155;
         vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-soft);
         white-space: nowrap; /* tambahkan ini */
       }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

@@ -2,7 +2,7 @@
 
 > **BACA DULU SEBELUM NGODING.** Dokumen ini adalah catatan progres single-source-of-truth untuk AI/developer yang melanjutkan project. Kalau kamu adalah AI yang baru masuk sesi ini: baca dokumen ini dari atas ke bawah, lalu baca dokumen referensi di §4 sebelum menyentuh kode.
 
-> **Tanggal update terakhir:** 2026-08-11 (sesi deploy backend + fondasi frontend)
+> **Tanggal update terakhir:** 2026-08-13 (sesi frontend: migrasi config + refactor dashboard + deploy rules)
 > **Project:** Sistem Informasi Internal & Website Dialogika
 > **Domain target:** `team.dialogika.co` (internal) · `dialogika.co` (publik)
 > **Firebase project:** `dialogika-co` (target/aktif) — `pre-dialogika` (lama, READ-ONLY)
@@ -14,15 +14,16 @@
 | Area | Status |
 |---|---|
 | Migrasi data `pre-dialogika` → `dialogika-co` | ✅ Selesai (sebelum sesi ini, lihat HANDOFF-MASTER) |
-| Firestore Security Rules v3 (7 role) | ✅ **Deployed** 2026-08-11 (dengan 1 fix: `leads.assigned_ids`) |
+| Firestore Security Rules v3 (7 role) | ✅ **Deployed** 2026-08-11 & 2026-08-13 (ditambah rule `tasks`, `announcements`, `intern_dailyreport`, `position`, `settings`) |
 | Cloud Functions (5 fungsi, 7 role) | ✅ Sudah live & match dengan kode lokal (verified "no changes") |
 | Firestore indexes (notifications) | ✅ Deployed |
 | Rename role `kepala_tim` → `team` | ✅ No-op (0 user punya claim `kepala_tim`) |
 | Set owner | ✅ `yuandadhamap@gmail.com` = claim `owner` + users doc dilengkapi profil |
 | Repo frontend baru `pilot` | ✅ Git history di-reset, initial commit + migrasi login/dashboard |
 | `index.html` (login) → fondasi baru | ✅ Migrasi ke `dialogika-co` (commit `8cedc70`) |
-| `home.html` (My Dashboard) → fondasi baru | ✅ Migrasi (commit `8cedc70`) |
-| 73 halaman legacy lain | ⬜ Belum — masih `pre-dialogika`, belum di-swap |
+| `home.html` (My Dashboard) → fondasi baru | ✅ Migrasi + **refactor modular** (2026-08-13) |
+| **Migrasi config 71 file → `firebase-config.js`** | ✅ **Selesai 2026-08-13** (mekanis via skrip) |
+| Rules deploy (rules aktif utk dashboard) | ✅ Deployed 2026-08-13 |
 | Quest UI / My Tasks | ⬜ Belum dibangun |
 | Seed `tools` + `roles.visible_tools` | ⬜ Belum (Tools Management) |
 | Seed `collection_access` | ⬜ Belum (data_member & mentors_screening) |

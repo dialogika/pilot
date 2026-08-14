@@ -2,7 +2,7 @@
 // Centralized Firebase setup for home dashboard
 // =====================================================================
 
-import { auth, db, storage } from "../js/firebase-config.js";
+import { auth, db, storage } from "../../assets/js/firebase-config.js";
 import { 
   collection, addDoc, query, where, getDoc, getDocs, 
   serverTimestamp, onSnapshot, orderBy, doc, deleteDoc, 

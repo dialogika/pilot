@@ -13,6 +13,94 @@
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+:root {
+    --dlg-blue: #0B2B6A;
+    --dlg-blue-start: #0B2B6A;
+    --dlg-blue-end: #1247af;
+    --dlg-yellow: #f7b12c;
+    --dlg-yellow-start: #f7b12c;
+    --dlg-yellow-end: #F9C72E;
+    --dlg-green: #006a4e;
+    --dlg-green-end: #009d74;
+    --dlg-red: #e7181a;
+    --dlg-red-end: #eb4647;
+    --dlg-purple: #7204cf;
+    --bg-body: #f1f7fd;
+    --sidebar-width: 290px;
+    --topbar-height: 70px;
+    --surface: #ffffff;
+    --surface-muted: #f9fafb;
+    --surface-toolbar: #f8fafc;
+    --surface-hover: #f1f5f9;
+    --surface-hover-strong: #e5e7eb;
+    --surface-2: #f3f4f6;
+    --surface-active: #eff6ff;
+    --surface-pink: #FFF0F3;
+    --surface-inverse: #1f2937;
+    --border: #e2e8f0;
+    --border-strong: #e5e7eb;
+    --border-soft: #f1f5f9;
+    --border-sep: #cbd5e1;
+    --text: #1f2937;
+    --text-strong: #111827;
+    --text-muted: #64748b;
+    --text-muted-2: #6b7280;
+    --text-faint: #9ca3af;
+    --text-faint-2: #94a3b8;
+    --text-inverse: #ffffff;
+    --danger: #ef4444;
+    --danger-strong: #b91c1c;
+    --success: #22c55e;
+    --icon-dark: #4b5563;
+    --icon-blue: #3b82f6;
+    --icon-orange: #f97316;
+    --icon-red: #ef4444;
+    --shadow-card: 0 10px 30px rgba(11, 43, 106, 0.04);
+    --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.05);
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    --shadow-pop: 0 18px 45px rgba(15, 23, 42, 0.18);
+    --bg-body-theme: var(--bg-body);
+}
+[data-theme="dark"] {
+    --surface: #1e293b;
+    --surface-muted: #0f172a;
+    --surface-toolbar: #1e293b;
+    --surface-hover: #334155;
+    --surface-hover-strong: #475569;
+    --surface-2: #1e293b;
+    --surface-active: #16213a;
+    --surface-pink: #3a2230;
+    --surface-inverse: #e2e8f0;
+    --border: #334155;
+    --border-strong: #475569;
+    --border-soft: #1f2937;
+    --border-sep: #475569;
+    --text: #e2e8f0;
+    --text-strong: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-muted-2: #9ca3af;
+    --text-faint: #64748b;
+    --text-faint-2: #94a3b8;
+    --text-inverse: #ffffff;
+    --danger: #ef4444;
+    --danger-strong: #f87171;
+    --success: #4ade80;
+    --icon-dark: #94a3b8;
+    --icon-blue: #60a5fa;
+    --icon-orange: #fb923c;
+    --icon-red: #f87171;
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.3);
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-pop: 0 18px 45px rgba(0, 0, 0, 0.45);
+    --bg-body-theme: #0b1220;
+    color-scheme: dark;
+}
+body[data-theme="dark"] { background-color: var(--bg-body-theme); color: var(--text); }
+/* __TOKENS__ */
+</style>
+<style>
+
         :root {
             --dlg-blue: #0B2B6A;
             --topbar-height: 70px;
@@ -22,7 +110,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-body);
-            color: #1f2937;
+            color: var(--text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -35,8 +123,8 @@
             left: 0;
             right: 0;
             height: var(--topbar-height);
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-strong);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -81,7 +169,7 @@
 
         .custom-select {
             appearance: none;
-            background-color: white;
+            background-color: var(--surface);
             border: 1px solid #e0e0e0;
             padding: 12px 20px;
             border-radius: 9999px;
@@ -123,8 +211,8 @@
             height: var(--avatar-size);
             border-radius: 50%;
             overflow: hidden;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
+            background: var(--surface-2);
+            border: 1px solid var(--border-strong);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
@@ -145,7 +233,7 @@
 
         .slider-wrapper {
             position: relative;
-            background: #ffffff;
+            background: var(--surface);
             height: 70px;
             border-radius: 40px;
             margin-top: 2.5rem;
@@ -237,7 +325,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: white;
+            background: var(--surface);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -284,7 +372,7 @@
         #footer .social-links a {
             font-size: 18px;
             display: inline-block;
-            background: #fff;
+            background: var(--surface);
             color: #0b2b6a;
             line-height: 1;
             padding: 8px 0;
@@ -325,7 +413,8 @@
                 margin-bottom: 10px;
             }
         }
-    </style>
+    
+</style>
 </head>
 
 <body style="background-color: #f1f7fd;">

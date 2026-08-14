@@ -17,8 +17,9 @@
         rel="stylesheet">
     <link href="../assets/css/style.css" rel="stylesheet" />
     <style>
+
         .form-panel {
-            background-color: white;
+            background-color: var(--surface);
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
@@ -28,7 +29,7 @@
         .field-label {
             font-size: 0.8rem;
             font-weight: 800;
-            color: #64748b;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 8px;
@@ -37,36 +38,36 @@
 
         .field-control {
             width: 100%;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
             border: 2px solid transparent;
             border-radius: 12px;
             padding: 12px 16px;
             font-size: 0.95rem;
             font-weight: 600;
-            color: #0f172a;
+            color: var(--text-strong);
             transition: all 0.2s ease;
         }
 
         .field-control:focus {
             outline: none;
-            border-color: #cbd5e1;
-            background-color: #ffffff;
+            border-color: var(--border-sep);
+            background-color: var(--surface);
         }
 
         .field-control::placeholder {
-            color: #94a3b8;
+            color: var(--text-faint-2);
             font-weight: 500;
         }
 
         .field-readonly {
-            background-color: #f1f5f9;
-            color: #64748b;
+            background-color: var(--surface-hover);
+            color: var(--text-muted);
             cursor: not-allowed;
         }
 
         .field-help {
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: var(--text-faint-2);
             margin-top: 6px;
             font-weight: 500;
         }
@@ -74,9 +75,9 @@
         .proof-preview {
             width: 100%;
             min-height: 120px;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
             border-radius: 12px;
-            border: 2px dashed #e2e8f0;
+            border: 2px dashed var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -121,7 +122,7 @@
         }
 
         .status-reviewing {
-            background-color: #eff6ff;
+            background-color: var(--surface-active);
             color: #2563eb;
             border: 1px solid #bfdbfe;
         }
@@ -148,7 +149,8 @@
         .fade-leave-to {
             opacity: 0;
         }
-    </style>
+    
+</style>
 </head>
 
 <body>

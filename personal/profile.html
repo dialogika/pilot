@@ -14,13 +14,14 @@
     <link href="../assets/css/style.css" rel="stylesheet" />
 
     <style>
+
         .main-container {
             max-width: 1000px;
             margin: 20px auto 40px auto;
         }
 
         .profile-card {
-            background: #ffffff;
+            background: var(--surface);
             border: none;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
@@ -33,26 +34,26 @@
             color: #1e293b;
             margin-bottom: 25px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #f1f5f9;
+            border-bottom: 2px solid var(--border-soft);
             display: flex;
             align-items: center;
         }
 
         .section-title i {
             margin-right: 10px;
-            color: #64748b;
+            color: var(--text-muted);
         }
 
         .form-label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             margin-bottom: 8px;
         }
 
         .form-control,
         .form-select {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px 15px;
             font-size: 0.95rem;
@@ -63,11 +64,11 @@
         .form-control:focus {
             border-color: #94a3b8;
             box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-            background-color: #fff;
+            background-color: var(--surface);
         }
 
         .photo-upload-section {
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
             border-radius: 12px;
             padding: 20px;
             display: flex;
@@ -91,7 +92,7 @@
 
         .profile-preview i {
             font-size: 2.5rem;
-            color: #94a3b8;
+            color: var(--text-faint-2);
         }
 
         .btn-save {
@@ -110,16 +111,16 @@
         }
 
         .btn-cancel {
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            color: #64748b;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
             padding: 10px 35px;
             border-radius: 8px;
             font-weight: 600;
         }
 
         .btn-upload {
-            background-color: #eff6ff;
+            background-color: var(--surface-active);
             color: #2563eb;
             border: 1px solid #dbeafe;
             font-weight: 600;
@@ -127,9 +128,9 @@
         }
 
         .input-group-text {
-            background-color: #f8fafc;
-            border-color: #e2e8f0;
-            color: #94a3b8;
+            background-color: var(--surface-toolbar);
+            border-color: var(--border);
+            color: var(--text-faint-2);
         }
 
         .profile-card-wrapper {
@@ -285,7 +286,7 @@
             left: 15px;
             right: 15px;
             height: 35px;
-            background: white;
+            background: var(--surface);
             display: flex;
             align-items: center;
             padding-left: 10px;
@@ -317,7 +318,8 @@
             opacity: 0.8;
             line-height: 1.6;
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

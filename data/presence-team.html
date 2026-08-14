@@ -25,10 +25,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
         background: #fdfeff;
-        color: #0f172a;
+        color: var(--text-strong);
       }
       .premium-shadow {
         box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
@@ -79,7 +80,7 @@
         height: 4px;
       }
       .scrollbar-x::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: var(--surface-hover);
         border-radius: 99px;
       }
       .scrollbar-x::-webkit-scrollbar-thumb {
@@ -109,7 +110,7 @@
         height: 4px;
       }
       .tbl-outer::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: var(--surface-hover);
       }
       .tbl-outer::-webkit-scrollbar-thumb {
         background: #cbd5e1;
@@ -136,13 +137,13 @@
         width: 100%;
         border-collapse: collapse;
         border-spacing: 0;
-        background: #fff;
+        background: var(--surface);
         /* let the table size by content so it scrolls on small screens */
         min-width: max-content;
       }
 
       .tbl-base th {
-        background: #fff;
+        background: var(--surface);
         position: sticky;
         top: 0;
         z-index: 2;
@@ -150,7 +151,7 @@
         white-space: nowrap;
       }
       .tbl-base td {
-        background: #fff;
+        background: var(--surface);
         white-space: nowrap;
       }
       .row-warning td {
@@ -188,10 +189,10 @@
         border-radius: 999px;
         font-size: 12px;
         font-weight: 600;
-        border: 1px solid #e2e8f0;
-        background: #fff;
+        border: 1px solid var(--border);
+        background: var(--surface);
         cursor: pointer;
-        color: #64748b;
+        color: var(--text-muted);
         transition: all 0.15s;
       }
       .gami-tab.active {
@@ -200,22 +201,22 @@
         border-color: #0b2b6a;
       }
       .gami-tab:hover:not(.active) {
-        background: #f1f5f9;
+        background: var(--surface-hover);
       }
 
       .intern-gami-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 16px;
         padding: 16px 18px;
         margin-bottom: 10px;
       }
       .progress-track {
         height: 10px;
-        background: #f1f5f9;
+        background: var(--surface-hover);
         border-radius: 999px;
         overflow: hidden;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
       }
       .progress-fill {
         height: 100%;
@@ -230,7 +231,7 @@
         display: flex;
         justify-content: space-between;
         font-size: 10px;
-        color: #94a3b8;
+        color: var(--text-faint-2);
         margin-top: 3px;
       }
 
@@ -276,9 +277,9 @@
         border-color: #1e3a8a;
       }
       .badge-chip.locked {
-        background: #f8fafc;
-        color: #94a3b8;
-        border-color: #e2e8f0;
+        background: var(--surface-toolbar);
+        color: var(--text-faint-2);
+        border-color: var(--border);
       }
 
       .ldr-row {
@@ -286,7 +287,7 @@
         align-items: center;
         gap: 12px;
         padding: 10px 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-soft);
       }
       .ldr-row:last-child {
         border-bottom: none;
@@ -308,7 +309,8 @@
           padding: 5px 12px;
         }
       }
-    </style>
+    
+</style>
     <script type="module" src="../assets/js/auth-guard.js"></script>
   </head>
 

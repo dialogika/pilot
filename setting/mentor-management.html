@@ -13,6 +13,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+
         body { font-family: 'Poppins', sans-serif; }
         .badge-status-active { background: #ecfdf3; color: #16a34a; }
         .badge-status-inactive { background: #fef2f2; color: #b91c1c; }
@@ -42,10 +43,10 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #f8fafc;
+            background-color: var(--surface-toolbar);
         }
         .table-sticky tbody tr:hover {
-            background-color: #f9fafb;
+            background-color: var(--surface-muted);
         }
         .modal-backdrop-custom {
             position: fixed;
@@ -94,10 +95,11 @@
             color: #f9fafb;
         }
         .tab-pill-inactive {
-            background: #e5e7eb;
-            color: #6b7280;
+            background: var(--surface-hover-strong);
+            color: var(--text-muted-2);
         }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

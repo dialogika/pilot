@@ -1,24 +1,29 @@
 # Dialogika Team Dashboard
 
-> **Internal dashboard** untuk mengelola operasional tim Dialogika — berbasis static HTML + Google Apps Script backend.
+> **Internal dashboard** untuk mengelola operasional tim Dialogika — berbasis static HTML + **Firebase** (Auth + Firestore).
 
 ## Struktur Proyek
 
 ```
-team/
+pilot/
 ├── index.html          # Login page (Firebase Auth)
-├── home.html           # Dashboard utama
+├── home.html           # Dashboard utama (role-aware sidebar + badges)
 ├── presence.html       # Sistem presensi kehadiran
 ├── register.html       # Halaman registrasi user
-├── docs.html           # Dokumentasi kode (PDF-friendly)
-├── appscript.js        # Google Apps Script — CRUD Project/List/Task/Comment/Tag
-├── login-script.js     # Google Apps Script — Login endpoint (Spreadsheet)
+├── template.png        # Background sertifikat (generate-certificate.html)
+│
+├── backend/            # Asset backend & konfigurasi deploy (tidak dilink HTML)
+│   ├── appscript.js    # Google Apps Script (LEGACY) — CRUD via Sheets
+│   ├── cors.json       # CORS config untuk appscript
+│   └── CNAME           # Custom domain team.dialogika.co
 │
 ├── assets/
 │   ├── css/style.css   # CSS global & komponen reusable
 │   └── js/
-│       ├── auth-guard.js   # Firebase auth guard (redirect ke login)
-│       └── class-sync.js   # Cross-tab class sync via BroadcastChannel
+│       ├── firebase-config.js # Konfigurasi Firebase sentral
+│       ├── auth-guard.js      # Guard Firebase Auth (custom-claim role)
+│       ├── class-sync.js      # Cross-tab class sync via BroadcastChannel
+│       └── ...
 │
 ├── element/            # Komponen UI reusable (sidebar, topbar, dll)
 ├── data/               # Halaman modul data: Leads, Kandidat, Presensi, Inventory
@@ -26,34 +31,39 @@ team/
 ├── project/            # Project & Task management + Message & Files
 ├── personal/           # Profil pribadi, Form izin & reimburse
 ├── quest/              # People Development & Recruitment Dashboard
-├── export/             # Halaman cetak/export (register, invoice, receipt)
-├── example/            # Template contoh (form register, closing, dll)
 ├── frame/              # Utility (calculator)
-└── docs/               # Dokumentasi teknis
+├── docs/               # Dokumentasi teknis
+└── migration-script/   # firestore.rules + config deploy Firestore
 ```
 
 ## Setup
 
-1. **Hosting** — Deploy ke static hosting (GitHub Pages, Vercel, dll). Sesuaikan `CNAME` jika perlu.
-2. **Firebase** — Set Firebase project, aktifkan Authentication. Inisialisasi di halaman masing-masing.
-3. **Google Apps Script** — Deploy `appscript.js` & `login-script.js` sebagai Web App. Set ID Spreadsheet di konstanta bagian atas file.
-4. **CORS** — Konfigurasi `cors.json` jika diperlukan akses dari origin berbeda.
+1. **Hosting** — Deploy ke static hosting (GitHub Pages, Vercel, Firebase Hosting). Domain `team.dialogika.co` diatur via `backend/CNAME`.
+2. **Firebase** — Set Firebase project (`dialogika-co`), aktifkan Authentication (email/password). Konfigurasi di `assets/js/firebase-config.js`.
+3. **Firestore Rules** — Deploy `migration-script/firestore.rules` via `firebase deploy --only firestore:rules` (mengatur akses berbasis 7 role).
+4. **Role user** — Set via Cloud Function `setUserRole` (menulis custom claim). Role dibaca dari `getIdTokenResult().claims.role`.
 
 ## Halaman Utama
 
 | Halaman | File | Fungsi |
 |---------|------|--------|
-| Login | `index.html` | Autentikasi via Firebase + Spreadsheet |
-| Dashboard | `home.html` | Overview proyek, online users, apps grid |
+| Login | `index.html` | Autentikasi via Firebase Auth |
+| Dashboard | `home.html` | Overview, online users, apps grid, role & position badges |
 | Presensi | `presence.html` | Check-in/check-out, riwayat kehadiran |
+| Register | `register.html` | Registrasi user |
 | Project | `project/project.html` | Project & task management (Kanban-style) |
 | Data | `data/*.html` | Leads, kandidat, presensi tim, inventory |
-| Setting | `setting/*.html` | Manajemen user, class, invoice, webinar, dll |
+| Setting | `setting/*.html` | Manajemen user, class, invoice, webinar, sertifikat |
 | Personal | `personal/*.html` | Profile, izin, reimburse |
 
 ## Teknologi
 
 - **Frontend:** Bootstrap 5.3, Bootstrap Icons, Google Fonts (Poppins), SweetAlert2
-- **Auth:** Firebase Authentication (v10.7.1)
-- **Backend:** Google Apps Script + Google Sheets + Google Drive
+- **Auth:** Firebase Authentication (v10.7.1) + Custom Claims (7 role)
+- **Database:** Cloud Firestore + Firestore Security Rules
 - **Sync:** BroadcastChannel API (cross-tab real-time)
+- **Legacy:** Google Apps Script (di `backend/appscript.js`) — lihat `docs/Architecture.md`
+
+## Dokumentasi
+
+Detail arsitektur, modul, UI komponen, dan workflow ada di folder `docs/`.

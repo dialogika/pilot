@@ -25,6 +25,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+
+
       .page-title {
         color: #0b2b6a;
         font-weight: 800;
@@ -33,7 +35,7 @@
       }
 
       .filter-panel {
-        background: white;
+        background: var(--surface);
         border-radius: 20px;
         padding: 1.25rem;
         box-shadow: 0 10px 30px rgba(11, 43, 106, 0.04);
@@ -42,7 +44,7 @@
       }
 
       .candidate-card {
-        background: white;
+        background: var(--surface);
         border-radius: 16px;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -85,13 +87,13 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: #0f172a;
+        color: var(--text-strong);
         backdrop-filter: blur(4px);
         transition: 0.2s;
       }
 
       .tag-icon:hover {
-        background: white;
+        background: var(--surface);
         transform: scale(1.1);
         color: #3b82f6;
       }
@@ -145,7 +147,7 @@
       }
 
       .table {
-        background: white;
+        background: var(--surface);
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -165,15 +167,15 @@
         font-weight: 500;
         border-radius: 8px;
         padding: 6px 12px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
         display: inline-block;
         min-width: 160px;
         white-space: nowrap;
       }
 
       .status-not-contacted {
-        background-color: #f1f5f9;
-        color: #475569;
+        background-color: var(--surface-hover);
+        color: var(--text-muted);
       }
       .status-replied {
         background-color: #dcfce7;
@@ -186,7 +188,7 @@
 
       .assign-badge {
         font-size: 0.8rem;
-        background: #eff6ff;
+        background: var(--surface-active);
         color: #1e40af;
         padding: 4px 10px;
         border-radius: 20px;
@@ -211,7 +213,7 @@
       }
 
       .assign-search-icon {
-        color: #9ca3af;
+        color: var(--text-faint);
         margin-right: 8px;
         display: flex;
         align-items: center;
@@ -227,14 +229,14 @@
       }
 
       .assign-search-input::placeholder {
-        color: #6b7280;
+        color: var(--text-muted-2);
       }
 
       .assign-list-header {
         font-size: 0.7rem;
         font-weight: 600;
         letter-spacing: 0.08em;
-        color: #9ca3af;
+        color: var(--text-faint);
         margin-bottom: 6px;
       }
 
@@ -303,16 +305,16 @@
 
       .assign-display {
         border-radius: 999px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--border-sep);
         padding: 8px 14px;
         font-size: 0.9rem;
-        color: #64748b;
-        background: #ffffff;
+        color: var(--text-muted);
+        background: var(--surface);
         cursor: pointer;
       }
 
       .assign-display.has-value {
-        color: #0f172a;
+        color: var(--text-strong);
       }
 
       .assign-panel {
@@ -331,7 +333,7 @@
       .photo-upload-box {
         border-radius: 18px;
         border: 2px dashed #3b82f6;
-        background: #eff6ff;
+        background: var(--surface-active);
         padding: 18px 16px;
         text-align: center;
         cursor: pointer;
@@ -364,102 +366,6 @@
         display: none;
       }
 
-      .sticky-menu-trigger {
-        position: fixed;
-        right: 30px;
-        top: 30%;
-        z-index: 1000;
-        cursor: pointer;
-        background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
-        color: #ffffff;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0px 5px 16px -6px rgba(114, 4, 207, 1);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .sticky-menu-trigger:hover {
-        transform: scale(1.05) rotate(90deg);
-      }
-
-      .menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(8px);
-        z-index: 999;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.4s ease;
-      }
-
-      .menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      .menu-container {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -60%) scale(0.9);
-        z-index: 1001;
-        width: 90%;
-        max-width: 800px;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 32px;
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-
-      .menu-container.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translate(-50%, -50%) scale(1);
-      }
-
-      .menu-header {
-        text-align: center;
-        margin-bottom: 24px;
-      }
-
-      .menu-header h2 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #334155;
-      }
-
-      .menu-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
-      }
-
-      .menu-item {
-        background: #ffffff;
-        padding: 24px 16px;
-        border-radius: 16px;
-        text-align: center;
-        text-decoration: none;
-        color: #1f2933;
-        transition: all 0.3s ease;
-        border: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-      }
-
       .menu-item:hover {
         background: #0b2b6a;
         color: #ffffff;
@@ -468,39 +374,11 @@
         border-color: #0b2b6a;
       }
 
-      .menu-item i {
-        width: 40px;
-        height: 40px;
-        stroke-width: 1.5;
-      }
-
-      .menu-item span {
-        font-weight: 600;
-        font-size: 0.95rem;
-      }
-
-      .close-btn {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        cursor: pointer;
-        color: #64748b;
-        transition: color 0.3s;
-      }
-
-      .close-btn:hover {
-        color: #ef4444;
-      }
-
       @media (max-width: 600px) {
-        .menu-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-        .menu-item {
-          padding: 20px 10px;
-        }
       }
-    </style>
+    
+
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>

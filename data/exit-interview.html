@@ -25,6 +25,7 @@
     />
     <link href="../assets/css/style.css" rel="stylesheet" />
     <style>
+
       .exit-add-btn {
         background: #0b2b6a;
         border: none;
@@ -49,7 +50,7 @@
         border: 0;
         border-radius: 18px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        background: #fff;
+        background: var(--surface);
         position: relative;
         overflow: hidden;
         height: 100%;
@@ -90,7 +91,7 @@
       }
 
       .exit-delete-icon {
-        color: #d1d5db;
+        color: var(--text-faint-2);
         font-size: 15px;
         cursor: pointer;
         opacity: 0;
@@ -111,7 +112,7 @@
         overflow-wrap: break-word;
         word-break: break-word;
         white-space: pre-wrap;
-        color: #374151;
+        color: var(--text);
         font-size: 14.5px;
         line-height: 1.65;
         margin-top: 14px;
@@ -129,7 +130,7 @@
         display: block;
       }
       .exit-empty-state .fw-bold {
-        color: #6b7280;
+        color: var(--text-muted-2);
       }
 
       #exitContentInput {
@@ -145,7 +146,7 @@
       #exitContentInput:focus {
         outline: none;
         border-color: #0b2b6a;
-        background: #fff;
+        background: var(--surface);
         box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
       }
 
@@ -168,7 +169,8 @@
       #exitInterviewModal .modal-footer {
         padding: 0 28px 26px;
       }
-    </style>
+    
+</style>
 
     <script type="module" src="../assets/js/auth-guard.js"></script>
   </head>

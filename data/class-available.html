@@ -15,6 +15,7 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
+
         .modal-content {
             border-radius: 12px;
             border: none;
@@ -23,7 +24,7 @@
         .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 30px; }
         .modal-body { padding: 30px; }
         .modal-title { font-weight: 800; color: #111; font-size: 1.5rem; }
-        .form-label { font-weight: 700; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-label { font-weight: 700; color: var(--text); margin-bottom: 8px; font-size: 0.95rem; }
         .form-control, .form-select {
             padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d5db;
             font-size: 0.95rem;
@@ -33,7 +34,8 @@
         .mono { font-family: 'JetBrains Mono', monospace; }
         [x-cloak] { display: none !important; }
         .row-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    </style>
+    
+</style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>
