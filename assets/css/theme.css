@@ -1,0 +1,82 @@
+/* assets/css/theme.css
+   =====================================================================
+   THEME FOUNDATION — design tokens (colors, typography, spacing) +
+   dark mode overrides.
+
+   This is the theme used by NEW/refactored pages.
+   Legacy pages keep using assets/css/style.css.
+   Values mirror the tokens already in style.css :root so the two
+   foundations stay visually compatible.
+   ===================================================================== */
+
+:root {
+  /* --- Dialogika brand palette --- */
+  --dlg-blue: #0B2B6A;
+  --dlg-blue-start: #0B2B6A;
+  --dlg-blue-end: #1247af;
+  --dlg-yellow: #f7b12c;
+  --dlg-yellow-end: #F9C72E;
+  --dlg-green: #006a4e;
+  --dlg-green-end: #009d74;
+  --dlg-red: #e7181a;
+  --dlg-red-end: #eb4647;
+  --dlg-purple: #7204cf;
+  --bg-body: #f1f7fd;
+
+  /* --- Layout tokens --- */
+  --dg-topbar-height: 70px;
+  --dg-sidebar-width: 290px;
+
+  /* --- Semantic surface tokens --- */
+  --surface: #ffffff;
+  --surface-muted: #f9fafb;
+  --surface-hover: #f1f5f9;
+  --surface-inverse: #1f2937;
+
+  /* --- Semantic border tokens --- */
+  --border: #e2e8f0;
+  --border-strong: #e5e7eb;
+
+  /* --- Semantic text tokens --- */
+  --text: #1f2937;
+  --text-strong: #111827;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  /* --- Status / feedback tokens --- */
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --shadow-pop: 0 18px 45px rgba(15, 23, 42, 0.18);
+
+  /* --- Typography --- */
+  --font-family: 'Poppins', sans-serif;
+}
+
+/* Dark mode — applied via <html data-theme="dark"> by theme.js */
+[data-theme="dark"] {
+  --surface: #1e293b;
+  --surface-muted: #0f172a;
+  --surface-hover: #334155;
+  --surface-inverse: #e2e8f0;
+  --border: #334155;
+  --border-strong: #475569;
+  --text: #e2e8f0;
+  --text-strong: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+  --danger: #ef4444;
+  --success: #4ade80;
+  --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 18px 45px rgba(0, 0, 0, 0.45);
+  --bg-body: #0b1220;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-body);
+  color: var(--text);
+}

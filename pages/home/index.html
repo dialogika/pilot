@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="../../assets/img/favicon.webp" />
+    <title>Home - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + Poppins (CDN) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- New architecture foundation -->
+    <link href="../../assets/css/theme.css" rel="stylesheet" />
+    <link href="../../assets/css/layout.css" rel="stylesheet" />
+    <!-- Home feature styles -->
+    <link href="../../pages/home/home.css" rel="stylesheet" />
+
+    <!-- Shared theme manager -->
+    <script src="../../assets/js/theme.js" defer></script>
+  </head>
+
+  <body>
+    <!-- Shared shell mounts (renderTopbar / renderSidebar) -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <!-- Welcome header -->
+      <div class="mb-4">
+        <h4 id="welcomeMessage" class="fw-bold mb-0">Welcome!</h4>
+        <small class="text-muted">Here is your daily update.</small>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+          <span
+            id="dashboard-role-badge"
+            class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 small"
+            >Role: -</span
+          >
+          <span
+            id="dashboard-position-badge"
+            class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 small"
+            >Position: -</span
+          >
+        </div>
+      </div>
+
+      <!-- Who is online -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold text-muted text-uppercase small">Who is Online</h6>
+        <span
+          id="onlineActiveBadge"
+          class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"
+          >0 Active</span
+        >
+      </div>
+      <div
+        class="online-scroll-container mb-4"
+        id="onlineUsersContainer"
+      ></div>
+
+      <!-- Announcements -->
+      <div id="announcementBannerSection" class="mb-4" style="display: none">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold text-muted text-uppercase small">
+            Announcements
+          </h6>
+        </div>
+        <div
+          id="announcementBannerContainer"
+          class="d-flex flex-column gap-2"
+        ></div>
+      </div>
+
+      <!-- Approvals: Daily Report + Pending Registrations -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body p-4">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h6 class="fw-bold mb-0 text-dark">
+                  <i class="bi bi-exclamation-circle text-warning me-2"></i
+                  >Daily Report Approval
+                </h6>
+                <span
+                  id="dailyReportBadge"
+                  class="badge bg-warning text-dark rounded-pill"
+                  >0</span
+                >
+              </div>
+              <div
+                id="dailyReportList"
+                class="d-flex flex-column gap-2 scrollable-frame"
+              >
+                <p class="text-muted small mb-0">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div id="pendingApprovalsSection" style="display: none">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body p-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-person-plus me-2"></i>Pending
+                    Registrations
+                  </h6>
+                </div>
+                <div class="table-responsive scrollable-frame">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Registered At</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pendingUsersTableBody">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                          Loading pending registrations...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apps overview -->
+      <div class="mb-5">
+        <!-- ================= HR DIVISION ================= -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark">HR Division</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-people-fill me-1"></i> Human Resources
+          </div>
+        </div>
+
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+          <div class="col">
+            <a href="../../data/performance-appraisal-intern.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div class="app-title">Performance Appraisal Intern</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/internship-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-chat-quote-fill"></i>
+              </div>
+              <div class="app-title">Internship Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/users-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-yellow">
+                <i class="bi bi-lightbulb-fill"></i>
+              </div>
+              <div class="app-title">User Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/team-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div class="app-title">Team Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/company-position.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-calendar-check-fill"></i>
+              </div>
+              <div class="app-title">Company Position</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/scouting-candidate.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-book-half"></i>
+              </div>
+              <div class="app-title">Scouting Candidate</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../quest/dashboard-recruitment.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-calendar-event-fill"></i>
+              </div>
+              <div class="app-title">Recruitment Specialist</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/candidate-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="app-title">Candidate Management</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="candidate-internship"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../quest/dashboard-people-dev.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-box-seam-fill"></i>
+              </div>
+              <div class="app-title">People Development</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/operational-expenses.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-wallet2"></i>
+              </div>
+              <div class="app-title">Operational Expenses</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="operational-expenses"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/permit-reimburse-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-clipboard-check-fill"></i>
+              </div>
+              <div class="app-title">Permit-Reimburse</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="permit-reimburse"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/presence-team.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="app-title">Team Presence</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/office-inventory.html" class="app-box">
+              <div class="app-icon-wrapper grad-slate">
+                <i class="bi bi-box-seam-fill"></i>
+              </div>
+              <div class="app-title">Office Inventory</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/exit-interview.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-box-arrow-right"></i>
+              </div>
+              <div class="app-title">Exit Interview</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/intern-satisfaction.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-stars"></i>
+              </div>
+              <div class="app-title">Intern Satisfaction Survey</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- ================= MARKETING DIVISION ================= -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark">Marketing Division</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-megaphone-fill me-1"></i> Marketing
+          </div>
+        </div>
+
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+          <div class="col">
+            <a href="../../setting/invoice-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-kanban-fill"></i>
+              </div>
+              <div class="app-title">Create Invoice</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="create-invoice"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/class-available.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+              <div class="app-title">Class Available</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="class-available"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/referral-dashboard.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-ticket-perforated-fill"></i>
+              </div>
+              <div class="app-title">Referal Kelas</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="referral-kelas"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/leads-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-yellow">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div class="app-title">Leads Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/promo-classes.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-megaphone-fill"></i>
+              </div>
+              <div class="app-title">Promo Classes</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/member-data.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="app-title">Member Data</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/mailing-list.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-envelope-paper-fill"></i>
+              </div>
+              <div class="app-title">Mailing List</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="mailing-list"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/webinar.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-collection-play-fill"></i>
+              </div>
+              <div class="app-title">Webinar</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- ================= PRODUCT DIVISION ================= -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark">Product Division</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-boxes me-1"></i> Product
+          </div>
+        </div>
+
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3">
+          <div class="col">
+            <a href="../../setting/product-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-red">
+                <i class="bi bi-grid-1x2-fill"></i>
+              </div>
+              <div class="app-title">Product Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/mentor-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-green">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="app-title">Mentor Management</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/class-management.html" class="app-box">
+              <div class="app-icon-wrapper grad-blue">
+                <i class="bi bi-bar-chart-steps"></i>
+              </div>
+              <div class="app-title">Class Management</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="class-management"
+              ></span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../setting/generate-certificate.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-patch-check-fill"></i>
+              </div>
+              <div class="app-title">Generate Certificate</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- ================= BRANDING DIVISION ================= -->
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+          <h5 class="fw-bold mb-0 text-dark">Branding Division</h5>
+          <div class="d-none d-sm-block text-muted small">
+            <i class="bi bi-palette-fill me-1"></i> Branding
+          </div>
+        </div>
+
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-3 mb-5">
+          <div class="col">
+            <a href="../../data/piket-branding.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-person-check-fill"></i>
+              </div>
+              <div class="app-title">Piket Branding</div>
+            </a>
+          </div>
+          <div class="col">
+            <a href="../../data/branding-schedule.html" class="app-box">
+              <div class="app-icon-wrapper grad-purple">
+                <i class="bi bi-calendar-range-fill"></i>
+              </div>
+              <div class="app-title">Content Schedule</div>
+              <span
+                class="menu-badge menu-badge-floating menu-badge-hidden"
+                data-menu-badge="branding-schedule"
+              ></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL: DAILY REPORT DETAIL -->
+    <div
+      class="modal fade"
+      id="dailyReportModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0 pb-2">
+            <h5 class="modal-title fw-bold text-dark">
+              Detail Laporan Harian
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <input type="hidden" id="modalReportId" />
+
+            <div
+              class="d-flex align-items-center mb-4 p-3 bg-light rounded-3"
+            >
+              <img
+                id="modalReportPhoto"
+                src="https://i.pravatar.cc/150"
+                class="rounded-circle me-3"
+                width="60"
+                height="60"
+                style="object-fit: cover"
+              />
+              <div>
+                <h6 id="modalReportName" class="mb-1 fw-bold"></h6>
+                <span
+                  id="modalReportPosition"
+                  class="badge"
+                  style="background-color: #fd7e14; color: white"
+                ></span>
+              </div>
+            </div>
+
+            <div class="row gx-3 mb-4">
+              <div class="col-md-6">
+                <div class="card border shadow-sm rounded-3 h-100">
+                  <div class="card-body p-3">
+                    <h6 class="fw-bold text-dark mb-3">Nama</h6>
+                    <div>
+                      <p
+                        id="modalReportNameDetail"
+                        class="mb-0 fw-semibold"
+                      ></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border shadow-sm rounded-3 h-100">
+                  <div class="card-body p-3">
+                    <h6 class="fw-bold text-dark mb-3">Detail Pekerjaan</h6>
+                    <div class="d-flex flex-column gap-3">
+                      <div class="d-flex align-items-start gap-3">
+                        <div
+                          class="d-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 text-primary flex-shrink-0"
+                          style="width: 36px; height: 36px"
+                        >
+                          <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <div>
+                          <small class="text-muted d-block mb-1"
+                            >Departemen / Posisi</small
+                          >
+                          <p
+                            id="modalReportDeptPos"
+                            class="mb-0 fw-semibold"
+                          ></p>
+                        </div>
+                      </div>
+                      <div
+                        class="d-flex align-items-start gap-3 pt-3 border-top"
+                      >
+                        <div
+                          class="d-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning flex-shrink-0"
+                          style="width: 36px; height: 36px"
+                        >
+                          <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <div>
+                          <small class="text-muted d-block mb-1"
+                            >Tanggal Laporan</small
+                          >
+                          <p
+                            id="modalReportDate"
+                            class="mb-0 fw-semibold"
+                          ></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border shadow-sm rounded-3 mb-3">
+              <div class="card-body p-3">
+                <h6 class="fw-bold text-dark mb-3">Tugas yang Dilaporkan</h6>
+                <ul id="modalReportTasks" class="list-unstyled mb-0"></ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 p-4 pt-2">
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              id="btnRejectReport"
+            >
+              Reject
+            </button>
+            <div id="approveButtonsContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: REJECT CONFIRMATION -->
+    <div
+      class="modal fade"
+      id="rejectReportModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0 pb-2">
+            <h5 class="modal-title fw-bold text-danger">
+              <i class="bi bi-x-circle me-2"></i>Tolak Laporan
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark"
+                >Alasan Penolakan
+                <span class="text-muted fw-normal">(opsional)</span></label
+              >
+              <textarea
+                id="rejectReasonInput"
+                class="form-control rounded-3"
+                rows="3"
+                placeholder="Masukkan alasan penolakan jika ada..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0 p-4 pt-2">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill px-4 border"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger rounded-pill px-4"
+              id="btnConfirmReject"
+            >
+              <i class="bi bi-x-lg me-1"></i>Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: ANNOUNCEMENT DETAIL -->
+    <div
+      class="modal fade"
+      id="announcementDetailModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0 pb-2">
+            <div>
+              <span id="announcementDetailBadge" class="badge mb-2"></span>
+              <h5
+                id="announcementDetailTitle"
+                class="modal-title fw-bold text-dark mb-0"
+              ></h5>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <div
+                class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                style="background: #eff6ff"
+              >
+                <i class="bi bi-calendar-event text-primary"></i>
+                <span
+                  id="announcementDetailDate"
+                  class="fw-bold text-dark"
+                  style="font-size: 14px"
+                ></span>
+              </div>
+              <span class="text-muted small"
+                ><i class="bi bi-people me-1"></i
+                ><span id="announcementDetailTarget"></span
+              ></span>
+            </div>
+            <div
+              id="announcementDetailContent"
+              class="border-top pt-3"
+              style="line-height: 1.7"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 + Bootstrap JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Home orchestrator -->
+    <script type="module" src="../../pages/home/home.js"></script>
+  </body>
+</html>

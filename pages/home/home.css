@@ -1,0 +1,155 @@
+/* pages/home/home.css
+   =====================================================================
+   HOME FEATURE STYLES — styles that genuinely belong to Home.
+   Reuses theme.css (tokens) + layout.css (shell). Do NOT duplicate
+   global styles here.
+   ===================================================================== */
+
+/* --- Gradient utilities (app icons) --- */
+.grad-blue { background: linear-gradient(135deg, var(--dlg-blue), var(--dlg-blue-end)); }
+.grad-yellow { background: linear-gradient(135deg, var(--dlg-yellow), var(--dlg-yellow-end)); }
+.grad-green { background: linear-gradient(135deg, var(--dlg-green), var(--dlg-green-end)); }
+.grad-red { background: linear-gradient(135deg, var(--dlg-red), var(--dlg-red-end)); }
+.grad-purple { background: var(--dlg-purple); }
+.grad-slate { background: linear-gradient(135deg, #475569, #64748b); }
+
+/* --- Who is Online --- */
+.online-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 10px 5px 20px 5px;
+  scrollbar-width: none;
+}
+.online-scroll-container::-webkit-scrollbar { display: none; }
+
+.avatar-wrapper {
+  position: relative;
+  width: 65px;
+  height: 65px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.avatar-wrapper:hover { transform: scale(1.05); }
+.avatar-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: 1;
+}
+.avatar-mask {
+  position: absolute;
+  width: 59px;
+  height: 59px;
+  background: var(--bg-body);
+  border-radius: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-img {
+  width: 53px;
+  height: 53px;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 3;
+  border: 2px solid var(--surface);
+}
+.online-status-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--success);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  z-index: 4;
+}
+
+/* --- Apps grid --- */
+.app-box {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+  color: var(--dlg-blue);
+  text-decoration: none;
+  height: 100%;
+  min-height: 110px;
+  transition: 0.2s;
+  position: relative;
+}
+.app-box:hover {
+  box-shadow: 0 8px 15px rgba(11, 43, 106, 0.1);
+  transform: translateY(-3px);
+  border-color: var(--border);
+}
+.app-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+  color: var(--text-inverse);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.app-title { font-size: 0.8rem; font-weight: 600; line-height: 1.2; }
+
+/* --- Menu badges (floating counters on app-box) --- */
+.menu-badge {
+  background: var(--danger);
+  color: var(--text-inverse);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 999px;
+  min-width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+.menu-badge-hidden { display: none !important; }
+.menu-badge-floating { position: absolute; top: 8px; right: 8px; }
+
+/* --- Announcement cards --- */
+.announcement-card h6,
+.announcement-content-preview {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* --- Scrollable frames (report list / pending table) --- */
+.scrollable-frame {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* --- Daily report detail modal --- */
+#announcementDetailContent,
+#announcementDetailTitle {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  min-width: 0;
+}

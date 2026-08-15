@@ -1,0 +1,628 @@
+/* =====================================================================
+   pages/quest/quest.css — Quest Board feature styles ONLY.
+   Reuses theme/layout tokens; no global leakage.
+   ===================================================================== */
+
+.quest-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.quest-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.quest-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  background: var(--dg-surface-2, #f1f5f9);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dg-muted, #64748b);
+}
+
+.quest-eyebrow::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.quest-h1 {
+  margin: 0.6rem 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--dg-text, #0f172a);
+}
+
+.quest-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--dg-muted, #64748b);
+}
+
+.quest-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quest-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  font-size: 1rem;
+  transition: filter 0.15s ease;
+}
+
+.quest-icon-btn:hover {
+  filter: brightness(0.95);
+}
+
+.quest-icon-btn-red {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.quest-icon-btn-amber {
+  background: #f59e0b;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+}
+
+/* Tabs */
+.quest-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  margin-bottom: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  background: var(--dg-surface, #fff);
+}
+
+.quest-tab {
+  flex: 1;
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--dg-muted, #475569);
+  transition: all 0.15s ease;
+}
+
+.quest-tab:hover {
+  background: var(--dg-surface-2, #f8fafc);
+}
+
+.quest-tab-active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+/* Sections */
+.quest-card-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  background: var(--dg-surface, #fff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.quest-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.quest-h2 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dg-text, #0f172a);
+}
+
+.quest-h2-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--dg-muted, #64748b);
+}
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quest-empty {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+/* Buttons */
+.quest-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  background: #059669;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.quest-btn-primary:hover {
+  background: #047857;
+}
+
+.quest-btn-primary:active {
+  transform: scale(0.97);
+}
+
+.quest-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dg-muted, #475569);
+  background: var(--dg-surface, #fff);
+  transition: background 0.15s ease;
+}
+
+.quest-btn-secondary:hover {
+  background: var(--dg-surface-2, #f8fafc);
+}
+
+/* Task card */
+.quest-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  border-left: 4px solid #3b82f6;
+  background: var(--dg-surface, #fff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.quest-card:hover {
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+}
+
+.quest-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.quest-card-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.quest-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dg-text, #1e293b);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quest-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.quest-card-deadline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: #2563eb;
+}
+
+.quest-card-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--dg-muted, #64748b);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.quest-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+}
+
+.quest-card-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.quest-avatar,
+.quest-avatar-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-left: -0.25rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--dg-muted, #475569);
+  background: var(--dg-surface-2, #e2e8f0);
+}
+
+.quest-avatar:first-child,
+.quest-avatar-more:first-child {
+  margin-left: 0;
+}
+
+.quest-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.quest-card-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  color: var(--dg-muted, #475569);
+  border: 1px solid var(--dg-border, #e2e8f0);
+  background: var(--dg-surface-2, #f8fafc);
+}
+
+.quest-card-points {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+}
+
+/* Card right actions */
+.quest-card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.quest-check-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  border-radius: 0.3rem;
+  border: 2px solid #cbd5e1;
+  background: #fff;
+  color: transparent;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.quest-check-btn:hover {
+  border-color: #34d399;
+  background: #ecfdf5;
+  color: transparent;
+}
+
+.quest-check-btn.quest-checked {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.quest-card-link-btn {
+  border: 0;
+  background: transparent;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #2563eb;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s ease;
+}
+
+.quest-card-link-btn:hover {
+  background: #eff6ff;
+}
+
+.quest-card-link-btn.quest-danger {
+  color: #dc2626;
+}
+
+.quest-card-link-btn.quest-danger:hover {
+  background: #fef2f2;
+}
+
+.quest-card-link-btn.quest-warn {
+  color: #d97706;
+}
+
+.quest-card-link-btn.quest-warn:hover {
+  background: #fffbeb;
+}
+
+.quest-card.quest-locked,
+.quest-card.quest-done {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quest-card.quest-locked .quest-card-title,
+.quest-card.quest-done .quest-card-title {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+/* Report card status badge */
+.quest-claim-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.quest-claim-badge-success {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.quest-claim-badge-locked {
+  background: #ffedd5;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+/* Modal */
+.quest-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.quest-modal[hidden] {
+  display: none;
+}
+
+.quest-modal-dialog {
+  width: 100%;
+  max-width: 34rem;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--dg-surface, #fff);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+}
+
+.quest-modal-lg {
+  max-width: 46rem;
+}
+
+.quest-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--dg-border, #f1f5f9);
+  flex-shrink: 0;
+}
+
+.quest-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.quest-modal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #3b82f6, #4f46e5);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.35);
+}
+
+.quest-modal-h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dg-text, #0f172a);
+}
+
+.quest-modal-sub {
+  margin: 0.1rem 0 0;
+  font-size: 0.7rem;
+  color: var(--dg-muted, #94a3b8);
+}
+
+.quest-modal-close {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dg-muted, #94a3b8);
+  font-size: 0.85rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.quest-modal-close:hover {
+  background: var(--dg-surface-2, #f1f5f9);
+  color: var(--dg-text, #334155);
+}
+
+.quest-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+/* Forms */
+.quest-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dg-muted, #64748b);
+}
+
+.quest-input {
+  width: 100%;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--dg-text, #1e293b);
+  background: var(--dg-surface-2, #f8fafc);
+}
+
+.quest-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: var(--dg-surface, #fff);
+}
+
+.quest-input-readonly {
+  background: var(--dg-surface-2, #f1f5f9);
+  color: var(--dg-muted, #475569);
+}
+
+.quest-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--dg-muted, #94a3b8);
+}
+
+/* Daily report task item */
+.quest-report-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  background: var(--dg-surface-2, #f8fafc);
+}
+
+.quest-report-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dg-text, #1e293b);
+}
+
+.quest-report-item-points {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #d97706;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+}
+
+.quest-report-item-detail {
+  width: 100%;
+  margin-top: 0.5rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  background: var(--dg-surface, #fff);
+  resize: none;
+}
+
+.quest-report-item-detail:focus {
+  outline: none;
+  border-color: #3b82f6;
+}

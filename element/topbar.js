@@ -1,18 +1,20 @@
 import { db } from "../assets/js/firebase-config.js";
-import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export function renderTopBar(target) {
-    if (!target) return;
-    target.innerHTML = `
+  if (!target) return;
+  target.innerHTML = `
     <nav class="top-bar">
         <div class="d-flex align-items-center">
             <button class="mobile-toggle me-3" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
             </button>
-            <div class="input-group d-none d-md-flex" style="width: 250px;">
-                <span class="input-group-text bg-light border-end-0 rounded-start-pill text-muted" data-topbar-search-button><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control bg-light border-start-0 rounded-end-pill" placeholder="Search..." data-topbar-search-input>
-            </div>
+            
         </div>
         <div class="logo-center">
             <a href="../home.html"><img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;"></a>
@@ -79,168 +81,181 @@ export function renderTopBar(target) {
     </nav>
     `;
 
-    const wrapper = target.querySelector('.profile-dropdown-wrapper');
-    const toggle = target.querySelector('#profileDropdownToggle');
-    const menu = target.querySelector('#profileDropdownMenu');
-    const mainPhoto = target.querySelector('#user-photo-display');
-    const dropdownPhoto = target.querySelector('#profile-dropdown-photo');
-    const dropdownName = target.querySelector('#profile-dropdown-name');
-    const dropdownEmail = target.querySelector('#profile-dropdown-email');
-    const nameDisplay = target.querySelector('#user-name-display');
-    const roleDisplay = target.querySelector('#user-role-display');
+  const wrapper = target.querySelector(".profile-dropdown-wrapper");
+  const toggle = target.querySelector("#profileDropdownToggle");
+  const menu = target.querySelector("#profileDropdownMenu");
+  const mainPhoto = target.querySelector("#user-photo-display");
+  const dropdownPhoto = target.querySelector("#profile-dropdown-photo");
+  const dropdownName = target.querySelector("#profile-dropdown-name");
+  const dropdownEmail = target.querySelector("#profile-dropdown-email");
+  const nameDisplay = target.querySelector("#user-name-display");
+  const roleDisplay = target.querySelector("#user-role-display");
 
-    if (mainPhoto && dropdownPhoto) {
-        dropdownPhoto.src = mainPhoto.src;
+  if (mainPhoto && dropdownPhoto) {
+    dropdownPhoto.src = mainPhoto.src;
+  }
+
+  try {
+    const raw = localStorage.getItem("userData");
+    if (raw) {
+      const data = JSON.parse(raw);
+      const displayName = data.name || data.email || "";
+      const displayRole = data.position || "Staff";
+      const photoUrl = data.photo || "";
+
+      if (nameDisplay) nameDisplay.textContent = displayName;
+      if (roleDisplay) roleDisplay.textContent = displayRole;
+      if (dropdownName) dropdownName.textContent = displayName;
+      if (dropdownEmail) dropdownEmail.textContent = data.email || "";
+
+      if (photoUrl) {
+        if (mainPhoto) mainPhoto.src = photoUrl;
+        if (dropdownPhoto) dropdownPhoto.src = photoUrl;
+      }
     }
+  } catch (e) {}
 
-    try {
-        const raw = localStorage.getItem('userData');
-        if (raw) {
-            const data = JSON.parse(raw);
-            const displayName = data.name || data.email || '';
-            const displayRole = data.position || 'Staff';
-            const photoUrl = data.photo || '';
+  // Async update for position name if it looks like an ID
+  (async function updatePositionName() {
+    const roleDisplay = target.querySelector("#user-role-display");
+    if (!roleDisplay) return;
 
-            if (nameDisplay) nameDisplay.textContent = displayName;
-            if (roleDisplay) roleDisplay.textContent = displayRole;
-            if (dropdownName) dropdownName.textContent = displayName;
-            if (dropdownEmail) dropdownEmail.textContent = data.email || '';
+    let currentRole = roleDisplay.textContent;
+    // Logic: if no spaces and >10 chars, treat as ID
+    if (
+      currentRole &&
+      currentRole.trim().length > 10 &&
+      !currentRole.includes(" ")
+    ) {
+      const key = currentRole.trim();
+      const getName = (d) => d && (d.name || d.title || d.position || d.label);
 
-            if (photoUrl) {
-                if (mainPhoto) mainPhoto.src = photoUrl;
-                if (dropdownPhoto) dropdownPhoto.src = photoUrl;
+      // Try the allowed 'positions' collection first, then 'position'.
+      for (const coll of ["positions", "position"]) {
+        try {
+          const snap = await getDoc(doc(db, coll, key));
+          if (snap.exists()) {
+            const name = getName(snap.data());
+            if (name) {
+              roleDisplay.textContent = name;
+              return;
             }
+          }
+        } catch (err) {
+          console.warn("Failed to resolve position name (" + coll + "):", err);
         }
-    } catch (e) { }
+      }
 
-    // Async update for position name if it looks like an ID
-    (async function updatePositionName() {
-        const roleDisplay = target.querySelector('#user-role-display');
-        if (!roleDisplay) return;
-
-        let currentRole = roleDisplay.textContent;
-        // Logic: if no spaces and >10 chars, treat as ID
-        if (currentRole && currentRole.trim().length > 10 && !currentRole.includes(' ')) {
-            const key = currentRole.trim();
-            const getName = (d) => d && (d.name || d.title || d.position || d.label);
-
-            // Try the allowed 'positions' collection first, then 'position'.
-            for (const coll of ["positions", "position"]) {
-                try {
-                    const snap = await getDoc(doc(db, coll, key));
-                    if (snap.exists()) {
-                        const name = getName(snap.data());
-                        if (name) {
-                            roleDisplay.textContent = name;
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    console.warn("Failed to resolve position name (" + coll + "):", err);
-                }
-            }
-
-            // Fallback: scan the allowed 'positions' collection for a matching id field.
-            try {
-                const listSnap = await getDocs(collection(db, "positions"));
-                listSnap.forEach((docSnap) => {
-                    if (roleDisplay.textContent === key) return;
-                    const d = docSnap.data() || {};
-                    if (d.id === key || d.position_id === key || d._id === key || docSnap.id === key) {
-                        const name = getName(d);
-                        if (name) roleDisplay.textContent = name;
-                    }
-                });
-            } catch (err) {
-                console.warn("Failed to scan positions:", err);
-            }
-        }
-    })();
-
-    if (toggle && menu && wrapper) {
-        toggle.addEventListener('click', function (ev) {
-            ev.stopPropagation();
-            menu.classList.toggle('show');
+      // Fallback: scan the allowed 'positions' collection for a matching id field.
+      try {
+        const listSnap = await getDocs(collection(db, "positions"));
+        listSnap.forEach((docSnap) => {
+          if (roleDisplay.textContent === key) return;
+          const d = docSnap.data() || {};
+          if (
+            d.id === key ||
+            d.position_id === key ||
+            d._id === key ||
+            docSnap.id === key
+          ) {
+            const name = getName(d);
+            if (name) roleDisplay.textContent = name;
+          }
         });
-        document.addEventListener('click', function (ev) {
-            if (!menu.classList.contains('show')) return;
-            if (!wrapper.contains(ev.target)) {
-                menu.classList.remove('show');
-            }
-        });
+      } catch (err) {
+        console.warn("Failed to scan positions:", err);
+      }
     }
+  })();
 
-    const logoutBtn = target.querySelector('[data-profile-logout]');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            if (typeof window.logout === 'function') {
-                window.logout();
-            } else {
-                try {
-                    localStorage.removeItem('userData');
-                } catch (e) { }
-                window.location.href = 'index.html';
-            }
-        });
-    }
-
-    const settingLink = target.querySelector('[data-menu-setting]');
-    const portfolioLink = target.querySelector('[data-menu-portfolio]');
-
-    function attachUnderDevelopment(linkEl) {
-        if (!linkEl) return;
-        linkEl.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            alert('under development');
-        });
-    }
-
-    attachUnderDevelopment(settingLink);
-    attachUnderDevelopment(portfolioLink);
-
-    const accordionToggles = target.querySelectorAll('[data-accordion-toggle]');
-    accordionToggles.forEach(function (toggleEl) {
-        const key = toggleEl.getAttribute('data-accordion-toggle');
-        if (!key) return;
-        const contentEl = target.querySelector('[data-accordion-content="' + key + '"]');
-        const chevronEl = target.querySelector('[data-accordion-chevron="' + key + '"]');
-        if (!contentEl) return;
-        contentEl.style.display = 'none';
-        toggleEl.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            const isHidden = contentEl.style.display === 'none';
-            contentEl.style.display = isHidden ? 'block' : 'none';
-            if (chevronEl) {
-                chevronEl.style.transform = isHidden ? 'rotate(180deg)' : '';
-            }
-        });
+  if (toggle && menu && wrapper) {
+    toggle.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      menu.classList.toggle("show");
     });
+    document.addEventListener("click", function (ev) {
+      if (!menu.classList.contains("show")) return;
+      if (!wrapper.contains(ev.target)) {
+        menu.classList.remove("show");
+      }
+    });
+  }
 
-    const searchInput = target.querySelector('[data-topbar-search-input]');
-    const searchButton = target.querySelector('[data-topbar-search-button]');
+  const logoutBtn = target.querySelector("[data-profile-logout]");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      if (typeof window.logout === "function") {
+        window.logout();
+      } else {
+        try {
+          localStorage.removeItem("userData");
+        } catch (e) {}
+        window.location.href = "index.html";
+      }
+    });
+  }
 
-    function attachSearchUnderDevelopment(inputEl, buttonEl) {
-        function trigger() {
-            alert('under development');
-        }
-        if (buttonEl) {
-            buttonEl.addEventListener('click', function (ev) {
-                ev.preventDefault();
-                trigger();
-            });
-        }
-        if (inputEl) {
-            inputEl.addEventListener('keydown', function (ev) {
-                if (ev.key === 'Enter') {
-                    ev.preventDefault();
-                    trigger();
-                }
-            });
-        }
+  const settingLink = target.querySelector("[data-menu-setting]");
+  const portfolioLink = target.querySelector("[data-menu-portfolio]");
+
+  function attachUnderDevelopment(linkEl) {
+    if (!linkEl) return;
+    linkEl.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      alert("under development");
+    });
+  }
+
+  attachUnderDevelopment(settingLink);
+  attachUnderDevelopment(portfolioLink);
+
+  const accordionToggles = target.querySelectorAll("[data-accordion-toggle]");
+  accordionToggles.forEach(function (toggleEl) {
+    const key = toggleEl.getAttribute("data-accordion-toggle");
+    if (!key) return;
+    const contentEl = target.querySelector(
+      '[data-accordion-content="' + key + '"]',
+    );
+    const chevronEl = target.querySelector(
+      '[data-accordion-chevron="' + key + '"]',
+    );
+    if (!contentEl) return;
+    contentEl.style.display = "none";
+    toggleEl.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      const isHidden = contentEl.style.display === "none";
+      contentEl.style.display = isHidden ? "block" : "none";
+      if (chevronEl) {
+        chevronEl.style.transform = isHidden ? "rotate(180deg)" : "";
+      }
+    });
+  });
+
+  const searchInput = target.querySelector("[data-topbar-search-input]");
+  const searchButton = target.querySelector("[data-topbar-search-button]");
+
+  function attachSearchUnderDevelopment(inputEl, buttonEl) {
+    function trigger() {
+      alert("under development");
     }
+    if (buttonEl) {
+      buttonEl.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        trigger();
+      });
+    }
+    if (inputEl) {
+      inputEl.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          trigger();
+        }
+      });
+    }
+  }
 
-    attachSearchUnderDevelopment(searchInput, searchButton);
+  attachSearchUnderDevelopment(searchInput, searchButton);
 
-    if (window.DLGTheme && window.DLGTheme.syncIcons) window.DLGTheme.syncIcons();
+  if (window.DLGTheme && window.DLGTheme.syncIcons) window.DLGTheme.syncIcons();
 }

@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 data/node_modules/
+.vscode
 
 # Utilities/tooling files (bukan bagian aplikasi)
 setting/class-management-dfd.md
@@ -21,6 +22,7 @@ Thumbs.db
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
+firestore-debug.log
 
 # Kredensial — JANGAN PERNAH commit service account / env dengan secret
 source-service-account.json
