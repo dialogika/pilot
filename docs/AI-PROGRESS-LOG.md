@@ -2,7 +2,7 @@
 
 > **BACA DULU SEBELUM NGODING.** Dokumen ini adalah catatan progres single-source-of-truth untuk AI/developer yang melanjutkan project. Kalau kamu adalah AI yang baru masuk sesi ini: baca dokumen ini dari atas ke bawah, lalu baca dokumen referensi di §4 sebelum menyentuh kode.
 
-> **Tanggal update terakhir:** 2026-08-13 (sesi frontend: migrasi config + refactor dashboard + deploy rules)
+> **Tanggal update terakhir:** 2026-08-16 (Phase 2.5 revision: shared shell parity-first — sidebar nav reproduksi legacy EXACT, semua keputusan diputuskan & teruji)
 > **Project:** Sistem Informasi Internal & Website Dialogika
 > **Domain target:** `team.dialogika.co` (internal) · `dialogika.co` (publik)
 > **Firebase project:** `dialogika-co` (target/aktif) — `pre-dialogika` (lama, READ-ONLY)
@@ -40,7 +40,7 @@ C:\Users\Yuan\OneDrive\Desktop\Codes\Website Team Internal\
 │   ├── home.html              ✅ sudah migrasi (My Dashboard)
 │   ├── assets/js/firebase-config.js   ← config TUNGGAL (dialogika-co)
 │   ├── assets/js/auth-guard.js        ← claim-based, 7 role
-│   ├── assets/js/sidebar.js           ← role-aware menu
+│   ├── assets/js/components/sidebar/sidebar.js  ← role-aware menu (config-driven)
 │   ├── assets/css/theme.css, layout.css
 │   ├── assets/js/auth-guard.legacy.js ← backup guard lama
 │   ├── element/sidebar.js             ← sidebar lama (523KB, BELUM diganti di halaman legacy)
@@ -65,7 +65,7 @@ C:\Users\Yuan\OneDrive\Desktop\Codes\Website Team Internal\
 Dibuat di `pilot/` sesuai HANDOFF-MASTER §5:
 - **`assets/js/firebase-config.js`** — config Firebase tunggal ke `dialogika-co` (apiKey `AIzaSyDYrzxyQ1oGaVRIdnFfYvjydWZz3xdxpTs`). Semua halaman baru WAJIB import dari sini. Jangan duplikat config di file lain.
 - **`assets/js/auth-guard.js`** — API: `requireAuth()` → `{ user, role }`, `getCurrentRole()`, `logout()`. Role dibaca dari **custom claim** (`getIdTokenResult().claims.role`), `VALID_ROLES = [owner, admin, team, staff, intern, mentor, member]`. User tanpa claim → halaman "Akun kamu belum punya role" (fail-safe).
-- **`assets/js/sidebar.js`** — API: `renderSidebar({ role, activePage })`, mount di `<div id="dg-sidebar-mount">`. Menu statis per role (owner/admin/team full; staff/intern/mentor/member scoped). CATATAN: ke depan Tools Management mau pakai `roles/{roleId}.visible_tools` — API `renderSidebar` harus tetap kompatibel.
+- **`assets/js/components/sidebar/sidebar.js`** — API: `renderSidebar({ role, activePage })`, mount di `<div id="dg-sidebar-mount">`. Menu statis per role (owner/admin/team full; staff/intern/mentor/member scoped) di `sidebar.config.js`. CATATAN: ke depan Tools Management mau pakai `roles/{roleId}.visible_tools` — API `renderSidebar` harus tetap kompatibel.
 - **`assets/css/theme.css`** (design token `--dg-*` + override `--bs-*` + dark mode) & **`assets/css/layout.css`** (app shell `.dg-*`). ATURAN: jangan inline `<style>` di halaman baru.
 
 `index.html` & `home.html` sudah memakai fondasi ini (tidak ada `pre-dialogika`, tidak ada `<style>` inline). Home query `quests` (array-contains uid di `assignees`) + `user_scores/{uid}`.
@@ -119,13 +119,46 @@ Di folder induk `Website Team Internal\`:
 
 ## 5. Aturan Mutlak (Jangan Dilanggar)
 
+> **⚠️ ENVIRONMENT (Phase 0.5 revision 2026-08-15):** Local development memakai Firebase Hosting Emulator
+> (`localhost:5000`) untuk menyajikan website, TAPI semua layanan Firebase (Auth/Firestore/Storage/Functions)
+> menuju project REAL `dialogika-co`. **TIDAK ada** emulator Auth/Firestore/Storage/Functions, **TIDAK ada** seed
+> data emulator. Operasi tulis dari localhost DAPAT mengubah data production — hindari testing destruktif
+> (delete/clear collection), jangan ubah user/aturan produksi, jangan bulk write, jangan eksperimen skema.
+> Referensi lengkap: `docs/ARCHITECTURE-FOUNDATION.md` §14.
+
 1. **`pre-dialogika` HANYA DIBACA.** Tidak pernah `.set/.update/.delete` ke sana. (Sumber: HANDOFF-MASTER §4.1, COSMOS aturan #1.)
 2. **Cek schema dulu sebelum bikin field/collection baru.** Buka `DATABASE-SCHEMA-VISUAL-MAP.md` + `DEPARTMENT-MAPPING-Firestore-Collections.md`. Jangan buat duplikat `position`/`positions` versi baru. Kalau baru, update peta schema juga.
 3. **Deploy production butuh persetujuan eksplisit Ron SETIAP KALI.** Rules/functions sudah live — perubahan berikutnya ikuti alur yang sama.
 4. **Zero improvisasi data.** Field/nilai yang nggak ada di dokumen → tanya, jangan mengarang.
 5. **CSS terpusat.** Halaman baru: jangan `<style>` inline, pakai `theme.css`/`layout.css`. Komponen sidebar/topbar jangan di-copy-paste.
 6. **Jangan commit kredensial.** `target-service-account.json`, `role-mapping.csv`, `*.service-account.json` sudah di-.gitignore pilot.
-7. **Jangan rombak `element/sidebar.js` (523KB) dulu** — masih dipakai 73 halaman legacy yang belum dimigrasi. Fondasi baru di `assets/js/sidebar.js`.
+7. **Jangan rombak `element/sidebar.js` (523KB) dulu** — masih dipakai 73 halaman legacy yang belum dimigrasi. Fondasi baru di `assets/js/components/sidebar/sidebar.js`.
+
+---
+
+## 5b. Phase 2.5 — Shared Shell Consolidation (2026-08-16)
+
+> **Selesai.** Dua shell (legacy `element/*` vs baru `assets/js/{topbar,sidebar}.js`) digabung jadi SATU
+> shared shell yang mempertahankan tampilan legacy, dengan boundary module bersih. Detail lengkap:
+> `docs/SHARED-SHELL-ARCHITECTURE.md`.
+
+- **Topbar baru:** `assets/js/components/topbar/` = `topbar.js` (orchestrator) + `topbar.ui.js`
+  (markup + event) + `topbar.repository.js` (users doc + resolusi nama posisi).
+- **Sidebar baru:** `assets/js/components/sidebar/` = `sidebar.js` (orchestrator) + `sidebar.config.js`
+  (MENU_BY_ROLE + SMART_FILTERS data contract) + `sidebar.repository.js` (live counts, satu-satunya
+  modul shell yang baca koleksi Quest `tasks`/`quest_reports`) + `sidebar.ui.js`.
+- **File lama `assets/js/topbar.js` + `assets/js/sidebar.js` DIHAPUS** — tersisa satu implementasi shell.
+- **Consumer yang migrasi:** Home, Quest, Internships (import path diperbarui).
+- **Nav dibersihkan:** buang `/setting/tools-management.html`, `/setting/component-management.html`,
+  dan route literal `/quest/my-tasks.html` dll (entry asli = rewrite `/quest`). Tambah
+  `/internships` di menu owner/admin/team; Internships kini `activePage: "internships"`.
+- **CSS:** token legacy ditambah ke `theme.css`; style shell legacy diekstrak ke `layout.css`.
+  `style.css` + `element/*` TIDAK disentuh (legacy pages tetap jalan).
+- **Tidak di-copy dari legacy sidebar:** modal iframe quest board, global cache `window.*`,
+  coupling `parentWin`, kode CRUD quest yang mati, sistem `data-gate` (diganti config per-role).
+- **Verifikasi:** node --check OK; emulator: `/home` `/quest` `/internships` `/test` 200 + aset 200;
+  headless Chrome: render + interaksi (dropdown, accordion, submenu, logout modal, theme) tanpa
+  exception; auth boundary redirect ke `/index.html` tetap bekerja.
 
 ---
 
@@ -167,3 +200,25 @@ Prioritas (berdasarkan BLUEPRINT Phase 1 + kondisi saat ini):
 ---
 
 *Dokumen ini diupdate di sesi 2026-08-11. Prinsip: update SETIAP selesai kerja yang berarti, supaya AI berikutnya nggak mulai dari nol. Kalau folder `migration-script` hilang, rekonstruksi dari HANDOFF-MASTER.*
+
+---
+
+## 9. Shared Shell Parity-First (2026-08-16)
+
+**Latar:** phase 2.5 menghasilkan shell bersama (`assets/js/components/...`) tapi **TIDAK me-reproduksi legacy nav secara tepat** — malah redesign (section Divisi/Quest/Sistem, My Tasks, Projects, dst). Sesi ini menegakkan prinsip `NEW SHELL = LEGACY UI/UX + CLEAN ARCHITECTURE`: legacy `element/sidebar.js` (renderSidebar lines 255-353) adalah source of truth.
+
+**Keputusan final (semua item audit diselesaikan):**
+- Nav legacy direproduksi **persis**: `Main Navigation` → Dashboard (submenu Closing/Rebuy/Happy/Branding = dead link `javascript:void(0)`, Dashboard SELALU `active`), Shortcut, Pings, Announcement!, Activity, My Stuff; `System` → System Settings, Logout.
+- Role gating = `NAV_ROLE_GATE` + `roleCanShow()`: `shortcut`/`pings` → owner/admin/team; `system-settings` → owner/admin; role tak dikenal = gated item disembunyikan.
+- Smart filter hrefs pakai **route migrasi** (`/quest`, `/home`, `/quest`); Report card pertahankan `id="reportFilterCard"`.
+- Project count **tetap 0** (legacy tak pernah mengupdate `projectTasksTotalCount`).
+- Logout = langsung via auth-guard (modal `#logoutModal` tetap dirender di DOM untuk parity markup tapi TIDAK pernah dibuka — persis legacy).
+- CSS: rule `.sidebarCopyright` dihapus dari `layout.css` (legacy pakai class camelCase + inline style; rule legacy `.sidebar-copyright` kebab tidak pernah match). Global `.modal{z-index:5000}` legacy TIDAK ditiru (hanya scoped `#logoutModal`).
+- Topbar: fallback role `"Staff"` (legacy `data.position || "Staff"`).
+- Home apps grid: "Internship Management" → `/internships` (route migrasi).
+
+**File berubah:** `assets/js/components/sidebar/sidebar.config.js` (rewrite penuh), `sidebar.ui.js` (rewrite penuh), `sidebar.repository.js` (project=0), `assets/css/layout.css`, `assets/js/components/topbar/topbar.ui.js`, `pages/home/index.html`, docs.
+
+**Verifikasi:** `node --check` semua modul OK; emulator hosting port 5000 → `/`, `/home`, `/quest`, `/internships`, `/test` 200 + legacy pages OK; unit test Node 29 asersi lulus (markup legacy, gating, applyCounts); harness headless Chrome lulus (4 smart cards, nav legacy, toggle submenu + ikon, toggle sidebar, counts 7/3/0/2); auth-guard redirect `/home` → `/index.html` masih utuh.
+
+**Sisa (bukan bagian shell):** Quest open items (`uiConfirm` SweetAlert fix quest.js:661-676, buat `docs/QUEST-ARCHITECTURE.md`); test E2E login asli butuh kredensial `dialogika-co`.

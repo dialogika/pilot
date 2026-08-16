@@ -2,6 +2,13 @@
   "hosting": {
     "public": ".",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      {
+        "source": "/home.html",
+        "destination": "/home",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "/test",
@@ -14,22 +21,16 @@
       {
         "source": "/quest",
         "destination": "/pages/quest/index.html"
+      },
+      {
+        "source": "/internships",
+        "destination": "/pages/internships/index.html"
       }
     ]
   },
   "emulators": {
-    "auth": {
-      "port": 9099
-    },
-    "firestore": {
-      "port": 8080
-    },
     "hosting": {
       "port": 5000
-    },
-    "ui": {
-      "enabled": true,
-      "port": 4000
     }
   }
 }

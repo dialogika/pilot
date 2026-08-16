@@ -24,7 +24,7 @@ Reviewed actual repository state (not prior summaries):
 
 | Module | Owns | Truly shared | Feature-specific logic | Verdict |
 |---|---|---|---|---|
-| `firebase-config.js` | Single `initializeApp`, `IS_LOCAL_DEV`, emulator wiring | Yes | No | Keep as-is |
+| `firebase-config.js` | Single `initializeApp`, exports `auth/db/storage/functions` (real project, no emulator wiring) | Yes | No | Keep as-is |
 | `auth-guard.js` | `requireAuth`, role-from-custom-claim, `logout` | Yes | No | Keep |
 | `sidebar.js` | Role-filtered nav + logout | Yes | No (role data is shared) | Keep |
 | `topbar.js` | Shared shell header + theme toggle + logout | Yes | No | Keep |
@@ -124,12 +124,19 @@ The decision to **defer** is correct: implementing them inside Home would re-int
 ## 8. Firebase / Emulator Review
 
 - Single project `dialogika-co` (`.firebaserc`). No second project.
-- `IS_LOCAL_DEV = hostname === "localhost" || "127.0.0.1"` (firebase-config.js:42).
-  - localhost → Auth 9099 / Firestore 8080 / Storage 9199 / Functions 5001 emulator connections.
-  - production host → production services (emulator block skipped).
-- Emulators defined in `firebase.json`: auth 9099, firestore 8080, hosting 5000, ui 4000.
-- Storage (9199) and Functions (5001) emulators are wired in config but **not launched** (no rules file / no functions source) — local calls fail safely rather than hitting production. Documented limitation.
-- **Accidental-production risks:** low. The gate is hostname-based and centralized. No hardcoded production REST URLs inside new Home. (Legacy `data/leads-agent.html` hardcodes a production REST URL — **not part of Home**, documented in prior phases, untouched.)
+- **Phase 0.5 revision:** no Firebase-service emulator connections. `firebase-config.js` initializes
+  the SDK once against the real `dialogika-co` project for ALL environments; there is no `IS_LOCAL_DEV`
+  gate and no `connect*Emulator` calls for Auth/Firestore/Storage/Functions.
+- `firebase.json` defines **only** the Hosting emulator: port 5000. Auth/Firestore/Storage/Functions
+  emulators are removed.
+- LOCAL uses the real `dialogika-co` Firebase services (Auth/Firestore/Storage/Functions); only the
+  Hosting layer is emulated. Writes made from localhost affect real production data — see
+  `ARCHITECTURE-FOUNDATION.md` §14 warning.
+- Functions source is not in this repo; no Functions are deployed from here. `functions` is initialized
+  against the real project (no local emulator, no local fallback port).
+- **Accidental-production risks:** by design, localhost talks to production services. Reads are safe for
+  verification; destructive writes/deletes/rules experiments must be avoided. (Legacy
+  `data/leads-agent.html` hardcodes a production REST URL — not part of Home, documented in prior phases, untouched.)
 
 ---
 
@@ -177,9 +184,9 @@ A new intern with HTML/CSS/JS/Firebase reading the repo can determine:
 | Where its UI logic belongs | ✅ | `<feature>.ui.js` |
 | Where shared code belongs | ✅ | `assets/js`, `assets/css` |
 | How to create a route | ✅ | `firebase.json` rewrites (HOME-ARCHITECTURE §2, §9) |
-| How to test locally | ✅ | `ARCHITECTURE-FOUNDATION.md` §14 emulator guide |
-| How to verify emulator usage | ✅ | `IS_LOCAL_DEV` gate + port guide |
-| How to avoid production data | ✅ | emulator-only flow + `.firebaserc` single project |
+| How to test locally | ✅ | `ARCHITECTURE-FOUNDATION.md` §14 (Hosting emulator + real services) |
+| How to verify real-Firebase usage | ✅ | §14 network check → `*.googleapis.com`, no localhost service ports |
+| How to avoid destructive production data | ✅ | §14 warning: reads preferred; no destructive tests/deletes/schema experiments |
 
 **Documentation gaps (INFORMATIONAL):** a single `ARCHITECTURE-FOUNDATION.md` already covers emulator + safety. The pattern is teachable from `HOME-ARCHITECTURE.md` + `pages/home/*` alone. No critical gap.
 

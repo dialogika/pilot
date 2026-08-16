@@ -208,7 +208,7 @@
                             <li><a class="dropdown-item" href="#" onclick="window.openEditProjectModal(); return false;">Edit</a></li>
                         </ul>
                     </div>
-                    <a href="../home.html" class="btn btn-sm btn-light rounded-pill border"><i class="bi bi-x-lg"></i> Close</a>
+                    <a href="/home" class="btn btn-sm btn-light rounded-pill border"><i class="bi bi-x-lg"></i> Close</a>
                 </div>
 
                 <!-- HEADER PROJECT (DINAMIS) -->
@@ -464,7 +464,7 @@ import { app, auth, db } from "../assets/js/firebase-config.js";
                     loadProjectDetail(projectId);
                 } else {
                     alert("Project ID tidak ditemukan!");
-                    window.location.href = "../home.html";
+                    window.location.href = "/home";
                 }
             } else {
                 window.location.href = "index.html";

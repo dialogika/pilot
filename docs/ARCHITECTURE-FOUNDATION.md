@@ -56,8 +56,8 @@ pilot/
 | `assets/js/utils.js` | Genuinely reusable helpers (formatting, DOM safety, debounce/throttle) | Feature-specific helpers |
 | `assets/js/ui.js` | Generic UI feedback: toast, confirm, loading, modal helpers | Feature rendering, feature queries |
 | `assets/js/theme.js` | Apply dark/light theme | — |
-| `assets/js/sidebar.js` | Render the shared app sidebar (mount `#dg-sidebar-mount`) | Feature menus/logic |
-| `assets/js/topbar.js` | Render the shared app topbar (mount `#dg-topbar-mount`) | Feature menus/logic |
+| `assets/js/components/sidebar/sidebar.js` | Render the shared app sidebar (mount `#dg-sidebar-mount`), driven by `sidebar.config.js` | Feature menus/logic |
+| `assets/js/components/topbar/topbar.js` | Render the shared app topbar (mount `#dg-topbar-mount`) | Feature menus/logic |
 
 ### Rules
 - **Shared code is shared only if genuinely used by 2+ features.**
@@ -212,7 +212,7 @@ Feature-specific code belongs inside the feature. Do not recreate the legacy "ev
 
 - The legacy app (in `data/`, `setting/`, `project/`, `quest/`, `personal/`, `example/`, `element/`, `backend/`) **keeps working unchanged**.
 - Legacy pages still use `element/topbar.js`, `element/sidebar.js`, and `assets/css/style.css`.
-- The **new** shared components (`assets/js/sidebar.js`, `assets/js/topbar.js`) mount to dedicated `#dg-*` containers, so they never conflict with legacy components.
+- The **new** shared components (`assets/js/components/sidebar/*`, `assets/js/components/topbar/*`) mount to dedicated `#dg-*` containers, so they never conflict with legacy components.
 - **Do not move or rename legacy files for cosmetic reasons.**
 
 ---
@@ -232,103 +232,101 @@ Feature-specific code belongs inside the feature. Do not recreate the legacy "ev
 - Pilot is a **copy**; the production site is live.
 - **Do not deploy to production.**
 - **Do not delete or modify production Firestore data, authentication, or security rules.**
-- There is **one** Firebase project: `dialogika-co`. Local development is isolated through the **Firebase Emulator Suite** (see §14), not a second project.
-- `.firebaserc` remains `dialogika-co` on purpose. Local requests reach the emulator because `assets/js/firebase-config.js` connects the SDK to emulator endpoints **when running on localhost**.
+- There is **one** Firebase project: `dialogika-co` — used by BOTH local and production.
+- **WARNING:** Local development talks to the **REAL `dialogika-co` Firebase project**. The only thing the emulator provides is the Hosting layer. Local reads/writes can affect real production data. See §14.
 
 ---
 
-## 14. Phase 0.5 — Local Environment Isolation (Emulator Suite)
+## 14. Phase 0.5 — Environment Strategy (Firebase Hosting Emulator + REAL Firebase services)
 
-> There is **ONE** Firebase project: `dialogika-co`. Environment separation is provided by the **Emulator Suite**, not a second project.
+> There is **ONE** Firebase project: `dialogika-co`.
+>
+> - LOCAL uses the **Firebase Hosting Emulator** to serve the website, but ALL Firebase services (Auth, Firestore, Storage, Functions) point to the **REAL `dialogika-co` project**.
+> - PRODUCTION uses real Firebase Hosting + the REAL `dialogika-co` services.
+> - There are **NO** local emulators for Auth, Firestore, Storage, or Functions.
+> - There is **NO** emulator seed data, import, or export.
+> - There is **NO** second Firebase project.
 
-### Production
+### Architecture
+
+#### Production
 ```
 Browser
    ↓
-Production Website
+team.dialogika.co  (Firebase Hosting)
    ↓
-Firebase Project: dialogika-co
+Firebase SDK (firebase-config.js)
+   ↓
+dialogika-co Firebase (REAL)
    ├── Authentication
    ├── Firestore
    ├── Storage
    └── Functions
 ```
 
-### Local Development
+#### Local Development
 ```
 Browser
    ↓
-Firebase Hosting Emulator  (port 5000)
+Firebase Hosting Emulator  (localhost:5000)
    ↓
 Firebase SDK (firebase-config.js)
    ↓
-Firebase Emulator Suite
-   ├── Authentication Emulator  (9099)
-   ├── Firestore Emulator       (8080)
-   ├── Storage Emulator         (9199)
-   └── Functions Emulator       (5001)  ← not running; see limitation
+dialogika-co Firebase (REAL)
+   ├── Authentication
+   ├── Firestore
+   ├── Storage
+   └── Functions
 ```
 
 ### How the app decides LOCAL vs PROD
-`assets/js/firebase-config.js` checks `window.location.hostname`:
-- `localhost` or `127.0.0.1` → connects `auth`/`db`/`storage`/`functions` to emulator endpoints.
-- any other hostname (e.g. `team.dialogika.co`) → uses production `dialogika-co`.
+There is **no** Firebase-service emulator connection and no `IS_LOCAL_DEV` gate in
+`assets/js/firebase-config.js`. The SDK is initialized once against the real
+`dialogika-co` project and talks to production services in every environment.
+Only the **Hosting layer** differs: local = `firebase emulators:start --only hosting`
+(port 5000); production = real Firebase Hosting.
 
-The project ID stays the same; the **runtime environment** decides. Same project ID does **not** mean local requests reach production.
+### Start the Hosting emulator (the only emulator used)
+```
+firebase emulators:start --only hosting
+```
+Serves the site at `http://localhost:5000`. Hosting rewrites (`/test`, `/home`, `/quest`)
+keep working locally.
 
-### Start the emulators
-```
-firebase emulators:start
-```
-Serves everything locally. Emulator UI at `http://localhost:4000`.
-
-To run a subset (e.g. hosting + firestore):
-```
-firebase emulators:start --only hosting,firestore
-```
-
-### Stop the emulators
+### Stop the Hosting emulator
 Press `Ctrl+C` in the terminal running the emulator. (Or stop the terminal process.)
 
-### Emulator ports
+### Emulator ports (Hosting only)
 | Service | Port |
 |---|---|
 | Hosting | 5000 |
-| Authentication | 9099 |
-| Firestore | 8080 |
-| Storage | 9199 |
-| Functions | 5001 (not running) |
-| Emulator UI | 4000 |
 
-### Create a local Auth test user
-Use the Emulator UI (`http://localhost:4000` → Auth → Add user), or in code call
-`createUserWithEmailAndPassword(auth, email, password)` while the app is served from `localhost:5000`.
-Users created here exist **only in the emulator** — never in production.
+### ⚠️ WARNING — localhost uses REAL production data
+Because `localhost:5000` talks to the **real `dialogika-co` project**, any create/update/delete
+performed locally will affect **real production data**. Developers must:
+- **avoid destructive testing** (no deletes/clears of production collections)
+- **avoid deleting or overwriting production documents**
+- **avoid modifying real users unnecessarily**
+- **avoid bulk writes**
+- **avoid schema experiments** (new fields/collections)
+- **avoid Security Rules experiments**
+- **avoid deployment commands unless explicitly authorized** (`firebase deploy`, `firestore:rules`, `functions`, etc.)
+- prefer **reads** for verification; only write when the change is genuinely needed and authorized.
 
-### Reset emulator data
-Emulator data is held in memory/local disk and is **not** production data. To reset:
-1. Stop the emulators.
-2. Delete the local data directory:
-   ```
-   .firebase/
-   ```
-   (This folder is emulator state only; it is already git-ignored.)
-3. Restart `firebase emulators:start`.
+Documentation is the primary guardrail — no artificial code restrictions are imposed.
 
-### Verify emulator connectivity
-1. Start `firebase emulators:start`.
+### Verify connectivity to REAL Firebase
+1. Start `firebase emulators:start --only hosting`.
 2. Open the app at `http://localhost:5000`.
-3. In browser DevTools → Network, check requests go to:
-   - Auth → `localhost:9099`
-   - Firestore → `localhost:8080`
-   - Storage → `localhost:9199`
-   Not to `*.googleapis.com` (that would mean production).
+3. In browser DevTools → Network, confirm Auth/Firestore requests go to
+   `*.googleapis.com` / `identitytoolkit.googleapis.com` (REAL Firebase),
+   **NOT** to `localhost:9099`, `localhost:8080`, `localhost:9199`, or `localhost:5001`.
 
 ### Verify the active Firebase CLI project
 ```
 firebase use
 ```
-Expected: `dialogika-co`. This is correct — the emulator uses the same project ID; only local requests are rerouted to the emulator.
+Expected: `dialogika-co`. This is the single project used in both local and production.
 
 ### Commands that must NOT be used casually
 - `firebase deploy` (deploys to production hosting/functions/rules)
@@ -336,11 +334,12 @@ Expected: `dialogika-co`. This is correct — the emulator uses the same project
 - `firebase deploy --only functions` (deploys functions to production)
 - Any `firebase firestore:delete` / `firebase storage:...` against production
 
-These target production `dialogika-co`. Never run them for local work.
+These target production `dialogika-co`. Never run them for local work unless explicitly authorized.
 
 ### Known limitation — Functions
-There is **no Functions source code** in this repo (functions live in the backend `migration-script/`, outside Pilot). Therefore:
-- The Functions emulator is **not configured** to run.
-- `firebase-config.js` still points the Functions SDK to the local port so local calls can **never silently fall back to production**.
-- Local callable-function calls will **fail** (safe), because no local functions emulator is listening.
-- Do **not** invent function implementations here; do **not** deploy production functions.
+There is **no Functions source code** in this repo (functions live in the backend
+`migration-script/`, outside Pilot). Therefore:
+- No Functions are deployed from this repo.
+- `functions` is initialized against the real project; local callable-function calls will
+  behave as they do in production (server-side behavior is governed by the deployed backend).
+- Do **not** invent or deploy function implementations from here.

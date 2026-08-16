@@ -26,7 +26,7 @@ reminder, and report submission logic. This is a hard, non-obvious coupling.
 
 ### 1.2 Navigation expectations vs reality (CRITICAL)
 
-The approved new sidebar (`assets/js/sidebar.js`) and the legacy sidebar both
+The approved new sidebar (`assets/js/components/sidebar/sidebar.js`) and the legacy sidebar both
 link to **three Quest routes that DO NOT EXIST in the repository**:
 
 - `/quest/my-tasks.html` → **missing**
@@ -169,7 +169,7 @@ Shared collection: tasks
 | 5 | Massive inline scripts in dashboards; business logic mixed with DOM | **HIGH** |
 | 6 | `window.*` global flooding (`db`, `collection`, `getDocs`, etc.) | **HIGH** |
 | 7 | `quest-edit.html` dead `initializeApp` import + auth-guard loaded but unused | **MEDIUM** |
-| 8 | `element/sidebar.js` (legacy) vs `assets/js/sidebar.js` (new) — two competing sidebars | **MEDIUM** |
+| 8 | `element/sidebar.js` (legacy) vs `assets/js/components/sidebar/sidebar.js` (new) — two competing sidebars | **MEDIUM** |
 | 9 | People Dev dashboard is mostly hardcoded static data | **MEDIUM** |
 | 10 | Duplicated utilities (normalizeStatus, date helpers) across files | **LOW** |
 
@@ -251,7 +251,7 @@ NOT part of Phase 2 Quest:
   - "My Tasks" → the Quest Board itself (`/quest`) lists assigned quests.
   - "Daily Report" → the Daily Report submit inside the Quest Board.
   - "Activity" → no legacy implementation; not recreated.
-- This cleanup touches only the two sidebars (`assets/js/sidebar.js` + `element/sidebar.js`) and does not break unrelated functionality (these routes 404 today).
+- This cleanup touches only the two sidebars (`assets/js/components/sidebar/sidebar.js` + `element/sidebar.js`) and does not break unrelated functionality (these routes 404 today).
 
 ## 4. Standalone Quest Decision
 
@@ -363,8 +363,7 @@ so a separate `daily-report/` sub-feature is **not** justified.
 - **`tasks` shared with Projects:** must not break project task reads/writes.
 - **Sidebar edits:** dropping non-existent routes touches `element/sidebar.js` (10k lines) —
   do this surgically and verify legacy quest-board/iframe embedding still works.
-- **Emulator:** Storage + Functions emulators are not launched (documented) — local file upload
-  and any callable fail safely; core Firestore flows are testable.
+- **Emulator:** only the Firebase Hosting Emulator is used to serve Quest locally; Auth/Firestore/Storage/Functions point to the REAL `dialogika-co` project (no Firebase-service emulators, per Phase 0.5 revision). Prefer reads for verification; avoid destructive writes on production data.
 
 ---
 

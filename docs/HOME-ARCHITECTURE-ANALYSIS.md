@@ -14,7 +14,7 @@
 - **Shell components used:** **legacy** `element/topbar.js` + `element/sidebar.js`, mounted into
   `#topbarContainer` and `#sidebarContainer` respectively.
 
-> Important: the new shared shell (`assets/js/topbar.js`, `assets/js/sidebar.js`, which mount
+> Important: the new shared shell (`assets/js/components/topbar/topbar.js`, `assets/js/components/sidebar/sidebar.js`, which mount
 > to `#dg-topbar-mount` / `#dg-sidebar-mount`) is **NOT** used by legacy Home yet. Home still
 > uses the legacy `element/*` components.
 
@@ -154,8 +154,8 @@ From the Phase 0 foundation (`assets/js/` + `assets/css/`), the new Home should 
 
 - `assets/js/firebase-config.js` → single `db`/`auth`/`storage` init (already centralized; do not re-init).
 - `assets/js/auth-guard.js` → `requireAuth()`, `logout()` (auth boundary). Home currently duplicates this in `home-firebase.js#initializeAuth` — this is exactly what should be replaced.
-- `assets/js/topbar.js` → `renderTopbar({ user, role })` (new shell).
-- `assets/js/sidebar.js` → `renderSidebar({ role, activePage })` (new shell, role-filtered menu).
+- `assets/js/components/topbar/topbar.js` → `renderTopbar({ user, role })` (new shell).
+- `assets/js/components/sidebar/sidebar.js` → `renderSidebar({ role, activePage })` (new shell, role-filtered menu).
 - `assets/js/ui.js` → `toast`, `confirmDialog`, `showModal`, `hideModal`, `showLoading`, `hideLoading`, `setButtonBusy`.
 - `assets/js/utils.js` → `getMs`, `formatDateID`, `addMonths`, `escapeHtml`, `stripHtml`, `truncateText`, `normalizeStatus`, `debounce`, `throttle`.
 - `assets/css/theme.css` (tokens + dark mode) and `assets/css/layout.css` (shell).
@@ -207,7 +207,7 @@ New Home should use `theme.css` + `layout.css` for the shell, `home.css` for Hom
 - **Do not deploy**, **do not touch production data/rules**.
 - **Dormant projects code**: do NOT delete (legacy safety); keep for comparison, do not re-activate without a documented reason.
 - **Auth**: must use `requireAuth()` (redirect to login if unauthenticated), preserve "role required" fail-safe.
-- **Emulator**: all local reads/writes must hit the Firestore emulator; never production.
+- **Emulator**: local development serves the page via the Firebase Hosting Emulator only; Auth/Firestore/Storage point to the REAL `dialogika-co` project. Prefer reads for verification; avoid destructive writes/deletes on production data.
 
 ---
 
