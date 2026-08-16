@@ -16,8 +16,8 @@
 // =====================================================================
 
 import { requireAuth } from "../../assets/js/auth-guard.js";
-import { renderTopbar } from "../../assets/js/topbar.js";
-import { renderSidebar } from "../../assets/js/sidebar.js";
+import { renderTopbar } from "../../assets/js/components/topbar/topbar.js";
+import { renderSidebar } from "../../assets/js/components/sidebar/sidebar.js";
 import * as repo from "./quest.repository.js";
 import * as ui from "./quest.ui.js";
 

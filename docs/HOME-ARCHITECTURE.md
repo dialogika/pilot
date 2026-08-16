@@ -137,8 +137,8 @@ navigation by role. Logout uses `logout()` from `auth-guard.js`.
 
 ## 9. Navigation
 
-- Shared sidebar (`assets/js/sidebar.js`) links to **public URLs** (e.g. `/home`,
-  `/quest/my-tasks.html`), never file paths.
+- Shared sidebar (`assets/js/components/sidebar/sidebar.js`) links to **public URLs** (e.g. `/home`,
+  `/quest`), never file paths.
 - Apps grid in `index.html` uses relative links to legacy pages (still legacy).
 - New Home links point to `/home` (public), not `/pages/home/index.html`.
 
@@ -150,8 +150,8 @@ navigation by role. Logout uses `logout()` from `auth-guard.js`.
 |---|---|
 | `assets/js/firebase-config.js` | single `db`/`auth` init + emulator wiring |
 | `assets/js/auth-guard.js` | `requireAuth()`, `logout()` |
-| `assets/js/topbar.js` | `renderTopbar` (mount `#dg-topbar-mount`) |
-| `assets/js/sidebar.js` | `renderSidebar` (mount `#dg-sidebar-mount`) |
+| `assets/js/components/topbar/topbar.js` | `renderTopbar` (mount `#dg-topbar-mount`) |
+| `assets/js/components/sidebar/sidebar.js` | `renderSidebar` (mount `#dg-sidebar-mount`) |
 | `assets/js/ui.js` | `toast`, `confirmDialog`, `showModal`, `hideModal`, `setButtonBusy` |
 | `assets/js/utils.js` | `formatDateID`, `stripHtml`, `escapeHtml`, `getMs` |
 | `assets/css/theme.css` | design tokens + dark mode |
@@ -164,7 +164,7 @@ No foundation functionality is duplicated inside Home.
 ## 11. Testing Approach
 
 - **Routing:** `GET /home` → 200, serves `pages/home/index.html`, browser stays at `/home`; `/test` preserved.
-- **Emulator:** all local reads/writes hit the Firestore/Auth emulators (localhost) — never production.
+- **Emulator:** local development uses the Firebase Hosting Emulator to serve `/home`, while Auth/Firestore point to the REAL `dialogika-co` project (see `ARCHITECTURE-FOUNDATION.md` §14). No Firebase-service emulators.
 - **Module syntax:** `node --check` on each ES module.
 - **Asset availability:** every CSS/JS the page references returns 200.
 - **UI render:** headless Chrome self-test exercises `home.ui.js` against seeded data.
@@ -182,8 +182,7 @@ No foundation functionality is duplicated inside Home.
   system should own this.
 - **Projects** code is dormant in legacy Home (no project containers in `home.html`) and is
   **not re-activated** here. Project management belongs to the future Projects feature.
-- **Storage emulator** is not running (no rules file) — local storage calls fail safely.
-- **Functions emulator** is not running (no source) — callable calls fail safely.
+- **Storage** points to the REAL `dialogika-co` Storage (no emulator). **Functions** source is not in this repo; `functions` is initialized against the real project (no local emulator).
 
 ---
 
