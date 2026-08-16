@@ -420,7 +420,7 @@
             data-bs-target="#forgotPasswordModal"
             >Forgot Password?</a
           >
-          <a href="register.html">Register</a>
+          <a href="/register">Register</a>
         </div>
       </div>
     </main>
@@ -642,29 +642,63 @@
           }
         } catch (error) {
           console.error("Login Error:", error);
+          errorMsg.innerText = mapLoginError(error);
           errorMsg.style.display = "block";
-
-          let pesan = "Email atau Password salah.";
-          if (error.code === "auth/user-not-found")
-            pesan = "Akun tidak terdaftar.";
-          if (error.code === "auth/wrong-password") pesan = "Password salah.";
-          if (error.code === "auth/invalid-credential")
-            pesan = "Email atau Password salah.";
-          if (error.message === "pending_approval")
-            pesan = "Akun Anda sedang menunggu persetujuan Administrator.";
-          if (error.message === "account_inactive")
-            pesan =
-              "Akun Anda telah dinonaktifkan. Silakan hubungi Administrator jika ini adalah sebuah kesalahan.";
-          if (error.code === "permission-denied") {
-            pesan =
-              "Login berhasil, tetapi akun ini belum punya izin akses data di sistem. Hubungi admin untuk diberikan akses.";
-          }
-
-          errorMsg.innerText = pesan;
           submitBtn.disabled = false;
           submitBtn.innerHTML = "Login";
         }
       });
+
+      // Maps every failure mode to a distinct, user-meaningful message.
+      // Network / configuration errors are NEVER shown as "account not
+      // registered" — they get their own "koneksi/config" message.
+      function mapLoginError(error) {
+        const code = error && error.code ? error.code : "";
+
+        // 1. Application-level flow errors (thrown in the try above).
+        if (error.message === "pending_approval")
+          return "Akun Anda sedang menunggu persetujuan Administrator.";
+        if (error.message === "account_inactive")
+          return "Akun Anda telah dinonaktifkan. Silakan hubungi Administrator jika ini adalah sebuah kesalahan.";
+        if (error.message && error.message.indexOf("Data profil tidak ditemukan") === 0)
+          return "Login berhasil, tetapi profil Anda belum ditemukan di database. Silakan hubungi Administrator.";
+
+        // 2. Network / configuration failures — must NOT be shown as
+        //    "account not registered".
+        if (
+          code === "auth/network-request-failed" ||
+          code === "auth/unavailable" ||
+          code === "unavailable" ||
+          code === "network-request-failed" ||
+          code === "internal-error" ||
+          code === "auth/internal-error"
+        )
+          return "Koneksi ke Firebase gagal. Periksa koneksi internet atau konfigurasi Firebase.";
+        if (
+          code === "auth/invalid-api-key" ||
+          code === "auth/api-key-not-valid"
+        )
+          return "Konfigurasi Firebase salah. Silakan hubungi Administrator.";
+
+        // 3. Credential errors.
+        if (code === "auth/user-not-found")
+          return "Akun tidak terdaftar.";
+        if (code === "auth/wrong-password" || code === "auth/invalid-credential")
+          return "Email atau Password salah.";
+        if (code === "auth/invalid-email")
+          return "Format email tidak valid.";
+        if (code === "auth/user-disabled")
+          return "Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.";
+        if (code === "auth/too-many-requests")
+          return "Terlalu banyak percobaan login. Silakan coba lagi beberapa saat kemudian.";
+
+        // 4. Firestore permission-denied (auth succeeded, no data access).
+        if (code === "permission-denied" || code === "PERMISSION_DENIED")
+          return "Login berhasil, tetapi akun ini belum punya izin akses data di sistem. Hubungi admin untuk diberikan akses.";
+
+        // 5. Fallback.
+        return "Email atau Password salah.";
+      }
 
       // --- PROSES FORGOT PASSWORD ---
       const forgotForm = document.getElementById("forgotPasswordForm");

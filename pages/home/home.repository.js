@@ -9,7 +9,8 @@
 //  - Returns plain data; the orchestrator decides what to render.
 // =====================================================================
 
-import { auth, db } from "../../assets/js/firebase-config.js";
+import { auth, db, functions } from "../../assets/js/firebase-config.js";
+import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 import {
   collection,
   query,
@@ -390,19 +391,27 @@ export function subscribePendingUsers(onUsers) {
 
 /**
  * Approve a pending user: copy doc to users + delete pending record.
+ * Done via the `approvePendingUser` callable Cloud Function because the
+ * `users` collection rules forbid client-side create (`allow create: if false`)
+ * — only the Admin SDK may create a user doc, so role/approved_by stay safe.
  * @param {string} userId
  * @param {{uid:string, name:string}} approver
  */
 export async function approvePendingUser(userId, approver) {
-  const pendingRef = doc(db, "pending_users", userId);
-  const snap = await getDoc(pendingRef);
-  if (!snap.exists()) throw new Error("User not found in pending list.");
-  const data = snap.data();
-  data.is_approved = true;
-  data.status = STATUS.active;
-  data.approved_by = { uid: approver.uid, name: approver.name, timestamp: serverTimestamp() };
-  await setDoc(doc(db, "users", userId), data);
-  await deleteDoc(pendingRef);
+  const call = httpsCallable(functions, "approvePendingUser");
+  try {
+    const result = await call({ userId });
+    return result.data;
+  } catch (error) {
+    const code = error?.code || "";
+    if (code === "functions/permission-denied")
+      throw new Error("Anda tidak berhak menyetujui registrasi (hanya owner/admin/team).");
+    if (code === "functions/unauthenticated")
+      throw new Error("Silakan login ulang untuk menyetujui registrasi.");
+    if (code === "functions/not-found")
+      throw new Error("Registrasi pengguna tidak ditemukan.");
+    throw new Error(error?.message || "Gagal menyetujui pengguna.");
+  }
 }
 
 /**
