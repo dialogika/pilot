@@ -68,6 +68,7 @@ export const MENU = [
     icon: "bi-list-columns-reverse",
     gate: "shortcut",
     badge: "shortcut",
+    underDevelopment: true,
   },
   {
     id: "pings",
@@ -130,8 +131,37 @@ export const MENU = [
  * legacy route is preserved. Report card keeps the legacy id.
  */
 export const SMART_FILTERS = [
-  { id: "mainQuest", label: "Main Quest", icon: "bi-archive-fill", color: "var(--dlg-blue)", href: "/quest", countEl: "mainQuestCount" },
-  { id: "sideQuest", label: "Side Quest", icon: "bi-archive-fill", color: "var(--dlg-yellow)", href: "/quest", countEl: "sideQuestCount" },
-  { id: "project", label: "Project", icon: "bi-calendar-event-fill", color: "var(--dlg-purple)", href: "/home", countEl: "projectTasksTotalCount" },
-  { id: "report", label: "Report", icon: "bi-calendar-event-fill", color: "var(--dlg-green)", href: "/quest", countEl: "reportPendingApprovalCount", cardId: "reportFilterCard" },
+  {
+    id: "mainQuest",
+    label: "Main Quest",
+    icon: "bi-archive-fill",
+    color: "var(--dlg-blue)",
+    href: "/quest",
+    countEl: "mainQuestCount",
+  },
+  {
+    id: "sideQuest",
+    label: "Side Quest",
+    icon: "bi-archive-fill",
+    color: "var(--dlg-yellow)",
+    href: "/quest",
+    countEl: "sideQuestCount",
+  },
+  {
+    id: "project",
+    label: "Project",
+    icon: "bi-calendar-event-fill",
+    color: "var(--dlg-purple)",
+    href: "/home",
+    countEl: "projectTasksTotalCount",
+  },
+  {
+    id: "report",
+    label: "Report",
+    icon: "bi-calendar-event-fill",
+    color: "var(--dlg-green)",
+    href: "/quest",
+    countEl: "reportPendingApprovalCount",
+    cardId: "reportFilterCard",
+  },
 ];
