@@ -275,3 +275,75 @@
 [data-theme="dark"] .internship-table tbody tr:hover .internship-col-status {
   background-color: var(--surface-hover);
 }
+
+/* --- Dark Mode Enhancements for Internship Management --- */
+[data-theme="dark"] .stats-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .main-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .filter-bar {
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .internship-table thead th {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .internship-table tbody td {
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .internship-breadcrumb,
+[data-theme="dark"] .internship-breadcrumb a {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .internship-breadcrumb a:hover {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .badge-soft-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .badge-soft-primary {
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .badge-soft-warning {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fde047;
+}
+
+[data-theme="dark"] .badge-soft-success {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+}
+
+[data-theme="dark"] .badge-soft-danger {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .btn-action {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .btn-action:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  color: var(--text-strong);
+}

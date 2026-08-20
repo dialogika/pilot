@@ -14,8 +14,10 @@
     apply(theme) {
       if (theme === "dark") {
         document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-bs-theme", "dark");
       } else {
         document.documentElement.removeAttribute("data-theme");
+        document.documentElement.removeAttribute("data-bs-theme");
       }
       try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
       syncIcons();

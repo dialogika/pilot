@@ -626,3 +626,126 @@
   outline: none;
   border-color: #3b82f6;
 }
+
+/* =====================================================================
+   Quest Board Dark Mode Overrides
+   ===================================================================== */
+[data-theme="dark"] .quest-eyebrow {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-h1,
+[data-theme="dark"] .quest-h2,
+[data-theme="dark"] .quest-modal-h3 {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-subtitle,
+[data-theme="dark"] .quest-h2-sub,
+[data-theme="dark"] .quest-card-desc,
+[data-theme="dark"] .quest-label,
+[data-theme="dark"] .quest-hint,
+[data-theme="dark"] .quest-modal-sub {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-empty {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-tabs,
+[data-theme="dark"] .quest-card-section,
+[data-theme="dark"] .quest-card,
+[data-theme="dark"] .quest-modal-dialog {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .quest-tab {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-tab-active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .quest-card-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .quest-btn-secondary {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .quest-btn-secondary:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-input {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-input:focus {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .quest-input-readonly {
+  background: var(--surface-muted);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-modal-head {
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .quest-modal-close:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-report-item {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .quest-report-item-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .quest-report-item-detail {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .quest-card-tag {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .quest-card.quest-locked,
+[data-theme="dark"] .quest-card.quest-done {
+  opacity: 0.65;
+}

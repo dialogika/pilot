@@ -19,6 +19,43 @@
   --text: #1f2937;
 }
 
+[data-theme="dark"] {
+  --bg-body: #0a0e1a;
+  --surface: #0d1117;
+  --border-strong: #253044;
+  --text: #e2e8f0;
+}
+
+[data-theme="dark"] .form-box {
+  background: var(--surface);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  color: var(--text);
+}
+
+[data-theme="dark"] .upload-area {
+  background-color: #111827;
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: #111827;
+  border-color: #253044;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: #161c2a;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .form-label,
+[data-theme="dark"] .text-muted {
+  color: #94a3b8 !important;
+}
+
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--bg-body);

@@ -1,17 +1,23 @@
 /* pages/home/home.css
    =====================================================================
    HOME FEATURE STYLES — styles that genuinely belong to Home.
-   Reuses theme.css (tokens) + layout.css (shell). Do NOT duplicate
-   global styles here.
+   Reuses theme.css (tokens) + layout.css (shell).
    ===================================================================== */
 
-/* --- Gradient utilities (app icons) --- */
-.grad-blue { background: linear-gradient(135deg, var(--dlg-blue), var(--dlg-blue-end)); }
-.grad-yellow { background: linear-gradient(135deg, var(--dlg-yellow), var(--dlg-yellow-end)); }
-.grad-green { background: linear-gradient(135deg, var(--dlg-green), var(--dlg-green-end)); }
-.grad-red { background: linear-gradient(135deg, var(--dlg-red), var(--dlg-red-end)); }
-.grad-purple { background: var(--dlg-purple); }
-.grad-slate { background: linear-gradient(135deg, #475569, #64748b); }
+/* --- Gradient utilities (app icons - vibrant in light and dark mode) --- */
+.grad-blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+.grad-yellow { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.grad-green  { background: linear-gradient(135deg, #059669, #10b981); }
+.grad-red    { background: linear-gradient(135deg, #dc2626, #f87171); }
+.grad-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.grad-slate  { background: linear-gradient(135deg, #475569, #64748b); }
+
+[data-theme="dark"] .grad-blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35); }
+[data-theme="dark"] .grad-yellow { background: linear-gradient(135deg, #d97706, #f59e0b); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35); }
+[data-theme="dark"] .grad-green  { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); }
+[data-theme="dark"] .grad-red    { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35); }
+[data-theme="dark"] .grad-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35); }
+[data-theme="dark"] .grad-slate  { background: linear-gradient(135deg, #334155, #64748b); box-shadow: 0 4px 14px rgba(100, 116, 139, 0.35); }
 
 /* --- Who is Online --- */
 .online-scroll-container {
@@ -32,9 +38,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.avatar-wrapper:hover { transform: scale(1.05); }
+.avatar-wrapper:hover { transform: scale(1.08); }
 .avatar-ring {
   position: absolute;
   top: 0;
@@ -43,6 +49,7 @@
   height: 100%;
   border-radius: 50%;
   z-index: 1;
+  transition: all 0.2s;
 }
 .avatar-mask {
   position: absolute;
@@ -73,32 +80,93 @@
   bottom: 2px;
   right: 2px;
   z-index: 4;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
 }
 
-/* --- Apps grid --- */
+/* --- Stat Pills & Badges --- */
+#dashboard-role-badge,
+#dashboard-position-badge,
+#onlineActiveBadge {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] #dashboard-role-badge {
+  background: rgba(99, 102, 241, 0.14) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  color: #a5b4fc !important;
+}
+
+[data-theme="dark"] #dashboard-position-badge {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
+}
+
+[data-theme="dark"] #onlineActiveBadge {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #6ee7b7 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.18);
+}
+
+/* --- Section Typography & Division Headers --- */
+.division-section {
+  position: relative;
+}
+
+.division-section h5 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+[data-theme="dark"] .division-section h5,
+[data-theme="dark"] h5.text-dark,
+[data-theme="dark"] h6.text-dark,
+[data-theme="dark"] .fw-bold.text-dark {
+  color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .division-section .text-muted.small {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: var(--text-muted) !important;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* --- Apps grid / Module boxes --- */
 .app-box {
   background: var(--surface);
-  border-radius: 12px;
-  padding: 1rem 0.5rem;
+  border-radius: 14px;
+  padding: 1.25rem 0.75rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-  color: var(--dlg-blue);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
   text-decoration: none;
   height: 100%;
-  min-height: 110px;
-  transition: 0.2s;
+  min-height: 115px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
+
 .app-box:hover {
-  box-shadow: 0 8px 15px rgba(11, 43, 106, 0.1);
-  transform: translateY(-3px);
-  border-color: var(--border);
+  background: var(--surface-hover);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.6), 0 0 14px rgba(99, 102, 241, 0.16);
+  color: var(--text-strong);
 }
+
 .app-icon-wrapper {
   width: 48px;
   height: 48px;
@@ -106,12 +174,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
-  font-size: 1.4rem;
+  margin-bottom: 12px;
+  font-size: 1.35rem;
   color: var(--text-inverse);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.app-title { font-size: 0.8rem; font-weight: 600; line-height: 1.2; }
+
+.app-box:hover .app-icon-wrapper {
+  transform: scale(1.08);
+}
+
+.app-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  transition: color 0.2s;
+}
+
+.app-box:hover .app-title {
+  color: #ffffff;
+}
 
 /* --- Menu badges (floating counters on app-box) --- */
 .menu-badge {
@@ -126,12 +210,91 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .menu-badge-hidden { display: none !important; }
 .menu-badge-floating { position: absolute; top: 8px; right: 8px; }
 
+/* --- Approvals: Daily Report + Pending Registrations (Dark Mode) --- */
+[data-theme="dark"] .card {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text);
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] #dailyReportBadge {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] #dailyReportList > div {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] #dailyReportList > div:hover {
+  background-color: var(--surface-hover) !important;
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateX(3px);
+}
+
+[data-theme="dark"] .daily-report-review-btn {
+  background-color: var(--surface-hover-strong);
+  border: 1px solid var(--border-strong);
+  color: var(--text-strong);
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .daily-report-review-btn:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
+}
+
+/* --- Table (Pending registrations) in Dark Mode --- */
+[data-theme="dark"] .table {
+  color: var(--text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--border);
+}
+
+[data-theme="dark"] .table-light {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .table-light th {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+  background-color: var(--surface-hover) !important;
+  color: var(--text-strong);
+}
+
 /* --- Announcement cards --- */
+[data-theme="dark"] #announcementBannerContainer > div {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] #announcementBannerContainer > div:hover {
+  background-color: var(--surface-hover) !important;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
 .announcement-card h6,
 .announcement-content-preview {
   overflow-wrap: break-word;
@@ -139,14 +302,161 @@
   white-space: normal;
 }
 
-/* --- Scrollable frames (report list / pending table) --- */
+/* --- Scrollable frames --- */
 .scrollable-frame {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
-/* --- Daily report detail modal --- */
+/* --- Comprehensive Modal Dark Mode Styling --- */
+[data-theme="dark"] .modal-content {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-pop);
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .modal-header.bg-white {
+  background-color: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+[data-theme="dark"] .modal-body {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .modal-body.bg-white {
+  background-color: var(--surface) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  border-top: 1px solid var(--border) !important;
+  background-color: var(--surface);
+}
+
+[data-theme="dark"] .modal-body .card,
+[data-theme="dark"] .modal-body .bg-light,
+[data-theme="dark"] .modal .card {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Modal task list items (e.g. inside Daily Job / Quest modal) */
+[data-theme="dark"] .task-list-container > div,
+[data-theme="dark"] .modal-body .task-list-container .d-flex.bg-white,
+[data-theme="dark"] #sidebarReportTasksContainer > div {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .task-list-container > div:hover {
+  background-color: var(--surface-hover) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .modal .text-dark,
+[data-theme="dark"] .task-list-container .text-dark {
+  color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .modal .fst-italic {
+  color: var(--text-muted) !important;
+}
+
+/* Sleek badges inside task lists */
+[data-theme="dark"] .task-list-container span[style*="background:#eff6ff"],
+[data-theme="dark"] .task-list-container span[style*="background: #eff6ff"] {
+  background: rgba(59, 130, 246, 0.16) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+[data-theme="dark"] .task-list-container span[style*="background:#fefce8"],
+[data-theme="dark"] .task-list-container span[style*="background: #fefce8"] {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #fde047 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="dark"] .task-list-container span[style*="background:#f1f5f9"],
+[data-theme="dark"] .task-list-container span[style*="background: #f1f5f9"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid var(--border) !important;
+}
+
+[data-theme="dark"] .task-list-container span[style*="background:#fee2e2"],
+[data-theme="dark"] .task-list-container span[style*="background: #fee2e2"] {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+[data-theme="dark"] .task-list-container span[style*="background:#f0fdf4"],
+[data-theme="dark"] .task-list-container span[style*="background: #f0fdf4"] {
+  background: rgba(34, 197, 94, 0.16) !important;
+  color: #86efac !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Modal form controls */
+[data-theme="dark"] #sidebarReportTasksContainer {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+}
+
+[data-theme="dark"] .modal .form-control,
+[data-theme="dark"] .modal .form-select,
+[data-theme="dark"] .modal textarea {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .modal .form-control:focus,
+[data-theme="dark"] .modal .form-select:focus,
+[data-theme="dark"] .modal textarea:focus {
+  background-color: var(--surface-hover) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .modal .form-label,
+[data-theme="dark"] .modal .text-secondary {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+[data-theme="dark"] .btn-light,
+[data-theme="dark"] .modal .btn-outline-secondary {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .btn-light:hover,
+[data-theme="dark"] .modal .btn-outline-secondary:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+
+/* --- Daily report detail modal text wrapping --- */
 #announcementDetailContent,
 #announcementDetailTitle {
   overflow-wrap: anywhere;
