@@ -28,11 +28,17 @@ import { MENU, SMART_FILTERS, roleCanShow } from "./sidebar.config.js";
  */
 export function buildSidebarHTML(role, activePage) {
   // --- Smart filters (4 cards) ---
-  const filtersHtml = SMART_FILTERS.map((f) => `
-    <a href="${f.href}" class="filter-card"${f.cardId ? ` id="${f.cardId}"` : ""}>
+  const filtersHtml = SMART_FILTERS.map((f) => {
+    const cardIdAttr = f.cardId ? ` id="${f.cardId}"` : "";
+    const actionAttr = f.action ? ` data-sidebar-action="${f.action}" role="button" style="cursor:pointer;"` : "";
+    const tag = f.href ? "a" : "div";
+    const hrefAttr = f.href ? ` href="${f.href}"` : "";
+    return `
+    <${tag}${hrefAttr} class="filter-card"${cardIdAttr}${actionAttr}>
       <div class="filter-top"><div class="filter-icon" style="background-color: ${f.color};"><i class="bi ${f.icon}"></i></div><div class="filter-count" id="${f.countEl}">0</div></div>
       <div class="filter-label">${f.label}</div>
-    </a>`).join("");
+    </${tag}>`;
+  }).join("");
 
   // --- Navigation links (legacy markup, gated by role) ---
   let navHtml = "";
@@ -132,9 +138,18 @@ export function applyCounts(mount, counts) {
 /**
  * Wire all sidebar DOM events.
  * @param {HTMLElement} mount
- * @param {{ onLogout: Function }} handlers
+ * @param {{ onLogout: Function, onAction?: Function }} handlers
  */
-export function bindSidebarEvents(mount, { onLogout }) {
+export function bindSidebarEvents(mount, { onLogout, onAction }) {
+  // Action cards (e.g. Daily modal, Quest modal)
+  mount.querySelectorAll("[data-sidebar-action]").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      const action = btn.getAttribute("data-sidebar-action");
+      if (typeof onAction === "function") onAction(action);
+    });
+  });
+
   // Shared sidebar toggle (used by the topbar mobile-toggle button).
   if (
     typeof window !== "undefined" &&

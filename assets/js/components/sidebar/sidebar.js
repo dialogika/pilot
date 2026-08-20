@@ -26,6 +26,8 @@
 import { logout } from "../../auth-guard.js";
 import { buildSidebarHTML, applyCounts, bindSidebarEvents } from "./sidebar.ui.js";
 import { getSidebarCounts } from "./sidebar.repository.js";
+import { openQuestModal } from "../quest-modal/quest-modal.js";
+import { openReportModal } from "../report-modal/report-modal.js";
 
 /**
  * Render the shared sidebar into #dg-sidebar-mount.
@@ -39,7 +41,18 @@ export function renderSidebar(opts = {}) {
 
   mount.innerHTML = buildSidebarHTML(role, activePage);
 
-  bindSidebarEvents(mount, { onLogout: logout });
+  bindSidebarEvents(mount, {
+    onLogout: logout,
+    onAction: (action) => {
+      if (action === "openDaily") {
+        openQuestModal({ initialTab: "daily" });
+      } else if (action === "openQuest") {
+        openQuestModal({ initialTab: "quest" });
+      } else if (action === "openReport") {
+        openReportModal({ initialTab: "side" });
+      }
+    },
+  });
 
   // Live smart-filter counts (best-effort; the shell stays usable when
   // the Quest collections are unavailable).
