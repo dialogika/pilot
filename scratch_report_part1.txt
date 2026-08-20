@@ -1,0 +1,200 @@
+﻿        }
+        .table tbody tr { cursor: pointer; transition: background 0.2s; }
+        .table tbody tr:hover { background-color: #f8fafc !important; }
+        .table tbody td { padding: 12px; vertical-align: middle; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+        .badge-quest { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+        .badge-main { background: #dbeafe; color: #1e40af; }
+        .badge-side { background: #fef3c7; color: #92400e; }
+        .badge-project { background: #f3e8ff; color: #6b21a8; }
+        .rich-text-preview {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            border-left: 3px solid var(--primary-teal);
+            font-style: italic;
+        }
+        .text-truncate-custom { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .modal-content { border-radius: 15px; border: none; }
+        .modal-header { border-bottom: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body class="py-4" style="background-color: #ffffff;">
+<div class="container-fluid px-4" style="background-color: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4" style="background-color: #ffffff;">
+        <div>
+            <h4 class="fw-bold d-inline-block me-2 mb-0">Report Side Quest</h4>
+            <span class="count-badge">551</span>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="btn-group shadow-sm">
+                <button id="reportTopArchiveButton" type="button" class="btn btn-white border bg-white btn-sm px-3"><i class="fas fa-box-archive text-secondary"></i></button>
+                <button id="reportTopDeleteButton" type="button" class="btn btn-white border bg-white btn-sm px-3"><i class="fas fa-trash-can text-muted"></i></button>
+            </div>
+            <ul class="nav nav-pills border-bottom-0 me-2">
+                <li class="nav-item">
+                    <a class="nav-link active fw-bold px-3" id="reportTabSide" href="javascript:void(0)">Side Quest</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold px-3" id="reportTabMain" href="javascript:void(0)">Main Quest</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold px-3" id="reportTabProject" href="javascript:void(0)">Project Quest</a>
+                </li>
+            </ul>
+            <button type="button" class="btn btn-outline-secondary rounded-3 shadow-sm"
+                onclick="if (window.parent && window.parent.closeReportBoardModal) { window.parent.closeReportBoardModal(); }">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+        </div>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card p-4 h-100 shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="fw-bold mb-0 text-secondary"><i class="far fa-check-circle text-primary me-2"></i> Approval Status</h6>
+                    <i class="fas fa-ellipsis-h text-muted"></i>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <div class="stat-label">Requested</div>
+                        <div class="stat-value" id="statRequestedValue">265</div>
+                        <div class="stat-diff diff-up">+ 12 vs yesterday</div>
+                    </div>
+                    <div class="col-3 border-start ps-4">
+                        <div class="stat-label">Approved</div>
+                        <div class="stat-value" id="statApprovedValue">3</div>
+                        <div class="stat-diff diff-down">- 6 vs yesterday</div>
+                    </div>
+                    <div class="col-3 border-start ps-4">
+                        <div class="stat-label">Rejected</div>
+                        <div class="stat-value" id="statRejectedValue">4</div>
+                        <div class="stat-diff diff-down">- 2 vs yesterday</div>
+                    </div>
+                    <div class="col-3 border-start ps-4">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" id="statPendingValue">18</div>
+                        <div class="stat-diff diff-down">- 6 vs yesterday</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card p-4 h-100 shadow">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-secondary"><i class="far fa-clock text-primary me-2"></i> Quest Type Breakdown</h6>
+                    <i class="fas fa-ellipsis-h text-muted"></i>
+                </div>
+                <div class="mt-2">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="stat-label" style="width: 100px;">Main Quest</span>
+                        <div class="flex-grow-1 mx-3"><div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" style="width: 45%"></div></div></div>
+                        <span class="fw-bold small">21</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="stat-label" style="width: 100px;">Side Quest</span>
+                        <div class="flex-grow-1 mx-3"><div class="progress" style="height: 6px;"><div class="progress-bar bg-warning" style="width: 70%"></div></div></div>
+                        <span class="fw-bold small">30</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="stat-label" style="width: 100px;">Project</span>
+                        <div class="flex-grow-1 mx-3"><div class="progress" style="height: 6px;"><div class="progress-bar bg-purple" style="width: 60%; background-color: #a855f7;"></div></div></div>
+                        <span class="fw-bold small">28</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+        <div class="d-flex gap-2">
+            <div class="position-relative">
+                <i class="fas fa-search position-absolute text-muted" style="left: 12px; top: 10px; font-size: 13px;"></i>
+                <input id="reportSearchInput" type="text" class="form-control ps-5 rounded-3 border-light shadow-sm" style="width: 280px; font-size: 13px;" placeholder="Search Report Quest">
+            </div>
+            <select id="reportPeriodSelect" class="form-select rounded-3 border-light shadow-sm" style="width: 150px; font-size: 13px;">
+                <option value="all" selected>All Period</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="3month">3 Month</option>
+                <option value="6month">6 Month</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <div class="dropdown">
+                <button id="reportBulkMenuButton" class="btn btn-light rounded-3 border shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 44px;">
+                    <i class="fas fa-ellipsis-v text-muted"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item" type="button" data-bulk-action="archive">Archive</button></li>
+                    <li><button class="dropdown-item text-danger" type="button" data-bulk-action="delete">Delete</button></li>
+                </ul>
+            </div>
+            <select id="reportStatusSelect" class="form-select rounded-3 border-light shadow-sm" style="width: 150px; font-size: 13px;">
+                <option value="all">All Status</option>
+                <option value="pending" selected>Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <select id="reportPageSizeSelect" class="form-select rounded-3 border-light shadow-sm" style="width: 120px; font-size: 13px;">
+                <option value="20" selected>20 / page</option>
+                <option value="40">40 / page</option>
+                <option value="60">60 / page</option>
+            </select>
+        </div>
+        <button id="reportBulkActionButton" class="btn btn-approve-all px-3 py-2 rounded-3 shadow-sm" style="display:none;">
+        </button>
+    </div>
+    <div class="card shadow-sm overflow-hidden border">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="col-select text-center js-bulk-only" style="display:none;" data-sort-key=""></th>
+                        <th class="col-team px-4" data-sort-key="user">Team</th>
+                        <th class="col-date" data-sort-key="date">Date</th>
+                        <th class="col-task" data-sort-key="task">Task</th>
+                        <th data-sort-key="reportPreview">Report</th>
+                        <th class="col-files" data-sort-key="fileName">Files</th>
+                        <th class="col-action text-center" data-sort-key="status">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody" class="bg-white"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-light">
+                <h6 class="modal-title fw-bold mb-0">Report Details</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="col-6 text-start">
+                            <div class="stat-label mb-1">Assigned</div>
+                            <div id="mAssignAvatars" class="d-flex justify-content-start gap-1 flex-wrap"></div>
+                        </div>
+                        <div class="col-6 text-start">
+                            <div class="stat-label mb-1">Report To</div>
+                            <div id="mNotifyAvatars" class="d-flex justify-content-start gap-1 flex-wrap"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="stat-label mb-1">Quest Type</label>
+                        <div id="mType"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="stat-label mb-1">Task Title</label>
+                        <div id="mTask" class="fw-medium"></div>
+                    </div>
+                </div>
+                <div class="accordion mb-3" id="moreAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreCollapse" aria-expanded="false" aria-controls="moreCollapse">

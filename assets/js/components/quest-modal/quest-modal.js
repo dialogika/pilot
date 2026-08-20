@@ -115,7 +115,7 @@ async function loadBoard() {
 
     questTasks = {};
     const normalized = rows.map(({ id, data }) =>
-      normalizeTask(id, data, departmentsCache, positionsMap)
+      normalizeTask(id, data, departmentsCache, positionsMap),
     );
     questTasks = normalized.reduce((acc, t) => {
       acc[t.id] = t;
@@ -136,13 +136,16 @@ async function loadBoard() {
 
 function normalizeTask(id, data, departments, positionsMap) {
   const task = { ...data, id };
-  task.title = data.title || (isSideQuestTask(data) ? "Untitled Quest" : "Untitled Daily");
-  task.points = typeof data.points === "number" ? data.points : Number(data.points) || 0;
+  task.title =
+    data.title || (isSideQuestTask(data) ? "Untitled Quest" : "Untitled Daily");
+  task.points =
+    typeof data.points === "number" ? data.points : Number(data.points) || 0;
   task.descText = stripHtml(data.description || "");
   task.isSide = isSideQuestTask(data);
   task.deptId = firstDeptId(data.departments);
   task.posId = firstPosId(data.positions);
-  task.isOwner = data.created_by && String(data.created_by) === String(currentUserUid);
+  task.isOwner =
+    data.created_by && String(data.created_by) === String(currentUserUid);
   task.departments = Array.isArray(data.departments)
     ? data.departments
     : data.departments
@@ -159,7 +162,7 @@ function normalizeTask(id, data, departments, positionsMap) {
       data.deadline_date ||
       data.deadlineDate ||
       data.date ||
-      data.start_date
+      data.start_date,
   );
   task.questDeadlinePassed = questDeadlinePassed(task);
   task.lockState = computeLockState(task);
@@ -183,9 +186,14 @@ function buildBoard(tasks, tab) {
     if (!isVisible(task)) return;
     if (task.archived || task.is_archived) return;
 
-    const normStatus = String(task.status || "").toLowerCase().replace(/[\s_]/g, "");
-    const normTaskStatus = String(task.task_status || "").toLowerCase().replace(/[\s_]/g, "");
-    const isComplete = /complete|done/.test(normStatus) || /complete|done/.test(normTaskStatus);
+    const normStatus = String(task.status || "")
+      .toLowerCase()
+      .replace(/[\s_]/g, "");
+    const normTaskStatus = String(task.task_status || "")
+      .toLowerCase()
+      .replace(/[\s_]/g, "");
+    const isComplete =
+      /complete|done/.test(normStatus) || /complete|done/.test(normTaskStatus);
     if (isComplete) return;
 
     let matchedDay;
@@ -259,10 +267,16 @@ function isVisible(task) {
       ? [task.assign_to]
       : [];
   const hasValidUID = assignList.some(
-    (uid) => typeof uid === "string" && uid.length >= 20
+    (uid) => typeof uid === "string" && uid.length >= 20,
   );
-  const isCreator = task.created_by && String(task.created_by) === String(currentUserUid);
-  if (hasValidUID && assignList.length > 0 && assignList.indexOf(currentUserUid) === -1 && !isCreator) {
+  const isCreator =
+    task.created_by && String(task.created_by) === String(currentUserUid);
+  if (
+    hasValidUID &&
+    assignList.length > 0 &&
+    assignList.indexOf(currentUserUid) === -1 &&
+    !isCreator
+  ) {
     return false;
   }
   return true;
@@ -307,16 +321,16 @@ function wireEventHandlers() {
       const usersList = Object.keys(usersMap).map((id) => ({
         id,
         name: usersMap[id].name || id,
-        email: usersMap[id].email || "",
-        photo: usersMap[id].photo || "",
-        department: usersMap[id].department || "",
-        position: usersMap[id].position || "",
       }));
       ui.openQuestForm(
         "create",
         null,
-        { departments: departmentsCache, positions: positionsCache, users: usersList },
-        currentTab
+        {
+          departments: departmentsCache,
+          positions: positionsCache,
+          users: usersList,
+        },
+        currentTab,
       );
       return;
     }
@@ -348,16 +362,16 @@ function wireEventHandlers() {
         const usersList = Object.keys(usersMap).map((id) => ({
           id,
           name: usersMap[id].name || id,
-          email: usersMap[id].email || "",
-          photo: usersMap[id].photo || "",
-          department: usersMap[id].department || "",
-          position: usersMap[id].position || "",
         }));
         ui.openQuestForm(
           "edit",
           task,
-          { departments: departmentsCache, positions: positionsCache, users: usersList },
-          currentTab
+          {
+            departments: departmentsCache,
+            positions: positionsCache,
+            users: usersList,
+          },
+          currentTab,
         );
       }
       return;
@@ -406,7 +420,9 @@ function toggleChecked(taskId) {
   } else {
     checkedTaskIds.add(taskId);
   }
-  const btn = document.querySelector(`.dg-quest-check-btn[data-check="${taskId}"]`);
+  const btn = document.querySelector(
+    `.dg-quest-check-btn[data-check="${taskId}"]`,
+  );
   if (btn) {
     btn.classList.toggle("checked", checkedTaskIds.has(taskId));
   }
@@ -419,50 +435,38 @@ async function handleQuestFormSubmit(e) {
     ui.notifyError("Judul wajib diisi.");
     return;
   }
-  if (formValues.assignTo.length === 0) {
-    ui.notifyError("Quest harus di-assign ke minimal satu user.");
-    return;
-  }
-  if (!formValues.points || formValues.points === 0) {
-    ui.notifyError("Quest tidak punya nilai.");
-    return;
-  }
 
-  const isSide = currentTab === "quest"; // daily => main, quest => side
   const payload = {
     title: formValues.title,
     description: formValues.description,
     points: formValues.points,
-    priority: formValues.priority || "normal",
-    tags: formValues.tags || [],
+    priority: formValues.priority,
+    tags: formValues.tags,
     deadline_time: formValues.deadline_time,
-    due_date: isSide ? formValues.due_date : "",
-    type: isSide ? "side" : "main",
-    quest_type: isSide ? "side" : "main",
-    recur: isSide ? null : formValues.recur,
+    due_date: formValues.due_date,
+    type: formValues.type,
+    quest_type: formValues.type === "side" ? "side" : "main",
+    recur: formValues.recur ? { frequency: "daily", unit: "day" } : null,
     departments: formValues.deptId
-      ? [{ id: formValues.deptId, name: formValues.deptName || formValues.deptId }]
+      ? [{ id: formValues.deptId, name: formValues.deptName }]
       : [],
     positions: formValues.posId
-      ? [{ id: formValues.posId, name: formValues.posName || formValues.posId }]
+      ? [{ id: formValues.posId, name: formValues.posName }]
       : [],
     assign_to: formValues.assignTo,
-    notify_to: formValues.assignTo.slice(),
   };
 
   try {
     if (formValues.id) {
       await repo.updateTask(formValues.id, payload);
       ui.notifySuccess(
-        `${isSide ? "Quest" : "Daily"} berhasil diperbarui!`
+        `${currentTab === "daily" ? "Daily" : "Quest"} berhasil diperbarui!`,
       );
     } else {
       payload.created_by = currentUserUid;
-      payload.created_by_name = currentUserName;
-      payload.status = "Initiate";
       await repo.createTask(payload);
       ui.notifySuccess(
-        `${isSide ? "Quest" : "Daily"} berhasil ditambahkan!`
+        `${currentTab === "daily" ? "Daily" : "Quest"} berhasil ditambahkan!`,
       );
     }
 
@@ -471,7 +475,9 @@ async function handleQuestFormSubmit(e) {
     refreshShellCounts();
   } catch (err) {
     console.error("Failed to save quest:", err);
-    ui.notifyError("Gagal menyimpan: " + (err && err.message ? err.message : err));
+    ui.notifyError(
+      "Gagal menyimpan: " + (err && err.message ? err.message : err),
+    );
   }
 }
 
@@ -484,7 +490,9 @@ async function confirmDeleteTask(taskId) {
       refreshShellCounts();
     } catch (err) {
       console.error("Failed to delete task:", err);
-      ui.notifyError("Gagal menghapus: " + (err && err.message ? err.message : err));
+      ui.notifyError(
+        "Gagal menghapus: " + (err && err.message ? err.message : err),
+      );
     }
   }
 }
@@ -553,7 +561,7 @@ async function handleSubmitDailyReport() {
   try {
     await repo.submitDailyReport(payload);
     await Promise.all(
-      checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid]))
+      checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid])),
     );
     ui.notifySuccess("Laporan harian berhasil dikirim!");
     ui.closeDailyReportModal();
@@ -563,7 +571,7 @@ async function handleSubmitDailyReport() {
   } catch (err) {
     console.error("Failed to submit daily report:", err);
     ui.notifyError(
-      "Gagal mengirim laporan: " + (err && err.message ? err.message : err)
+      "Gagal mengirim laporan: " + (err && err.message ? err.message : err),
     );
   } finally {
     ui.setReportSubmitBusy(false);
@@ -592,10 +600,14 @@ function stripHtml(html) {
 }
 
 function isSideQuestTask(data) {
-  const qt = String(data.quest_type || "").toLowerCase().replace(/[\s_]/g, "");
+  const qt = String(data.quest_type || "")
+    .toLowerCase()
+    .replace(/[\s_]/g, "");
   if (qt === "side" || qt === "sidequest" || qt === "side-quest") return true;
   if (qt === "main" || qt === "mainquest") return false;
-  const t = String(data.type || data.status || "").toLowerCase().replace(/[\s_]/g, "");
+  const t = String(data.type || data.status || "")
+    .toLowerCase()
+    .replace(/[\s_]/g, "");
   if (t === "side" || t === "sidequest" || t === "side-quest") return true;
   if (data.task_status) return true;
   return false;
@@ -615,7 +627,9 @@ function firstPosId(positions) {
 
 function questDeadlinePassed(task) {
   if (!task.isSide) return false;
-  const status = String(task.status || "").toLowerCase().replace(/[\s_]/g, "");
+  const status = String(task.status || "")
+    .toLowerCase()
+    .replace(/[\s_]/g, "");
   if (/complete|done|reported/.test(status)) return false;
   if (task.archived || task.is_archived) return false;
   const ms = task.dueDateMs;
@@ -632,26 +646,31 @@ function toMs(value) {
 }
 
 function dayKey(date) {
-  return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  return (
+    date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
+  );
 }
 
 function findNextOccurrenceKey(recur, fromDate, maxDays) {
   const unit = normalizeRecurUnit(recur);
   if (unit === "day") return dayKey(fromDate);
   const weekdays = normalizeNumberList(
-    recur.weekdays || recur.days || recur.repeat_on || recur.repeatOn
+    recur.weekdays || recur.days || recur.repeat_on || recur.repeatOn,
   );
   const monthlyDates = normalizeNumberList(
-    recur.monthly_dates || recur.monthlyDates || recur.dates
+    recur.monthly_dates || recur.monthlyDates || recur.dates,
   );
-  if ((!weekdays || !weekdays.length) && (!monthlyDates || !monthlyDates.length)) {
+  if (
+    (!weekdays || !weekdays.length) &&
+    (!monthlyDates || !monthlyDates.length)
+  ) {
     return dayKey(fromDate);
   }
   for (let offset = 0; offset <= maxDays; offset++) {
     const candidate = new Date(
       fromDate.getFullYear(),
       fromDate.getMonth(),
-      fromDate.getDate()
+      fromDate.getDate(),
     );
     candidate.setDate(candidate.getDate() + offset);
     if (unit === "week" && weekdays.indexOf(candidate.getDay()) !== -1)
@@ -672,11 +691,13 @@ function normalizeRecurUnit(recur) {
   if (unit === "weekly") return "week";
   if (unit === "monthly") return "month";
   const weekdays =
-    recur && (recur.weekdays || recur.days || recur.repeat_on || recur.repeatOn);
+    recur &&
+    (recur.weekdays || recur.days || recur.repeat_on || recur.repeatOn);
   if (weekdays && Array.isArray(weekdays) && weekdays.length) return "week";
   const monthlyDates =
     recur && (recur.monthly_dates || recur.monthlyDates || recur.dates);
-  if (monthlyDates && Array.isArray(monthlyDates) && monthlyDates.length) return "month";
+  if (monthlyDates && Array.isArray(monthlyDates) && monthlyDates.length)
+    return "month";
   return unit;
 }
 
@@ -729,8 +750,9 @@ function computeLockState(task) {
   } else {
     result.claimed = true;
     result.claimedBy =
-      lrb.map((uid) => (usersMap[uid] && usersMap[uid].name) || uid).join(", ") ||
-      "someone";
+      lrb
+        .map((uid) => (usersMap[uid] && usersMap[uid].name) || uid)
+        .join(", ") || "someone";
   }
   return result;
 }

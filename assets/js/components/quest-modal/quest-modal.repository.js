@@ -1,19 +1,25 @@
-// assets/js/components/quest-modal/quest-modal.repository.js
+// pages/quest/quest.repository.js
 // =====================================================================
-// QUEST MODAL DATA ACCESS — the ONLY module that talks to Firebase for
-// the Daily & Quest modal component.
+// QUEST DATA ACCESS — the ONLY Quest module that talks to Firebase.
 //
 // RULES:
 //  - Every Firestore/Auth/Storage read & write for Quest lives here.
 //  - NO DOM manipulation, NO rendering, NO toast/modal here.
 //  - Uses the single Firebase init from assets/js/firebase-config.js.
 //  - Returns plain data; the orchestrator decides what to render.
+//
+// SCOPE: Quest Board, Quest Reports (quest_reports), Daily Report
+//        (intern_dailyreport) + supporting reads (users/departments/positions).
+//        `tasks` is shared with Projects (documented; no shared abstraction).
 // =====================================================================
 
-import { auth, db, storage } from "../../firebase-config.js";
+import { auth, db, storage } from "../../assets/js/firebase-config.js";
 import {
   collection,
+  query,
+  where,
   getDocs,
+  getDoc,
   doc,
   addDoc,
   updateDoc,
@@ -25,15 +31,22 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getMs } from "../../utils.js";
+import { getMs } from "../../assets/js/utils.js";
 
 /* ------------------------------------------------------------------ */
-/* Tasks                                                               */
+/* Auth                                                                */
+/* ------------------------------------------------------------------ */
+
+export { auth, storage };
+
+/* ------------------------------------------------------------------ */
+/* Tasks (shared collection; Quest-owned operations)                   */
 /* ------------------------------------------------------------------ */
 
 /**
  * Load all quest tasks.
- * @returns {Promise<Array<{id: string, data: Object}>>}
+ * Returns the raw query snapshot iterated by the caller-free helper.
+ * @param {()=>void} [onDone] internal
  */
 export async function listQuestTasks() {
   const snap = await getDocs(collection(db, "tasks"));
@@ -75,7 +88,7 @@ export async function deleteTask(taskId) {
 }
 
 /**
- * Toggle a task's complete status (Complete / Initiate).
+ * Toggle a task's complete status (legacy: Complete / Initiate).
  * @param {string} taskId
  * @param {string} status
  */
@@ -102,7 +115,7 @@ export async function markTaskReported(taskId, whoDidThis = []) {
 /* ------------------------------------------------------------------ */
 
 /**
- * Create a quest completion report.
+ * Create a side-quest completion report.
  * @param {{taskId:string, content:string, files:Array}} payload
  */
 export async function createQuestReport(payload) {
@@ -167,13 +180,10 @@ export async function loadUsersMap() {
   snap.forEach((ds) => {
     const d = ds.data() || {};
     map[ds.id] = {
-      id: ds.id,
-      name: d.full_name || d.displayName || d.name || d.email || d.username || "",
-      email: d.email || "",
+      name:
+        d.full_name || d.displayName || d.name || d.email || d.username || "",
       role: d.role || "",
       department: d.department || "",
-      position: d.position || "",
-      status: d.status || "",
       photo: d.photo || d.photoURL || d.avatar || "",
     };
   });
@@ -203,11 +213,7 @@ export async function loadPositions() {
   const rows = [];
   snap.forEach((ds) => {
     const d = ds.data() || {};
-    rows.push({
-      id: ds.id,
-      name: d.name || d.label || d.title || ds.id,
-      department: d.department || d.department_id || d.departmentId || d.department_name || d.departmentName || "",
-    });
+    rows.push({ id: ds.id, name: d.name || d.label || d.title || ds.id });
   });
   return rows;
 }
@@ -224,4 +230,15 @@ export function resolvePositionName(raw, positionsMap) {
   return raw;
 }
 
-export { getMs };
+/* ------------------------------------------------------------------ */
+/* Date helpers (repository-neutral)                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Normalize a date-like value to epoch ms.
+ * @param {any} value
+ * @returns {number|null}
+ */
+export function toMs(value) {
+  return getMs(value);
+}
