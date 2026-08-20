@@ -28,10 +28,6 @@
         "destination": "/pages/home/index.html"
       },
       {
-        "source": "/quest",
-        "destination": "/pages/quest/index.html"
-      },
-      {
         "source": "/internships",
         "destination": "/pages/internships/index.html"
       }

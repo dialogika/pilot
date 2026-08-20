@@ -307,6 +307,10 @@ function wireEventHandlers() {
       const usersList = Object.keys(usersMap).map((id) => ({
         id,
         name: usersMap[id].name || id,
+        email: usersMap[id].email || "",
+        photo: usersMap[id].photo || "",
+        department: usersMap[id].department || "",
+        position: usersMap[id].position || "",
       }));
       ui.openQuestForm(
         "create",
@@ -344,6 +348,10 @@ function wireEventHandlers() {
         const usersList = Object.keys(usersMap).map((id) => ({
           id,
           name: usersMap[id].name || id,
+          email: usersMap[id].email || "",
+          photo: usersMap[id].photo || "",
+          department: usersMap[id].department || "",
+          position: usersMap[id].position || "",
         }));
         ui.openQuestForm(
           "edit",
@@ -411,38 +419,50 @@ async function handleQuestFormSubmit(e) {
     ui.notifyError("Judul wajib diisi.");
     return;
   }
+  if (formValues.assignTo.length === 0) {
+    ui.notifyError("Quest harus di-assign ke minimal satu user.");
+    return;
+  }
+  if (!formValues.points || formValues.points === 0) {
+    ui.notifyError("Quest tidak punya nilai.");
+    return;
+  }
 
+  const isSide = currentTab === "quest"; // daily => main, quest => side
   const payload = {
     title: formValues.title,
     description: formValues.description,
     points: formValues.points,
-    priority: formValues.priority,
-    tags: formValues.tags,
+    priority: formValues.priority || "normal",
+    tags: formValues.tags || [],
     deadline_time: formValues.deadline_time,
-    due_date: formValues.due_date,
-    type: formValues.type,
-    quest_type: formValues.type === "side" ? "side" : "main",
-    recur: formValues.recur ? { frequency: "daily", unit: "day" } : null,
+    due_date: isSide ? formValues.due_date : "",
+    type: isSide ? "side" : "main",
+    quest_type: isSide ? "side" : "main",
+    recur: isSide ? null : formValues.recur,
     departments: formValues.deptId
-      ? [{ id: formValues.deptId, name: formValues.deptName }]
+      ? [{ id: formValues.deptId, name: formValues.deptName || formValues.deptId }]
       : [],
     positions: formValues.posId
-      ? [{ id: formValues.posId, name: formValues.posName }]
+      ? [{ id: formValues.posId, name: formValues.posName || formValues.posId }]
       : [],
     assign_to: formValues.assignTo,
+    notify_to: formValues.assignTo.slice(),
   };
 
   try {
     if (formValues.id) {
       await repo.updateTask(formValues.id, payload);
       ui.notifySuccess(
-        `${currentTab === "daily" ? "Daily" : "Quest"} berhasil diperbarui!`
+        `${isSide ? "Quest" : "Daily"} berhasil diperbarui!`
       );
     } else {
       payload.created_by = currentUserUid;
+      payload.created_by_name = currentUserName;
+      payload.status = "Initiate";
       await repo.createTask(payload);
       ui.notifySuccess(
-        `${currentTab === "daily" ? "Daily" : "Quest"} berhasil ditambahkan!`
+        `${isSide ? "Quest" : "Daily"} berhasil ditambahkan!`
       );
     }
 

@@ -159,75 +159,132 @@ export function ensureQuestModalDOM() {
 
     <!-- Task Create / Edit Sub-Modal -->
     <div id="dgQuestFormModal" class="dg-quest-submodal" hidden>
-      <div class="dg-quest-submodal-dialog">
+      <div class="dg-quest-submodal-dialog dg-quest-form-dialog">
         <div class="dg-quest-submodal-head">
-          <h3 id="dgQuestFormTitle" class="dg-quest-submodal-title">Add New</h3>
+          <div class="dg-quest-form-head">
+            <span class="dg-quest-form-head-icon"><i class="bi bi-bullseye"></i></span>
+            <div class="dg-quest-form-head-text">
+              <h3 id="dgQuestFormTitle" class="dg-quest-submodal-title">Add New Quest</h3>
+              <p id="dgQuestFormSubtitle">Lengkapi detail quest di bawah ini</p>
+            </div>
+          </div>
           <button type="button" class="dg-quest-btn-close" data-close="dgQuestFormModal"><i class="bi bi-x-lg"></i></button>
         </div>
-        <form id="dgQuestForm" class="dg-quest-submodal-body d-flex flex-column gap-3">
+        <form id="dgQuestForm" class="dg-quest-submodal-body">
           <input type="hidden" id="dgQuestFormId" />
-          <div>
-            <label class="form-label small fw-bold mb-1">Title / Name *</label>
-            <input type="text" id="dgQuestNameInput" class="form-control form-control-sm" placeholder="e.g. Daily Standup Meeting" required />
+
+          <!-- Step 1: Title -->
+          <div id="dgQuestStep1" class="dg-quest-step">
+            <label class="form-label small fw-bold mb-1">Quest Title</label>
+            <input type="text" id="dgQuestNameInput" class="form-control form-control-sm" placeholder="What needs to be done?" />
           </div>
-          <div>
+
+          <!-- Description -->
+          <div id="dgQuestDescStep" class="dg-quest-step dg-quest-step-locked">
             <label class="form-label small fw-bold mb-1">Description</label>
-            <textarea id="dgQuestDescEditor" class="form-control form-control-sm" rows="3" placeholder="Tulis rincian instruksi..."></textarea>
+            <textarea id="dgQuestDescEditor" class="form-control form-control-sm" rows="2" placeholder="Add a description for this quest..."></textarea>
           </div>
-          <div class="row g-2">
+
+          <!-- Step 2: Department + Position -->
+          <div id="dgQuestStep2" class="dg-quest-step dg-quest-step-locked row g-2">
             <div class="col-md-6">
               <label class="form-label small fw-bold mb-1">Department</label>
-              <select id="dgQuestDeptSelect" class="form-select form-select-sm"></select>
+              <select id="dgQuestDeptSelect" class="form-select form-select-sm" disabled>
+                <option value="">Select Department</option>
+              </select>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold mb-1">Position</label>
-              <select id="dgQuestPosSelect" class="form-select form-select-sm"></select>
+              <select id="dgQuestPosSelect" class="form-select form-select-sm" disabled>
+                <option value="">Select Position</option>
+              </select>
             </div>
           </div>
-          <div class="row g-2">
-            <div class="col-md-6">
-              <label class="form-label small fw-bold mb-1">Assign To</label>
-              <select id="dgQuestAssignSelect" class="form-select form-select-sm" multiple style="min-height: 80px;"></select>
-              <div class="text-muted" style="font-size: 10px;">Tekan Ctrl/Cmd untuk memilih banyak user</div>
-            </div>
-            <div class="col-md-6 d-flex flex-column gap-2">
-              <div>
-                <label class="form-label small fw-bold mb-1">Deadline Time (HH:MM)</label>
-                <input type="time" id="dgQuestDeadlineTime" class="form-control form-control-sm" />
+
+          <!-- Step 3: Assign To -->
+          <div id="dgQuestStep3" class="dg-quest-step dg-quest-step-locked">
+            <label class="form-label small fw-bold mb-1">Assign To</label>
+            <div class="dg-quest-tag-selector">
+              <div class="dg-quest-tag-selector-control" id="dgQuestAssignControl" role="button">
+                <div class="dg-quest-tag-selected-list">
+                  <span id="dgQuestAssignButtonLabel" class="dg-quest-placeholder">Select users...</span>
+                </div>
+                <i class="bi bi-chevron-down dg-quest-caret"></i>
               </div>
-              <div id="dgQuestDueDateWrapper">
-                <label class="form-label small fw-bold mb-1">Due Date</label>
-                <input type="date" id="dgQuestDueDate" class="form-control form-control-sm" />
+              <div id="dgQuestAssignDropdown" class="dg-quest-assign-dropdown" style="display:none;">
+                <input type="text" id="dgQuestAssignSearch" class="dg-quest-assign-search" placeholder="Search user..." />
+                <div id="dgQuestAssignList" class="dg-quest-assign-list"></div>
               </div>
             </div>
           </div>
-          <div class="row g-2">
+
+          <!-- Step 4: Deadline / Points / Urgency -->
+          <div id="dgQuestStep4" class="dg-quest-step dg-quest-step-locked row g-2">
             <div class="col-md-4">
-              <label class="form-label small fw-bold mb-1">Points</label>
+              <label class="form-label small fw-bold mb-1">Deadline Time</label>
+              <input type="time" id="dgQuestDeadlineTime" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Task Point</label>
               <select id="dgQuestPointSelect" class="form-select form-select-sm">
-                <option value="1">1 Point</option>
-                <option value="2">2 Points</option>
-                <option value="3">3 Points</option>
-                <option value="5">5 Points</option>
+                <option value="">Select point...</option>
+                <option value="1">1 - Easy</option>
+                <option value="2">2 - Medium</option>
+                <option value="3">3 - Hard</option>
               </select>
             </div>
             <div class="col-md-4">
-              <label class="form-label small fw-bold mb-1">Priority</label>
-              <select id="dgQuestPrioritySelect" class="form-select form-select-sm">
-                <option value="normal">Normal</option>
+              <label class="form-label small fw-bold mb-1">Urgent</label>
+              <select id="dgQuestUrgencySelect" class="form-select form-select-sm">
+                <option value="">Select urgency...</option>
+                <option value="urgent">High</option>
                 <option value="medium">Medium</option>
-                <option value="urgent">High / Urgent</option>
+                <option value="normal">Normal</option>
               </select>
             </div>
-            <div class="col-md-4">
-              <label class="form-label small fw-bold mb-1">Tags</label>
-              <input type="text" id="dgQuestTagsInput" class="form-control form-control-sm" placeholder="rutin, hr, sales" />
+          </div>
+
+          <!-- Due Date (side quest only) -->
+          <div id="dgQuestSideDueRow" class="dg-quest-step" style="display:none;">
+            <label class="form-label small fw-bold mb-1">Due Date</label>
+            <input type="date" id="dgQuestSideDueDate" class="form-control form-control-sm" />
+          </div>
+
+          <!-- Step 5: Recurring -->
+          <div id="dgQuestStep5" class="dg-quest-step dg-quest-step-locked">
+            <label class="form-label small fw-bold mb-1">Recurring</label>
+            <div class="dg-quest-recur-card">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="small fw-bold text-secondary">Repeat every</span>
+                <input type="number" id="dgQuestRecurIntervalInput" min="1" max="7" value="1" class="form-control form-control-sm" style="width:64px;" />
+                <select id="dgQuestRecurUnitSelect" class="form-select form-select-sm" style="width:auto;">
+                  <option value="week" selected>Week</option>
+                  <option value="month">Month</option>
+                </select>
+                <button type="button" id="dgQuestRecurEverydayBtn" class="btn btn-sm btn-outline-secondary">Everyday</button>
+              </div>
+              <div id="dgQuestRecurWeeklyContainer" class="mt-2">
+                <label class="form-label small fw-bold mb-1">Repeat on</label>
+                <div class="d-flex gap-1 flex-wrap">
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="0">Su</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="1">Mo</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="2">Tu</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="3">We</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="4">Th</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="5">Fr</button>
+                  <button type="button" class="btn btn-sm dg-quest-recur-day" data-day="6">Sa</button>
+                </div>
+              </div>
+              <div id="dgQuestRecurMonthlyContainer" class="mt-2" style="display:none;">
+                <label class="form-label small fw-bold mb-1">Repeat on date</label>
+                <div class="d-flex gap-1 flex-wrap" id="dgQuestRecurMonthlyDatesList"></div>
+              </div>
             </div>
           </div>
         </form>
         <div class="dg-quest-submodal-foot">
-          <button type="button" class="btn btn-sm btn-secondary" data-close="dgQuestFormModal">Batal</button>
-          <button type="submit" form="dgQuestForm" id="dgQuestFormSubmit" class="btn btn-sm btn-primary px-3">Simpan</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-close="dgQuestFormModal">Cancel</button>
+          <button type="submit" form="dgQuestForm" id="dgQuestFormSubmit" class="btn btn-sm btn-primary px-3">Create Quest</button>
         </div>
       </div>
     </div>
@@ -553,22 +610,163 @@ export function populatePositionsForDept(deptKey, currentPosId, positionsList = 
 /* Form Sub-Modal                                                      */
 /* ------------------------------------------------------------------ */
 
+let formRecurState = { unit: "week", interval: 1, weekdays: [], monthlyDates: [] };
+let formAssignPool = [];
+let formEditOpen = false;
+
+function getFilteredAssignPool() {
+  const deptSelect = el("dgQuestDeptSelect");
+  const posSelect = el("dgQuestPosSelect");
+  const deptVal = deptSelect ? String(deptSelect.value || "").trim().toLowerCase() : "";
+  const deptText = deptSelect && deptSelect.selectedOptions[0]
+    ? deptSelect.selectedOptions[0].text.trim().toLowerCase()
+    : "";
+  const posVal = posSelect ? String(posSelect.value || "").trim().toLowerCase() : "";
+  const posText = posSelect && posSelect.selectedOptions[0]
+    ? posSelect.selectedOptions[0].text.trim().toLowerCase()
+    : "";
+
+  // Map position id -> name (and name -> name) so users whose stored position
+  // is an id (e.g. "gtebWhJ7db4xxHQxI67t") still match the selected position.
+  const posNameById = {};
+  const posNames = new Set();
+  (positionsRef || []).forEach((p) => {
+    const pName = String(p.name || p.id || "").trim().toLowerCase();
+    if (pName) {
+      posNames.add(pName);
+      if (p.id) posNameById[String(p.id).trim().toLowerCase()] = pName;
+    }
+  });
+
+  let pool = formAssignPool;
+  if (deptVal) {
+    pool = pool.filter((u) => {
+      const ud = String(u.department || "").trim().toLowerCase();
+      return ud === deptVal || (deptText && ud === deptText);
+    });
+  }
+  if (posVal) {
+    const posMatched = pool.filter((u) => {
+      const raw = String(u.position || "").trim().toLowerCase();
+      // Resolve the user's stored position to a canonical name if possible.
+      const upName = posNameById[raw] || raw;
+      return (
+        raw === posVal ||
+        upName === posText ||
+        (posText && upName === posText)
+      );
+    });
+    // Only enforce the position filter when it actually matches someone;
+    // otherwise fall back to the department-filtered pool (positions may be
+    // stored by id or by name depending on the source).
+    if (posMatched.length > 0) pool = posMatched;
+  }
+  return pool;
+}
+
+function wireFormEvents() {
+  if (el("dgQuestFormModal") && el("dgQuestFormModal").dataset.wired) return;
+  const modal = el("dgQuestFormModal");
+  if (!modal) return;
+  modal.dataset.wired = "1";
+
+  // Step 1: title gates everything below it
+  el("dgQuestNameInput").addEventListener("input", syncQuestStepGating);
+
+  // Step 2: department -> position cascade
+  el("dgQuestDeptSelect").addEventListener("change", (e) => {
+    populatePositionsForDept(e.target.value, "", positionsRef);
+    renderAssignList(getAssignRenderPool());
+    updateAssignLabel();
+    syncQuestStepGating();
+  });
+  el("dgQuestPosSelect").addEventListener("change", (e) => {
+    renderAssignList(getAssignRenderPool());
+    updateAssignLabel();
+    syncQuestStepGating();
+  });
+
+  // Step 3: assign dropdown
+  el("dgQuestAssignControl").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const dd = el("dgQuestAssignDropdown");
+    if (!dd) return;
+    const open = dd.style.display === "block";
+    dd.style.display = open ? "none" : "block";
+    if (!open) {
+      const search = el("dgQuestAssignSearch");
+      if (search) {
+        search.value = "";
+        renderAssignList(getAssignRenderPool());
+        search.focus();
+      }
+    }
+  });
+  el("dgQuestAssignSearch").addEventListener("input", (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    const filtered = getAssignRenderPool().filter(
+      (u) => !q || String(u.name || u.email || u.id).toLowerCase().indexOf(q) !== -1
+    );
+    renderAssignList(filtered);
+  });
+  el("dgQuestAssignList").addEventListener("click", (e) => {
+    const cb = e.target.closest("input[type='checkbox']");
+    if (!cb) return;
+    updateAssignLabel();
+    syncQuestStepGating();
+  });
+
+  // Close the assign dropdown when clicking outside of it
+  document.addEventListener("click", (e) => {
+    const dd = el("dgQuestAssignDropdown");
+    const control = el("dgQuestAssignControl");
+    if (!dd || !control) return;
+    if (!control.contains(e.target) && !dd.contains(e.target)) {
+      dd.style.display = "none";
+    }
+  });
+
+  // Step 4 fields
+  el("dgQuestPointSelect").addEventListener("change", syncQuestStepGating);
+  el("dgQuestUrgencySelect").addEventListener("change", syncQuestStepGating);
+
+  // Step 5: recurring controls
+  el("dgQuestRecurIntervalInput").addEventListener("input", updateRecurInterval);
+  el("dgQuestRecurUnitSelect").addEventListener("change", updateRecurUnit);
+  el("dgQuestRecurEverydayBtn").addEventListener("click", toggleRecurEveryday);
+  document.querySelectorAll("#dgQuestFormModal .dg-quest-recur-day").forEach((btn) => {
+    btn.addEventListener("click", () => toggleRecurWeekday(parseInt(btn.dataset.day, 10)));
+  });
+  el("dgQuestRecurMonthlyDatesList").addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn || !btn.dataset.date) return;
+    toggleRecurMonthlyDate(parseInt(btn.dataset.date, 10));
+  });
+}
+
+// Keep a reference to the last loaded positions so the cascade works even if
+// refs are not passed again on a subsequent open.
+let positionsRef = [];
+
 export function openQuestForm(mode, task, refs, tab) {
   const isEdit = mode === "edit";
-  const isDaily = tab === "daily";
+  const isSide = tab === "quest"; // "daily" => main quest, "quest" => side quest
+  formEditOpen = isEdit;
 
+  wireFormEvents();
+
+  el("dgQuestFormId").value = isEdit && task ? task.id : "";
   el("dgQuestFormTitle").textContent = isEdit
-    ? (isDaily ? "Edit Daily" : "Edit Quest")
-    : (isDaily ? "Tambah Daily Baru" : "Tambah Quest Baru");
-  el("dgQuestFormSubmit").textContent = isEdit ? "Simpan Perubahan" : "Tambah";
+    ? (isSide ? "Edit Side Quest" : "Edit Quest")
+    : (isSide ? "Add New Side Quest" : "Add New Quest");
+  el("dgQuestFormSubtitle").textContent = isSide
+    ? "Satu kali (non-berulang) dengan tanggal due date"
+    : "Lengkapi detail quest di bawah ini";
+  el("dgQuestFormSubmit").textContent = isEdit ? "Update Quest" : "Create Quest";
 
-  // Hide or show Due Date vs Recurring
-  const dueDateWrapper = el("dgQuestDueDateWrapper");
-  if (dueDateWrapper) {
-    dueDateWrapper.style.display = isDaily ? "none" : "block";
-  }
+  positionsRef = (refs && refs.positions) || [];
 
-  // Populate departments
+  // Department + Position selects
   const defaultDepts = ["happy", "rebuy", "team", "branding", "closing"];
   const seenDepts = {};
   let deptOptions = '<option value="">Select Department</option>';
@@ -587,38 +785,48 @@ export function openQuestForm(mode, task, refs, tab) {
 
   const initialDept = isEdit && task && task.deptId ? task.deptId : "";
   el("dgQuestDeptSelect").value = initialDept;
+  populatePositionsForDept(initialDept, isEdit && task && task.posId ? task.posId : "", positionsRef);
 
-  populatePositionsForDept(initialDept, isEdit && task && task.posId ? task.posId : "", refs.positions || []);
+  // Assign list pool + pre-select
+  formAssignPool = (refs.users || []).slice();
+  const selectedAssign = isEdit && task && task.assign_to
+    ? (Array.isArray(task.assign_to) ? task.assign_to : [task.assign_to])
+    : [];
+  renderAssignList(getAssignRenderPool(), selectedAssign);
+  updateAssignLabel();
 
-  el("dgQuestDeptSelect").onchange = (e) => {
-    populatePositionsForDept(e.target.value, "", refs.positions || []);
-  };
-
-  el("dgQuestAssignSelect").innerHTML = (refs.users || [])
-    .map((u) => `<option value="${escapeHtml(u.id)}">${escapeHtml(u.name || u.email || u.id)}</option>`)
-    .join("");
-
-  // Fill values
-  el("dgQuestFormId").value = isEdit && task ? task.id : "";
-  el("dgQuestNameInput").value = isEdit && task ? task.title || "" : "";
-  el("dgQuestDescEditor").value = isEdit && task ? stripHtml(task.description || "") : "";
-  el("dgQuestDeptSelect").value = isEdit && task && task.deptId ? task.deptId : "";
-  el("dgQuestPosSelect").value = isEdit && task && task.posId ? task.posId : "";
+  // Deadline / points / urgency / due date
   el("dgQuestDeadlineTime").value = isEdit && task ? task.deadline_time || "" : "";
-  el("dgQuestPointSelect").value = isEdit && task && task.points ? String(task.points) : "1";
-  el("dgQuestPrioritySelect").value = isEdit && task && task.priority ? task.priority : "normal";
-  el("dgQuestTagsInput").value = isEdit && task && task.tags ? task.tags.join(", ") : "";
-  el("dgQuestDueDate").value = isEdit && task && task.due_date ? String(task.due_date).slice(0, 10) : "";
+  let pointsVal = isEdit && task && task.points ? task.points : 1;
+  if (pointsVal > 3) pointsVal = 3;
+  if (pointsVal < 1) pointsVal = 1;
+  el("dgQuestPointSelect").value = String(pointsVal);
+  el("dgQuestUrgencySelect").value = isEdit && task && task.priority ? task.priority : "normal";
+  el("dgQuestSideDueDate").value =
+    isEdit && task && task.due_date ? String(task.due_date).slice(0, 10) : "";
 
-  if (isEdit && task && task.assign_to) {
-    const assign = Array.isArray(task.assign_to) ? task.assign_to : [task.assign_to];
-    Array.from(el("dgQuestAssignSelect").options).forEach((opt) => {
-      opt.selected = assign.indexOf(opt.value) !== -1;
-    });
-  } else {
-    Array.from(el("dgQuestAssignSelect").options).forEach((opt) => (opt.selected = false));
+  // Recurring state (main quest only)
+  formRecurState = { unit: "week", interval: 1, weekdays: [], monthlyDates: [] };
+  if (!isSide) {
+    const r = isEdit && task && task.recur ? task.recur : null;
+    if (r) {
+      formRecurState.unit = r.unit === "month" ? "month" : "week";
+      formRecurState.interval = typeof r.interval === "number" ? r.interval : 1;
+      formRecurState.weekdays = Array.isArray(r.weekdays) ? r.weekdays.slice() : [];
+      formRecurState.monthlyDates = Array.isArray(r.monthly_dates) ? r.monthly_dates.slice() : [];
+    } else {
+      formRecurState.weekdays = [new Date().getDay()];
+    }
   }
 
+  // Show/hide recurring vs due date based on tab
+  const recurBlock = el("dgQuestStep5");
+  const dueRow = el("dgQuestSideDueRow");
+  if (recurBlock) recurBlock.style.display = isSide ? "none" : "";
+  if (dueRow) dueRow.style.display = isSide ? "" : "none";
+
+  renderRecurState();
+  syncQuestStepGating();
   openSubModal("dgQuestFormModal");
 }
 
@@ -626,25 +834,232 @@ export function closeQuestForm() {
   closeSubModal("dgQuestFormModal");
 }
 
+function setStepEnabled(stepId, enabled, forceOpen) {
+  const node = el(stepId);
+  if (!node) return;
+  const active = forceOpen || enabled;
+  node.classList.toggle("dg-quest-step-locked", !active);
+  node.querySelectorAll("input, select, textarea, button").forEach((f) => {
+    f.disabled = !active;
+  });
+}
+
+function syncQuestStepGating() {
+  const title = (el("dgQuestNameInput") || {}).value || "";
+  const dept = (el("dgQuestDeptSelect") || {}).value || "";
+  const pos = (el("dgQuestPosSelect") || {}).value || "";
+  const hasAssign = (el("dgQuestAssignList") || { querySelectorAll: () => [] })
+    .querySelectorAll("input[type='checkbox']:checked").length > 0;
+
+  const hasTitle = !!title.trim();
+  const hasDeptPos = hasTitle && !!dept && !!pos;
+  const hasAssignAll = hasDeptPos && hasAssign;
+
+  setStepEnabled("dgQuestDescStep", hasTitle, formEditOpen);
+  setStepEnabled("dgQuestStep2", hasTitle, formEditOpen);
+  setStepEnabled("dgQuestStep3", hasDeptPos, formEditOpen);
+  setStepEnabled("dgQuestStep4", hasAssignAll, formEditOpen);
+  setStepEnabled("dgQuestStep5", hasAssignAll, formEditOpen);
+}
+
+function getAssignRenderPool() {
+  const filtered = getFilteredAssignPool();
+  if (!formEditOpen) return filtered;
+  // In edit mode keep previously-assigned users visible even if their dept/pos
+  // no longer matches the current selection.
+  const poolIds = new Set(filtered.map((u) => String(u.id)));
+  const selected = Array.from(
+    (el("dgQuestAssignList") || { querySelectorAll: () => [] }).querySelectorAll(
+      "input[type='checkbox']:checked"
+    )
+  ).map((cb) => cb.value);
+  const missing = formAssignPool.filter(
+    (u) => selected.indexOf(String(u.id)) !== -1 && !poolIds.has(String(u.id))
+  );
+  return filtered.concat(missing);
+}
+
+function renderAssignList(users, preselected = []) {
+  const list = el("dgQuestAssignList");
+  if (!list) return;
+  // Preserve current checks when re-rendering (e.g. search) unless explicitly provided
+  if (!preselected.length) {
+    preselected = Array.from(
+      list.querySelectorAll("input[type='checkbox']:checked")
+    ).map((cb) => cb.value);
+  }
+  if (!users.length) {
+    list.innerHTML = '<div class="text-muted small p-2">No users available.</div>';
+    return;
+  }
+  list.innerHTML = users
+    .map((u) => {
+      const name = u.name || u.email || u.id || "User";
+      const initials = name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((w) => w[0] || "")
+        .join("")
+        .toUpperCase();
+      const checked = preselected.indexOf(String(u.id)) !== -1 ? "checked" : "";
+      const photo = u.photo
+        ? `<img src="${escapeHtml(u.photo)}" alt="" class="dg-quest-assign-avatar" />`
+        : `<span class="dg-quest-assign-avatar">${escapeHtml(initials || "U")}</span>`;
+      return `
+        <label class="dg-quest-assign-option">
+          <input type="checkbox" value="${escapeHtml(String(u.id))}" ${checked} />
+          ${photo}
+          <span class="dg-quest-assign-name">${escapeHtml(name)}</span>
+        </label>`;
+    })
+    .join("");
+}
+
+function updateAssignLabel() {
+  const label = el("dgQuestAssignButtonLabel");
+  const list = el("dgQuestAssignList");
+  if (!label || !list) return;
+  const selected = list.querySelectorAll("input[type='checkbox']:checked");
+  const count = selected.length;
+  label.textContent = count > 0
+    ? `${count} user${count > 1 ? "s" : ""} selected`
+    : "Select users...";
+}
+
+function renderRecurState() {
+  el("dgQuestRecurIntervalInput").value = String(formRecurState.interval);
+  el("dgQuestRecurUnitSelect").value = formRecurState.unit;
+  const weekly = el("dgQuestRecurWeeklyContainer");
+  const monthly = el("dgQuestRecurMonthlyContainer");
+  if (weekly) weekly.style.display = formRecurState.unit === "week" ? "" : "none";
+  if (monthly) monthly.style.display = formRecurState.unit === "month" ? "" : "none";
+  renderRecurWeekdays();
+  renderRecurMonthlyDates();
+}
+
+function renderRecurWeekdays() {
+  document.querySelectorAll("#dgQuestFormModal .dg-quest-recur-day").forEach((btn) => {
+    const day = parseInt(btn.dataset.day, 10);
+    const active = formRecurState.weekdays.indexOf(day) !== -1;
+    btn.classList.toggle("active", active);
+  });
+  const everyday = el("dgQuestRecurEverydayBtn");
+  if (everyday) {
+    everyday.classList.toggle("active", formRecurState.weekdays.length === 7);
+  }
+}
+
+function toggleRecurWeekday(day) {
+  const limit = Math.max(1, Math.min(7, formRecurState.interval || 1));
+  const idx = formRecurState.weekdays.indexOf(day);
+  if (idx !== -1) {
+    formRecurState.weekdays.splice(idx, 1);
+  } else {
+    if (formRecurState.weekdays.length >= limit) formRecurState.weekdays = [];
+    formRecurState.weekdays.push(day);
+  }
+  renderRecurWeekdays();
+}
+
+function toggleRecurEveryday() {
+  const everyday = el("dgQuestRecurEverydayBtn");
+  const isActive = everyday && everyday.classList.contains("active");
+  if (isActive) {
+    formRecurState.weekdays = [];
+  } else {
+    formRecurState.weekdays = [0, 1, 2, 3, 4, 5, 6];
+    formRecurState.interval = 7;
+    el("dgQuestRecurIntervalInput").value = "7";
+  }
+  renderRecurState();
+}
+
+function updateRecurInterval() {
+  const val = parseInt(el("dgQuestRecurIntervalInput").value, 10);
+  formRecurState.interval = Number.isNaN(val) ? 1 : Math.max(1, Math.min(31, val));
+  const limit = formRecurState.unit === "week" ? 7 : 31;
+  if (formRecurState.weekdays.length > limit) formRecurState.weekdays = formRecurState.weekdays.slice(0, limit);
+  if (formRecurState.monthlyDates.length > limit) formRecurState.monthlyDates = formRecurState.monthlyDates.slice(0, limit);
+  renderRecurState();
+}
+
+function updateRecurUnit() {
+  formRecurState.unit = el("dgQuestRecurUnitSelect").value || "week";
+  renderRecurState();
+}
+
+function renderRecurMonthlyDates() {
+  const list = el("dgQuestRecurMonthlyDatesList");
+  if (!list) return;
+  const limit = Math.max(1, Math.min(31, formRecurState.interval || 1));
+  const selected = new Set(formRecurState.monthlyDates);
+  list.innerHTML = "";
+  for (let d = 1; d <= 31; d++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.date = String(d);
+    btn.className = "btn btn-sm dg-quest-recur-date" + (selected.has(d) ? " active" : "");
+    btn.textContent = String(d);
+    list.appendChild(btn);
+  }
+}
+
+function toggleRecurMonthlyDate(date) {
+  const limit = Math.max(1, Math.min(31, formRecurState.interval || 1));
+  const idx = formRecurState.monthlyDates.indexOf(date);
+  if (idx !== -1) {
+    formRecurState.monthlyDates.splice(idx, 1);
+  } else {
+    if (formRecurState.monthlyDates.length >= limit) formRecurState.monthlyDates = [];
+    formRecurState.monthlyDates.push(date);
+  }
+  renderRecurMonthlyDates();
+}
+
 export function readQuestForm(tab) {
-  const dept = el("dgQuestDeptSelect").value;
-  const pos = el("dgQuestPosSelect").value;
+  const isSide = tab === "quest"; // "daily" => main quest, "quest" => side quest
+  const deptSelect = el("dgQuestDeptSelect");
+  const posSelect = el("dgQuestPosSelect");
+  const assignList = el("dgQuestAssignList");
+  const assignTo = assignList
+    ? Array.from(assignList.querySelectorAll("input[type='checkbox']:checked")).map(
+        (cb) => cb.value
+      )
+    : [];
+
+  let recur = null;
+  if (!isSide) {
+    const hasPattern =
+      (formRecurState.unit === "week" && formRecurState.weekdays.length > 0) ||
+      (formRecurState.unit === "month" && formRecurState.monthlyDates.length > 0);
+    if (hasPattern) {
+      recur = {
+        unit: formRecurState.unit,
+        interval: Math.max(1, formRecurState.interval || 1),
+        weekdays: formRecurState.unit === "week" ? formRecurState.weekdays.slice() : [],
+        monthly_dates: formRecurState.unit === "month" ? formRecurState.monthlyDates.slice() : [],
+      };
+    }
+  }
+
   return {
     id: el("dgQuestFormId").value,
     title: el("dgQuestNameInput").value.trim(),
     description: el("dgQuestDescEditor").value.trim(),
-    deptId: dept,
-    posId: pos,
-    deptName: el("dgQuestDeptSelect").selectedOptions[0]?.text || "",
-    posName: el("dgQuestPosSelect").selectedOptions[0]?.text || "",
-    assignTo: Array.from(el("dgQuestAssignSelect").selectedOptions).map((o) => o.value),
+    deptId: deptSelect ? deptSelect.value : "",
+    posId: posSelect ? posSelect.value : "",
+    deptName: deptSelect && deptSelect.selectedOptions[0] ? deptSelect.selectedOptions[0].text : "",
+    posName: posSelect && posSelect.selectedOptions[0] ? posSelect.selectedOptions[0].text : "",
+    assignTo,
     deadline_time: el("dgQuestDeadlineTime").value,
     points: parseInt(el("dgQuestPointSelect").value, 10) || 0,
-    priority: el("dgQuestPrioritySelect").value,
-    tags: el("dgQuestTagsInput").value.split(",").map((t) => t.trim()).filter(Boolean),
-    due_date: tab === "quest" ? el("dgQuestDueDate").value : "",
-    type: tab === "daily" ? "main" : "side",
-    recur: tab === "daily",
+    priority: el("dgQuestUrgencySelect").value || "normal",
+    tags: [],
+    due_date: isSide ? el("dgQuestSideDueDate").value : "",
+    type: isSide ? "side" : "main",
+    quest_type: isSide ? "side" : "main",
+    recur,
   };
 }
 

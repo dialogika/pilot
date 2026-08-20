@@ -169,8 +169,11 @@ export async function loadUsersMap() {
     map[ds.id] = {
       id: ds.id,
       name: d.full_name || d.displayName || d.name || d.email || d.username || "",
+      email: d.email || "",
       role: d.role || "",
       department: d.department || "",
+      position: d.position || "",
+      status: d.status || "",
       photo: d.photo || d.photoURL || d.avatar || "",
     };
   });
@@ -200,7 +203,11 @@ export async function loadPositions() {
   const rows = [];
   snap.forEach((ds) => {
     const d = ds.data() || {};
-    rows.push({ id: ds.id, name: d.name || d.label || d.title || ds.id });
+    rows.push({
+      id: ds.id,
+      name: d.name || d.label || d.title || ds.id,
+      department: d.department || d.department_id || d.departmentId || d.department_name || d.departmentName || "",
+    });
   });
   return rows;
 }
