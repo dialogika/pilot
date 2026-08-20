@@ -133,18 +133,18 @@ export const MENU = [
 export const SMART_FILTERS = [
   {
     id: "mainQuest",
-    label: "Main Quest",
+    label: "Daily",
     icon: "bi-archive-fill",
     color: "var(--dlg-blue)",
-    href: "/quest",
+    action: "openDaily",
     countEl: "mainQuestCount",
   },
   {
     id: "sideQuest",
-    label: "Side Quest",
+    label: "Quest",
     icon: "bi-archive-fill",
     color: "var(--dlg-yellow)",
-    href: "/quest",
+    action: "openQuest",
     countEl: "sideQuestCount",
   },
   {
@@ -160,7 +160,7 @@ export const SMART_FILTERS = [
     label: "Report",
     icon: "bi-calendar-event-fill",
     color: "var(--dlg-green)",
-    href: "/quest",
+    action: "openReport",
     countEl: "reportPendingApprovalCount",
     cardId: "reportFilterCard",
   },

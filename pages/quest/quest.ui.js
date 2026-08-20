@@ -47,7 +47,9 @@ export function setActiveTab(tab) {
   el("questSidePanel")?.classList.toggle("d-none", !isSide);
   el("questTabMain")?.classList.toggle("quest-tab-active", !isSide);
   el("questTabSide")?.classList.toggle("quest-tab-active", isSide);
-  el("questPageTitle").textContent = isSide ? "Side Quest" : "Main Quest";
+  if (el("questPageTitle")) {
+    el("questPageTitle").textContent = isSide ? "Quest" : "Daily";
+  }
 }
 
 /**
@@ -231,18 +233,108 @@ export function showBoardError(message) {
 /* Quest form                                                          */
 /* ------------------------------------------------------------------ */
 
+export const DEPARTMENT_POSITIONS_MAP = {
+  "happy": [
+    "Recruitment Specialist",
+    "People Development"
+  ],
+  "rebuy": [
+    "Product Manager",
+    "Admin Kelas"
+  ],
+  "team": [
+    "Chief Executive Officer",
+    "Department Head",
+    "Human Capital Management"
+  ],
+  "branding": [
+    "Content Creator",
+    "Branding Team",
+    "Design Specialist",
+    "Website Development",
+    "Content Writer",
+    "Video Editor"
+  ],
+  "closing": [
+    "Admin Marketing",
+    "Community Management",
+    "Marketing Strategy",
+    "Sales Department",
+    "Digital Advertiser"
+  ]
+};
+
+export function populatePositionsForDept(deptKey, currentPosId, positionsList = []) {
+  const posSelect = el("questPosSelect");
+  if (!posSelect) return;
+  posSelect.innerHTML = '<option value="">Select Position</option>';
+
+  const cleanKey = String(deptKey || "").trim().toLowerCase();
+  if (!cleanKey) return;
+
+  const mapped = DEPARTMENT_POSITIONS_MAP[cleanKey];
+  const added = {};
+
+  if (Array.isArray(mapped) && mapped.length > 0) {
+    mapped.forEach((pName) => {
+      const opt = document.createElement("option");
+      opt.value = pName;
+      opt.textContent = pName;
+      posSelect.appendChild(opt);
+      added[pName.toLowerCase()] = true;
+    });
+  }
+
+  // Only add positions from positionsList IF they explicitly belong to this department
+  (positionsList || []).forEach((p) => {
+    const pDept = String(p.department || p.department_name || p.departmentId || "").toLowerCase();
+    if (pDept === cleanKey) {
+      const pName = p.name || p.id;
+      if (!added[String(pName).toLowerCase()]) {
+        const opt = document.createElement("option");
+        opt.value = p.id || pName;
+        opt.textContent = pName;
+        posSelect.appendChild(opt);
+        added[String(pName).toLowerCase()] = true;
+      }
+    }
+  });
+
+  if (currentPosId) {
+    posSelect.value = currentPosId;
+  }
+}
+
 export function openQuestForm(mode, task, refs) {
   const isEdit = mode === "edit";
   el("questFormTitle").textContent = isEdit ? "Edit Quest" : "Add New Quest";
   el("questFormSubmit").textContent = isEdit ? "Save Changes" : "Add to-do";
 
-  // Populate departments / positions / assignees
-  el("questDeptSelect").innerHTML =
-    '<option value="">Select Department</option>' +
-    (refs.departments || []).map((d) => '<option value="' + escapeHtml(d.id) + '">' + escapeHtml(d.name) + "</option>").join("");
-  el("questPosSelect").innerHTML =
-    '<option value="">Select Position</option>' +
-    (refs.positions || []).map((p) => '<option value="' + escapeHtml(p.id) + '">' + escapeHtml(p.name) + "</option>").join("");
+  // Populate departments
+  const defaultDepts = ["happy", "rebuy", "team", "branding", "closing"];
+  const seenDepts = {};
+  let deptOptions = '<option value="">Select Department</option>';
+  defaultDepts.forEach((dKey) => {
+    deptOptions += `<option value="${escapeHtml(dKey)}">${escapeHtml(dKey)}</option>`;
+    seenDepts[dKey.toLowerCase()] = true;
+  });
+  (refs.departments || []).forEach((d) => {
+    const key = String(d.name || d.id).toLowerCase();
+    if (!seenDepts[key]) {
+      deptOptions += `<option value="${escapeHtml(d.id)}">${escapeHtml(d.name)}</option>`;
+      seenDepts[key] = true;
+    }
+  });
+  el("questDeptSelect").innerHTML = deptOptions;
+
+  const initialDept = isEdit && task && task.deptId ? task.deptId : "";
+  el("questDeptSelect").value = initialDept;
+
+  populatePositionsForDept(initialDept, isEdit && task && task.posId ? task.posId : "", refs.positions || []);
+
+  el("questDeptSelect").onchange = (e) => {
+    populatePositionsForDept(e.target.value, "", refs.positions || []);
+  };
   el("questAssignSelect").innerHTML = (refs.users || [])
     .map((u) => '<option value="' + escapeHtml(u.id) + '">' + escapeHtml(u.name || u.email || u.id) + "</option>")
     .join("");

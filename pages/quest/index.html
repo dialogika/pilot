@@ -41,36 +41,36 @@
         <div class="quest-header">
           <div class="quest-header-title">
             <span class="quest-eyebrow">Quest Board</span>
-            <h1 id="questPageTitle" class="quest-h1">Main Quest</h1>
-            <p class="quest-subtitle">Ringkas, fokus, dan mudah dipantau untuk quest hari ini dan berikutnya.</p>
+            <h1 id="questPageTitle" class="quest-h1">Daily</h1>
+            <p class="quest-subtitle">Ringkas, fokus, dan mudah dipantau untuk to-do hari ini dan berikutnya.</p>
           </div>
           <div class="quest-header-actions">
             <button type="button" id="questOverdueButton" class="quest-icon-btn quest-icon-btn-red d-none" title="Overdue">
               <i class="bi bi-clock"></i>
             </button>
-            <button type="button" id="questAddButton" class="quest-icon-btn quest-icon-btn-amber" title="Add Quest">
+            <button type="button" id="questAddButton" class="quest-icon-btn quest-icon-btn-amber" title="Tambah Baru">
               <i class="bi bi-plus-lg"></i>
             </button>
           </div>
         </div>
 
-        <!-- Tabs: Main / Side -->
+        <!-- Tabs: Daily / Quest -->
         <div class="quest-tabs">
           <button type="button" id="questTabMain" class="quest-tab quest-tab-active" data-tab="main">
-            <i class="bi bi-bullseye"></i> Main Quest
+            <i class="bi bi-bullseye"></i> Daily
           </button>
           <button type="button" id="questTabSide" class="quest-tab" data-tab="side">
-            <i class="bi bi-stars"></i> Side Quest
+            <i class="bi bi-stars"></i> Quest
           </button>
         </div>
 
-        <!-- MAIN PANEL -->
+        <!-- DAILY PANEL (formerly main) -->
         <div id="questMainPanel" class="quest-panel">
           <section class="quest-card-section">
             <div class="quest-section-head">
               <div>
                 <h2 class="quest-h2">Overdue</h2>
-                <p class="quest-h2-sub">Quest yang melewati deadline.</p>
+                <p class="quest-h2-sub">Daily yang melewati deadline.</p>
               </div>
             </div>
             <div id="questOverdueList" class="quest-list"></div>
@@ -80,7 +80,7 @@
             <div class="quest-section-head">
               <div>
                 <h2 class="quest-h2">Today</h2>
-                <p class="quest-h2-sub">Quest yang dikerjakan untuk hari ini.</p>
+                <p class="quest-h2-sub">Daily yang dikerjakan untuk hari ini.</p>
               </div>
               <button type="button" id="questDailyReportBtn" class="quest-btn-primary">
                 <i class="bi bi-file-earmark-text"></i> Submit Report
@@ -93,20 +93,20 @@
             <div class="quest-section-head">
               <div>
                 <h2 class="quest-h2">Upcoming</h2>
-                <p class="quest-h2-sub">Maksimal 2 quest berikutnya.</p>
+                <p class="quest-h2-sub">Maksimal 2 daily berikutnya.</p>
               </div>
             </div>
             <div id="questUpcomingList" class="quest-list"></div>
           </section>
         </div>
 
-        <!-- SIDE PANEL -->
+        <!-- QUEST PANEL (formerly side) -->
         <div id="questSidePanel" class="quest-panel d-none">
           <section class="quest-card-section">
             <div class="quest-section-head">
               <div>
                 <h2 class="quest-h2">Today</h2>
-                <p class="quest-h2-sub">Side quest yang dikerjakan untuk hari ini.</p>
+                <p class="quest-h2-sub">Quest yang dikerjakan untuk hari ini.</p>
               </div>
               <button type="button" id="questSideDailyReportBtn" class="quest-btn-primary">
                 <i class="bi bi-file-earmark-text"></i> Submit Report
@@ -119,7 +119,7 @@
             <div class="quest-section-head">
               <div>
                 <h2 class="quest-h2">Upcoming</h2>
-                <p class="quest-h2-sub">Maksimal 2 side quest berikutnya.</p>
+                <p class="quest-h2-sub">Maksimal 2 quest berikutnya.</p>
               </div>
             </div>
             <div id="questSideUpcomingList" class="quest-list"></div>

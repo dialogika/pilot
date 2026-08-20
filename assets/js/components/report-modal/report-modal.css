@@ -1,0 +1,663 @@
+/* assets/js/components/report-modal/report-modal.css */
+/* =====================================================================
+   REPORT APPROVAL MODAL — scoped styling for the in-page Quest Report Review Board.
+   ===================================================================== */
+
+.dg-report-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.dg-report-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dg-report-modal-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  height: 90vh;
+  max-height: 90vh;
+  background: var(--dg-surface, #ffffff);
+  border-radius: 1.25rem;
+  border: 1px solid var(--dg-border, #e2e8f0);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.dg-report-modal-overlay.show .dg-report-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.dg-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.dg-report-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dg-report-header-title h4 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.dg-report-count-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.dg-report-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Bulk Button Group (Archive & Trash) */
+.dg-report-bulk-btn-group {
+  display: inline-flex;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dg-report-btn-tool {
+  border: none;
+  background: #ffffff;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.95rem;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.dg-report-btn-tool:first-child {
+  border-right: 1px solid #e2e8f0;
+}
+
+.dg-report-btn-tool:hover {
+  background: #f8fafc;
+}
+
+.dg-report-btn-tool.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* Dynamic Bulk Action Button (Exit + Archive/Delete All) */
+.dg-report-btn-bulk-dynamic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dg-report-btn-bulk-dynamic.btn-archive {
+  background: #fbbf24;
+  color: #78350f;
+}
+
+.dg-report-btn-bulk-dynamic.btn-archive:hover {
+  background: #f59e0b;
+}
+
+.dg-report-btn-bulk-dynamic.btn-delete {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.dg-report-btn-bulk-dynamic.btn-delete:hover {
+  background: #dc2626;
+}
+
+.dg-report-btn-bulk-exit {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.dg-report-btn-bulk-exit:hover {
+  background: #ffffff;
+}
+
+/* Nav Pills */
+.dg-report-nav-pills {
+  display: flex;
+  background: #f8fafc;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
+  gap: 0.25rem;
+}
+
+.dg-report-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.dg-report-tab-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+}
+
+.dg-report-btn-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dg-report-btn-close:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* Body Scroll Area */
+.dg-report-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  background: #ffffff;
+}
+
+/* Stats Cards */
+.dg-report-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .dg-report-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dg-report-stat-card {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+}
+
+.dg-report-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.dg-report-stat-header h6 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dg-report-stat-header i {
+  color: #2563eb;
+}
+
+.dg-report-stat-values {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.dg-report-stat-item {
+  border-left: 1px solid #f1f5f9;
+  padding-left: 0.75rem;
+}
+
+.dg-report-stat-item:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.dg-report-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 0.25rem;
+}
+
+.dg-report-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.dg-report-stat-diff {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+/* Progress bar breakdown */
+.dg-report-breakdown-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.dg-report-breakdown-row:last-child {
+  margin-bottom: 0;
+}
+
+.dg-report-breakdown-label {
+  width: 90px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.dg-report-progress-track {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  margin: 0 0.75rem;
+  overflow: hidden;
+}
+
+.dg-report-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.dg-report-progress-fill.bg-main { background-color: #2563eb; }
+.dg-report-progress-fill.bg-side { background-color: #f59e0b; }
+.dg-report-progress-fill.bg-project { background-color: #a855f7; }
+
+.dg-report-breakdown-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Controls & Filter bar */
+.dg-report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dg-report-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dg-report-search-wrap {
+  position: relative;
+}
+
+.dg-report-search-wrap i {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.dg-report-search-input {
+  width: 240px;
+  padding: 0.45rem 0.75rem 0.45rem 2rem;
+  font-size: 0.825rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.dg-report-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.dg-report-select {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.825rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.dg-report-btn-approve-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #16a34a;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.dg-report-btn-approve-all:hover {
+  background: #15803d;
+}
+
+/* Table Area */
+.dg-report-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dg-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+}
+
+.dg-report-table thead {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dg-report-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dg-report-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.dg-report-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.dg-report-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  color: #334155;
+}
+
+/* Column sizes */
+.dg-report-col-team { min-width: 120px; }
+.dg-report-col-date { width: 110px; color: #64748b; font-size: 0.775rem; }
+.dg-report-col-task { min-width: 160px; max-width: 220px; font-weight: 600; color: #0f172a; }
+.dg-report-col-report { min-width: 200px; }
+.dg-report-col-files { width: 100px; }
+.dg-report-col-action { width: 140px; text-align: center; }
+
+/* Truncated & Rich text preview */
+.dg-report-text-truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dg-report-rich-preview {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  border-left: 3px solid #0d9488;
+  font-style: italic;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Avatars pile */
+.dg-report-avatar-pile {
+  display: flex;
+  align-items: center;
+}
+
+.dg-report-avatar-item {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  margin-left: -8px;
+  object-fit: cover;
+  background: #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #1e293b;
+  position: relative;
+}
+
+.dg-report-avatar-item:first-child {
+  margin-left: 0;
+}
+
+.dg-report-avatar-more {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -8px;
+}
+
+/* Buttons in Table */
+.dg-report-btn-action-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.dg-report-btn-reject {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dg-report-btn-reject:hover {
+  background: #fecaca;
+}
+
+.dg-report-btn-approve {
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.375rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dg-report-btn-approve:hover {
+  background: #bfdbfe;
+}
+
+.dg-report-btn-approve.is-approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Submodal Detail Report */
+.dg-report-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1070;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.dg-report-detail-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dg-report-detail-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 620px;
+  max-height: 85vh;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dg-report-detail-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+}
+
+.dg-report-detail-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dg-report-detail-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dg-report-detail-footer {
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  background: #ffffff;
+}
+
+.dg-report-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+  font-style: italic;
+}

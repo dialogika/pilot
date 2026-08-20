@@ -22,12 +22,6 @@ import { ANNOUNCEMENT_COLORS } from "./home.repository.js";
 /* Welcome header                                                      */
 /* ------------------------------------------------------------------ */
 
-/**
- * Render greeting + role/position badges.
- * @param {string} name
- * @param {string} role
- * @param {string} position
- */
 export function renderWelcome(name, role, position) {
   const greetingEl = document.getElementById("welcomeMessage");
   if (greetingEl) greetingEl.innerText = formatGreeting(name);
@@ -41,6 +35,111 @@ export function renderWelcome(name, role, position) {
   if (positionBadge) {
     positionBadge.textContent = "" + (position || "Member");
   }
+
+  adjustFeatureGridByDivision(role, position);
+}
+
+function resolveDivisionGroup(position = "") {
+  const pos = String(position).trim().toLowerCase();
+
+  // Happy / HR
+  if (
+    pos.includes("recruitment") ||
+    pos.includes("people dev") ||
+    pos.includes("human capital") ||
+    pos.includes("hr") ||
+    pos.includes("happy")
+  ) {
+    return "sect-hr";
+  }
+
+  // Rebuy / Product / Class
+  if (
+    pos.includes("product manager") ||
+    pos.includes("admin kelas") ||
+    pos.includes("mentor") ||
+    pos.includes("class")
+  ) {
+    return "sect-product";
+  }
+
+  // Closing / Marketing
+  if (
+    pos.includes("marketing") ||
+    pos.includes("community") ||
+    pos.includes("sales") ||
+    pos.includes("advertiser") ||
+    pos.includes("closing")
+  ) {
+    return "sect-marketing";
+  }
+
+  // Branding
+  if (
+    pos.includes("creator") ||
+    pos.includes("branding") ||
+    pos.includes("design") ||
+    pos.includes("website") ||
+    pos.includes("writer") ||
+    pos.includes("editor")
+  ) {
+    return "sect-branding";
+  }
+
+  return "";
+}
+
+export function adjustFeatureGridByDivision(role, position) {
+  const container = document.getElementById("appsOverviewContainer");
+  if (!container) return;
+
+  const posLower = String(position || "").trim().toLowerCase();
+  
+  // CEO sees everything
+  if (posLower === "chief executive officer") {
+    const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
+    allSections.forEach((id) => {
+      const sect = document.getElementById(id);
+      if (sect) {
+        sect.style.display = "block";
+        sect.style.opacity = "1";
+      }
+    });
+    return;
+  }
+
+  const primarySectId = resolveDivisionGroup(position);
+  if (!primarySectId) {
+    return;
+  }
+
+  const primarySect = document.getElementById(primarySectId);
+  if (primarySect) {
+    primarySect.style.display = "block";
+    container.insertBefore(primarySect, container.firstChild);
+
+    const header = primarySect.querySelector("h5");
+    if (header && !header.querySelector(".my-division-badge")) {
+      const badge = document.createElement("span");
+      badge.className = "badge bg-primary ms-2 my-division-badge";
+      badge.style.fontSize = "11px";
+      badge.style.verticalAlign = "middle";
+      badge.style.borderRadius = "20px";
+      badge.style.padding = "4px 10px";
+      badge.textContent = "Divisi Anda";
+      header.appendChild(badge);
+    }
+  }
+
+  const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
+  allSections.forEach((id) => {
+    if (id !== primarySectId) {
+      const sect = document.getElementById(id);
+      if (sect) {
+        sect.style.display = "none";
+      }
+    }
+  });
 }
 
 /** Greeting based on current hour. */

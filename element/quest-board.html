@@ -5473,20 +5473,65 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             }
         };
 
+        var DEPARTMENT_POSITIONS_MAP = {
+            "happy": [
+                "Recruitment Specialist",
+                "People Development"
+            ],
+            "rebuy": [
+                "Product Manager",
+                "Admin Kelas"
+            ],
+            "team": [
+                "Chief Executive Officer",
+                "Department Head",
+                "Human Capital Management"
+            ],
+            "branding": [
+                "Content Creator",
+                "Branding Team",
+                "Design Specialist",
+                "Website Development",
+                "Content Writer",
+                "Video Editor"
+            ],
+            "closing": [
+                "Admin Marketing",
+                "Community Management",
+                "Marketing Strategy",
+                "Sales Department",
+                "Digital Advertiser"
+            ]
+        };
+
         window.loadQuestFormDepartments = async function () {
             var select = document.getElementById('questDeptSelect');
             if (!select) return;
             select.innerHTML = '<option value="">Select Department</option>';
+            var defaultDepts = ["happy", "rebuy", "team", "branding", "closing"];
+            var seen = {};
+            defaultDepts.forEach(function (deptKey) {
+                var opt = document.createElement('option');
+                opt.value = deptKey;
+                opt.textContent = deptKey;
+                opt.setAttribute('data-name', deptKey);
+                select.appendChild(opt);
+                seen[deptKey.toLowerCase()] = true;
+            });
             try {
                 var snap = await window.getDocs(window.collection(window.db, 'departments'));
                 snap.forEach(function (docSnap) {
                     var d = docSnap.data() || {};
                     var name = d.name || d.label || d.title || d.department || docSnap.id;
-                    var opt = document.createElement('option');
-                    opt.value = docSnap.id;
-                    opt.textContent = name;
-                    opt.setAttribute('data-name', name);
-                    select.appendChild(opt);
+                    var key = String(name || docSnap.id).toLowerCase();
+                    if (!seen[key]) {
+                        var opt = document.createElement('option');
+                        opt.value = docSnap.id;
+                        opt.textContent = name;
+                        opt.setAttribute('data-name', name);
+                        select.appendChild(opt);
+                        seen[key] = true;
+                    }
                 });
             } catch (e) {
                 console.error('Failed loading departments', e);
@@ -5508,12 +5553,12 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                 var pId = String(posId).toLowerCase();
                 var pNm = String(posName).toLowerCase();
                 filtered = pool.filter(function (u) {
-                    var ud = String(u.department || '').toLowerCase();
-                    var up = String(u.position || '').toLowerCase();
+                    var ud = String(u.department || u.division || '').toLowerCase();
+                    var up = String(u.position || u.role_name || u.roleName || '').toLowerCase();
                     var us = String(u.status || '').toLowerCase();
                     var deptMatch = ud === dId || ud === dNm;
                     var posMatch = up === pId || up === pNm;
-                    return deptMatch && posMatch && us === 'active';
+                    return deptMatch && posMatch && (us === 'active' || !us);
                 });
             }
             // Reset pilihan lama yang tidak lagi memenuhi filter terbaru
@@ -5568,18 +5613,37 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                 }
                 return;
             }
+
+            var cleanDeptKey = String(deptId || deptName).trim().toLowerCase();
+            var mappedPositions = DEPARTMENT_POSITIONS_MAP[cleanDeptKey];
+            var addedPositions = {};
+
+            if (Array.isArray(mappedPositions) && mappedPositions.length > 0) {
+                mappedPositions.forEach(function (pName) {
+                    var opt = document.createElement('option');
+                    opt.value = pName;
+                    opt.textContent = pName;
+                    opt.setAttribute('data-name', pName);
+                    if (posSelect) posSelect.appendChild(opt);
+                    addedPositions[pName.toLowerCase()] = true;
+                });
+            }
+
             try {
                 var snap = await window.getDocs(window.collection(window.db, 'positions'));
                 snap.forEach(function (docSnap) {
                     var d = docSnap.data() || {};
                     var deptValue = d.department || d.department_id || d.departmentId || d.department_name || d.departmentName || '';
-                    if (String(deptValue).toLowerCase() === String(deptId).toLowerCase() || String(deptValue).toLowerCase() === String(deptName).toLowerCase()) {
+                    if (String(deptValue).toLowerCase() === cleanDeptKey) {
                         var name = d.name || d.label || d.title || d.position || docSnap.id;
-                        var opt = document.createElement('option');
-                        opt.value = docSnap.id;
-                        opt.textContent = name;
-                        opt.setAttribute('data-name', name);
-                        if (posSelect) posSelect.appendChild(opt);
+                        if (!addedPositions[String(name).toLowerCase()]) {
+                            var opt = document.createElement('option');
+                            opt.value = docSnap.id;
+                            opt.textContent = name;
+                            opt.setAttribute('data-name', name);
+                            if (posSelect) posSelect.appendChild(opt);
+                            addedPositions[String(name).toLowerCase()] = true;
+                        }
                     }
                 });
             } catch (e) {
