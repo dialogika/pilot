@@ -10,8 +10,6 @@
 
 import * as repo from "./report-modal.repository.js";
 import * as ui from "./report-modal.ui.js";
-import { getSidebarCounts } from "../sidebar/sidebar.repository.js";
-import { applyCounts } from "../sidebar/sidebar.ui.js";
 
 let allReports = [];
 let currentReports = [];
@@ -313,8 +311,10 @@ async function handleApproveAll() {
  */
 async function syncSidebarCounts() {
   try {
-    const sidebarMount = document.getElementById("sidebarContainer");
+    const sidebarMount = document.getElementById("dg-sidebar-mount") || document.getElementById("sidebarContainer");
     if (!sidebarMount) return;
+    const { getSidebarCounts } = await import("../sidebar/sidebar.repository.js");
+    const { applyCounts } = await import("../sidebar/sidebar.ui.js");
     const counts = await getSidebarCounts();
     applyCounts(sidebarMount, counts);
   } catch (e) {

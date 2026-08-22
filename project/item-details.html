@@ -1011,7 +1011,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             if (!pid) return;
             try {
                 const q = query(
-                    collection(db, "tasks"),
+                    collection(db, "quests"),
                     where("project_id", "==", pid)
                 );
                 const snap = await getDocs(q);
