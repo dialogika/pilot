@@ -83,20 +83,32 @@ export async function loadReportsData() {
   const completeTaskIds = [];
 
   try {
-    const tasksSnap = await getDocs(collection(db, "tasks"));
-    tasksSnap.forEach((docSnap) => {
-      const data = docSnap.data() || {};
-      tasksById[docSnap.id] = data;
-      const archived = !!(data.archived || data.is_archived);
-      if (archived) return;
+    let tasksSnap = null;
+    try {
+      tasksSnap = await getDocs(collection(db, "quests"));
+    } catch (e) {
+      const uid = auth.currentUser ? auth.currentUser.uid : "";
+      if (uid) {
+        try {
+          tasksSnap = await getDocs(query(collection(db, "quests"), where("assign_to", "array-contains", uid)));
+        } catch (_) {}
+      }
+    }
+    if (tasksSnap) {
+      tasksSnap.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        tasksById[docSnap.id] = data;
+        const archived = !!(data.archived || data.is_archived);
+        if (archived) return;
 
-      let questType = "Side Quest";
-      if (data.project_id) questType = "Project Quest";
-      else if (data.recur) questType = "Main Quest";
-      taskQuestTypeById[docSnap.id] = questType;
+        let questType = "Side Quest";
+        if (data.project_id) questType = "Project Quest";
+        else if (data.recur) questType = "Main Quest";
+        taskQuestTypeById[docSnap.id] = questType;
 
-      completeTaskIds.push(docSnap.id);
-    });
+        completeTaskIds.push(docSnap.id);
+      });
+    }
   } catch (e) {
     console.warn("report-modal: tasks collection unreadable:", e);
   }

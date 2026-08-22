@@ -1,0 +1,341 @@
+/* assets/js/components/rich-editor/rich-editor.css */
+/* =====================================================================
+ * DIALOGIKA RICH TEXT EDITOR (TIPTAP STYLE)
+ * Modern, clean, scoped rich text editor matching Dialogika Theme Tokens
+ * ===================================================================== */
+
+.dg-editor-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  background: var(--bg-card, #ffffff);
+  color: var(--text-primary, #1e293b);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  position: relative;
+  font-family: inherit;
+  width: 100%;
+}
+
+.dg-editor-container:focus-within {
+  border-color: var(--color-primary, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.dg-editor-container.dg-editor-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background: var(--bg-surface-variant, #f8fafc);
+}
+
+/* Toolbar */
+.dg-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 8px;
+  background: var(--bg-surface-variant, #f8fafc);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  user-select: none;
+}
+
+.dg-editor-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dg-editor-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color, #e2e8f0);
+  margin: 0 4px;
+}
+
+.dg-editor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.dg-editor-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary, #0f172a);
+}
+
+[data-theme="dark"] .dg-editor-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.dg-editor-btn.active {
+  background: var(--color-primary, #2563eb);
+  color: #ffffff;
+}
+
+.dg-editor-select {
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary, #1e293b);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.dg-editor-select:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dg-editor-select:focus {
+  border-color: var(--color-primary, #2563eb);
+  background: var(--bg-card, #ffffff);
+}
+
+/* Content Area */
+.dg-editor-content {
+  min-height: 110px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 10px 14px;
+  outline: none;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary, #1e293b);
+  word-break: break-word;
+}
+
+.dg-editor-content[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted, #94a3b8);
+  pointer-events: none;
+  display: block;
+}
+
+/* Typography styling inside editor and detail modal */
+.dg-editor-content h1,
+.dg-quest-desc-content h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0.5em 0 0.25em 0;
+  line-height: 1.3;
+}
+
+.dg-editor-content h2,
+.dg-quest-desc-content h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0.45em 0 0.2em 0;
+  line-height: 1.35;
+}
+
+.dg-editor-content h3,
+.dg-quest-desc-content h3 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em 0;
+  line-height: 1.4;
+}
+
+.dg-editor-content p,
+.dg-quest-desc-content p {
+  margin: 0 0 0.4em 0;
+}
+
+.dg-editor-content p:last-child,
+.dg-quest-desc-content p:last-child {
+  margin-bottom: 0;
+}
+
+.dg-editor-content ul,
+.dg-quest-desc-content ul {
+  list-style-type: disc;
+  padding-left: 1.4rem;
+  margin: 0.3em 0 0.5em 0;
+}
+
+.dg-editor-content ol,
+.dg-quest-desc-content ol {
+  list-style-type: decimal;
+  padding-left: 1.4rem;
+  margin: 0.3em 0 0.5em 0;
+}
+
+.dg-editor-content li,
+.dg-quest-desc-content li {
+  margin-bottom: 0.2em;
+}
+
+/* Task Checklist */
+.dg-editor-content ul.dg-task-list,
+.dg-quest-desc-content ul.dg-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.dg-editor-content li.dg-task-item,
+.dg-quest-desc-content li.dg-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.dg-editor-content li.dg-task-item input[type="checkbox"],
+.dg-quest-desc-content li.dg-task-item input[type="checkbox"] {
+  margin-top: 4px;
+  accent-color: var(--color-primary, #2563eb);
+  cursor: pointer;
+}
+
+.dg-editor-content li.dg-task-item.checked,
+.dg-quest-desc-content li.dg-task-item.checked {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
+.dg-editor-content blockquote,
+.dg-quest-desc-content blockquote {
+  border-left: 3px solid var(--color-primary, #2563eb);
+  padding-left: 10px;
+  margin: 0.5em 0;
+  color: var(--text-secondary, #64748b);
+  font-style: italic;
+}
+
+.dg-editor-content pre,
+.dg-quest-desc-content pre {
+  background: var(--bg-surface-variant, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.84rem;
+  overflow-x: auto;
+  margin: 0.4em 0;
+}
+
+.dg-editor-content code,
+.dg-quest-desc-content code {
+  background: var(--bg-surface-variant, #f1f5f9);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--color-primary, #2563eb);
+}
+
+.dg-editor-content a,
+.dg-quest-desc-content a {
+  color: var(--color-primary, #2563eb);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Image styles & Image wrapper with delete action */
+.dg-editor-img-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.5em 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-surface-variant, #f8fafc);
+}
+
+.dg-editor-img,
+.dg-quest-desc-content img {
+  max-width: 100%;
+  max-height: 360px;
+  height: auto;
+  border-radius: 7px;
+  display: block;
+  object-fit: contain;
+}
+
+.dg-editor-img-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dg-editor-img-del:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.dg-editor-img-wrap:hover .dg-editor-img-del {
+  opacity: 1;
+}
+
+/* Status Footer */
+.dg-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 10px;
+  background: var(--bg-surface-variant, #f8fafc);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.dg-editor-status-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dg-editor-badge-tiptap {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  opacity: 0.8;
+}
+
+/* Floating Bubble Toolbar */
+.dg-editor-bubble-menu {
+  position: absolute;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 5px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translate(-50%, -100%);
+  margin-top: -8px;
+}

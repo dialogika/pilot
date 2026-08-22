@@ -18,8 +18,6 @@
 import { auth } from "../../firebase-config.js";
 import * as repo from "./quest-modal.repository.js";
 import * as ui from "./quest-modal.ui.js";
-import { getSidebarCounts } from "../sidebar/sidebar.repository.js";
-import { applyCounts } from "../sidebar/sidebar.ui.js";
 
 let currentTab = "daily"; // 'daily' | 'quest'
 let currentUserUid = "";
@@ -32,6 +30,61 @@ let positionsCache = [];
 let questTasks = {};
 let checkedTaskIds = new Set();
 let isInitialized = false;
+
+/**
+ * Build a deduplicated user list from usersMap (which may have dual keys: docId + uid).
+ * Each user appears once, keyed by their canonical docId.
+ */
+function getUniqueUsersList() {
+  const seen = new Set();
+  const list = [];
+  Object.keys(usersMap).forEach((key) => {
+    const u = usersMap[key];
+    if (!u) return;
+    const canonical = u.docId || key;
+    if (seen.has(canonical)) return;
+    seen.add(canonical);
+    list.push({ id: canonical, ...u });
+  });
+  return list;
+}
+
+/**
+ * Given a user key (docId or uid), return all known IDs for that user
+ * (docId, uid, email) so assign_to contains all aliases.
+ */
+function getUserAllIds(key) {
+  const ids = new Set();
+  ids.add(key);
+  const u = usersMap[key];
+  if (u) {
+    if (u.docId) ids.add(u.docId);
+    if (u.uid) ids.add(u.uid);
+  }
+  return Array.from(ids);
+}
+
+/**
+ * Get all known IDs for the current logged-in user.
+ */
+function getCurrentUserAllIds() {
+  const ids = new Set();
+  if (currentUserUid) ids.add(currentUserUid);
+  if (auth.currentUser) {
+    if (auth.currentUser.uid) ids.add(auth.currentUser.uid);
+    if (auth.currentUser.email) ids.add(auth.currentUser.email);
+  }
+  // Also check usersMap for this user's docId
+  Object.keys(usersMap).forEach((k) => {
+    const u = usersMap[k];
+    if (u && (u.uid === currentUserUid || k === currentUserUid)) {
+      ids.add(k);
+      if (u.docId) ids.add(u.docId);
+      if (u.uid) ids.add(u.uid);
+    }
+  });
+  return Array.from(ids);
+}
 
 /**
  * Initialize event listeners once for the modal.
@@ -56,7 +109,16 @@ export async function openQuestModal(opts = {}) {
   ui.showBoardLoading();
 
   try {
-    // 1. Identify user context
+    // 1. Ensure Firebase Auth state is resolved
+    if (!auth.currentUser) {
+      await new Promise((resolve) => {
+        const unsub = auth.onAuthStateChanged((user) => {
+          unsub();
+          resolve(user);
+        });
+      });
+    }
+
     const u = auth.currentUser;
     if (u) {
       currentUserUid = u.uid;
@@ -66,13 +128,22 @@ export async function openQuestModal(opts = {}) {
     // 2. Load supporting data if not cached
     if (!departmentsCache.length || !Object.keys(usersMap).length) {
       const [users, depts, pos] = await Promise.all([
-        repo.loadUsersMap(),
-        repo.loadDepartments(),
-        repo.loadPositions(),
+        repo.loadUsersMap().catch((e) => {
+          console.warn("quest-modal: loadUsersMap failed", e);
+          return {};
+        }),
+        repo.loadDepartments().catch((e) => {
+          console.warn("quest-modal: loadDepartments failed", e);
+          return [];
+        }),
+        repo.loadPositions().catch((e) => {
+          console.warn("quest-modal: loadPositions failed", e);
+          return [];
+        }),
       ]);
-      usersMap = users;
-      departmentsCache = depts;
-      positionsCache = pos;
+      usersMap = users || {};
+      departmentsCache = depts || [];
+      positionsCache = pos || [];
 
       if (currentUserUid && usersMap[currentUserUid]) {
         const info = usersMap[currentUserUid];
@@ -122,6 +193,14 @@ async function loadBoard() {
       return acc;
     }, {});
 
+    // Diagnostic logging for debugging assign_to visibility
+    const myIds = getCurrentUserAllIds();
+    console.log("[QuestModal] Current user IDs (all aliases):", myIds);
+    console.log("[QuestModal] Total tasks loaded:", rows.length);
+    rows.forEach(({ id, data }) => {
+      console.log(`[QuestModal] Task "${data.title}" (${id}) | assign_to:`, data.assign_to, "| created_by:", data.created_by);
+    });
+
     const board = buildBoard(normalized, currentTab);
     ui.renderBoard(currentTab, board, {
       users: usersMap,
@@ -145,7 +224,9 @@ function normalizeTask(id, data, departments, positionsMap) {
   task.deptId = firstDeptId(data.departments);
   task.posId = firstPosId(data.positions);
   task.isOwner =
-    data.created_by && String(data.created_by) === String(currentUserUid);
+    data.created_by && getCurrentUserAllIds().some(
+      (uk) => String(data.created_by).toLowerCase() === String(uk).toLowerCase()
+    );
   task.departments = Array.isArray(data.departments)
     ? data.departments
     : data.departments
@@ -240,13 +321,51 @@ function buildBoard(tasks, tab) {
 }
 
 function isVisible(task) {
-  const isStaff = currentRole === "staff";
   if (!currentUserUid) return true;
+  const isAdmin = ["owner", "admin"].includes(currentRole);
+  if (isAdmin) return true;
 
-  if (isStaff) {
-    if (!currentDept) return false;
+  const userKeys = getCurrentUserAllIds();
+
+  const assignList = Array.isArray(task.assign_to)
+    ? task.assign_to
+    : task.assign_to
+      ? [task.assign_to]
+      : [];
+  const reportList = Array.isArray(task.report_to)
+    ? task.report_to
+    : task.report_to
+      ? [task.report_to]
+      : [];
+
+  const isAssignee = assignList.some((uid) =>
+    userKeys.some((uk) => String(uid).toLowerCase() === String(uk).toLowerCase()),
+  );
+  const isReporter = reportList.some((uid) =>
+    userKeys.some((uk) => String(uid).toLowerCase() === String(uk).toLowerCase()),
+  );
+  const isCreator = userKeys.some(
+    (uk) => String(task.created_by).toLowerCase() === String(uk).toLowerCase(),
+  );
+
+  // 1. If user is explicitly assigned, reported to, or created the task -> ALWAYS VISIBLE
+  if (isAssignee || isReporter || isCreator) {
+    return true;
+  }
+
+  // 2. If task has specific assignees and current user is NOT in the list -> HIDE IT
+  const hasValidUID = assignList.some(
+    (uid) => typeof uid === "string" && uid.length >= 20,
+  );
+  if (hasValidUID && assignList.length > 0 && !isAssignee) {
+    return false;
+  }
+
+  // 3. For department-wide / unassigned tasks, filter by department if role is staff
+  const isStaff = currentRole === "staff";
+  if (isStaff && currentDept) {
     const depts = task.departments;
-    if (!depts.length) return true;
+    if (!depts || !depts.length) return true;
     const deptLower = currentDept.toLowerCase();
     const hasDeptData = depts.some((d) => d && (d.id || d.name));
     if (!hasDeptData) return true;
@@ -261,24 +380,6 @@ function isVisible(task) {
     });
   }
 
-  const assignList = Array.isArray(task.assign_to)
-    ? task.assign_to
-    : task.assign_to
-      ? [task.assign_to]
-      : [];
-  const hasValidUID = assignList.some(
-    (uid) => typeof uid === "string" && uid.length >= 20,
-  );
-  const isCreator =
-    task.created_by && String(task.created_by) === String(currentUserUid);
-  if (
-    hasValidUID &&
-    assignList.length > 0 &&
-    assignList.indexOf(currentUserUid) === -1 &&
-    !isCreator
-  ) {
-    return false;
-  }
   return true;
 }
 
@@ -318,10 +419,7 @@ function wireEventHandlers() {
 
     // Add new button
     if (e.target.closest("#dgQuestAddBtn")) {
-      const usersList = Object.keys(usersMap).map((id) => ({
-        id,
-        name: usersMap[id].name || id,
-      }));
+      const usersList = getUniqueUsersList();
       ui.openQuestForm(
         "create",
         null,
@@ -329,6 +427,8 @@ function wireEventHandlers() {
           departments: departmentsCache,
           positions: positionsCache,
           users: usersList,
+          currentUserId: currentUserUid,
+          userDept: currentDept,
         },
         currentTab,
       );
@@ -359,10 +459,7 @@ function wireEventHandlers() {
       const taskId = editBtn.dataset.edit;
       const task = questTasks[taskId];
       if (task) {
-        const usersList = Object.keys(usersMap).map((id) => ({
-          id,
-          name: usersMap[id].name || id,
-        }));
+        const usersList = getUniqueUsersList();
         ui.openQuestForm(
           "edit",
           task,
@@ -370,6 +467,7 @@ function wireEventHandlers() {
             departments: departmentsCache,
             positions: positionsCache,
             users: usersList,
+            currentUserId: currentUserUid,
           },
           currentTab,
         );
@@ -399,13 +497,22 @@ function wireEventHandlers() {
       handleSubmitDailyReport();
       return;
     }
+
+    // Quest / Daily Form submit button click
+    if (e.target.closest("#dgQuestFormSubmit")) {
+      e.preventDefault();
+      handleQuestFormSubmit(e);
+      return;
+    }
   });
 
-  // Form submit handler
-  const form = document.getElementById("dgQuestForm");
-  if (form) {
-    form.addEventListener("submit", handleQuestFormSubmit);
-  }
+  // Delegated Form submit handler
+  document.addEventListener("submit", (e) => {
+    if (e.target && (e.target.id === "dgQuestForm" || e.target.closest("#dgQuestForm"))) {
+      e.preventDefault();
+      handleQuestFormSubmit(e);
+    }
+  });
 }
 
 function switchTab(tab) {
@@ -429,14 +536,56 @@ function toggleChecked(taskId) {
 }
 
 async function handleQuestFormSubmit(e) {
-  e.preventDefault();
+  if (e && typeof e.preventDefault === "function") {
+    e.preventDefault();
+  }
+
+  if (!auth.currentUser) {
+    await new Promise((resolve) => {
+      const unsub = auth.onAuthStateChanged((u) => {
+        unsub();
+        resolve(u);
+      });
+    });
+  }
+
+  if (!auth.currentUser) {
+    ui.notifyError("Sesi login tidak ditemukan. Silakan login kembali di halaman login.");
+    return;
+  }
+
+  // Force-refresh token to ensure newly assigned custom claims (role) are active in Firestore rules
+  try {
+    const tokenRes = await auth.currentUser.getIdTokenResult(true);
+    console.log("[QuestModal] Auth User:", auth.currentUser.uid, "Claims Role:", tokenRes?.claims?.role);
+  } catch (tErr) {
+    console.warn("[QuestModal] Token refresh warning:", tErr);
+  }
+
   const formValues = ui.readQuestForm(currentTab);
   if (!formValues.title) {
     ui.notifyError("Judul wajib diisi.");
     return;
   }
 
-  const payload = {
+  const submitBtn = document.getElementById("dgQuestFormSubmit");
+  const origBtnText = submitBtn ? submitBtn.textContent : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving...";
+  }
+
+  const expandedAssignTo = new Set();
+  (formValues.assignTo || []).forEach((id) => {
+    getUserAllIds(id).forEach((alias) => expandedAssignTo.add(alias));
+  });
+
+  const expandedReportTo = new Set();
+  (formValues.reportTo || []).forEach((id) => {
+    getUserAllIds(id).forEach((alias) => expandedReportTo.add(alias));
+  });
+
+  const rawPayload = {
     title: formValues.title,
     description: formValues.description,
     points: formValues.points,
@@ -444,17 +593,28 @@ async function handleQuestFormSubmit(e) {
     tags: formValues.tags,
     deadline_time: formValues.deadline_time,
     due_date: formValues.due_date,
+    start_date: formValues.start_date || null,
+    start_time: formValues.start_time || null,
     type: formValues.type,
     quest_type: formValues.type === "side" ? "side" : "main",
-    recur: formValues.recur ? { frequency: "daily", unit: "day" } : null,
+    recur: formValues.recur || null,
     departments: formValues.deptId
       ? [{ id: formValues.deptId, name: formValues.deptName }]
       : [],
     positions: formValues.posId
       ? [{ id: formValues.posId, name: formValues.posName }]
       : [],
-    assign_to: formValues.assignTo,
+    assign_to: Array.from(expandedAssignTo),
+    report_to: Array.from(expandedReportTo),
   };
+
+  // Sanitize payload to prevent undefined field values in Firestore
+  const payload = {};
+  Object.keys(rawPayload).forEach((k) => {
+    if (rawPayload[k] !== undefined) {
+      payload[k] = rawPayload[k];
+    }
+  });
 
   try {
     if (formValues.id) {
@@ -463,7 +623,7 @@ async function handleQuestFormSubmit(e) {
         `${currentTab === "daily" ? "Daily" : "Quest"} berhasil diperbarui!`,
       );
     } else {
-      payload.created_by = currentUserUid;
+      payload.created_by = currentUserUid || (auth.currentUser ? auth.currentUser.uid : "") || "unknown";
       await repo.createTask(payload);
       ui.notifySuccess(
         `${currentTab === "daily" ? "Daily" : "Quest"} berhasil ditambahkan!`,
@@ -478,6 +638,11 @@ async function handleQuestFormSubmit(e) {
     ui.notifyError(
       "Gagal menyimpan: " + (err && err.message ? err.message : err),
     );
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = origBtnText;
+    }
   }
 }
 
@@ -578,14 +743,15 @@ async function handleSubmitDailyReport() {
   }
 }
 
-function refreshShellCounts() {
+async function refreshShellCounts() {
   const mount = document.getElementById("dg-sidebar-mount");
   if (mount) {
-    getSidebarCounts()
-      .then((counts) => {
-        applyCounts(mount, counts);
-      })
-      .catch(() => {});
+    try {
+      const { getSidebarCounts } = await import("../sidebar/sidebar.repository.js");
+      const { applyCounts } = await import("../sidebar/sidebar.ui.js");
+      const counts = await getSidebarCounts();
+      applyCounts(mount, counts);
+    } catch (e) {}
   }
 }
 
@@ -642,7 +808,9 @@ function questDeadlinePassed(task) {
 }
 
 function toMs(value) {
-  return repo.getMs(value);
+  if (typeof repo.toMs === "function") return repo.toMs(value);
+  if (typeof repo.getMs === "function") return repo.getMs(value);
+  return null;
 }
 
 function dayKey(date) {

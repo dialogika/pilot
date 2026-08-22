@@ -48,5 +48,8 @@ export const storage = getStorage(app);
 // Region default us-central1, sesuai deploy setUserRole/setQuestDifficulty/resetMonthlyScore/cleanupOldNotifications.
 export const functions = getFunctions(app);
 
+// Debug helper — hapus setelah selesai debugging
+window.__fb = { auth, db, storage };
+
 // CATATAN: tidak ada koneksi emulator apa pun di file ini.
 // SDK memakai layanan real dialogika-co di semua environment (local maupun prod).

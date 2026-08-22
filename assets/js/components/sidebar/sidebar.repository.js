@@ -53,7 +53,17 @@ export async function getSidebarCounts() {
   const counts = { mainQuest: 0, sideQuest: 0, project: 0, report: 0 };
 
   try {
-    const tasksSnap = await getDocs(collection(db, "tasks"));
+    let tasksSnap = null;
+    try {
+      tasksSnap = await getDocs(collection(db, "quests"));
+    } catch (e) {
+      const uid = auth.currentUser ? auth.currentUser.uid : "";
+      if (uid) {
+        try {
+          tasksSnap = await getDocs(query(collection(db, "quests"), where("assign_to", "array-contains", uid)));
+        } catch (_) {}
+      }
+    }
 
     let totalMain = 0;
     let totalSide = 0;
