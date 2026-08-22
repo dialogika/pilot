@@ -13,7 +13,7 @@
 //        `tasks` is shared with Projects (documented; no shared abstraction).
 // =====================================================================
 
-import { auth, db, storage } from "../../assets/js/firebase-config.js";
+import { auth, db, storage } from "../../firebase-config.js";
 import {
   collection,
   query,
@@ -31,7 +31,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getMs } from "../../assets/js/utils.js";
+import { getMs } from "../../utils.js";
 
 /* ------------------------------------------------------------------ */
 /* Auth                                                                */
@@ -176,15 +176,58 @@ export async function submitDailyReport(payload) {
  */
 export async function loadUsersMap() {
   const map = {};
+  
+  // Load positions map to resolve position IDs (e.g. random ID -> "Website Development")
+  const posMap = {};
+  try {
+    const posSnap = await getDocs(collection(db, "positions"));
+    posSnap.forEach((pDoc) => {
+      const pData = pDoc.data() || {};
+      const pName = pData.name || pData.title || pData.label || pData.position || "";
+      if (pName) {
+        posMap[pDoc.id] = pName;
+        if (pData.id) posMap[pData.id] = pName;
+      }
+    });
+  } catch (e) {
+    console.warn("quest-modal: failed to cache positions in loadUsersMap", e);
+  }
+
   const snap = await getDocs(collection(db, "users"));
   snap.forEach((ds) => {
     const d = ds.data() || {};
+    let posRaw = d.position || (d.employment && d.employment.position) || d.position_name || d.job_position || d.role_title || "";
+    let pos = typeof posRaw === "object" && posRaw ? (posRaw.name || posRaw.title || posRaw.id || "") : String(posRaw || "");
+    if (pos && posMap[pos]) {
+      pos = posMap[pos];
+    }
+
+    const deptRaw = d.department || d.department_name || d.dept || (d.employment && d.employment.department) || (Array.isArray(d.departments) ? d.departments[0] : "") || "";
+    const dept = typeof deptRaw === "object" && deptRaw ? (deptRaw.name || deptRaw.id || "") : String(deptRaw || "");
+    const name = d.full_name || d.name || d.displayName || d.nama || d.nickname || d.username || d.email || "Unknown";
+    const photo = d.photo || d.photoURL || d.photoUrl || d.candidatePhoto || d.avatar || d.avatar_url || d.picture || d.profileImage || d.image || "";
+
+    const userPositions = [];
+    if (pos) userPositions.push(pos);
+    if (posRaw && posRaw !== pos) userPositions.push(String(posRaw));
+    if (Array.isArray(d.positions)) {
+      d.positions.forEach((p) => {
+        if (typeof p === "object" && p) userPositions.push(p.name || p.title || p.id || "");
+        else if (p) {
+          userPositions.push(posMap[p] || p);
+        }
+      });
+    }
+
     map[ds.id] = {
-      name:
-        d.full_name || d.displayName || d.name || d.email || d.username || "",
-      role: d.role || "",
-      department: d.department || "",
-      photo: d.photo || d.photoURL || d.avatar || "",
+      name,
+      role: d.role || (d.access && d.access.role_id) || "",
+      department: dept,
+      departments: Array.isArray(d.departments) ? d.departments : (dept ? [dept] : []),
+      position: pos,
+      positions: userPositions,
+      employment: d.employment || {},
+      photo: String(photo || "").trim(),
     };
   });
   return map;

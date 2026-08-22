@@ -18,8 +18,6 @@
 import { auth } from "../../firebase-config.js";
 import * as repo from "./quest-modal.repository.js";
 import * as ui from "./quest-modal.ui.js";
-import { getSidebarCounts } from "../sidebar/sidebar.repository.js";
-import { applyCounts } from "../sidebar/sidebar.ui.js";
 
 let currentTab = "daily"; // 'daily' | 'quest'
 let currentUserUid = "";
@@ -320,7 +318,7 @@ function wireEventHandlers() {
     if (e.target.closest("#dgQuestAddBtn")) {
       const usersList = Object.keys(usersMap).map((id) => ({
         id,
-        name: usersMap[id].name || id,
+        ...usersMap[id],
       }));
       ui.openQuestForm(
         "create",
@@ -329,6 +327,7 @@ function wireEventHandlers() {
           departments: departmentsCache,
           positions: positionsCache,
           users: usersList,
+          currentUserId: currentUserUid,
         },
         currentTab,
       );
@@ -361,7 +360,7 @@ function wireEventHandlers() {
       if (task) {
         const usersList = Object.keys(usersMap).map((id) => ({
           id,
-          name: usersMap[id].name || id,
+          ...usersMap[id],
         }));
         ui.openQuestForm(
           "edit",
@@ -370,6 +369,7 @@ function wireEventHandlers() {
             departments: departmentsCache,
             positions: positionsCache,
             users: usersList,
+            currentUserId: currentUserUid,
           },
           currentTab,
         );
@@ -444,9 +444,11 @@ async function handleQuestFormSubmit(e) {
     tags: formValues.tags,
     deadline_time: formValues.deadline_time,
     due_date: formValues.due_date,
+    start_date: formValues.start_date || null,
+    start_time: formValues.start_time || null,
     type: formValues.type,
     quest_type: formValues.type === "side" ? "side" : "main",
-    recur: formValues.recur ? { frequency: "daily", unit: "day" } : null,
+    recur: formValues.recur || null,
     departments: formValues.deptId
       ? [{ id: formValues.deptId, name: formValues.deptName }]
       : [],
@@ -454,6 +456,7 @@ async function handleQuestFormSubmit(e) {
       ? [{ id: formValues.posId, name: formValues.posName }]
       : [],
     assign_to: formValues.assignTo,
+    report_to: formValues.reportTo,
   };
 
   try {
@@ -578,14 +581,15 @@ async function handleSubmitDailyReport() {
   }
 }
 
-function refreshShellCounts() {
+async function refreshShellCounts() {
   const mount = document.getElementById("dg-sidebar-mount");
   if (mount) {
-    getSidebarCounts()
-      .then((counts) => {
-        applyCounts(mount, counts);
-      })
-      .catch(() => {});
+    try {
+      const { getSidebarCounts } = await import("../sidebar/sidebar.repository.js");
+      const { applyCounts } = await import("../sidebar/sidebar.ui.js");
+      const counts = await getSidebarCounts();
+      applyCounts(mount, counts);
+    } catch (e) {}
   }
 }
 

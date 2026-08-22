@@ -142,12 +142,13 @@ export function applyCounts(mount, counts) {
  */
 export function bindSidebarEvents(mount, { onLogout, onAction }) {
   // Action cards (e.g. Daily modal, Quest modal)
-  mount.querySelectorAll("[data-sidebar-action]").forEach((btn) => {
-    btn.addEventListener("click", (ev) => {
+  mount.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-sidebar-action]");
+    if (btn && mount.contains(btn)) {
       ev.preventDefault();
       const action = btn.getAttribute("data-sidebar-action");
       if (typeof onAction === "function") onAction(action);
-    });
+    }
   });
 
   // Shared sidebar toggle (used by the topbar mobile-toggle button).
