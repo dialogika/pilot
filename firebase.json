@@ -16,9 +16,18 @@
         "source": "/register.html",
         "destination": "/register",
         "type": 301
+      },
+      {
+        "source": "/index.html",
+        "destination": "/login",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/login",
+        "destination": "/pages/login/index.html"
+      },
       {
         "source": "/test",
         "destination": "/pages/test/index.html"
