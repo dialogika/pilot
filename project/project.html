@@ -873,7 +873,7 @@ import { app, auth, db } from "../assets/js/firebase-config.js";
                 return;
             }
             try {
-                const q = query(collection(db, "tasks"), where("project_id", "==", pId));
+                const q = query(collection(db, "quests"), where("project_id", "==", pId));
                 const snap = await getDocs(q);
                 if (snap.empty) {
                     taskList.innerHTML = '<div class="text-muted small">No pending tasks.</div>';
@@ -978,7 +978,7 @@ import { app, auth, db } from "../assets/js/firebase-config.js";
                 return;
             }
             try {
-                const q = query(collection(db, "tasks"), where("project_id", "==", pId));
+                const q = query(collection(db, "quests"), where("project_id", "==", pId));
                 const snap = await getDocs(q);
                 if (snap.empty) {
                     animateGauge(0);

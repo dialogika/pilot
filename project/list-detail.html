@@ -1092,7 +1092,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
         async function loadTasks() {
             try {
                 const q = query(
-                    collection(db, "tasks"),
+                    collection(db, "quests"),
                     where("project_id", "==", projectId)
                 );
                 const snap = await getDocs(q);
@@ -2332,7 +2332,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                     created_at: serverTimestamp(),
                     created_by: currentUser ? currentUser.uid : ""
                 };
-                await addDoc(collection(db, "tasks"), payload);
+                await addDoc(collection(db, "quests"), payload);
                 titleInput.value = '';
                 if (document.getElementById('desc-detail')) document.getElementById('desc-detail').innerHTML = "";
                 if (document.getElementById('start-detail')) document.getElementById('start-detail').value = "";

@@ -1,7 +1,11 @@
 {
   "hosting": {
     "public": ".",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "redirects": [
       {
         "source": "/home.html",
@@ -12,9 +16,18 @@
         "source": "/register.html",
         "destination": "/register",
         "type": 301
+      },
+      {
+        "source": "/index.html",
+        "destination": "/login",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/login",
+        "destination": "/pages/login/index.html"
+      },
       {
         "source": "/test",
         "destination": "/pages/test/index.html"
@@ -37,5 +50,8 @@
     "hosting": {
       "port": 5000
     }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

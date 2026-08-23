@@ -995,7 +995,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                 tasksUnsubscribe();
                 tasksUnsubscribe = null;
             }
-            const q = query(collection(db, "tasks"), where("project_id", "==", projectId));
+            const q = query(collection(db, "quests"), where("project_id", "==", projectId));
             tasksUnsubscribe = onSnapshot(q, (snapshot) => {
                 allTasks = [];
                 snapshot.forEach(docSnap => allTasks.push({ id: docSnap.id, ...docSnap.data() }));
@@ -1618,7 +1618,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
 
             let docRef;
             try {
-                docRef = await addDoc(collection(db, "tasks"), payload);
+                docRef = await addDoc(collection(db, "quests"), payload);
             } catch (e) {
                 console.error("Failed to add task", e, payload);
                 alert("Gagal menyimpan task ke Firebase: " + e.message);
@@ -2273,7 +2273,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             const listRef = doc(db, "projects", projectId, "lists", lid);
             const listSnap = await getDoc(listRef);
 
-            const q = query(collection(db, "tasks"), where("list_id", "==", lid));
+            const q = query(collection(db, "quests"), where("list_id", "==", lid));
             const snap = await getDocs(q);
 
             const batch = writeBatch(db);
