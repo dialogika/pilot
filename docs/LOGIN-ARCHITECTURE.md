@@ -36,9 +36,9 @@ source of truth for profile/application state.
 
 | URL | Served content | Notes |
 |---|---|---|
-| `/login` | `pages/login/index.html` | Canonical public URL (Hosting rewrite) |
-| `/index.html` | legacy root `index.html` locally; **301 → `/login`** in production | Redirect defined in `firebase.json` |
-| `/` | legacy root `index.html` | Static fallback during coexistence |
+| `/login` | `pages/login/index.html` | Canonical public URL (Hosting rewrite) — the page in use |
+| `/` | root `index.html` = **redirect stub** → `/login` | Static stub; Hosting always serves index.html for "/" so a rewrite cannot take over |
+| `/index.html` | **301 → `/login`** in production; same stub locally (emulator ignores redirects) | Redirect defined in `firebase.json` |
 
 ```json
 "redirects": [
@@ -51,18 +51,21 @@ source of truth for profile/application state.
 
 **Why the redirect matters:** `auth-guard.js` (`LOGIN_PATH = "/index.html"`),
 the post-registration redirect in `register.ui.js`, and dozens of legacy logout
-flows all navigate to `/index.html`. The 301 routes all of them to the new page
-with **zero consumer code changes**. Rollback = remove the two `firebase.json`
-lines.
+flows all navigate to `/index.html`. The 301 (production) and the root stub
+(local) route all of them to the new page with **zero consumer code changes**.
+Rollback = restore `index.html` from git history and remove the two
+`firebase.json` lines.
 
 **Known emulator limitation:** the Hosting emulator serves static files without
 applying redirects (same behavior observed during the Register migration), so
-locally `/index.html` still shows the legacy page. In production the redirect
-applies. Test the new page locally via `/login`.
+locally `/index.html` is served by the root stub itself. In production the HTTP
+301 applies first. Both paths end at `/login`.
 
-The legacy root `index.html` is deliberately kept as the coexistence fallback
-(it also keeps serving `/`). Delete it only after production traffic has fully
-moved to `/login` and removal is explicitly approved.
+**Cutover status:** DONE. The legacy monolithic login was replaced by the
+redirect stub after the feature was verified on the emulator, following the same
+"remove legacy after verification" step previously applied to `home.html`. The
+full legacy implementation remains recoverable from git history (commit prior to
+`refactor(login): migrate legacy index.html ...`).
 
 ---
 
@@ -183,7 +186,7 @@ production presence merge-write). Verified in this task:
   `./login.js`, no inline styles).
 - `/pages/login/{index.html,login.js,login.repository.js,login.ui.js,login.css}`
   all 200 via the Hosting emulator.
-- `/` still serves the untouched legacy login (regression).
+- `/` and `/index.html` serve the redirect stub → `/login` (cutover verified).
 - `/register`, `/home`, `/internships`, `/test`, shared assets → all 200.
 - `node --check` passes for all three modules.
 - `mapLoginError`/`mapForgotError` unit-tested: 18 cases covering every legacy
@@ -207,17 +210,13 @@ production presence merge-write). Verified in this task:
 
 ## 9. Known Limitations & Deferred Work
 
-- The 301 `/index.html` → `/login` only takes effect in **production**
-  (emulator ignores redirects). Until deploy, local logout flows land on the
-  legacy page.
-- `auth-guard.js LOGIN_PATH` still points to `/index.html`. Updating it to
-  `/login` would remove a redirect hop but touches a **shared foundation file**
-  used by every feature — deliberately deferred to a dedicated shared-shell
-  change rather than doing it inside this feature branch.
-- Root `/` continues serving the legacy page until cutover is approved; after
-  verification, replace/remove root `index.html` (needs explicit approval per
-  migration rules).
-- `register.ui.js redirectToLogin()` still targets `/index.html` — works via the
-  production 301; updating it belongs to a future register touch-up, not this
+- The root `index.html` is now a redirect stub; side-by-side comparison against
+  the legacy page requires checking out the prior commit.
+- `auth-guard.js LOGIN_PATH` still points to `/index.html`. It now lands on the
+  new page via 301/stub, but updating it to `/login` would remove a redirect
+  hop — deferred to a dedicated shared-shell change rather than this feature
   branch.
+- `register.ui.js redirectToLogin()` still targets `/index.html` — works via the
+  301/stub; updating it belongs to a future register touch-up, not this branch.
 - Credential E2E not executed (real production Auth/Firestore; see §8 checklist).
+
