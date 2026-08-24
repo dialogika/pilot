@@ -89,6 +89,19 @@ export function showListError(summaryId, message) {
   if (summary) summary.textContent = message || "Gagal memuat data intern. Silahkan periksa koneksi atau izin.";
 }
 
+/**
+ * Form-page error state (errorState + errorMsg elements).
+ * @param {string} message
+ */
+export function showFormError(message) {
+  const loading = el("loadingState");
+  const errorState = el("errorState");
+  const errorMsg = el("errorMsg");
+  if (loading) loading.style.display = "none";
+  if (errorState) errorState.style.display = "block";
+  if (errorMsg && message) errorMsg.textContent = message;
+}
+
 /* ------------------------------------------------------------------ */
 /* Form Page Rendering                                                */
 /* ------------------------------------------------------------------ */
@@ -107,34 +120,35 @@ const CORE_COMPETENCIES = [
 const DIVISION_SPECIFICS = {
   hr: {
     label: "HR",
+    // appraisal key -> input element id (matches legacy markup exactly)
     fields: [
-      { id: "dev", label: "DEV", full: "Developing Others" },
-      { id: "rb", label: "RB", full: "Relationship Building" },
-      { id: "iu", label: "IU", full: "Interpersonal Und." },
+      { key: "dev", inputId: "comp_dev", label: "DEV", full: "Developing Others" },
+      { key: "rb", inputId: "comp_rb_hr", label: "RB", full: "Relationship Building" },
+      { key: "iu", inputId: "comp_iu", label: "IU", full: "Interpersonal Und." },
     ],
   },
   branding: {
     label: "Branding",
     fields: [
-      { id: "imp", label: "IMP", full: "Impact and Influence" },
-      { id: "info", label: "INFO", full: "Information Seeking" },
+      { key: "imp", inputId: "comp_imp", label: "IMP", full: "Impact and Influence" },
+      { key: "info", inputId: "comp_info", label: "INFO", full: "Information Seeking" },
     ],
   },
   marketing: {
     label: "Marketing",
     fields: [
-      { id: "cso", label: "CSO", full: "Customer Service" },
-      { id: "co", label: "CO", full: "Concern for Order" },
-      { id: "flx", label: "FLX", full: "Flexibility" },
+      { key: "cso", inputId: "comp_cso_mkt", label: "CSO", full: "Customer Service" },
+      { key: "co", inputId: "comp_co", label: "CO", full: "Concern for Order" },
+      { key: "flx", inputId: "comp_flx_mkt", label: "FLX", full: "Flexibility" },
     ],
   },
   client_product: {
     label: "Client & Product",
     fields: [
-      { id: "flx", label: "FLX", full: "Flexibility" },
-      { id: "dir", label: "DIR", full: "Directiveness" },
-      { id: "cso", label: "CSO", full: "Customer Service" },
-      { id: "rb", label: "RB", full: "Relationship Building" },
+      { key: "flx", inputId: "comp_flx_cp", label: "FLX", full: "Flexibility" },
+      { key: "dir", inputId: "comp_dir", label: "DIR", full: "Directiveness" },
+      { key: "cso", inputId: "comp_cso_cp", label: "CSO", full: "Customer Service" },
+      { key: "rb", inputId: "comp_rb_cp", label: "RB", full: "Relationship Building" },
     ],
   },
 };
@@ -207,8 +221,8 @@ export function fillFormFromAppraisal(appraisal, category) {
 
   if (appraisal.specific && category && DIVISION_SPECIFICS[category]) {
     DIVISION_SPECIFICS[category].fields.forEach((f) => {
-      const input = el(`comp_${f.id}${category === "hr" && f.id === "rb" ? "_hr" : category === "marketing" && f.id === "cso" ? "_mkt" : category === "client_product" && f.id === "cso" ? "_cp" : category === "client_product" && f.id === "rb" ? "_cp" : category === "marketing" && f.id === "flx" ? "_mkt" : category === "client_product" && f.id === "flx" ? "_cp" : ""}`);
-      if (input && appraisal.specific[f.id] !== undefined) input.value = appraisal.specific[f.id];
+      const input = el(f.inputId);
+      if (input && appraisal.specific[f.key] !== undefined) input.value = appraisal.specific[f.key];
     });
   }
 
@@ -243,22 +257,8 @@ export function collectFormData(category) {
   const specific = {};
   if (category && DIVISION_SPECIFICS[category]) {
     DIVISION_SPECIFICS[category].fields.forEach((f) => {
-      const suffix =
-        category === "hr" && f.id === "rb"
-          ? "_hr"
-          : category === "marketing" && f.id === "cso"
-          ? "_mkt"
-          : category === "client_product" && f.id === "cso"
-          ? "_cp"
-          : category === "client_product" && f.id === "rb"
-          ? "_cp"
-          : category === "marketing" && f.id === "flx"
-          ? "_mkt"
-          : category === "client_product" && f.id === "flx"
-          ? "_cp"
-          : "";
-      const input = el(`comp_${f.id}${suffix}`);
-      specific[f.id] = parseFloat(input?.value) || 0;
+      const input = el(f.inputId);
+      specific[f.key] = parseFloat(input?.value) || 0;
     });
   }
 

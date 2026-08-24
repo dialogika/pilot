@@ -6,6 +6,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import { auth } from "../../../assets/js/firebase-config.js";
 import * as repo from "./performance-appraisal.repository.js";
 import * as ui from "./performance-appraisal.ui.js";
 
@@ -107,28 +108,27 @@ async function initializeForm() {
   const id = urlParams.get("id");
 
   if (!id) {
-    ui.showListError("summaryText", "ID Intern tidak ditemukan di URL.");
+    ui.showFormError("ID Intern tidak ditemukan di URL.");
     return;
   }
-
-  ui.showListLoading("loadingState", "errorState", "formContainer", "summaryText");
 
   try {
     const intern = await repo.getIntern(id);
 
     if (!intern) {
-      ui.showListError("summaryText", "Data intern tidak ditemukan.");
+      ui.showFormError("Data intern tidak ditemukan.");
       return;
     }
 
     ui.renderFormHeader(intern, positionMap);
     const category = ui.renderDivisionSpecificFields(intern, positionMap);
 
+    // Attach NTI handlers BEFORE filling (fill clicks btnAddNti to add rows).
+    ui.setupNtiHandlers();
+
     if (intern.appraisal) {
       ui.fillFormFromAppraisal(intern.appraisal, category);
     }
-
-    ui.setupNtiHandlers();
 
     // Show form
     document.getElementById("loadingState").style.display = "none";
@@ -150,7 +150,7 @@ async function initializeForm() {
     }
   } catch (e) {
     console.error(e);
-    ui.showListError("summaryText", "Gagal mengambil data dari server.");
+    ui.showFormError("Gagal mengambil data dari server.");
   }
 }
 
@@ -159,7 +159,7 @@ async function handleSubmit(id, category) {
 
   try {
     const appraisalData = ui.collectFormData(category);
-    appraisalData.evaluatedBy = (await import("../../../assets/js/firebase-config.js")).auth.currentUser?.uid;
+    appraisalData.evaluatedBy = auth.currentUser?.uid;
 
     await repo.saveAppraisal(id, appraisalData);
 
