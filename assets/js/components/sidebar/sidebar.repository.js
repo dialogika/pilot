@@ -16,7 +16,7 @@
 //    contract + this module together, never the UI.
 // =====================================================================
 
-import { db } from "../../firebase-config.js";
+import { auth, db } from "../../firebase-config.js";
 import {
   collection,
   getDocs,
