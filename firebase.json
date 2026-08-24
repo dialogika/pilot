@@ -45,11 +45,11 @@
         "destination": "/pages/internships/index.html"
       },
       {
-        "source": "/hr/performance-appraisal",
+        "source": "/performance-appraisal",
         "destination": "/pages/hr/performance-appraisal/index.html"
       },
       {
-        "source": "/hr/performance-appraisal/form",
+        "source": "/performance-appraisal/form",
         "destination": "/pages/hr/performance-appraisal/form.html"
       }
     ],

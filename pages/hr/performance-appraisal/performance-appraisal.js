@@ -164,7 +164,7 @@ async function handleSubmit(id, category) {
     await repo.saveAppraisal(id, appraisalData);
 
     ui.notifySuccess("Penilaian berhasil disimpan!");
-    window.location.href = "/hr/performance-appraisal";
+    window.location.href = "/performance-appraisal";
   } catch (err) {
     console.error(err);
     ui.notifyError("Gagal menyimpan penilaian: " + err.message);
