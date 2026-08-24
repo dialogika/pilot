@@ -36,7 +36,7 @@ export function renderInternCard(intern, positionMap) {
   `;
 
   card.onclick = () => {
-    window.location.href = `/hr/performance-appraisal/form?id=${intern.id}`;
+    window.location.href = `/performance-appraisal/form?id=${intern.id}`;
   };
 
   return card;
