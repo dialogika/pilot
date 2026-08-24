@@ -61,22 +61,23 @@ export async function getIntern(id) {
 
 /**
  * Load position map from `position` (fallback `positions`).
+ * Mirrors legacy behavior: never throws — returns partial/empty map on error.
  * @returns {Promise<Object>}
  */
 export async function loadPositionsMap() {
   const map = {};
-  let snap = await getDocs(collection(db, "position"));
-  if (snap.empty) {
-    try {
+  try {
+    let snap = await getDocs(collection(db, "position"));
+    if (snap.empty) {
       snap = await getDocs(collection(db, "positions"));
-    } catch (e) {
-      console.warn("Fallback positions collection 'positions' not readable", e);
     }
+    snap.forEach((ds) => {
+      const d = ds.data() || {};
+      map[ds.id] = d.name || d.label || d.title || d.position || ds.id;
+    });
+  } catch (e) {
+    console.error("Failed to load positions", e);
   }
-  snap.forEach((ds) => {
-    const d = ds.data() || {};
-    map[ds.id] = d.name || d.label || d.title || d.position || ds.id;
-  });
   return map;
 }
 

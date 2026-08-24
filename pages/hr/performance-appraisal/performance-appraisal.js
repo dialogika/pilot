@@ -40,7 +40,13 @@ async function initialize() {
 }
 
 async function loadPositionsMap() {
-  positionMap = await repo.loadPositionsMap();
+  // Legacy parity: failure to load positions must NOT block the intern list.
+  try {
+    positionMap = await repo.loadPositionsMap();
+  } catch (e) {
+    console.warn("Failed to load positions, continuing without map:", e);
+    positionMap = {};
+  }
 }
 
 /* ------------------------------------------------------------------ */
