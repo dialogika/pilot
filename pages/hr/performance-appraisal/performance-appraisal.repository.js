@@ -66,17 +66,22 @@ export async function getIntern(id) {
  */
 export async function loadPositionsMap() {
   const map = {};
-  try {
-    let snap = await getDocs(collection(db, "position"));
-    if (snap.empty) {
-      snap = await getDocs(collection(db, "positions"));
+  // Rules only define `positions` (plural) — `position` (singular, used by
+  // legacy first) has no rule and denies. Try plural-first, fall back.
+  const sources = ["positions", "position"];
+  for (const name of sources) {
+    try {
+      const snap = await getDocs(collection(db, name));
+      if (!snap.empty) {
+        snap.forEach((ds) => {
+          const d = ds.data() || {};
+          map[ds.id] = d.name || d.label || d.title || d.position || ds.id;
+        });
+        return map;
+      }
+    } catch (e) {
+      console.warn(`Position source '${name}' not readable`, e);
     }
-    snap.forEach((ds) => {
-      const d = ds.data() || {};
-      map[ds.id] = d.name || d.label || d.title || d.position || ds.id;
-    });
-  } catch (e) {
-    console.error("Failed to load positions", e);
   }
   return map;
 }
