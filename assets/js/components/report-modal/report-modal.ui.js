@@ -53,7 +53,7 @@ export function ensureReportModalDOM() {
         <!-- Header -->
         <div class="dg-report-header">
           <div class="dg-report-header-title">
-            <h4 id="dgReportTitle">Report Side Quest</h4>
+            <h4 id="dgReportTitle">Report Daily</h4>
             <span class="dg-report-count-badge" id="dgReportCountBadge">0</span>
           </div>
           <div class="dg-report-header-actions">
@@ -66,9 +66,9 @@ export function ensureReportModalDOM() {
               </button>
             </div>
             <div class="dg-report-nav-pills">
-              <button type="button" class="dg-report-tab-btn active" id="dgReportTabSide" data-quest-tab="side">Side Quest</button>
-              <button type="button" class="dg-report-tab-btn" id="dgReportTabMain" data-quest-tab="main">Main Quest</button>
-              <button type="button" class="dg-report-tab-btn" id="dgReportTabProject" data-quest-tab="project">Project Quest</button>
+              <button type="button" class="dg-report-tab-btn active" id="dgReportTabDaily" data-quest-tab="daily">Daily</button>
+              <button type="button" class="dg-report-tab-btn" id="dgReportTabQuest" data-quest-tab="quest">Quest</button>
+              <button type="button" class="dg-report-tab-btn" id="dgReportTabProject" data-quest-tab="project">Project</button>
             </div>
             <button type="button" class="dg-report-btn-close" id="dgReportCloseBtn">
               <i class="bi bi-x-lg"></i> Close
@@ -116,18 +116,18 @@ export function ensureReportModalDOM() {
               </div>
               <div>
                 <div class="dg-report-breakdown-row">
-                  <span class="dg-report-breakdown-label">Main Quest</span>
+                  <span class="dg-report-breakdown-label">Daily</span>
                   <div class="dg-report-progress-track">
-                    <div class="dg-report-progress-fill bg-main" id="dgBreakdownMainBar" style="width: 0%;"></div>
+                    <div class="dg-report-progress-fill bg-main" id="dgBreakdownDailyBar" style="width: 0%;"></div>
                   </div>
-                  <span class="dg-report-breakdown-count" id="dgBreakdownMainCount">0</span>
+                  <span class="dg-report-breakdown-count" id="dgBreakdownDailyCount">0</span>
                 </div>
                 <div class="dg-report-breakdown-row">
-                  <span class="dg-report-breakdown-label">Side Quest</span>
+                  <span class="dg-report-breakdown-label">Quest</span>
                   <div class="dg-report-progress-track">
-                    <div class="dg-report-progress-fill bg-side" id="dgBreakdownSideBar" style="width: 0%;"></div>
+                    <div class="dg-report-progress-fill bg-side" id="dgBreakdownQuestBar" style="width: 0%;"></div>
                   </div>
-                  <span class="dg-report-breakdown-count" id="dgBreakdownSideCount">0</span>
+                  <span class="dg-report-breakdown-count" id="dgBreakdownQuestCount">0</span>
                 </div>
                 <div class="dg-report-breakdown-row">
                   <span class="dg-report-breakdown-label">Project</span>
@@ -260,16 +260,21 @@ export function hideModalOverlay() {
 }
 
 export function setActiveTab(tab) {
+  const normTab = tab === "side" ? "quest" : tab === "main" ? "daily" : tab;
   const titles = {
-    side: "Report Side Quest",
-    main: "Report Main Quest",
-    project: "Report Project Quest",
+    daily: "Report Daily",
+    quest: "Report Quest",
+    project: "Report Project",
+    main: "Report Daily",
+    side: "Report Quest",
   };
   const titleEl = document.getElementById("dgReportTitle");
-  if (titleEl) titleEl.textContent = titles[tab] || "Report Quest";
+  if (titleEl) titleEl.textContent = titles[normTab] || "Report";
 
   document.querySelectorAll(".dg-report-tab-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.getAttribute("data-quest-tab") === tab);
+    const btnTab = btn.getAttribute("data-quest-tab");
+    const normBtnTab = btnTab === "side" ? "quest" : btnTab === "main" ? "daily" : btnTab;
+    btn.classList.toggle("active", normBtnTab === normTab);
   });
 }
 
@@ -311,28 +316,28 @@ export function renderStats(stats, badgeTotal) {
   if (elBadge) elBadge.textContent = String(badgeTotal || 0);
 
   // Breakdown progress
-  const mainCount = stats.breakdown?.main || 0;
-  const sideCount = stats.breakdown?.side || 0;
+  const dailyCount = stats.breakdown?.daily || stats.breakdown?.main || 0;
+  const questCount = stats.breakdown?.quest || stats.breakdown?.side || 0;
   const projectCount = stats.breakdown?.project || 0;
-  const totalBreakdown = Math.max(mainCount + sideCount + projectCount, 1);
+  const totalBreakdown = Math.max(dailyCount + questCount + projectCount, 1);
 
-  const mainPct = Math.round((mainCount / totalBreakdown) * 100);
-  const sidePct = Math.round((sideCount / totalBreakdown) * 100);
+  const dailyPct = Math.round((dailyCount / totalBreakdown) * 100);
+  const questPct = Math.round((questCount / totalBreakdown) * 100);
   const projectPct = Math.round((projectCount / totalBreakdown) * 100);
 
-  const mainBar = document.getElementById("dgBreakdownMainBar");
-  const sideBar = document.getElementById("dgBreakdownSideBar");
+  const dailyBar = document.getElementById("dgBreakdownDailyBar") || document.getElementById("dgBreakdownMainBar");
+  const questBar = document.getElementById("dgBreakdownQuestBar") || document.getElementById("dgBreakdownSideBar");
   const projectBar = document.getElementById("dgBreakdownProjectBar");
-  const mainCountEl = document.getElementById("dgBreakdownMainCount");
-  const sideCountEl = document.getElementById("dgBreakdownSideCount");
+  const dailyCountEl = document.getElementById("dgBreakdownDailyCount") || document.getElementById("dgBreakdownMainCount");
+  const questCountEl = document.getElementById("dgBreakdownQuestCount") || document.getElementById("dgBreakdownSideCount");
   const projectCountEl = document.getElementById("dgBreakdownProjectCount");
 
-  if (mainBar) mainBar.style.width = `${mainPct}%`;
-  if (sideBar) sideBar.style.width = `${sidePct}%`;
+  if (dailyBar) dailyBar.style.width = `${dailyPct}%`;
+  if (questBar) questBar.style.width = `${questPct}%`;
   if (projectBar) projectBar.style.width = `${projectPct}%`;
 
-  if (mainCountEl) mainCountEl.textContent = String(mainCount);
-  if (sideCountEl) sideCountEl.textContent = String(sideCount);
+  if (dailyCountEl) dailyCountEl.textContent = String(dailyCount);
+  if (questCountEl) questCountEl.textContent = String(questCount);
   if (projectCountEl) projectCountEl.textContent = String(projectCount);
 }
 
@@ -444,7 +449,11 @@ export function openDetailModal(report, mode, usersMap) {
 
   document.getElementById("dgReportDetailTaskTitle").textContent = report.task || "Report Details";
   document.getElementById("dgDetailAssignAvatars").innerHTML = renderAvatarPile(report.assignees, usersMap, 5);
-  document.getElementById("dgDetailNotifyAvatars").innerHTML = renderAvatarPile(report.notifyTo, usersMap, 5);
+  document.getElementById("dgDetailNotifyAvatars").innerHTML = renderAvatarPile(
+    report.reportTo && report.reportTo.length ? report.reportTo : report.notifyTo,
+    usersMap,
+    5,
+  );
 
   const depts = (report.departments || []).map((d) => d && d.name ? d.name : d).filter(Boolean).join(", ") || "-";
   const points = report.points ? `${report.points} Points` : "-";

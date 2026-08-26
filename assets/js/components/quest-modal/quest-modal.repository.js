@@ -24,6 +24,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
@@ -44,16 +45,25 @@ export { auth, storage };
 /* ------------------------------------------------------------------ */
 
 /**
- * Resolve all aliases for a user (Auth UID, Firestore User Doc ID, Email).
+ * Resolve all aliases for a user (Auth UID, Firestore User Doc ID, Email, Name).
  * @param {string} [uid]
  * @returns {Promise<Array<string>>}
  */
 export async function getUserAliases(uid) {
   const aliases = new Set();
-  if (uid) aliases.add(uid);
+  if (uid) {
+    aliases.add(uid);
+    aliases.add(String(uid).toLowerCase());
+  }
   if (auth.currentUser) {
-    if (auth.currentUser.uid) aliases.add(auth.currentUser.uid);
-    if (auth.currentUser.email) aliases.add(auth.currentUser.email);
+    if (auth.currentUser.uid) {
+      aliases.add(auth.currentUser.uid);
+      aliases.add(String(auth.currentUser.uid).toLowerCase());
+    }
+    if (auth.currentUser.email) {
+      aliases.add(auth.currentUser.email);
+      aliases.add(String(auth.currentUser.email).toLowerCase());
+    }
   }
 
   try {
@@ -61,14 +71,33 @@ export async function getUserAliases(uid) {
     Object.keys(usersMap).forEach((k) => {
       const u = usersMap[k];
       if (u) {
+        const uDocId = u.docId ? String(u.docId).toLowerCase() : "";
+        const uUid = u.uid ? String(u.uid).toLowerCase() : "";
+        const uEmail = u.email ? String(u.email).toLowerCase() : "";
+        const uName = u.name ? String(u.name).toLowerCase() : "";
+        const kLower = String(k).toLowerCase();
+
         const matches =
-          (u.uid && aliases.has(u.uid)) ||
-          (u.email && aliases.has(u.email)) ||
-          aliases.has(k);
+          (uUid && aliases.has(uUid)) ||
+          (uDocId && aliases.has(uDocId)) ||
+          (uEmail && aliases.has(uEmail)) ||
+          (uName && aliases.has(uName)) ||
+          aliases.has(kLower);
+
         if (matches) {
-          aliases.add(k);
+          if (k) aliases.add(k);
+          if (u.docId) aliases.add(u.docId);
           if (u.uid) aliases.add(u.uid);
-          if (u.email) aliases.add(u.email);
+          if (u.name) aliases.add(u.name);
+          if (u.email) {
+            aliases.add(u.email);
+            aliases.add(u.email.toLowerCase());
+          }
+          if (Array.isArray(u.allAliases)) {
+            u.allAliases.forEach((a) => {
+              if (a) aliases.add(a);
+            });
+          }
         }
       }
     });
@@ -97,67 +126,74 @@ export async function listQuestTasks() {
   }
 
   // 1. Try global collection fetch on "quests"
-  let globalSucceeded = false;
+  let questsGlobalSucceeded = false;
   try {
     const snap = await getDocs(collection(db, "quests"));
     addSnap(snap);
-    globalSucceeded = true;
+    questsGlobalSucceeded = true;
   } catch (err) {
     console.warn("[QuestModal] Global 'quests' read restricted, attempting targeted user queries...", err);
   }
 
-  // 2. If global read failed, query across all user aliases
-  if (!globalSucceeded && auth.currentUser) {
-    const aliases = await getUserAliases(auth.currentUser.uid);
-    for (const alias of aliases) {
-      try {
-        const qAssign = query(
-          collection(db, "quests"),
-          where("assign_to", "array-contains", alias),
-        );
-        const snapAssign = await getDocs(qAssign);
-        addSnap(snapAssign);
-      } catch (e) {}
-
-      try {
-        const qReport = query(
-          collection(db, "quests"),
-          where("report_to", "array-contains", alias),
-        );
-        const snapReport = await getDocs(qReport);
-        addSnap(snapReport);
-      } catch (e) {}
-
-      try {
-        const qCreator = query(
-          collection(db, "quests"),
-          where("created_by", "==", alias),
-        );
-        const snapCreator = await getDocs(qCreator);
-        addSnap(snapCreator);
-      } catch (e) {}
-    }
+  // 2. Try global collection fetch on "tasks" (legacy & shared tasks)
+  try {
+    const snapTasks = await getDocs(collection(db, "tasks"));
+    addSnap(snapTasks);
+  } catch (err) {
+    console.warn("[QuestModal] Global 'tasks' read restricted, attempting targeted user queries...", err);
   }
 
-  // 3. Fallback: If no rows found, also check "tasks" collection
-  if (rows.length === 0) {
-    try {
-      const snapTasks = await getDocs(collection(db, "tasks"));
-      addSnap(snapTasks);
-    } catch (_) {
-      if (auth.currentUser) {
-        const aliases = await getUserAliases(auth.currentUser.uid);
-        for (const alias of aliases) {
-          try {
-            const qTasks = query(
-              collection(db, "tasks"),
-              where("assign_to", "array-contains", alias),
-            );
-            const snapT = await getDocs(qTasks);
-            addSnap(snapT);
-          } catch (_) {}
-        }
+  // 3. Targeted queries across all user aliases if global read failed or for thoroughness
+  if (auth.currentUser) {
+    const aliases = await getUserAliases(auth.currentUser.uid);
+    for (const alias of aliases) {
+      if (!questsGlobalSucceeded) {
+        try {
+          const qAssign = query(
+            collection(db, "quests"),
+            where("assign_to", "array-contains", alias),
+          );
+          const snapAssign = await getDocs(qAssign);
+          addSnap(snapAssign);
+        } catch (e) {}
+
+        try {
+          const qReport = query(
+            collection(db, "quests"),
+            where("report_to", "array-contains", alias),
+          );
+          const snapReport = await getDocs(qReport);
+          addSnap(snapReport);
+        } catch (e) {}
+
+        try {
+          const qCreator = query(
+            collection(db, "quests"),
+            where("created_by", "==", alias),
+          );
+          const snapCreator = await getDocs(qCreator);
+          addSnap(snapCreator);
+        } catch (e) {}
       }
+
+      // Targeted tasks fallback
+      try {
+        const qTasks = query(
+          collection(db, "tasks"),
+          where("assign_to", "array-contains", alias),
+        );
+        const snapT = await getDocs(qTasks);
+        addSnap(snapT);
+      } catch (_) {}
+
+      try {
+        const qTasksCreator = query(
+          collection(db, "tasks"),
+          where("created_by", "==", alias),
+        );
+        const snapTC = await getDocs(qTasksCreator);
+        addSnap(snapTC);
+      } catch (_) {}
     }
   }
 
@@ -308,6 +344,24 @@ export async function deleteTask(taskId) {
 }
 
 /**
+ * Delete multiple quest tasks in batch.
+ * @param {string[]} taskIds
+ */
+export async function deleteTasks(taskIds) {
+  if (!Array.isArray(taskIds) || taskIds.length === 0) return;
+  // Firestore batches support up to 500 operations per batch
+  const chunkSize = 400;
+  for (let i = 0; i < taskIds.length; i += chunkSize) {
+    const chunk = taskIds.slice(i, i + chunkSize);
+    const batch = writeBatch(db);
+    chunk.forEach((id) => {
+      batch.delete(doc(db, "quests", id));
+    });
+    await batch.commit();
+  }
+}
+
+/**
  * Toggle a task's complete status (legacy: Complete / Initiate).
  * @param {string} taskId
  * @param {string} status
@@ -327,7 +381,20 @@ export async function markTaskReported(taskId, whoDidThis = []) {
     patch.last_reported_by = whoDidThis;
     patch.last_reported_at = serverTimestamp();
   }
-  await updateDoc(doc(db, "quests", taskId), patch);
+
+  let updated = false;
+  try {
+    await updateDoc(doc(db, "tasks", taskId), patch);
+    updated = true;
+  } catch (_) {}
+
+  if (!updated) {
+    try {
+      await updateDoc(doc(db, "quests", taskId), patch);
+    } catch (err) {
+      console.warn("[QuestModal] markTaskReported skipped or restricted by security rules:", taskId, err);
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -377,12 +444,17 @@ export async function uploadReportFiles(taskId, files) {
  * @returns {Promise<string>} new doc id
  */
 export async function submitDailyReport(payload) {
-  const p = {
-    ...payload,
-    status: payload.status || "Pending Review",
-    created_at: serverTimestamp(),
-  };
-  const refDoc = await addDoc(collection(db, "intern_dailyreport"), p);
+  const authUser = auth.currentUser;
+  const uid = (authUser && authUser.uid) || payload.user_id || "";
+  const cleanPayload = JSON.parse(
+    JSON.stringify({
+      ...payload,
+      user_id: uid,
+      status: payload.status || "Pending Review",
+    }),
+  );
+  cleanPayload.created_at = serverTimestamp();
+  const refDoc = await addDoc(collection(db, "intern_dailyreport"), cleanPayload);
   return refDoc.id;
 }
 
@@ -394,23 +466,43 @@ export async function submitDailyReport(payload) {
  * Load a map of uid -> { name, role, department, photo }.
  * @returns {Promise<Object>}
  */
+/**
+ * Load a map of uid/docId/email -> { name, role, department, photo, allAliases, ... }.
+ * @returns {Promise<Object>}
+ */
 export async function loadUsersMap() {
   const map = {};
   
   // Load positions map to resolve position IDs (e.g. random ID -> "Website Development")
   const posMap = {};
-  try {
-    const posSnap = await getDocs(collection(db, "positions"));
-    posSnap.forEach((pDoc) => {
-      const pData = pDoc.data() || {};
-      const pName = pData.name || pData.title || pData.label || pData.position || "";
-      if (pName) {
-        posMap[pDoc.id] = pName;
-        if (pData.id) posMap[pData.id] = pName;
-      }
-    });
-  } catch (e) {
-    console.warn("quest-modal: failed to cache positions in loadUsersMap", e);
+  for (const colName of ["positions", "position"]) {
+    try {
+      const posSnap = await getDocs(collection(db, colName));
+      posSnap.forEach((pDoc) => {
+        const pData = pDoc.data() || {};
+        const pName = pData.name || pData.title || pData.label || pData.position || "";
+        if (pName) {
+          posMap[pDoc.id] = pName;
+          if (pData.id) posMap[pData.id] = pName;
+        }
+      });
+    } catch (e) {}
+  }
+
+  // Load departments map to resolve department IDs
+  const deptMap = {};
+  for (const colName of ["departments", "department"]) {
+    try {
+      const deptSnap = await getDocs(collection(db, colName));
+      deptSnap.forEach((dDoc) => {
+        const dData = dDoc.data() || {};
+        const dName = dData.name || dData.label || dData.title || "";
+        if (dName) {
+          deptMap[dDoc.id] = dName;
+          if (dData.id) deptMap[dData.id] = dName;
+        }
+      });
+    } catch (e) {}
   }
 
   try {
@@ -423,10 +515,16 @@ export async function loadUsersMap() {
         pos = posMap[pos];
       }
 
-      const deptRaw = d.department || d.department_name || d.dept || (d.employment && d.employment.department) || (Array.isArray(d.departments) ? d.departments[0] : "") || "";
-      const dept = typeof deptRaw === "object" && deptRaw ? (deptRaw.name || deptRaw.id || "") : String(deptRaw || "");
+      let deptRaw = d.department || d.department_name || d.dept || (d.employment && d.employment.department) || (Array.isArray(d.departments) ? d.departments[0] : "") || "";
+      let dept = typeof deptRaw === "object" && deptRaw ? (deptRaw.name || deptRaw.id || "") : String(deptRaw || "");
+      if (dept && deptMap[dept]) {
+        dept = deptMap[dept];
+      }
+
       const name = d.full_name || d.name || d.displayName || d.nama || d.nickname || d.username || d.email || "Unknown";
       const photo = d.photo || d.photoURL || d.photoUrl || d.candidatePhoto || d.avatar || d.avatar_url || d.picture || d.profileImage || d.image || "";
+      const email = String(d.email || "").trim();
+      const authUid = d.uid || d.userId || d.user_id || d.id || ds.id;
 
       const userPositions = [];
       if (pos) userPositions.push(pos);
@@ -440,26 +538,57 @@ export async function loadUsersMap() {
         });
       }
 
+      const userDepts = [];
+      if (dept) userDepts.push(dept);
+      if (deptRaw && deptRaw !== dept) userDepts.push(String(deptRaw));
+      if (Array.isArray(d.departments)) {
+        d.departments.forEach((deptItem) => {
+          if (typeof deptItem === "object" && deptItem) userDepts.push(deptItem.name || deptItem.id || "");
+          else if (deptItem) {
+            userDepts.push(deptMap[deptItem] || deptItem);
+          }
+        });
+      }
+
+      const allAliases = Array.from(
+        new Set([
+          ds.id,
+          String(ds.id).toLowerCase(),
+          authUid,
+          String(authUid).toLowerCase(),
+          email,
+          email.toLowerCase(),
+          d.userId,
+          d.user_id,
+          d.id,
+          name,
+        ].filter(Boolean))
+      );
+
       const userData = {
         name,
-        role: d.role || (d.access && d.access.role_id) || "",
+        role: d.role || (d.access && d.access.role_id) || (d.access && d.access.role) || "",
         role_title: d.role_title || d.job_title || d.title || "",
         department: dept,
-        departments: Array.isArray(d.departments) ? d.departments : (dept ? [dept] : []),
+        departments: userDepts.length ? userDepts : (dept ? [dept] : []),
         position: pos,
         position_name: d.position_name || "",
         positions: userPositions,
         employment: d.employment || {},
         photo: String(photo || "").trim(),
         docId: ds.id,
-        uid: d.uid || ds.id,
-        email: d.email || "",
+        uid: authUid,
+        email: email,
+        allAliases,
       };
 
-      map[ds.id] = userData;
-      if (d.uid && d.uid !== ds.id) {
-        map[d.uid] = userData;
-      }
+      // Index across all potential key identifiers
+      allAliases.forEach((alias) => {
+        if (alias) {
+          map[alias] = userData;
+          map[String(alias).toLowerCase()] = userData;
+        }
+      });
     });
   } catch (e) {
     console.warn("quest-modal: failed to load users map", e);
@@ -473,21 +602,20 @@ export async function loadUsersMap() {
  */
 export async function loadDepartments() {
   const rows = [];
-  try {
-    let snap = null;
+  const seen = new Set();
+  for (const colName of ["departments", "department"]) {
     try {
-      snap = await getDocs(collection(db, "department"));
-    } catch (_) {
-      snap = await getDocs(collection(db, "departments"));
-    }
-    if (snap) {
+      const snap = await getDocs(collection(db, colName));
       snap.forEach((ds) => {
         const d = ds.data() || {};
-        rows.push({ id: ds.id, name: d.name || d.label || d.title || ds.id });
+        const name = d.name || d.label || d.title || ds.id;
+        const key = String(name || ds.id).toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          rows.push({ id: ds.id, name: name });
+        }
       });
-    }
-  } catch (e) {
-    console.warn("quest-modal: loadDepartments failed, using defaults", e);
+    } catch (e) {}
   }
   return rows;
 }
@@ -498,21 +626,20 @@ export async function loadDepartments() {
  */
 export async function loadPositions() {
   const rows = [];
-  try {
-    let snap = null;
+  const seen = new Set();
+  for (const colName of ["positions", "position"]) {
     try {
-      snap = await getDocs(collection(db, "position"));
-    } catch (_) {
-      snap = await getDocs(collection(db, "positions"));
-    }
-    if (snap) {
+      const snap = await getDocs(collection(db, colName));
       snap.forEach((ds) => {
         const d = ds.data() || {};
-        rows.push({ id: ds.id, name: d.name || d.label || d.title || d.position || ds.id });
+        const name = d.name || d.label || d.title || d.position || ds.id;
+        const key = String(name || ds.id).toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          rows.push({ id: ds.id, name: name });
+        }
       });
-    }
-  } catch (e) {
-    console.warn("quest-modal: loadPositions failed, using defaults", e);
+    } catch (e) {}
   }
   return rows;
 }

@@ -22,6 +22,7 @@ import * as ui from "./quest-modal.ui.js";
 let currentTab = "daily"; // 'daily' | 'quest'
 let currentUserUid = "";
 let currentUserName = "";
+let currentUserPos = "";
 let currentRole = "";
 let currentDept = "";
 let usersMap = {};
@@ -29,11 +30,17 @@ let departmentsCache = [];
 let positionsCache = [];
 let questTasks = {};
 let checkedTaskIds = new Set();
+let selectedDeleteTaskIds = new Set();
+let currentBoardCache = null;
 let isInitialized = false;
 
 /**
  * Build a deduplicated user list from usersMap (which may have dual keys: docId + uid).
  * Each user appears once, keyed by their canonical docId.
+ */
+/**
+ * Build a deduplicated user list from usersMap.
+ * Each user appears once, keyed by their canonical docId (or uid).
  */
 function getUniqueUsersList() {
   const seen = new Set();
@@ -41,7 +48,7 @@ function getUniqueUsersList() {
   Object.keys(usersMap).forEach((key) => {
     const u = usersMap[key];
     if (!u) return;
-    const canonical = u.docId || key;
+    const canonical = u.docId || u.uid || key;
     if (seen.has(canonical)) return;
     seen.add(canonical);
     list.push({ id: canonical, ...u });
@@ -50,17 +57,79 @@ function getUniqueUsersList() {
 }
 
 /**
- * Given a user key (docId or uid), return all known IDs for that user
- * (docId, uid, email) so assign_to contains all aliases.
+ * Given a user key (docId, uid, or email), return all known IDs for that user
+ * (docId, uid, email, aliases) so assign_to contains all aliases.
  */
 function getUserAllIds(key) {
+  if (!key) return [];
   const ids = new Set();
   ids.add(key);
-  const u = usersMap[key];
+  const keyLower = String(key).toLowerCase();
+  ids.add(keyLower);
+
+  const u = usersMap[key] || usersMap[keyLower];
   if (u) {
-    if (u.docId) ids.add(u.docId);
-    if (u.uid) ids.add(u.uid);
+    if (u.docId) {
+      ids.add(u.docId);
+      ids.add(String(u.docId).toLowerCase());
+    }
+    if (u.uid) {
+      ids.add(u.uid);
+      ids.add(String(u.uid).toLowerCase());
+    }
+    if (u.email) {
+      ids.add(u.email);
+      ids.add(String(u.email).toLowerCase());
+    }
+    if (Array.isArray(u.allAliases)) {
+      u.allAliases.forEach((a) => {
+        if (a) {
+          ids.add(a);
+          ids.add(String(a).toLowerCase());
+        }
+      });
+    }
   }
+
+  // Also check across all users in usersMap in case key matches docId, uid, email, or name
+  Object.values(usersMap).forEach((user) => {
+    if (!user) return;
+    const uName = String(user.name || user.displayName || user.username || "").toLowerCase();
+    if (
+      user.docId === key ||
+      String(user.docId).toLowerCase() === keyLower ||
+      user.uid === key ||
+      String(user.uid).toLowerCase() === keyLower ||
+      String(user.email).toLowerCase() === keyLower ||
+      (uName && uName === keyLower)
+    ) {
+      if (user.docId) {
+        ids.add(user.docId);
+        ids.add(String(user.docId).toLowerCase());
+      }
+      if (user.uid) {
+        ids.add(user.uid);
+        ids.add(String(user.uid).toLowerCase());
+      }
+      if (user.email) {
+        ids.add(user.email);
+        ids.add(String(user.email).toLowerCase());
+      }
+      if (user.name) {
+        ids.add(user.name);
+        ids.add(String(user.name).toLowerCase());
+      }
+      if (Array.isArray(user.allAliases)) {
+        user.allAliases.forEach((a) => {
+          if (a) {
+            ids.add(a);
+            ids.add(String(a).toLowerCase());
+          }
+        });
+      }
+    }
+  });
+
   return Array.from(ids);
 }
 
@@ -69,20 +138,68 @@ function getUserAllIds(key) {
  */
 function getCurrentUserAllIds() {
   const ids = new Set();
-  if (currentUserUid) ids.add(currentUserUid);
-  if (auth.currentUser) {
-    if (auth.currentUser.uid) ids.add(auth.currentUser.uid);
-    if (auth.currentUser.email) ids.add(auth.currentUser.email);
+  const currentUid = auth.currentUser?.uid || currentUserUid;
+  const currentEmail = auth.currentUser?.email;
+
+  if (currentUid) {
+    ids.add(currentUid);
+    ids.add(String(currentUid).toLowerCase());
   }
-  // Also check usersMap for this user's docId
-  Object.keys(usersMap).forEach((k) => {
-    const u = usersMap[k];
-    if (u && (u.uid === currentUserUid || k === currentUserUid)) {
-      ids.add(k);
-      if (u.docId) ids.add(u.docId);
-      if (u.uid) ids.add(u.uid);
+  if (currentEmail) {
+    ids.add(currentEmail);
+    ids.add(String(currentEmail).toLowerCase());
+  }
+  if (currentUserUid) {
+    ids.add(currentUserUid);
+    ids.add(String(currentUserUid).toLowerCase());
+  }
+
+  // Look up current user strictly in usersMap by uid, docId, or email
+  let matchedUser = null;
+  if (currentUid && (usersMap[currentUid] || usersMap[String(currentUid).toLowerCase()])) {
+    matchedUser = usersMap[currentUid] || usersMap[String(currentUid).toLowerCase()];
+  } else if (currentEmail && (usersMap[currentEmail] || usersMap[String(currentEmail).toLowerCase()])) {
+    matchedUser = usersMap[currentEmail] || usersMap[String(currentEmail).toLowerCase()];
+  } else {
+    for (const u of Object.values(usersMap)) {
+      if (!u) continue;
+      if (
+        (currentUid && (u.uid === currentUid || u.docId === currentUid)) ||
+        (currentEmail && String(u.email || "").toLowerCase() === String(currentEmail).toLowerCase())
+      ) {
+        matchedUser = u;
+        break;
+      }
     }
-  });
+  }
+
+  if (matchedUser) {
+    if (matchedUser.docId) {
+      ids.add(matchedUser.docId);
+      ids.add(String(matchedUser.docId).toLowerCase());
+    }
+    if (matchedUser.uid) {
+      ids.add(matchedUser.uid);
+      ids.add(String(matchedUser.uid).toLowerCase());
+    }
+    if (matchedUser.email) {
+      ids.add(matchedUser.email);
+      ids.add(String(matchedUser.email).toLowerCase());
+    }
+    if (matchedUser.name) {
+      ids.add(matchedUser.name);
+      ids.add(String(matchedUser.name).toLowerCase());
+    }
+    if (Array.isArray(matchedUser.allAliases)) {
+      matchedUser.allAliases.forEach((a) => {
+        if (a) {
+          ids.add(a);
+          ids.add(String(a).toLowerCase());
+        }
+      });
+    }
+  }
+
   return Array.from(ids);
 }
 
@@ -98,7 +215,7 @@ export function initQuestModal() {
 
 /**
  * Open the Daily & Quest Modal overlay.
- * @param {{ initialTab?: 'daily'|'quest' }} [opts]
+ * @param {{ initialTab?: 'daily'|'quest', autoOpenReport?: boolean }} [opts]
  */
 export async function openQuestModal(opts = {}) {
   initQuestModal();
@@ -123,33 +240,43 @@ export async function openQuestModal(opts = {}) {
     if (u) {
       currentUserUid = u.uid;
       currentUserName = u.displayName || u.email || "User";
+      try {
+        const tokenRes = await u.getIdTokenResult(true);
+        if (tokenRes && tokenRes.claims && tokenRes.claims.role) {
+          currentRole = tokenRes.claims.role;
+        }
+      } catch (_) {}
     }
 
-    // 2. Load supporting data if not cached
-    if (!departmentsCache.length || !Object.keys(usersMap).length) {
-      const [users, depts, pos] = await Promise.all([
-        repo.loadUsersMap().catch((e) => {
-          console.warn("quest-modal: loadUsersMap failed", e);
-          return {};
-        }),
-        repo.loadDepartments().catch((e) => {
-          console.warn("quest-modal: loadDepartments failed", e);
-          return [];
-        }),
-        repo.loadPositions().catch((e) => {
-          console.warn("quest-modal: loadPositions failed", e);
-          return [];
-        }),
-      ]);
-      usersMap = users || {};
-      departmentsCache = depts || [];
-      positionsCache = pos || [];
+    // 2. Load supporting data (always ensure usersMap is fresh)
+    const [users, depts, pos] = await Promise.all([
+      repo.loadUsersMap().catch((e) => {
+        console.warn("quest-modal: loadUsersMap failed", e);
+        return {};
+      }),
+      repo.loadDepartments().catch((e) => {
+        console.warn("quest-modal: loadDepartments failed", e);
+        return [];
+      }),
+      repo.loadPositions().catch((e) => {
+        console.warn("quest-modal: loadPositions failed", e);
+        return [];
+      }),
+    ]);
+    usersMap = users || {};
+    departmentsCache = depts || [];
+    positionsCache = pos || [];
 
-      if (currentUserUid && usersMap[currentUserUid]) {
-        const info = usersMap[currentUserUid];
+    if (currentUserUid) {
+      const info =
+        usersMap[currentUserUid] ||
+        usersMap[String(currentUserUid).toLowerCase()] ||
+        (u && u.email ? usersMap[String(u.email).toLowerCase()] : null);
+      if (info) {
         currentUserName = info.name || currentUserName;
-        currentRole = info.role || "";
+        if (!currentRole) currentRole = info.role || "";
         currentDept = String(info.department || "").trim();
+        currentUserPos = String(info.position || "").trim();
       }
     }
 
@@ -202,11 +329,21 @@ async function loadBoard() {
     });
 
     const board = buildBoard(normalized, currentTab);
+    currentBoardCache = board;
+
+    // Clean up selected ids that no longer exist
+    const currentTaskIds = new Set(normalized.map((t) => t.id));
+    selectedDeleteTaskIds.forEach((id) => {
+      if (!currentTaskIds.has(id)) selectedDeleteTaskIds.delete(id);
+    });
+
     ui.renderBoard(currentTab, board, {
       users: usersMap,
       currentUid: currentUserUid,
       currentRole,
+      selectedForDelete: selectedDeleteTaskIds,
     });
+    updateBulkUI();
   } catch (error) {
     console.error("Failed to load quest tasks:", error);
     ui.showBoardError(error && error.message ? error.message : String(error));
@@ -222,11 +359,45 @@ function normalizeTask(id, data, departments, positionsMap) {
   task.descText = stripHtml(data.description || "");
   task.isSide = isSideQuestTask(data);
   task.deptId = firstDeptId(data.departments);
-  task.posId = firstPosId(data.positions);
-  task.isOwner =
-    data.created_by && getCurrentUserAllIds().some(
-      (uk) => String(data.created_by).toLowerCase() === String(uk).toLowerCase()
-    );
+  const myAliases = getCurrentUserAllIds().map((x) => String(x).toLowerCase().trim());
+  const createdByRaw = data.created_by || data.createdBy || "";
+  task.isOwner = Boolean(
+    createdByRaw &&
+      myAliases.some(
+        (uk) => String(createdByRaw).toLowerCase().trim() === uk,
+      ),
+  );
+
+  const assignList = (Array.isArray(data.assign_to)
+    ? data.assign_to
+    : data.assign_to
+      ? [data.assign_to]
+      : []
+  ).map((x) => String(x).toLowerCase().trim());
+
+  const currentUidLower = String(currentUserUid || auth.currentUser?.uid || "").toLowerCase().trim();
+  const currentEmailLower = String(auth.currentUser?.email || "").toLowerCase().trim();
+
+  const isDirectAssignee =
+    assignList.length > 0 &&
+    assignList.some((uid) => {
+      const cleanUid = String(uid).toLowerCase().trim();
+      return (
+        (currentUidLower && cleanUid === currentUidLower) ||
+        (currentEmailLower && cleanUid === currentEmailLower)
+      );
+    });
+
+  task.isSelfAssigned = Boolean(task.isOwner && isDirectAssignee);
+  task.isAssignee = isDirectAssignee;
+
+  const reportList = (Array.isArray(data.report_to)
+    ? data.report_to
+    : data.report_to
+      ? [data.report_to]
+      : []
+  ).map((x) => String(x).toLowerCase().trim());
+  task.isReportTo = reportList.some((uid) => myAliases.includes(uid));
   task.departments = Array.isArray(data.departments)
     ? data.departments
     : data.departments
@@ -248,7 +419,37 @@ function normalizeTask(id, data, departments, positionsMap) {
   task.questDeadlinePassed = questDeadlinePassed(task);
   task.lockState = computeLockState(task);
   task.isChecked = checkedTaskIds.has(id);
+
+  const normStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+  const isApproved = normStatus === "approved";
+  const isRejected = normStatus === "rejected";
+  const reportedToday = !isRejected && !isApproved && isReportedToday(data, myAliases);
+  task.isApproved = isApproved;
+  task.isRejected = isRejected;
+  task.rejectionReason = data.rejection_reason || "";
+  task.isReported = !isRejected && !isApproved && (reportedToday || normStatus === "reported" || normStatus === "pending review");
   return task;
+}
+
+function isReportedToday(data, myAliases) {
+  const lrb = data.last_reported_by;
+  const lra = data.last_reported_at;
+  if (!Array.isArray(lrb) || !lrb.length || !lra) return false;
+  const ms = toMs(lra);
+  if (!ms) return false;
+  const reported = new Date(ms);
+  const today = new Date();
+  const isToday =
+    reported.getFullYear() === today.getFullYear() &&
+    reported.getMonth() === today.getMonth() &&
+    reported.getDate() === today.getDate();
+  if (!isToday) return false;
+
+  if (myAliases && myAliases.length > 0) {
+    const reportedByList = lrb.map((x) => String(x).toLowerCase().trim());
+    return reportedByList.some((uid) => myAliases.includes(uid));
+  }
+  return true;
 }
 
 function buildBoard(tasks, tab) {
@@ -321,32 +522,30 @@ function buildBoard(tasks, tab) {
 }
 
 function isVisible(task) {
-  if (!currentUserUid) return true;
-  const isAdmin = ["owner", "admin"].includes(currentRole);
+  if (!currentUserUid && !auth.currentUser) return true;
+  const roleLower = String(currentRole || "").toLowerCase();
+  const isAdmin = ["owner", "admin", "super-admin", "superadmin"].includes(roleLower);
   if (isAdmin) return true;
 
-  const userKeys = getCurrentUserAllIds();
+  const myAliases = getCurrentUserAllIds().map((x) => String(x).toLowerCase());
 
-  const assignList = Array.isArray(task.assign_to)
+  const assignList = (Array.isArray(task.assign_to)
     ? task.assign_to
     : task.assign_to
       ? [task.assign_to]
-      : [];
-  const reportList = Array.isArray(task.report_to)
+      : []
+  ).map((x) => String(x).toLowerCase());
+
+  const reportList = (Array.isArray(task.report_to)
     ? task.report_to
     : task.report_to
       ? [task.report_to]
-      : [];
+      : []
+  ).map((x) => String(x).toLowerCase());
 
-  const isAssignee = assignList.some((uid) =>
-    userKeys.some((uk) => String(uid).toLowerCase() === String(uk).toLowerCase()),
-  );
-  const isReporter = reportList.some((uid) =>
-    userKeys.some((uk) => String(uid).toLowerCase() === String(uk).toLowerCase()),
-  );
-  const isCreator = userKeys.some(
-    (uk) => String(task.created_by).toLowerCase() === String(uk).toLowerCase(),
-  );
+  const isAssignee = assignList.some((uid) => myAliases.includes(uid));
+  const isReporter = reportList.some((uid) => myAliases.includes(uid));
+  const isCreator = task.created_by && myAliases.includes(String(task.created_by).toLowerCase());
 
   // 1. If user is explicitly assigned, reported to, or created the task -> ALWAYS VISIBLE
   if (isAssignee || isReporter || isCreator) {
@@ -354,15 +553,12 @@ function isVisible(task) {
   }
 
   // 2. If task has specific assignees and current user is NOT in the list -> HIDE IT
-  const hasValidUID = assignList.some(
-    (uid) => typeof uid === "string" && uid.length >= 20,
-  );
-  if (hasValidUID && assignList.length > 0 && !isAssignee) {
+  if (assignList.length > 0 && !isAssignee) {
     return false;
   }
 
   // 3. For department-wide / unassigned tasks, filter by department if role is staff
-  const isStaff = currentRole === "staff";
+  const isStaff = roleLower === "staff";
   if (isStaff && currentDept) {
     const depts = task.departments;
     if (!depts || !depts.length) return true;
@@ -432,6 +628,29 @@ function wireEventHandlers() {
         },
         currentTab,
       );
+      return;
+    }
+
+    // Toggle multi-select checkbox for bulk delete
+    const selectCheckbox = e.target.closest(".dg-quest-select-checkbox");
+    if (selectCheckbox && selectCheckbox.dataset.selectTask) {
+      toggleSelectTask(selectCheckbox.dataset.selectTask);
+      return;
+    }
+
+    // Bulk action bar buttons
+    if (e.target.closest("#dgQuestSelectAllBtn")) {
+      toggleSelectAll();
+      return;
+    }
+
+    if (e.target.closest("#dgQuestClearSelectBtn")) {
+      clearSelection();
+      return;
+    }
+
+    if (e.target.closest("#dgQuestBulkDeleteBtn")) {
+      handleBulkDelete();
       return;
     }
 
@@ -517,8 +736,94 @@ function wireEventHandlers() {
 
 function switchTab(tab) {
   currentTab = tab;
+  selectedDeleteTaskIds.clear();
   ui.setActiveTab(tab);
   loadBoard();
+}
+
+function getDeletableTaskIds(board) {
+  if (!board) return [];
+  const deletable = [];
+  const allTasks = [
+    ...(board.overdue || []),
+    ...(board.today || []),
+    ...(board.upcoming || []),
+  ];
+  const roleLower = String(currentRole || "").toLowerCase();
+  const isAdmin = ["owner", "admin", "super-admin", "superadmin"].includes(roleLower);
+
+  allTasks.forEach((t) => {
+    if (isAdmin || t.isOwner) {
+      deletable.push(t.id);
+    }
+  });
+  return deletable;
+}
+
+function updateBulkUI() {
+  const deletableIds = currentBoardCache ? getDeletableTaskIds(currentBoardCache) : [];
+  ui.updateBulkActionBar(selectedDeleteTaskIds.size, deletableIds.length);
+  ui.syncCardSelections(selectedDeleteTaskIds);
+}
+
+function toggleSelectTask(taskId) {
+  if (!taskId) return;
+  if (selectedDeleteTaskIds.has(taskId)) {
+    selectedDeleteTaskIds.delete(taskId);
+  } else {
+    selectedDeleteTaskIds.add(taskId);
+  }
+  updateBulkUI();
+}
+
+function toggleSelectAll() {
+  const deletableIds = currentBoardCache ? getDeletableTaskIds(currentBoardCache) : [];
+  if (deletableIds.length === 0) {
+    ui.notifyError("Tidak ada task yang dapat dipilih pada tab ini.");
+    return;
+  }
+
+  const allSelected = deletableIds.every((id) => selectedDeleteTaskIds.has(id));
+  if (allSelected) {
+    deletableIds.forEach((id) => selectedDeleteTaskIds.delete(id));
+  } else {
+    deletableIds.forEach((id) => selectedDeleteTaskIds.add(id));
+  }
+  updateBulkUI();
+}
+
+function clearSelection() {
+  selectedDeleteTaskIds.clear();
+  updateBulkUI();
+}
+
+async function handleBulkDelete() {
+  const count = selectedDeleteTaskIds.size;
+  if (count === 0) {
+    ui.notifyError("Pilih minimal satu task untuk dihapus.");
+    return;
+  }
+
+  const msg = count === 1
+    ? "Apakah Anda yakin ingin menghapus 1 task yang dipilih?"
+    : `Apakah Anda yakin ingin menghapus ${count} task yang dipilih secara massal? Tindakan ini tidak dapat dibatalkan.`;
+
+  if (!confirm(msg)) return;
+
+  ui.setBulkDeleteButtonBusy(true);
+  try {
+    const idsToDelete = Array.from(selectedDeleteTaskIds);
+    await repo.deleteTasks(idsToDelete);
+    ui.notifySuccess(`${idsToDelete.length} task berhasil dihapus.`);
+    selectedDeleteTaskIds.clear();
+    await loadBoard();
+    refreshShellCounts();
+  } catch (err) {
+    console.error("Failed to bulk delete tasks:", err);
+    ui.notifyError("Gagal menghapus task: " + (err && err.message ? err.message : err));
+  } finally {
+    ui.setBulkDeleteButtonBusy(false);
+  }
 }
 
 function toggleChecked(taskId) {
@@ -577,12 +882,30 @@ async function handleQuestFormSubmit(e) {
 
   const expandedAssignTo = new Set();
   (formValues.assignTo || []).forEach((id) => {
-    getUserAllIds(id).forEach((alias) => expandedAssignTo.add(alias));
+    if (id) {
+      expandedAssignTo.add(String(id));
+      expandedAssignTo.add(String(id).toLowerCase());
+    }
+    getUserAllIds(id).forEach((alias) => {
+      if (alias) {
+        expandedAssignTo.add(String(alias));
+        expandedAssignTo.add(String(alias).toLowerCase());
+      }
+    });
   });
 
   const expandedReportTo = new Set();
   (formValues.reportTo || []).forEach((id) => {
-    getUserAllIds(id).forEach((alias) => expandedReportTo.add(alias));
+    if (id) {
+      expandedReportTo.add(String(id));
+      expandedReportTo.add(String(id).toLowerCase());
+    }
+    getUserAllIds(id).forEach((alias) => {
+      if (alias) {
+        expandedReportTo.add(String(alias));
+        expandedReportTo.add(String(alias).toLowerCase());
+      }
+    });
   });
 
   const rawPayload = {
@@ -677,6 +1000,16 @@ async function handleSubmitDailyReport() {
   }
   const details = ui.collectReportDetails();
 
+  // Ensure fresh token if available
+  if (auth.currentUser) {
+    try {
+      await auth.currentUser.getIdToken(true);
+    } catch (_) {}
+  }
+
+  const activeUid = (auth.currentUser && auth.currentUser.uid) || currentUserUid || "";
+  const activeName = currentUserName || (auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : "User") || "User";
+
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
@@ -685,6 +1018,8 @@ async function handleSubmitDailyReport() {
   const deptSet = {};
   const tasksDetail = [];
   let totalPoints = 0;
+  const reportToSet = new Set();
+  const createdBySet = new Set();
 
   checkedIds.forEach((id) => {
     const task = questTasks[id];
@@ -692,13 +1027,29 @@ async function handleSubmitDailyReport() {
     (task.departments || []).forEach((d) => {
       if (d && d.name) deptSet[d.name] = true;
     });
-    totalPoints += task.points;
+
+    const rto = Array.isArray(task.report_to)
+      ? task.report_to
+      : task.report_to
+      ? [task.report_to]
+      : [];
+    rto.forEach((u) => {
+      if (u) reportToSet.add(String(u));
+    });
+
+    if (task.created_by) createdBySet.add(String(task.created_by));
+    if (task.createdBy) createdBySet.add(String(task.createdBy));
+
+    const pts = typeof task.points === "number" ? task.points : Number(task.points) || 0;
+    totalPoints += pts;
     tasksDetail.push({
       task_id: id,
       title: task.title || "Untitled",
-      points: task.points,
+      points: pts,
       detail: details[id] || "",
-      who_did_this: [currentUserUid],
+      who_did_this: [activeUid],
+      report_to: rto,
+      created_by: task.created_by || task.createdBy || "",
     });
   });
 
@@ -712,10 +1063,13 @@ async function handleSubmitDailyReport() {
       day: "numeric",
     }),
     report_date: `${yyyy}-${mm}-${dd}`,
-    user_id: currentUserUid,
-    name: currentUserName,
+    user_id: activeUid,
+    name: activeName,
+    position: currentUserPos || "",
     departments: deptArray,
     department: deptArray.length ? deptArray[0] : "",
+    report_to: Array.from(reportToSet),
+    created_by: Array.from(createdBySet),
     tasks: tasksDetail,
     task_ids: checkedIds.slice(),
     total_points: totalPoints,
@@ -725,9 +1079,13 @@ async function handleSubmitDailyReport() {
   ui.setReportSubmitBusy(true, "Mengirim...");
   try {
     await repo.submitDailyReport(payload);
-    await Promise.all(
-      checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid])),
-    );
+    try {
+      await Promise.all(
+        checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid])),
+      );
+    } catch (markErr) {
+      console.warn("Could not mark task reported in tasks collection:", markErr);
+    }
     ui.notifySuccess("Laporan harian berhasil dikirim!");
     ui.closeDailyReportModal();
     checkedTaskIds.clear();
@@ -769,12 +1127,13 @@ function isSideQuestTask(data) {
   const qt = String(data.quest_type || "")
     .toLowerCase()
     .replace(/[\s_]/g, "");
-  if (qt === "side" || qt === "sidequest" || qt === "side-quest") return true;
-  if (qt === "main" || qt === "mainquest") return false;
+  if (qt === "side" || qt === "sidequest" || qt === "side-quest" || qt === "quest") return true;
+  if (qt === "main" || qt === "mainquest" || qt === "daily") return false;
   const t = String(data.type || data.status || "")
     .toLowerCase()
     .replace(/[\s_]/g, "");
-  if (t === "side" || t === "sidequest" || t === "side-quest") return true;
+  if (t === "side" || t === "sidequest" || t === "side-quest" || t === "quest") return true;
+  if (t === "main" || t === "mainquest" || t === "daily") return false;
   if (data.task_status) return true;
   return false;
 }

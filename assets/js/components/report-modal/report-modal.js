@@ -8,12 +8,14 @@
 //  - No raw DOM HTML rendering (use report-modal.ui.js).
 // =====================================================================
 
+import { auth } from "../../firebase-config.js";
+import { getCurrentRole } from "../../auth-guard.js";
 import * as repo from "./report-modal.repository.js";
 import * as ui from "./report-modal.ui.js";
 
 let allReports = [];
 let currentReports = [];
-let currentQuestTab = "side"; // 'side' | 'main' | 'project'
+let currentQuestTab = "daily"; // 'daily' | 'quest' | 'project'
 let usersMap = {};
 let isInitialized = false;
 let activeDetailReport = null;
@@ -21,6 +23,48 @@ let activeDetailReport = null;
 let currentSortKey = "date";
 let currentSortDir = "desc";
 let pageSize = 20;
+
+function extractUserIdentifiers(raw) {
+  const list = [];
+  const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  arr.forEach((item) => {
+    if (!item) return;
+    if (typeof item === "string") {
+      list.push(item.toLowerCase().trim());
+    } else if (typeof item === "object") {
+      if (item.uid) list.push(String(item.uid).toLowerCase().trim());
+      if (item.id) list.push(String(item.id).toLowerCase().trim());
+      if (item.userId) list.push(String(item.userId).toLowerCase().trim());
+      if (item.name) list.push(String(item.name).toLowerCase().trim());
+      if (item.email) list.push(String(item.email).toLowerCase().trim());
+      if (item.value) list.push(String(item.value).toLowerCase().trim());
+    }
+  });
+  return list;
+}
+
+function isReportVisibleToUser(r, myAliases, userRole) {
+  if (!myAliases || !myAliases.length) return true;
+
+  // 1. Author/Assignee
+  const authorId = String(r.authorId || "").toLowerCase().trim();
+  if (authorId && myAliases.includes(authorId)) return true;
+  const assignees = extractUserIdentifiers(r.assignees);
+  if (assignees.some((u) => myAliases.includes(u))) return true;
+
+  // 2. Creator
+  const creators = extractUserIdentifiers(r.createdBy);
+  if (creators.some((u) => myAliases.includes(u))) return true;
+
+  // 3. Report To (Target Supervisor)
+  const reportToList = extractUserIdentifiers(r.reportTo);
+  if (reportToList.length > 0) {
+    return reportToList.some((u) => myAliases.includes(u));
+  }
+
+  // If report has no explicit report_to, only author/assignee and creator can see it
+  return false;
+}
 
 function parseDateValue(s) {
   const parts = String(s || "").split("-");
@@ -48,6 +92,13 @@ function isWithinPeriod(dateStr, period) {
   return true;
 }
 
+function normalizeQuestType(qt) {
+  const s = String(qt || "").toLowerCase();
+  if (s.includes("project")) return "Project";
+  if (s.includes("main") || s.includes("daily")) return "Daily";
+  return "Quest";
+}
+
 /**
  * Recalculate stats for the cards.
  */
@@ -57,18 +108,20 @@ function updateStatsAndBadges() {
   let rejected = 0;
   let pending = 0;
 
-  const breakdown = { main: 0, side: 0, project: 0 };
+  const breakdown = { daily: 0, quest: 0, project: 0 };
+  const currentTabNorm = currentQuestTab === "main" ? "daily" : currentQuestTab === "side" ? "quest" : currentQuestTab;
 
   allReports.forEach((r) => {
+    const qType = normalizeQuestType(r.questType);
     // Breakdown total counts regardless of tab
-    if (r.questType === "Main Quest") breakdown.main++;
-    else if (r.questType === "Side Quest") breakdown.side++;
-    else if (r.questType === "Project Quest") breakdown.project++;
+    if (qType === "Daily") breakdown.daily++;
+    else if (qType === "Quest") breakdown.quest++;
+    else if (qType === "Project") breakdown.project++;
 
     // Tab specific stats
-    if (currentQuestTab === "side" && r.questType !== "Side Quest") return;
-    if (currentQuestTab === "main" && r.questType !== "Main Quest") return;
-    if (currentQuestTab === "project" && r.questType !== "Project Quest") return;
+    if (currentTabNorm === "daily" && qType !== "Daily") return;
+    if (currentTabNorm === "quest" && qType !== "Quest") return;
+    if (currentTabNorm === "project" && qType !== "Project") return;
 
     requested++;
     if (r.status === "approved") approved++;
@@ -76,7 +129,7 @@ function updateStatsAndBadges() {
     else pending++;
   });
 
-  const tabTotal = currentQuestTab === "side" ? breakdown.side : currentQuestTab === "main" ? breakdown.main : breakdown.project;
+  const tabTotal = currentTabNorm === "daily" ? breakdown.daily : currentTabNorm === "quest" ? breakdown.quest : breakdown.project;
 
   ui.renderStats(
     { requested, approved, rejected, pending, breakdown },
@@ -162,7 +215,27 @@ function syncBulkActionButton() {
  * Refresh full reports data from repository.
  */
 async function refreshReportsData() {
-  allReports = await repo.loadReportsData();
+  const rawReports = await repo.loadReportsData();
+  const user = auth.currentUser;
+  let myAliases = [];
+  let userRole = "";
+  if (user) {
+    userRole = await getCurrentRole();
+    const uInfo =
+      usersMap[user.uid] || usersMap[String(user.uid).toLowerCase()] || {};
+    myAliases = [
+      user.uid,
+      user.email,
+      user.displayName,
+      uInfo.name,
+    ]
+      .filter(Boolean)
+      .map((s) => String(s).toLowerCase().trim());
+  }
+  allReports = rawReports.filter((r) =>
+    isReportVisibleToUser(r, myAliases, userRole),
+  );
+  updateStatsAndBadges();
   applyFiltersAndRender();
   syncSidebarCounts();
 }
@@ -183,10 +256,13 @@ function applyFiltersAndRender() {
   if (!isNaN(ps) && ps > 0) pageSize = ps;
 
   const filtered = [];
+  const currentTabNorm = currentQuestTab === "main" ? "daily" : currentQuestTab === "side" ? "quest" : currentQuestTab;
+
   allReports.forEach((r) => {
-    if (currentQuestTab === "side" && r.questType !== "Side Quest") return;
-    if (currentQuestTab === "main" && r.questType !== "Main Quest") return;
-    if (currentQuestTab === "project" && r.questType !== "Project Quest") return;
+    const qType = normalizeQuestType(r.questType);
+    if (currentTabNorm === "daily" && qType !== "Daily") return;
+    if (currentTabNorm === "quest" && qType !== "Quest") return;
+    if (currentTabNorm === "project" && qType !== "Project") return;
 
     const text = `${r.task || ""} ${r.reportPreview || ""}`.toLowerCase();
     if (q && !text.includes(q)) return;
@@ -419,14 +495,13 @@ export function initReportModal() {
  */
 export async function openReportModal(opts = {}) {
   initReportModal();
-  currentQuestTab = opts.initialTab || "side";
+  currentQuestTab = opts.initialTab || "daily";
   ui.setActiveTab(currentQuestTab);
   ui.showModalOverlay();
 
   try {
     usersMap = await repo.loadUsersMap();
-    allReports = await repo.loadReportsData();
-    applyFiltersAndRender();
+    await refreshReportsData();
   } catch (err) {
     console.error("Failed to load reports data:", err);
     alert("Gagal memuat data report: " + (err.message || String(err)));

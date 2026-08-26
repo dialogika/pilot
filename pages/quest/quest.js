@@ -28,6 +28,8 @@ let currentTab = "main";
 let usersMap = {}; // uid -> {name, role, department, photo}
 let currentUserName = "";
 let checkedTaskIds = new Set(); // task ids checked for daily report
+let selectedDeleteTaskIds = new Set(); // task ids selected for bulk delete
+let currentBoardCache = null;
 let questTasks = {}; // id -> normalized task
 let currentUserUid = "";
 let departmentsCache = [];
@@ -94,11 +96,21 @@ async function loadBoard() {
     }, {});
 
     const board = buildBoard(normalized, currentTab);
+    currentBoardCache = board;
+
+    // Clean up selected ids that no longer exist
+    const currentTaskIds = new Set(normalized.map((t) => t.id));
+    selectedDeleteTaskIds.forEach((id) => {
+      if (!currentTaskIds.has(id)) selectedDeleteTaskIds.delete(id);
+    });
+
     ui.renderBoard(currentTab, board, {
       users: usersMap,
       currentUid: currentUserUid,
       currentRole,
+      selectedForDelete: selectedDeleteTaskIds,
     });
+    updateBulkUI();
   } catch (error) {
     console.error("Failed to load quest tasks:", error);
     ui.showBoardError(error && error.message ? error.message : String(error));
@@ -121,9 +133,30 @@ function normalizeTask(id, data, departments, positionsMap) {
   task.descText = stripHtml(data.description || "");
   task.isSide = isSideQuestTask(data);
   task.deptId = firstDeptId(data.departments);
-  task.posId = firstPosId(data.positions);
-  task.isOwner =
-    data.created_by && String(data.created_by) === String(currentUserUid);
+  const myAliases = (currentUserUid ? [currentUserUid] : []).map((x) => String(x).toLowerCase().trim());
+  const createdByRaw = data.created_by || data.createdBy || "";
+  task.isOwner = Boolean(
+    createdByRaw &&
+      myAliases.some(
+        (uk) => String(createdByRaw).toLowerCase().trim() === uk,
+      ),
+  );
+
+  const assignList = (Array.isArray(data.assign_to)
+    ? data.assign_to
+    : data.assign_to
+      ? [data.assign_to]
+      : []
+  ).map((x) => String(x).toLowerCase().trim());
+  task.isAssignee = assignList.some((uid) => myAliases.includes(uid));
+
+  const reportList = (Array.isArray(data.report_to)
+    ? data.report_to
+    : data.report_to
+      ? [data.report_to]
+      : []
+  ).map((x) => String(x).toLowerCase().trim());
+  task.isReportTo = reportList.some((uid) => myAliases.includes(uid));
   task.departments = Array.isArray(data.departments)
     ? data.departments
     : data.departments
@@ -354,10 +387,14 @@ async function submitDailyReport() {
   ui.setReportSubmitBusy(true, "Submitting...");
   try {
     await repo.submitDailyReport(payload);
-    // Mark each reported task.
-    await Promise.all(
-      checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid])),
-    );
+    try {
+      // Mark each reported task.
+      await Promise.all(
+        checkedIds.map((id) => repo.markTaskReported(id, [currentUserUid])),
+      );
+    } catch (markErr) {
+      console.warn("Could not mark task reported in database:", markErr);
+    }
     ui.notifySuccess("Report berhasil dikirim!");
     ui.closeDailyReportModal();
     checkedTaskIds.clear();
@@ -553,8 +590,29 @@ function wireEventHandlers() {
     saveQuestForm();
   });
 
-  // Delegated card actions (check / detail / edit / delete)
+  // Delegated card actions (select / check / detail / edit / delete / bulk)
   document.body.addEventListener("click", (e) => {
+    const selectCheckbox = e.target.closest(".dg-quest-select-checkbox");
+    if (selectCheckbox && selectCheckbox.dataset.selectTask) {
+      toggleSelectTask(selectCheckbox.dataset.selectTask);
+      return;
+    }
+
+    if (e.target.closest("#questSelectAllBtn")) {
+      toggleSelectAll();
+      return;
+    }
+
+    if (e.target.closest("#questClearSelectBtn")) {
+      clearSelection();
+      return;
+    }
+
+    if (e.target.closest("#questBulkDeleteBtn")) {
+      handleBulkDelete();
+      return;
+    }
+
     const check = e.target.closest("[data-check]");
     if (check) {
       e.preventDefault();
@@ -588,8 +646,93 @@ function wireEventHandlers() {
 
 function switchTab(tab) {
   currentTab = tab;
+  selectedDeleteTaskIds.clear();
   ui.setActiveTab(tab);
   loadBoard();
+}
+
+function getDeletableTaskIds(board) {
+  if (!board) return [];
+  const deletable = [];
+  const allTasks = [
+    ...(board.overdue || []),
+    ...(board.today || []),
+    ...(board.upcoming || []),
+  ];
+  const roleLower = String(currentRole || "").toLowerCase();
+  const isAdmin = ["owner", "admin", "super-admin", "superadmin"].includes(roleLower);
+
+  allTasks.forEach((t) => {
+    if (isAdmin || t.isOwner) {
+      deletable.push(t.id);
+    }
+  });
+  return deletable;
+}
+
+function updateBulkUI() {
+  const deletableIds = currentBoardCache ? getDeletableTaskIds(currentBoardCache) : [];
+  ui.updateBulkActionBar(selectedDeleteTaskIds.size, deletableIds.length);
+  ui.syncCardSelections(selectedDeleteTaskIds);
+}
+
+function toggleSelectTask(taskId) {
+  if (!taskId) return;
+  if (selectedDeleteTaskIds.has(taskId)) {
+    selectedDeleteTaskIds.delete(taskId);
+  } else {
+    selectedDeleteTaskIds.add(taskId);
+  }
+  updateBulkUI();
+}
+
+function toggleSelectAll() {
+  const deletableIds = currentBoardCache ? getDeletableTaskIds(currentBoardCache) : [];
+  if (deletableIds.length === 0) {
+    ui.notifyError("Tidak ada task yang dapat dipilih pada tab ini.");
+    return;
+  }
+
+  const allSelected = deletableIds.every((id) => selectedDeleteTaskIds.has(id));
+  if (allSelected) {
+    deletableIds.forEach((id) => selectedDeleteTaskIds.delete(id));
+  } else {
+    deletableIds.forEach((id) => selectedDeleteTaskIds.add(id));
+  }
+  updateBulkUI();
+}
+
+function clearSelection() {
+  selectedDeleteTaskIds.clear();
+  updateBulkUI();
+}
+
+async function handleBulkDelete() {
+  const count = selectedDeleteTaskIds.size;
+  if (count === 0) {
+    ui.notifyError("Pilih minimal satu task untuk dihapus.");
+    return;
+  }
+
+  const msg = count === 1
+    ? "Apakah Anda yakin ingin menghapus 1 task yang dipilih?"
+    : `Apakah Anda yakin ingin menghapus ${count} task yang dipilih secara massal? Tindakan ini tidak dapat dibatalkan.`;
+
+  if (!confirm(msg)) return;
+
+  ui.setBulkDeleteButtonBusy(true);
+  try {
+    const idsToDelete = Array.from(selectedDeleteTaskIds);
+    await repo.deleteTasks(idsToDelete);
+    ui.notifySuccess(`${idsToDelete.length} task berhasil dihapus.`);
+    selectedDeleteTaskIds.clear();
+    await loadBoard();
+  } catch (err) {
+    console.error("Failed to bulk delete tasks:", err);
+    ui.notifyError("Gagal menghapus task: " + (err && err.message ? err.message : err));
+  } finally {
+    ui.setBulkDeleteButtonBusy(false);
+  }
 }
 
 function toggleChecked(taskId) {
