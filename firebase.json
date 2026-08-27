@@ -1,11 +1,7 @@
 {
   "hosting": {
     "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
       {
         "source": "/home.html",
@@ -34,6 +30,10 @@
       {
         "source": "/internships",
         "destination": "/pages/internships/index.html"
+      },
+      {
+        "source": "/users-management",
+        "destination": "/pages/hr/users-management/index.html"
       }
     ]
   },
