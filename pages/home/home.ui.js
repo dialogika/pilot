@@ -364,32 +364,55 @@ export function openDailyReportModal(reportId, data) {
   if (Array.isArray(data.tasks)) {
     data.tasks.forEach((task, index) => {
       const li = document.createElement("li");
-      li.className = "d-flex align-items-start mb-2";
+      li.className = "d-flex align-items-start mb-3 pb-2 border-bottom";
+      const detailHtml = task.detail || task.note || "";
+      const isHtml = /<[a-z][\s\S]*>/i.test(detailHtml);
+      const pointsLabel = task.points ? `<span class="badge bg-warning bg-opacity-25 text-dark ms-2" style="font-size:0.75rem;">${task.points} Pt</span>` : "";
+
+      const taskStatus = String(task.status || "").toLowerCase();
+      let statusBadge = "";
+      if (taskStatus === "approved") {
+        statusBadge = `<span class="badge bg-success bg-opacity-10 text-success border border-success ms-2" style="font-size:0.75rem;"><i class="bi bi-check-circle-fill me-1"></i>Approved</span>`;
+      } else if (taskStatus === "rejected") {
+        statusBadge = `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger ms-2" style="font-size:0.75rem;"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>`;
+      }
+
+      const renderedDetail = isHtml
+        ? `<div class="daily-report-task-detail mt-1 text-muted" style="max-width:100%; word-break:break-word; overflow-x:hidden;">${detailHtml}</div>`
+        : `<div class="text-muted small mt-1" style="word-break:break-word; white-space:pre-line;">${escapeHtml(detailHtml)}</div>`;
+
+      const isApproved = taskStatus === "approved";
+      const isRejected = taskStatus === "rejected";
+
       li.innerHTML = `
         <div class="form-check mt-1 me-2 task-check-container" style="display:none;">
-          <input class="form-check-input task-approve-checkbox" type="checkbox" value="${index}" id="taskCheck_${index}">
+          <input class="form-check-input task-approve-checkbox" type="checkbox" value="${index}" id="taskCheck_${index}" ${isApproved ? "checked disabled" : isRejected ? "disabled" : ""}>
         </div>
         <span class="badge bg-primary rounded-pill me-2 mt-1 task-badge" style="min-width:24px;">${index + 1}</span>
-        <div>
-          <div class="fw-bold text-dark">${escapeHtml(task.title || task.task || "-")}</div>
-          <small class="text-muted">${escapeHtml(task.detail || task.note || "")}</small>
+        <div style="flex:1; min-width:0; overflow-wrap:break-word;">
+          <div class="fw-bold text-dark d-flex align-items-center flex-wrap">${escapeHtml(task.title || task.task || "-")} ${pointsLabel} ${statusBadge}</div>
+          ${renderedDetail}
         </div>
       `;
       tasksList.appendChild(li);
     });
   }
 
+  const globalRejectBtn = document.getElementById("btnRejectReport");
+  if (globalRejectBtn) globalRejectBtn.style.display = "inline-block";
+  isIndividualRejectMode = false;
+
   renderApproveButtons();
   showModal("dailyReportModal");
 }
 
-/** Render the default "Approve All / Approve Individual" action buttons. */
+/** Render the default "Approve All / Select Task" action buttons. */
 function renderApproveButtons() {
   const container = document.getElementById("approveButtonsContainer");
   if (!container) return;
   container.innerHTML = `
     <button type="button" class="btn btn-success rounded-pill px-4 me-2" id="btnApproveAll">Approve All</button>
-    <button type="button" class="btn btn-outline-success rounded-pill px-4" id="btnApproveIndividual">Approve Individual</button>
+    <button type="button" class="btn btn-outline-success rounded-pill px-4" id="btnApproveIndividual">Select Task</button>
   `;
 }
 
@@ -465,10 +488,17 @@ export function setReportActionBusy(busy, label = "Menyimpan...") {
   if (btn) setButtonBusy(btn, busy, label);
 }
 
-export function showRejectModal() {
+let isIndividualRejectMode = false;
+
+export function showRejectModal(isIndividual = false) {
+  isIndividualRejectMode = isIndividual;
   const input = document.getElementById("rejectReasonInput");
   if (input) input.value = "";
   showModal("rejectReportModal");
+}
+
+export function isIndividualReject() {
+  return isIndividualRejectMode;
 }
 
 export function getRejectReason() {
@@ -490,11 +520,16 @@ export function hideRejectModal() {
 export function renderIndividualMode() {
   document.querySelectorAll(".task-check-container").forEach((el) => (el.style.display = "block"));
   document.querySelectorAll(".task-badge").forEach((el) => (el.style.display = "none"));
-  document.querySelectorAll(".task-approve-checkbox").forEach((cb) => (cb.checked = false));
+  document.querySelectorAll(".task-approve-checkbox:not(:disabled)").forEach((cb) => (cb.checked = false));
+
+  const globalRejectBtn = document.getElementById("btnRejectReport");
+  if (globalRejectBtn) globalRejectBtn.style.display = "none";
+
   const container = document.getElementById("approveButtonsContainer");
   if (container) {
     container.innerHTML = `
       <button type="button" class="btn btn-secondary rounded-pill px-4 me-2" id="btnCancelIndividual">Cancel</button>
+      <button type="button" class="btn btn-outline-danger rounded-pill px-4 me-2" id="btnRejectIndividual">Reject Selected</button>
       <button type="button" class="btn btn-success rounded-pill px-4" id="btnSubmitIndividual">Approve Selected</button>
     `;
   }
@@ -503,12 +538,17 @@ export function renderIndividualMode() {
 export function renderCancelIndividual() {
   document.querySelectorAll(".task-check-container").forEach((el) => (el.style.display = "none"));
   document.querySelectorAll(".task-badge").forEach((el) => (el.style.display = "inline-block"));
+
+  const globalRejectBtn = document.getElementById("btnRejectReport");
+  if (globalRejectBtn) globalRejectBtn.style.display = "inline-block";
+
+  isIndividualRejectMode = false;
   renderApproveButtons();
 }
 
 export function getSelectedTaskIndices() {
   return Array.from(document.querySelectorAll(".task-approve-checkbox"))
-    .filter((cb) => cb.checked)
+    .filter((cb) => cb.checked && !cb.disabled)
     .map((cb) => parseInt(cb.value));
 }
 

@@ -67,9 +67,41 @@ async function initializeHome() {
       repo.subscribeAnnouncements(userDept, (items) => ui.renderAnnouncements(items)),
     );
 
-    // 6. Daily report approvals.
+    const myAliases = [
+      user.uid,
+      user.email,
+      displayName,
+      userData?.name,
+      userData?.full_name,
+    ]
+      .filter(Boolean)
+      .map((s) => String(s).toLowerCase().trim());
+
+    // 6. Daily report approvals (strictly targeted).
     registerUnsub(
-      repo.subscribeDailyReports(userDept, (reports) => ui.renderDailyReports(reports)),
+      repo.subscribeDailyReports(
+        userDept,
+        async (reports) => {
+          ui.renderDailyReports(reports);
+          try {
+            const mount =
+              document.getElementById("dg-sidebar-mount") ||
+              document.getElementById("sidebarContainer");
+            if (mount) {
+              const { getSidebarCounts } = await import(
+                "../../assets/js/components/sidebar/sidebar.repository.js"
+              );
+              const { applyCounts } = await import(
+                "../../assets/js/components/sidebar/sidebar.ui.js"
+              );
+              const counts = await getSidebarCounts();
+              applyCounts(mount, counts);
+            }
+          } catch (_) {}
+        },
+        role,
+        myAliases,
+      ),
     );
 
     // 7. Pending registrations.
@@ -77,6 +109,16 @@ async function initializeHome() {
 
     // 8. Wire interactions.
     wireEventHandlers();
+
+    window.setRole = async (userIdOrEmail, newRole = "admin") => {
+      try {
+        const res = await repo.setUserRole(userIdOrEmail, newRole);
+        alert(`Berhasil mengubah role ${userIdOrEmail} menjadi ${newRole}! Silakan login ulang pada akun tersebut.`);
+        return res;
+      } catch (err) {
+        alert("Gagal: " + err.message);
+      }
+    };
 
     console.log("Home initialized");
   } catch (error) {
@@ -127,7 +169,7 @@ function wireEventHandlers() {
 
   // Daily report: reject button in detail modal.
   const rejectReportBtn = document.getElementById("btnRejectReport");
-  if (rejectReportBtn) rejectReportBtn.addEventListener("click", () => ui.showRejectModal());
+  if (rejectReportBtn) rejectReportBtn.addEventListener("click", () => ui.showRejectModal(false));
 
   // Daily report: confirm reject in reject modal.
   const confirmRejectBtn = document.getElementById("btnConfirmReject");
@@ -136,13 +178,25 @@ function wireEventHandlers() {
       const reportId = ui.getOpenReportId();
       if (!reportId) return;
       const reason = ui.getRejectReason();
+      const isIndividual = ui.isIndividualReject();
+
       try {
-        await repo.rejectReport(reportId, reason, reviewerInfo());
-        ui.hideRejectModal();
-        ui.hideDailyReportModal();
-        ui.notifySuccess("Laporan berhasil ditolak");
+        if (isIndividual) {
+          const tasks = ui.getOpenReportTasks();
+          const selected = ui.getSelectedTaskIndices();
+          await repo.submitRejectIndividual(reportId, tasks, selected, reason, reviewerInfo());
+          ui.hideRejectModal();
+          ui.hideDailyReportModal();
+          ui.renderCancelIndividual();
+          ui.notifySuccess("Tugas yang dipilih berhasil ditolak");
+        } else {
+          await repo.rejectReport(reportId, reason, reviewerInfo());
+          ui.hideRejectModal();
+          ui.hideDailyReportModal();
+          ui.notifySuccess("Laporan berhasil ditolak");
+        }
       } catch (err) {
-        ui.notifyError("Gagal menolak laporan: " + (err.message || err));
+        ui.notifyError("Gagal menolak: " + (err.message || err));
       }
     });
   }
@@ -172,6 +226,16 @@ function wireEventHandlers() {
 
     if (e.target.closest("#btnCancelIndividual")) {
       ui.renderCancelIndividual();
+      return;
+    }
+
+    if (e.target.closest("#btnRejectIndividual")) {
+      const selected = ui.getSelectedTaskIndices();
+      if (selected.length === 0) {
+        ui.notifyError("Pilih setidaknya satu tugas untuk ditolak");
+        return;
+      }
+      ui.showRejectModal(true);
       return;
     }
 

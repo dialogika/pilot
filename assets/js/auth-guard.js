@@ -16,7 +16,8 @@
 // =====================================================================
 
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { auth } from "./firebase-config.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
 
 const LOGIN_PATH = "/index.html";
 const VALID_ROLES = ["owner", "admin", "team", "staff", "intern", "mentor", "member"];
@@ -24,8 +25,7 @@ const VALID_ROLES = ["owner", "admin", "team", "staff", "intern", "mentor", "mem
 /**
  * Tunggu status auth siap, wajib login, kembalikan { user, role }.
  * Kalau belum login -> redirect ke halaman login.
- * Kalau login tapi role belum di-set (custom claim kosong) -> tampilkan pesan
- * jelas, JANGAN treat sebagai role default apa pun (fail-safe, bukan fail-open).
+ * Membaca role dari Custom Claim dan tersinkronisasi dengan Firestore users doc.
  */
 export function requireAuth() {
   return new Promise((resolve) => {
@@ -35,14 +35,24 @@ export function requireAuth() {
         return;
       }
 
-      // Ambil token TERBARU (bukan cache) supaya custom claim yang baru di-set
-      // via Cloud Function setUserRole langsung kebaca setelah user login ulang.
       const tokenResult = await user.getIdTokenResult();
-      const role = tokenResult.claims.role || null;
+      let role = tokenResult.claims?.role || null;
+
+      // Sinkronisasi dengan Firestore users doc (role / access.role_id)
+      try {
+        const uSnap = await getDoc(doc(db, "users", user.uid));
+        if (uSnap.exists()) {
+          const uData = uSnap.data() || {};
+          const docRole = uData.role || uData.access?.role_id;
+          if (docRole && VALID_ROLES.includes(String(docRole).toLowerCase())) {
+            role = String(docRole).toLowerCase();
+          }
+        }
+      } catch (_) {}
 
       if (!role || !VALID_ROLES.includes(role)) {
         renderNoRoleError();
-        return; // sengaja tidak resolve — halaman berhenti di sini
+        return;
       }
 
       resolve({ user, role });
@@ -56,7 +66,18 @@ export async function getCurrentRole() {
   if (!user) return null;
   try {
     const tokenResult = await user.getIdTokenResult();
-    return tokenResult.claims.role || null;
+    let role = tokenResult.claims?.role || null;
+    try {
+      const uSnap = await getDoc(doc(db, "users", user.uid));
+      if (uSnap.exists()) {
+        const uData = uSnap.data() || {};
+        const docRole = uData.role || uData.access?.role_id;
+        if (docRole && VALID_ROLES.includes(String(docRole).toLowerCase())) {
+          role = String(docRole).toLowerCase();
+        }
+      }
+    } catch (_) {}
+    return role;
   } catch (e) {
     return null;
   }

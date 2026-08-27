@@ -82,33 +82,42 @@ export async function loadReportsData() {
   const taskQuestTypeById = {};
   const completeTaskIds = [];
 
+  function registerTaskDoc(docSnap) {
+    if (!docSnap) return;
+    const data = docSnap.data() || {};
+    tasksById[docSnap.id] = data;
+    const archived = !!(data.archived || data.is_archived);
+    if (archived) return;
+
+    let questType = "Daily";
+    if (data.project_id || data.projectId) {
+      questType = "Project";
+    } else if (
+      data.quest_type === "side" ||
+      data.questType === "side" ||
+      data.type === "side" ||
+      (data.task_status !== undefined && data.task_status !== null)
+    ) {
+      questType = "Quest";
+    } else {
+      questType = "Daily";
+    }
+    taskQuestTypeById[docSnap.id] = questType;
+    if (!completeTaskIds.includes(docSnap.id)) {
+      completeTaskIds.push(docSnap.id);
+    }
+  }
+
   try {
-    let tasksSnap = null;
     try {
-      tasksSnap = await getDocs(collection(db, "quests"));
-    } catch (e) {
-      const uid = auth.currentUser ? auth.currentUser.uid : "";
-      if (uid) {
-        try {
-          tasksSnap = await getDocs(query(collection(db, "quests"), where("assign_to", "array-contains", uid)));
-        } catch (_) {}
-      }
-    }
-    if (tasksSnap) {
-      tasksSnap.forEach((docSnap) => {
-        const data = docSnap.data() || {};
-        tasksById[docSnap.id] = data;
-        const archived = !!(data.archived || data.is_archived);
-        if (archived) return;
+      const snapQuests = await getDocs(collection(db, "quests"));
+      snapQuests.forEach(registerTaskDoc);
+    } catch (_) {}
 
-        let questType = "Side Quest";
-        if (data.project_id) questType = "Project Quest";
-        else if (data.recur) questType = "Main Quest";
-        taskQuestTypeById[docSnap.id] = questType;
-
-        completeTaskIds.push(docSnap.id);
-      });
-    }
+    try {
+      const snapTasks = await getDocs(collection(db, "tasks"));
+      snapTasks.forEach(registerTaskDoc);
+    } catch (_) {}
   } catch (e) {
     console.warn("report-modal: tasks collection unreadable:", e);
   }
@@ -192,13 +201,13 @@ export async function loadReportsData() {
   }
   await Promise.all(workers);
 
-  // 3. Format structured report items
+  // 3. Format structured report items from tasks & legacy reports
   const reports = [];
   Object.keys(latestByTaskId).forEach((taskId) => {
     const entry = latestByTaskId[taskId] || {};
     const rdata = entry.data || {};
     const data = tasksById[taskId] || {};
-    const questType = taskQuestTypeById[taskId] || "Side Quest";
+    const questType = taskQuestTypeById[taskId] || "Quest";
 
     const notifyRaw = data.notify_to || data.notifyTo || [];
     const notifyIds = Array.isArray(notifyRaw)
@@ -287,6 +296,9 @@ export async function loadReportsData() {
       notifyTo: notifyIds,
       notifyCount: notifyIds.length,
       assignees: assignIds,
+      reportTo: Array.isArray(data.report_to) ? data.report_to : data.report_to ? [data.report_to] : [],
+      createdBy: data.created_by || data.createdBy || "",
+      authorId: rdata.userId || rdata.user_id || rdata.authorId || "",
       departments: Array.isArray(data.departments) ? data.departments : [],
       positions: Array.isArray(data.positions) ? data.positions : [],
       startDate: data.start_date || data.startDate || "",
@@ -298,6 +310,127 @@ export async function loadReportsData() {
       reportDocId: entry.docId || "",
     });
   });
+
+  // 4. Fetch from modern intern_dailyreport collection
+  try {
+    const dailySnap = await getDocs(collection(db, "intern_dailyreport"));
+    dailySnap.forEach((docSnap) => {
+      const ddata = docSnap.data() || {};
+      const tasks = Array.isArray(ddata.tasks) && ddata.tasks.length > 0 ? ddata.tasks : [ddata];
+      const authorId = ddata.user_id || ddata.userId || ddata.author_id || "";
+      const authorName = ddata.name || ddata.user_name || "Unknown";
+      const repDate = ddata.date_label || ddata.report_date || ddata.date || normalizeDateString(ddata.created_at || ddata.timestamp, "");
+      const repStatus = String(ddata.status || "").toLowerCase();
+
+      tasks.forEach((t, idx) => {
+        const taskId = t.task_id || t.id || `${docSnap.id}_${idx}`;
+        const title = t.title || t.task || `Tugas ${idx + 1}`;
+        const reportHtml = t.detail || t.description || t.content || "";
+        const tmpDiv = document.createElement("div");
+        tmpDiv.innerHTML = reportHtml;
+        const reportText = (tmpDiv.textContent || tmpDiv.innerText || "").trim();
+        const previewMax = 140;
+        let previewText = reportText;
+        if (previewText.length > previewMax) {
+          previewText = previewText.substring(0, previewMax).replace(/\s+\S*$/, "") + "...";
+        }
+
+        // Determine quest type (Default to Daily unless mapped otherwise)
+        let questType = "Daily";
+        if (t.task_id && taskQuestTypeById[t.task_id]) {
+          questType = taskQuestTypeById[t.task_id];
+        } else if (t.questType || t.quest_type) {
+          const qt = String(t.questType || t.quest_type).toLowerCase();
+          questType = qt.includes("project") ? "Project" : qt.includes("side") || qt.includes("quest") ? "Quest" : "Daily";
+        }
+
+        // Status
+        const taskStatus = String(t.status || "").toLowerCase();
+        let statusVal = "pending";
+        if (taskStatus === "approved" || repStatus === "approved") statusVal = "approved";
+        else if (taskStatus === "rejected" || repStatus === "rejected") statusVal = "rejected";
+
+        // Files from images in content or explicit attachments
+        const filesArr = Array.isArray(t.files) ? t.files : [];
+        let fileName = "";
+        let fileTitle = "";
+        let fileUrl = "#";
+        let fileIconClass = "bi bi-file-earmark";
+
+        // Check for embedded <img> src in reportHtml if filesArr is empty
+        if (filesArr.length === 0 && reportHtml.includes("<img")) {
+          const imgMatch = reportHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+          if (imgMatch && imgMatch[1]) {
+            filesArr.push({
+              url: imgMatch[1],
+              name: "Attachment Image",
+              type: "image/png",
+            });
+          }
+        }
+
+        if (filesArr.length > 0) {
+          const f = filesArr[0];
+          fileName = f.name || "Attachment";
+          fileTitle = f.name || "";
+          fileUrl = f.url || "#";
+          const ttype = String(f.type || "").toLowerCase();
+          if (ttype.includes("pdf")) {
+            fileIconClass = "bi bi-file-earmark-pdf text-danger";
+          } else if (ttype.includes("zip") || ttype.includes("rar")) {
+            fileIconClass = "bi bi-file-earmark-zip text-warning";
+          } else if (ttype.startsWith("image/") || (f.url && f.url.startsWith("data:image/"))) {
+            fileIconClass = "bi bi-file-earmark-image text-primary";
+          }
+          if (filesArr.length > 1) {
+            fileName += ` (+${filesArr.length - 1})`;
+          }
+        }
+
+        const reportToArr = (Array.isArray(t.report_to) ? t.report_to : t.report_to ? [t.report_to] : []).concat(
+          Array.isArray(ddata.report_to) ? ddata.report_to : ddata.report_to ? [ddata.report_to] : []
+        );
+        const createdByArr = (Array.isArray(t.created_by) ? t.created_by : t.created_by ? [t.created_by] : []).concat(
+          Array.isArray(ddata.created_by) ? ddata.created_by : ddata.created_by ? [ddata.created_by] : []
+        );
+
+        reports.push({
+          id: taskId,
+          questType: questType,
+          date: repDate,
+          task: title,
+          taskShort: title.length > 20 ? title.substring(0, 17) + "..." : title,
+          reportPreview: previewText,
+          reportPreviewFull: reportText,
+          reportFull: reportHtml,
+          fileName: fileName,
+          fileTitle: fileTitle,
+          fileUrl: fileUrl,
+          fileIconClass: fileIconClass,
+          files: filesArr,
+          status: statusVal,
+          notifyTo: [],
+          notifyCount: 0,
+          assignees: [authorId || authorName],
+          reportTo: reportToArr,
+          createdBy: createdByArr,
+          authorId: authorId,
+          departments: ddata.department ? [ddata.department] : [],
+          positions: ddata.position ? [ddata.position] : [],
+          startDate: repDate,
+          dueDate: repDate,
+          points: Number(t.points) || 0,
+          priority: "normal",
+          description: title,
+          reportSource: "intern_dailyreport",
+          reportDocId: docSnap.id,
+          taskIndex: idx,
+        });
+      });
+    });
+  } catch (e) {
+    console.warn("report-modal: intern_dailyreport collection unreadable:", e);
+  }
 
   return reports;
 }
@@ -319,7 +452,47 @@ export async function persistApprovalStatus(report, status, feedbackHtml = "") {
     payload.feedback_by = auth.currentUser ? auth.currentUser.uid : "";
   }
 
-  if (report.reportSource === "root" && report.reportDocId) {
+  if (report.reportSource === "intern_dailyreport" && report.reportDocId) {
+    try {
+      const repRef = doc(db, "intern_dailyreport", report.reportDocId);
+      const repSnap = await getDoc(repRef);
+      if (repSnap.exists()) {
+        const repData = repSnap.data() || {};
+        const tasks = Array.isArray(repData.tasks) ? repData.tasks : [];
+        const isApprove = status === "approved";
+        const newStatusStr = isApprove ? "Approved" : "Rejected";
+
+        if (typeof report.taskIndex === "number" && tasks[report.taskIndex]) {
+          tasks[report.taskIndex].status = newStatusStr;
+          if (feedbackHtml) tasks[report.taskIndex].feedback = feedbackHtml;
+        } else {
+          tasks.forEach((t) => {
+            if (t.task_id === report.id || t.id === report.id || t.title === report.task) {
+              t.status = newStatusStr;
+              if (feedbackHtml) t.feedback = feedbackHtml;
+            }
+          });
+        }
+
+        const allApproved = tasks.length > 0 && tasks.every((t) => String(t.status).toLowerCase() === "approved");
+        const allRejected = tasks.length > 0 && tasks.every((t) => String(t.status).toLowerCase() === "rejected");
+        let overallStatus = "Partially Approved";
+        if (allApproved) overallStatus = "Approved";
+        else if (allRejected) overallStatus = "Rejected";
+
+        await updateDoc(repRef, {
+          tasks: tasks,
+          status: overallStatus,
+          reviewer_id: auth.currentUser ? auth.currentUser.uid : "",
+          reviewer_name: auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : "",
+          reviewed_at: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
+          ...(feedbackHtml ? { rejection_reason: feedbackHtml } : {}),
+        });
+      }
+    } catch (e) {
+      console.warn("Failed to persist approval status to intern_dailyreport:", e);
+    }
+  } else if (report.reportSource === "root" && report.reportDocId) {
     await updateDoc(doc(db, "quest_reports", report.reportDocId), payload);
   } else if (report.reportSource === "sub" && report.reportDocId) {
     await updateDoc(doc(db, "tasks", report.id, "reports", report.reportDocId), payload);

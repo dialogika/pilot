@@ -23,6 +23,7 @@
 //  - Mounts to <div id="dg-sidebar-mount"></div>.
 // =====================================================================
 
+import { auth } from "../../firebase-config.js";
 import { logout } from "../../auth-guard.js";
 import { buildSidebarHTML, applyCounts, bindSidebarEvents } from "./sidebar.ui.js";
 import { getSidebarCounts } from "./sidebar.repository.js";
@@ -49,17 +50,27 @@ export function renderSidebar(opts = {}) {
       } else if (action === "openQuest") {
         openQuestModal({ initialTab: "quest" });
       } else if (action === "openReport") {
-        openReportModal({ initialTab: "side" });
+        openReportModal({ initialTab: "daily" });
       }
     },
   });
 
+  const refreshCounts = () => {
+    getSidebarCounts()
+      .then((counts) => {
+        if (!mount.isConnected) return;
+        applyCounts(mount, counts);
+      })
+      .catch(() => {});
+  };
+
   // Live smart-filter counts (best-effort; the shell stays usable when
   // the Quest collections are unavailable).
-  getSidebarCounts()
-    .then((counts) => {
-      if (!mount.isConnected) return;
-      applyCounts(mount, counts);
-    })
-    .catch(() => {});
+  refreshCounts();
+
+  if (auth && typeof auth.onAuthStateChanged === "function") {
+    auth.onAuthStateChanged(() => {
+      if (mount.isConnected) refreshCounts();
+    });
+  }
 }
