@@ -34,6 +34,10 @@
       {
         "source": "/internships",
         "destination": "/pages/internships/index.html"
+      },
+      {
+        "source": "/users-management",
+        "destination": "/pages/hr/users-management/index.html"
       }
     ]
   },
