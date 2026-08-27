@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="../../assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts: Poppins -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- New architecture foundation: shared theme tokens -->
+    <link href="../../assets/css/theme.css" rel="stylesheet" />
+    <!-- Login feature styles (extracted from legacy index.html inline CSS) -->
+    <link href="../../pages/login/login.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <!-- 1. TOP BAR FIXED -->
+    <nav class="top-bar">
+      <!-- CENTER: LOGO DIALOGIKA -->
+      <div class="logo-center">
+        <img
+          src="https://www.dialogika.co/assets/img/logo.webp"
+          alt="Dialogika Logo"
+          height="35"
+        />
+      </div>
+    </nav>
+
+    <!-- 2. MAIN CONTENT (LOGIN CARD) -->
+    <!-- Class main-content-wrapper akan handle centering dan flex-grow -->
+    <main class="main-content-wrapper">
+      <div class="login-card">
+        <div class="login-header">
+          <h1>Welcome Back Champion!</h1>
+          <p>Silakan login untuk melanjutkan</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="nama@email.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Masukkan password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" id="submitBtn" class="btn-login">Login</button>
+        </form>
+
+        <div class="auth-links">
+          <a
+            href="#"
+            data-bs-toggle="modal"
+            data-bs-target="#forgotPasswordModal"
+            >Forgot Password?</a
+          >
+          <a href="/register">Register</a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Forgot Password -->
+    <div
+      class="modal fade"
+      id="forgotPasswordModal"
+      tabindex="-1"
+      aria-labelledby="forgotPasswordModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5
+              class="modal-title"
+              id="forgotPasswordModalLabel"
+              style="color: var(--dlg-blue); font-weight: 600"
+            >
+              Reset Password
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size: 14px; color: #666">
+              Masukkan alamat email Anda yang terdaftar, dan kami akan
+              mengirimkan tautan untuk mengatur ulang password.
+            </p>
+            <div
+              id="forgotErrorMessage"
+              class="error-message"
+              style="display: none; padding: 10px; margin-bottom: 15px"
+            ></div>
+            <div
+              id="forgotSuccessMessage"
+              class="alert alert-success"
+              style="
+                display: none;
+                font-size: 14px;
+                padding: 10px;
+                margin-bottom: 15px;
+              "
+            ></div>
+            <form id="forgotPasswordForm">
+              <div class="form-group mb-0">
+                <label for="forgotEmail">Email</label>
+                <input
+                  type="email"
+                  id="forgotEmail"
+                  class="form-control"
+                  placeholder="nama@email.com"
+                  required
+                  style="padding: 10px 15px"
+                />
+              </div>
+              <button type="submit" id="forgotSubmitBtn" class="btn-login mt-3">
+                Kirim Link Reset
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. FOOTER -->
+    <footer>
+      <div id="footer">
+        <div
+          class="container d-flex flex-column flex-md-row justify-content-between align-items-center"
+        >
+          <div class="me-md-auto text-center text-md-start">
+            <div class="copyright">
+              &copy; Copyright <strong><span>Dialogika</span></strong> | PT.
+              Dialogika Persona Indonesia
+            </div>
+          </div>
+
+          <div class="social-links text-center text-md-right">
+            <a href="https://link.dialogika.co/twitter" class="twitter"
+              ><i class="bi bi-twitter"></i
+            ></a>
+            <a href="https://link.dialogika.co/facebook" class="facebook"
+              ><i class="bi bi-facebook"></i
+            ></a>
+            <a href="https://link.dialogika.co/instagram" class="instagram"
+              ><i class="bi bi-instagram"></i
+            ></a>
+            <a href="https://wa.link/emi1qx" class="instagram"
+              ><i class="bi bi-whatsapp"></i
+            ></a>
+            <a href="https://link.dialogika.co/linkedin" class="instagram"
+              ><i class="bi bi-linkedin"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Defensive: prevent accidental GET submit if module fails to load -->
+    <script>
+      document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+      });
+      document.getElementById("forgotPasswordForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+      });
+    </script>
+
+    <!-- Login orchestrator (data + UI separated in repository/ui) -->
+    <script type="module">
+      try {
+        await import("../../pages/login/login.js");
+      } catch (err) {
+        console.error("[login] module load failed:", err);
+        var el = document.getElementById("errorMessage");
+        if (el) { el.innerText = "Gagal memuat modul login: " + err.message; el.style.display = "block"; }
+      }
+    </script>
+
+    <!-- Bootstrap JS for Modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
