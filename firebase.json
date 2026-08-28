@@ -12,9 +12,18 @@
         "source": "/register.html",
         "destination": "/register",
         "type": 301
+      },
+      {
+        "source": "/index.html",
+        "destination": "/login",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/login",
+        "destination": "/pages/login/index.html"
+      },
       {
         "source": "/test",
         "destination": "/pages/test/index.html"
@@ -34,6 +43,34 @@
       {
         "source": "/users-management",
         "destination": "/pages/hr/users-management/index.html"
+      },
+      {
+        "source": "/performance-appraisal",
+        "destination": "/pages/hr/performance-appraisal/index.html"
+      },
+      {
+        "source": "/performance-appraisal/form",
+        "destination": "/pages/hr/performance-appraisal/form.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          }
+        ]
+      },
+      {
+        "source": "/login",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          }
+        ]
       }
     ]
   },
