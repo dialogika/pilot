@@ -52,7 +52,7 @@
         "source": "/performance-appraisal/form",
         "destination": "/pages/hr/performance-appraisal/form.html"
       {
-        "source": "/inventory",
+        "source": "/office-inventory",
         "destination": "/pages/hr/office-inventory/index.html"
       }
     ],
