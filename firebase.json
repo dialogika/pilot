@@ -17,6 +17,11 @@
         "source": "/index.html",
         "destination": "/login",
         "type": 301
+      },
+      {
+        "source": "/data/company-position.html",
+        "destination": "/company-position",
+        "type": 301
       }
     ],
     "rewrites": [
