@@ -59,6 +59,14 @@
       {
         "source": "/inventory",
         "destination": "/pages/hr/office-inventory/index.html"
+      },
+      {
+        "source": "/company-position",
+        "destination": "/pages/hr/company-position/index.html"
+      },
+      {
+        "source": "/positions",
+        "destination": "/pages/hr/company-position/index.html"
       }
     ],
     "headers": [
