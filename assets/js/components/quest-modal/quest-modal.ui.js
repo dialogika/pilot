@@ -13,6 +13,7 @@ import { toast, setButtonBusy } from "../../ui.js";
 import { createRichEditor } from "../rich-editor/rich-editor.js";
 
 let questDescEditorInstance = null;
+let reportEditorInstances = {};
 
 function el(id) {
   return document.getElementById(id);
@@ -150,6 +151,25 @@ export function ensureQuestModalDOM() {
               </div>
               <div id="dgQuestUpcomingList" class="dg-quest-card-list"></div>
             </section>
+          </div>
+        </div>
+
+        <!-- Floating/Sticky Bulk Action Bar for Multi-Select Delete -->
+        <div id="dgQuestBulkBar" class="dg-quest-bulk-bar d-none">
+          <div class="dg-quest-bulk-left">
+            <span class="dg-quest-bulk-badge"><i class="bi bi-check2-square"></i></span>
+            <span id="dgQuestBulkCountText" class="dg-quest-bulk-count">0 item dipilih</span>
+          </div>
+          <div class="dg-quest-bulk-right">
+            <button type="button" id="dgQuestSelectAllBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-secondary" title="Pilih Semua yang bisa dihapus">
+              <i class="bi bi-check2-all"></i> <span id="dgQuestSelectAllBtnText">Pilih Semua</span>
+            </button>
+            <button type="button" id="dgQuestClearSelectBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-ghost">
+              Batal
+            </button>
+            <button type="button" id="dgQuestBulkDeleteBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-danger">
+              <i class="bi bi-trash3-fill"></i> Hapus Terpilih (<span id="dgQuestBulkDeleteCount">0</span>)
+            </button>
           </div>
         </div>
       </div>
@@ -368,15 +388,32 @@ export function ensureQuestModalDOM() {
             </div>
             <div class="dg-quest-form-col">
               <label class="dg-quest-form-label">URGENT</label>
-              <div class="dg-quest-select-wrapper">
-                <select id="dgQuestPrioritySelect" class="dg-quest-form-select">
-                  <option value="">Select urgency...</option>
-                  <option value="urgent">🔴 Urgent</option>
-                  <option value="normal">🟡 Normal</option>
-                  <option value="low">🟢 Low</option>
-                  <option value="none">⚪ None</option>
-                </select>
-                <i class="bi bi-chevron-down dg-quest-select-icon"></i>
+              <div class="dg-quest-prio-picker-wrap" id="dgQuestPriorityPickerWrap">
+                <button type="button" id="dgQuestPriorityPickerBtn" class="dg-quest-prio-btn">
+                  <span id="dgQuestPriorityDisplay" class="dg-quest-prio-display">
+                    <span class="text-muted">Select urgency...</span>
+                  </span>
+                  <i class="bi bi-chevron-down dg-quest-select-icon"></i>
+                </button>
+                <div id="dgQuestPriorityDropdown" class="dg-quest-prio-dropdown d-none">
+                  <div class="dg-quest-prio-item" data-prio="urgent">
+                    <i class="bi bi-flag-fill" style="color: #dc2626;"></i>
+                    <span style="color: #dc2626; font-weight: 600;">Urgent</span>
+                  </div>
+                  <div class="dg-quest-prio-item" data-prio="normal">
+                    <i class="bi bi-flag-fill" style="color: #f59e0b;"></i>
+                    <span style="color: #f59e0b; font-weight: 600;">Normal</span>
+                  </div>
+                  <div class="dg-quest-prio-item" data-prio="low">
+                    <i class="bi bi-flag-fill" style="color: #16a34a;"></i>
+                    <span style="color: #16a34a; font-weight: 600;">Low</span>
+                  </div>
+                  <div class="dg-quest-prio-item" data-prio="none">
+                    <i class="bi bi-flag" style="color: #94a3b8;"></i>
+                    <span style="color: #64748b; font-weight: 500;">None</span>
+                  </div>
+                </div>
+                <input type="hidden" id="dgQuestPrioritySelect" value="" />
               </div>
             </div>
           </div>
@@ -524,6 +561,21 @@ export function setActiveTab(tab) {
 /* Render Board Sections                                               */
 /* ------------------------------------------------------------------ */
 
+function renderTableHead() {
+  return `
+    <div class="dg-quest-table-head">
+      <span class="dg-col-name">Name</span>
+      <span class="dg-col-time">Due Date</span>
+      <span class="dg-col-prio">Priority</span>
+      <span class="dg-col-points">Points</span>
+      <span class="dg-col-assign">Assignee</span>
+      <span class="dg-col-report">Report To</span>
+      <span class="dg-col-status">Status</span>
+      <span class="dg-col-actions text-end">Actions</span>
+    </div>
+  `;
+}
+
 export function renderBoard(tab, sections, ctx) {
   const isDaily = tab === "daily";
   const prefix = isDaily ? "dgDaily" : "dgQuest";
@@ -537,7 +589,7 @@ export function renderBoard(tab, sections, ctx) {
     overdueList.innerHTML =
       sections.overdue.length === 0
         ? emptyState(`Tidak ada ${isDaily ? "daily" : "quest"} overdue.`)
-        : sections.overdue.map((t) => card(t, "overdue", ctx, tab)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.overdue.map((t) => card(t, "overdue", ctx, tab)).join("")}</div></div>`;
     if (overdueSection) {
       overdueSection.style.display =
         sections.overdue.length === 0 ? "none" : "block";
@@ -548,14 +600,23 @@ export function renderBoard(tab, sections, ctx) {
     todayList.innerHTML =
       sections.today.length === 0
         ? emptyState(`Tidak ada ${isDaily ? "daily" : "quest"} untuk hari ini.`)
-        : sections.today.map((t) => card(t, "today", ctx, tab)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.today.map((t) => card(t, "today", ctx, tab)).join("")}</div></div>`;
+  }
+
+  // Submit Report is only visible if the current user has assigned tasks to report in Today
+  const submitReportBtn = el(prefix + "SubmitReportBtn");
+  if (submitReportBtn) {
+    const hasMyTodayTasks = (sections.today || []).some(
+      (t) => Boolean(t.isAssignee && !t.isApproved)
+    );
+    submitReportBtn.classList.toggle("d-none", !hasMyTodayTasks);
   }
 
   if (upcomingList) {
     upcomingList.innerHTML =
       sections.upcoming.length === 0
         ? emptyState(`Tidak ada ${isDaily ? "daily" : "quest"} berikutnya.`)
-        : sections.upcoming.map((t) => card(t, "upcoming", ctx, tab)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.upcoming.map((t) => card(t, "upcoming", ctx, tab)).join("")}</div></div>`;
   }
 }
 
@@ -566,13 +627,13 @@ function emptyState(text) {
 function priorityStyle(priority) {
   const p = String(priority || "").toLowerCase();
   if (p === "urgent" || p === "high")
-    return { label: "Urgent", color: "#dc2626" };
+    return { label: "Urgent", color: "#dc2626", icon: "bi-flag-fill" };
   if (p === "normal" || p === "medium")
-    return { label: "Normal", color: "#f59e0b" };
+    return { label: "Normal", color: "#f59e0b", icon: "bi-flag-fill" };
   if (p === "low")
-    return { label: "Low", color: "#16a34a" };
+    return { label: "Low", color: "#16a34a", icon: "bi-flag-fill" };
   if (p === "none")
-    return { label: "None", color: "#94a3b8" };
+    return { label: "None", color: "#94a3b8", icon: "bi-flag" };
   return null;
 }
 
@@ -592,11 +653,44 @@ function deadlineBg(category) {
   return "#2563eb";
 }
 
-function getAssignList(task) {
+function getAssignList(task, ctx) {
   if (!task.assign_to) return [];
-  return Array.isArray(task.assign_to)
+  const raw = Array.isArray(task.assign_to)
     ? task.assign_to.slice()
     : [task.assign_to];
+  if (!ctx || !ctx.users) return raw;
+  const seen = new Set();
+  const unique = [];
+  raw.forEach((uid) => {
+    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
+    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
+    const key = String(uKey).toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(uid);
+    }
+  });
+  return unique;
+}
+
+function getReportToList(task, ctx) {
+  if (!task.report_to) return [];
+  const raw = Array.isArray(task.report_to)
+    ? task.report_to.slice()
+    : [task.report_to];
+  if (!ctx || !ctx.users) return raw;
+  const seen = new Set();
+  const unique = [];
+  raw.forEach((uid) => {
+    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
+    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
+    const key = String(uKey).toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(uid);
+    }
+  });
+  return unique;
 }
 
 function card(task, category, ctx, tab) {
@@ -604,85 +698,205 @@ function card(task, category, ctx, tab) {
   const title = escapeHtml(
     task.title || (tab === "daily" ? "Untitled Daily" : "Untitled Quest"),
   );
-  const desc = escapeHtml(task.descText || "Tidak ada deskripsi.");
   const dueText = escapeHtml(task.deadline_time || "");
   const priority = priorityStyle(task.priority);
-  const assign = getAssignList(task);
+  const assign = getAssignList(task, ctx);
+  const reportTo = getReportToList(task, ctx);
 
-  const lockState = task.lockState || { claimed: false, done: false };
-  const locked = lockState.claimed;
-  const done = lockState.done || /reported|done|complete/i.test(task.status);
-  const doneClass = done ? "dg-quest-done" : "";
+  const isApproved = Boolean(task.isApproved || /approved/i.test(task.status));
+  const isRejected = !isApproved && Boolean(task.isRejected || /rejected/i.test(task.status));
+  const isReported = !isApproved && !isRejected && Boolean(
+    task.isReported ||
+      task.lockState?.done ||
+      /reported/i.test(task.status) ||
+      /reported/i.test(task.task_status),
+  );
+  const doneClass = isApproved
+    ? "dg-quest-approved"
+    : isReported
+    ? "dg-quest-done"
+    : isRejected
+    ? "dg-quest-rejected"
+    : "";
 
   let avatars = "";
-  const max = 4;
-  assign.slice(0, max).forEach((uid) => {
+  const max = 3;
+  const renderedUserKeys = new Set();
+  const uniqueAssignUsers = [];
+
+  assign.forEach((uid) => {
     const user =
-      ctx.users && ctx.users[uid] ? ctx.users[uid] : { uid, name: uid };
-    avatars += renderAvatar(user);
+      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        : { uid, name: uid };
+    const userKey = user.docId || user.uid || uid;
+    if (!renderedUserKeys.has(userKey)) {
+      renderedUserKeys.add(userKey);
+      uniqueAssignUsers.push(user);
+    }
   });
-  if (assign.length > max) {
-    avatars += `<span class="dg-quest-avatar">+${assign.length - max}</span>`;
+
+  uniqueAssignUsers.slice(0, max).forEach((user) => {
+    avatars += renderAvatar(user, "assign");
+  });
+  if (uniqueAssignUsers.length > max) {
+    avatars += `<span class="dg-quest-avatar">+${uniqueAssignUsers.length - max}</span>`;
   }
 
-  let tags = "";
+  let reportAvatars = "";
+  const renderedReportKeys = new Set();
+  const uniqueReportUsers = [];
+
+  reportTo.forEach((uid) => {
+    const user =
+      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        : { uid, name: uid };
+    const userKey = user.docId || user.uid || uid;
+    if (!renderedReportKeys.has(userKey)) {
+      renderedReportKeys.add(userKey);
+      uniqueReportUsers.push(user);
+    }
+  });
+
+  uniqueReportUsers.slice(0, max).forEach((user) => {
+    reportAvatars += renderAvatar(user, "report");
+  });
+  if (uniqueReportUsers.length > max) {
+    reportAvatars += `<span class="dg-quest-avatar dg-quest-avatar-report">+${uniqueReportUsers.length - max}</span>`;
+  }
+
+  let tagsHtml = "";
   (task.tags || []).forEach((t) => {
-    if (t) tags += `<span class="dg-quest-tag">${escapeHtml(String(t))}</span>`;
+    if (t) tagsHtml += `<span class="dg-quest-tag">${escapeHtml(String(t))}</span>`;
   });
 
   const pointsHtml =
     task.points > 0
-      ? `<span class="dg-quest-points">${task.points} Pt</span>`
+      ? `<span class="dg-quest-points" title="${task.points} Point"><i class="bi bi-lightning-charge-fill me-0.5"></i>${task.points} Pt</span>`
       : "";
   const prioHtml = priority
-    ? `<span class="dg-quest-badge" style="background:${priority.color}20;color:${priority.color};">${escapeHtml(priority.label)}</span>`
+    ? `<span class="dg-quest-badge dg-quest-badge-prio" style="background:${priority.color}18;color:${priority.color};border:1px solid ${priority.color}35;" title="Priority: ${escapeHtml(priority.label)}"><i class="bi ${priority.icon || 'bi-flag-fill'}"></i> ${escapeHtml(priority.label)}</span>`
     : "";
   const recurHtml = task.recur ? " <i class='bi bi-arrow-repeat'></i>" : "";
   const deadlineHtml = dueText
-    ? `<span class="dg-quest-deadline" style="background:${deadlineBg(category)};"><i class="bi bi-clock"></i> ${escapeHtml(dueText)}${recurHtml}</span>`
+    ? `<span class="dg-quest-deadline" style="background:${deadlineBg(category)};" title="Deadline: ${escapeHtml(dueText)}"><i class="bi bi-clock"></i> ${escapeHtml(dueText)}${recurHtml}</span>`
     : "";
 
-  let actions = "";
-  if (category !== "upcoming") {
-    const isChecked = task.isChecked ? " checked" : "";
-    actions += `<button type="button" class="dg-quest-check-btn${isChecked}" data-check="${id}" title="Centang untuk laporan" ${done ? "disabled" : ""}><i class="bi bi-check-lg"></i></button>`;
-  }
-
-  actions += `<button type="button" class="dg-quest-link-btn" data-detail="${id}"><i class="bi bi-eye"></i> Detail</button>`;
-
-  if (
+  const isSuperAdminOrOwner =
+    ctx.currentRole === "owner" || ctx.currentRole === "super-admin";
+  const canDelete =
+    isSuperAdminOrOwner ||
     task.isOwner ||
-    ctx.currentRole === "super-admin" ||
-    ctx.currentRole === "admin"
-  ) {
-    actions += `<button type="button" class="dg-quest-link-btn dg-warn" data-edit="${id}"><i class="bi bi-pencil"></i> Edit</button>`;
-    actions += `<button type="button" class="dg-quest-link-btn dg-danger" data-delete="${id}"><i class="bi bi-trash"></i> Hapus</button>`;
+    (task.isReportTo && !task.isAssignee);
+
+  const isSelected = Boolean(
+    ctx.selectedForDelete && ctx.selectedForDelete.has(id),
+  );
+  const selectedClass = isSelected ? " is-selected" : "";
+
+  let leftControl = "";
+  if (canDelete) {
+    leftControl += `<label class="dg-quest-select-task-box" title="Centang untuk pilih & hapus massal">
+      <input type="checkbox" class="dg-quest-select-checkbox" data-select-task="${id}" ${isSelected ? "checked" : ""} />
+      <span class="dg-quest-checkbox-custom"></span>
+    </label>`;
   }
+
+  // Tanda centang laporan (dg-quest-check-btn) hanya untuk pelaksana task (assignee),
+  // bukan untuk pembuat task yang menugaskan ke orang lain.
+  const isWorkerAssignee = Boolean(
+    category !== "upcoming" &&
+      task.isAssignee &&
+      (!task.isOwner || task.isSelfAssigned),
+  );
+
+  if (isWorkerAssignee) {
+    if (isApproved) {
+      leftControl += `<button type="button" class="dg-quest-check-btn is-approved" title="Tugas telah disetujui (Approved)" disabled><i class="bi bi-patch-check-fill"></i></button>`;
+    } else if (isReported) {
+      leftControl += `<button type="button" class="dg-quest-check-btn is-reported" title="Laporan sudah dikirim (Menunggu Review)" disabled><i class="bi bi-send-check"></i></button>`;
+    } else {
+      const isChecked = task.isChecked ? " checked" : "";
+      leftControl += `<button type="button" class="dg-quest-check-btn${isChecked}" data-check="${id}" title="Centang untuk laporan"><i class="bi bi-check-lg"></i></button>`;
+    }
+  }
+
+  let rightActions = `<button type="button" class="dg-quest-link-btn" data-detail="${id}" title="Detail"><i class="bi bi-eye"></i> Detail</button>`;
+
+  if (canDelete) {
+    rightActions += `<button type="button" class="dg-quest-link-btn dg-warn" data-edit="${id}" title="Edit"><i class="bi bi-pencil"></i> Edit</button>`;
+    rightActions += `<button type="button" class="dg-quest-link-btn dg-danger" data-delete="${id}" title="Hapus"><i class="bi bi-trash"></i> Hapus</button>`;
+  }
+
+  const assignNamesText = uniqueAssignUsers
+    .slice(0, 2)
+    .map((u) => u.name || u.email || u.uid)
+    .join(", ") + (uniqueAssignUsers.length > 2 ? ` +${uniqueAssignUsers.length - 2}` : "");
+
+  const reportNamesText = uniqueReportUsers
+    .slice(0, 2)
+    .map((u) => u.name || u.email || u.uid)
+    .join(", ") + (uniqueReportUsers.length > 2 ? ` +${uniqueReportUsers.length - 2}` : "");
+
+  const assignGroupHtml = avatars
+    ? `<div class="dg-quest-meta-item dg-quest-meta-assign" title="Assign To: ${escapeHtml(uniqueAssignUsers.map((u) => u.name || u.email || u.uid).join(", "))}">
+        <div class="dg-quest-avatars">${avatars}</div>
+        <span class="dg-quest-meta-name">${escapeHtml(assignNamesText)}</span>
+      </div>`
+    : "";
+
+  const reportGroupHtml = reportAvatars
+    ? `<div class="dg-quest-meta-item dg-quest-meta-report" title="Report To: ${escapeHtml(uniqueReportUsers.map((u) => u.name || u.email || u.uid).join(", "))}">
+        <div class="dg-quest-avatars dg-quest-avatars-report">${reportAvatars}</div>
+        <span class="dg-quest-meta-name dg-quest-meta-name-report">${escapeHtml(reportNamesText)}</span>
+      </div>`
+    : "";
+
+  const statusBadgeHtml = isApproved
+    ? '<span class="dg-quest-badge dg-quest-badge-approved" title="Status: Approved"><i class="bi bi-patch-check-fill"></i> Approved</span>'
+    : isReported
+    ? '<span class="dg-quest-badge dg-quest-badge-reported" title="Status: Reported"><i class="bi bi-send-check"></i> Reported</span>'
+    : isRejected
+    ? `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Perlu Revisi')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`
+    : '<span class="dg-quest-badge dg-quest-badge-todo" title="Status: To Do"><i class="bi bi-circle"></i> To Do</span>';
 
   return `
-    <div class="dg-quest-card ${doneClass}" style="border-left-color:${borderColor(task, category)};" data-task-id="${id}">
-      <div class="dg-quest-card-main">
-        <div class="dg-quest-card-title-row">
-          <h4 class="dg-quest-card-title">${title}</h4>
-          ${prioHtml}
-          ${done ? '<span class="dg-quest-badge" style="background:#dcfce7;color:#15803d;">✓ Reported</span>' : ""}
+    <div class="dg-quest-card ${doneClass}${selectedClass}" style="border-left-color:${borderColor(task, category)};" data-task-id="${id}" data-can-delete="${canDelete ? "true" : "false"}">
+      <div class="dg-col-name dg-quest-card-name-col">
+        ${leftControl ? `<div class="dg-quest-card-left">${leftControl}</div>` : ""}
+        <div class="dg-quest-title-wrap">
+          <h4 class="dg-quest-card-title" title="${escapeHtml(title)}">${title}</h4>
+          ${tagsHtml ? `<div class="dg-quest-tags-wrap">${tagsHtml}</div>` : ""}
         </div>
-        ${deadlineHtml}
-        <p class="dg-quest-card-desc">${desc}</p>
-        <div class="dg-quest-card-meta">
-          ${avatars ? `<div class="dg-quest-avatars">${avatars}</div>` : ""}
-          ${tags}
-          ${pointsHtml}
-        </div>
+        ${isRejected && task.rejectionReason ? `<span class="dg-quest-rejection-dot" title="Revisi: ${escapeHtml(task.rejectionReason)}"><i class="bi bi-exclamation-circle-fill text-danger"></i></span>` : ""}
       </div>
-      <div class="dg-quest-card-actions">
-        ${actions}
+      <div class="dg-col-time">
+        ${deadlineHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-prio">
+        ${prioHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-points">
+        ${pointsHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-assign">
+        ${assignGroupHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-report">
+        ${reportGroupHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-status">
+        ${statusBadgeHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-actions dg-quest-card-actions">
+        ${rightActions}
       </div>
     </div>
   `;
 }
 
-function renderAvatar(user) {
+function renderAvatar(user, type = "assign") {
   const name = user.name || user.email || user.uid || "U";
   const initials = name
     .trim()
@@ -691,10 +905,13 @@ function renderAvatar(user) {
     .map((w) => w[0] || "")
     .join("")
     .toUpperCase();
+  const isReport = type === "report";
+  const reportClass = isReport ? " dg-quest-avatar-report" : "";
+  const title = (isReport ? "Report to: " : "Assigned to: ") + name;
   if (user.photo) {
-    return `<span class="dg-quest-avatar"><img src="${escapeHtml(user.photo)}" alt="${escapeHtml(name)}" title="${escapeHtml(name)}" /></span>`;
+    return `<span class="dg-quest-avatar${reportClass}" title="${escapeHtml(title)}"><img src="${escapeHtml(user.photo)}" alt="${escapeHtml(name)}" /></span>`;
   }
-  return `<span class="dg-quest-avatar" title="${escapeHtml(name)}">${escapeHtml(initials || "U")}</span>`;
+  return `<span class="dg-quest-avatar${reportClass}" title="${escapeHtml(title)}">${escapeHtml(initials || "U")}</span>`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -887,6 +1104,46 @@ function isUserMatchDeptAndPos(u, targetDept, targetPos) {
   return matchesDept && matchesPos;
 }
 
+function isUserInSelectedList(u, selectedList) {
+  if (!selectedList || !selectedList.length || !u) return false;
+  const aliases = [
+    u.id,
+    u.docId,
+    u.uid,
+    u.email,
+    u.name,
+    u.displayName,
+    u.username,
+    ...(Array.isArray(u.allAliases) ? u.allAliases : []),
+  ]
+    .filter(Boolean)
+    .map((x) => String(x).toLowerCase());
+  return selectedList.some((selId) =>
+    aliases.includes(String(selId).toLowerCase()),
+  );
+}
+
+function findUserInCacheList(rawId, cache) {
+  if (!cache || !cache.length || !rawId) return null;
+  const rawLower = String(rawId).toLowerCase();
+  return cache.find((u) => {
+    if (!u) return false;
+    const aliases = [
+      u.id,
+      u.docId,
+      u.uid,
+      u.email,
+      u.name,
+      u.displayName,
+      u.username,
+      ...(Array.isArray(u.allAliases) ? u.allAliases : []),
+    ]
+      .filter(Boolean)
+      .map((x) => String(x).toLowerCase());
+    return aliases.includes(rawLower);
+  });
+}
+
 function setupAssignSelector(usersList) {
   formUsersCache = usersList || [];
   const control = el("dgQuestAssignControl");
@@ -935,7 +1192,7 @@ function setupAssignSelector(usersList) {
       const nm = String(u.name || u.email || u.id).toLowerCase();
       const matchesSearch = !q || nm.includes(q);
       const matchesDeptPos = isUserMatchDeptAndPos(u, targetDept, targetPos);
-      return matchesSearch && matchesDeptPos;
+      return q ? matchesSearch : matchesDeptPos;
     });
 
     if (!filtered.length) {
@@ -945,7 +1202,7 @@ function setupAssignSelector(usersList) {
 
     listContainer.innerHTML = filtered
       .map((u) => {
-        const isSelected = formSelectedUserIds.includes(u.id);
+        const isSelected = isUserInSelectedList(u, formSelectedUserIds);
         const name = u.name || u.email || u.id;
         const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || "").join("").toUpperCase() || "U";
         const avatarHtml = u.photo
@@ -965,11 +1222,23 @@ function setupAssignSelector(usersList) {
         e.stopPropagation();
         const uid = row.dataset.userId;
         if (!uid) return;
-        const idx = formSelectedUserIds.indexOf(uid);
-        if (idx !== -1) {
-          formSelectedUserIds.splice(idx, 1);
+        const targetUser = findUserInCacheList(uid, formUsersCache);
+        const aliases = targetUser
+          ? [targetUser.id, targetUser.docId, targetUser.uid, targetUser.email]
+              .filter(Boolean)
+              .map((x) => String(x).toLowerCase())
+          : [String(uid).toLowerCase()];
+
+        const isAlready = formSelectedUserIds.some((id) =>
+          aliases.includes(String(id).toLowerCase()),
+        );
+
+        if (isAlready) {
+          formSelectedUserIds = formSelectedUserIds.filter(
+            (id) => !aliases.includes(String(id).toLowerCase()),
+          );
         } else {
-          formSelectedUserIds.push(uid);
+          formSelectedUserIds.push(targetUser ? targetUser.id : uid);
         }
         updateAssignSelectedUI();
         filterAssignList(searchInput ? searchInput.value : "");
@@ -988,7 +1257,8 @@ function updateAssignSelectedUI() {
   const nativeSelect = el("dgQuestAssignSelect");
   if (nativeSelect) {
     Array.from(nativeSelect.options).forEach((opt) => {
-      opt.selected = formSelectedUserIds.includes(opt.value);
+      const u = findUserInCacheList(opt.value, formUsersCache);
+      opt.selected = u ? isUserInSelectedList(u, formSelectedUserIds) : formSelectedUserIds.includes(opt.value);
     });
   }
 
@@ -1001,14 +1271,25 @@ function updateAssignSelectedUI() {
     return;
   }
 
-  container.innerHTML = formSelectedUserIds
-    .map((uid) => {
-      const user = formUsersCache.find((u) => u.id === uid) || { id: uid, name: uid };
-      const name = user.name || user.email || uid;
+  const seenPillKeys = new Set();
+  const pillsUsers = [];
+  formSelectedUserIds.forEach((uid) => {
+    const user = findUserInCacheList(uid, formUsersCache) || { id: uid, name: uid };
+    const userKey = user.docId || user.uid || user.id || uid;
+    if (!seenPillKeys.has(userKey)) {
+      seenPillKeys.add(userKey);
+      pillsUsers.push(user);
+    }
+  });
+
+  container.innerHTML = pillsUsers
+    .map((user) => {
+      const name = user.name || user.email || user.id;
+      const canonicalId = user.id || user.docId || user.uid;
       return `
         <span class="dg-quest-assign-pill">
           ${escapeHtml(name)}
-          <button type="button" class="dg-quest-assign-pill-remove" data-remove-user="${escapeHtml(uid)}">&times;</button>
+          <button type="button" class="dg-quest-assign-pill-remove" data-remove-user="${escapeHtml(canonicalId)}">&times;</button>
         </span>
       `;
     })
@@ -1018,7 +1299,16 @@ function updateAssignSelectedUI() {
     btn.onclick = (e) => {
       e.stopPropagation();
       const uid = btn.dataset.removeUser;
-      formSelectedUserIds = formSelectedUserIds.filter((id) => id !== uid);
+      const targetUser = findUserInCacheList(uid, formUsersCache);
+      const aliases = targetUser
+        ? [targetUser.id, targetUser.docId, targetUser.uid, targetUser.email]
+            .filter(Boolean)
+            .map((x) => String(x).toLowerCase())
+        : [String(uid).toLowerCase()];
+
+      formSelectedUserIds = formSelectedUserIds.filter(
+        (id) => !aliases.includes(String(id).toLowerCase()),
+      );
       updateAssignSelectedUI();
       const searchInput = el("dgQuestAssignSearch");
       if (searchInput) searchInput.dispatchEvent(new Event("input"));
@@ -1080,7 +1370,7 @@ function setupReportToSelector(usersList) {
 
     listContainer.innerHTML = filtered
       .map((u) => {
-        const isSelected = formSelectedReportToIds.includes(u.id);
+        const isSelected = isUserInSelectedList(u, formSelectedReportToIds);
         const name = u.name || u.email || u.id;
         const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || "").join("").toUpperCase() || "U";
         const avatarHtml = u.photo
@@ -1100,11 +1390,23 @@ function setupReportToSelector(usersList) {
         e.stopPropagation();
         const uid = row.dataset.reportUserId;
         if (!uid) return;
-        const idx = formSelectedReportToIds.indexOf(uid);
-        if (idx !== -1) {
-          formSelectedReportToIds.splice(idx, 1);
+        const targetUser = findUserInCacheList(uid, formReportToUsersCache);
+        const aliases = targetUser
+          ? [targetUser.id, targetUser.docId, targetUser.uid, targetUser.email]
+              .filter(Boolean)
+              .map((x) => String(x).toLowerCase())
+          : [String(uid).toLowerCase()];
+
+        const isAlready = formSelectedReportToIds.some((id) =>
+          aliases.includes(String(id).toLowerCase()),
+        );
+
+        if (isAlready) {
+          formSelectedReportToIds = formSelectedReportToIds.filter(
+            (id) => !aliases.includes(String(id).toLowerCase()),
+          );
         } else {
-          formSelectedReportToIds.push(uid);
+          formSelectedReportToIds.push(targetUser ? targetUser.id : uid);
         }
         updateReportToSelectedUI();
         filterReportToList(searchInput ? searchInput.value : "");
@@ -1123,7 +1425,8 @@ function updateReportToSelectedUI() {
   const nativeSelect = el("dgQuestReportToSelect");
   if (nativeSelect) {
     Array.from(nativeSelect.options).forEach((opt) => {
-      opt.selected = formSelectedReportToIds.includes(opt.value);
+      const u = findUserInCacheList(opt.value, formReportToUsersCache);
+      opt.selected = u ? isUserInSelectedList(u, formSelectedReportToIds) : formSelectedReportToIds.includes(opt.value);
     });
   }
 
@@ -1136,14 +1439,25 @@ function updateReportToSelectedUI() {
     return;
   }
 
-  container.innerHTML = formSelectedReportToIds
-    .map((uid) => {
-      const user = formReportToUsersCache.find((u) => u.id === uid) || { id: uid, name: uid };
-      const name = user.name || user.email || uid;
+  const seenReportKeys = new Set();
+  const pillsUsers = [];
+  formSelectedReportToIds.forEach((uid) => {
+    const user = findUserInCacheList(uid, formReportToUsersCache) || { id: uid, name: uid };
+    const userKey = user.docId || user.uid || user.id || uid;
+    if (!seenReportKeys.has(userKey)) {
+      seenReportKeys.add(userKey);
+      pillsUsers.push(user);
+    }
+  });
+
+  container.innerHTML = pillsUsers
+    .map((user) => {
+      const name = user.name || user.email || user.id;
+      const canonicalId = user.id || user.docId || user.uid;
       return `
         <span class="dg-quest-assign-pill">
           ${escapeHtml(name)}
-          <button type="button" class="dg-quest-assign-pill-remove" data-remove-report-user="${escapeHtml(uid)}">&times;</button>
+          <button type="button" class="dg-quest-assign-pill-remove" data-remove-report-user="${escapeHtml(canonicalId)}">&times;</button>
         </span>
       `;
     })
@@ -1153,7 +1467,16 @@ function updateReportToSelectedUI() {
     btn.onclick = (e) => {
       e.stopPropagation();
       const uid = btn.dataset.removeReportUser;
-      formSelectedReportToIds = formSelectedReportToIds.filter((id) => id !== uid);
+      const targetUser = findUserInCacheList(uid, formReportToUsersCache);
+      const aliases = targetUser
+        ? [targetUser.id, targetUser.docId, targetUser.uid, targetUser.email]
+            .filter(Boolean)
+            .map((x) => String(x).toLowerCase())
+        : [String(uid).toLowerCase()];
+
+      formSelectedReportToIds = formSelectedReportToIds.filter(
+        (id) => !aliases.includes(String(id).toLowerCase()),
+      );
       updateReportToSelectedUI();
       const searchInput = el("dgQuestReportToSearch");
       if (searchInput) searchInput.dispatchEvent(new Event("input"));
@@ -1507,7 +1830,8 @@ function setupDueDatePicker(initialStartDate, initialStartTime, initialDueDate, 
       const dNum = prevLastDay - i;
       const dObj = new Date(year, month - 1, dNum);
       const dStr = formatYMD(dObj);
-      cellsHtml += `<div class="dg-clickup-cal-cell other-month" data-date="${dStr}">${dNum}</div>`;
+      const isPast = dStr < todayStr;
+      cellsHtml += `<div class="dg-clickup-cal-cell other-month ${isPast ? 'disabled' : ''}" data-date="${dStr}">${dNum}</div>`;
     }
 
     // Current month days
@@ -1519,12 +1843,14 @@ function setupDueDatePicker(initialStartDate, initialStartTime, initialDueDate, 
       const isDue = dStr === formSelectedDueDate;
       const isSelected = isStart || isDue;
       const isInRange = Boolean(formSelectedStartDate && formSelectedDueDate && dStr > formSelectedStartDate && dStr < formSelectedDueDate);
+      const isPast = dStr < todayStr;
 
       const classes = [
         "dg-clickup-cal-cell",
         isToday ? "today" : "",
         isSelected ? "selected" : "",
         isInRange ? "range-in" : "",
+        isPast ? "disabled" : "",
       ].filter(Boolean).join(" ");
 
       cellsHtml += `<div class="${classes}" data-date="${dStr}">${day}</div>`;
@@ -1536,7 +1862,8 @@ function setupDueDatePicker(initialStartDate, initialStartTime, initialDueDate, 
     for (let i = 1; i <= nextDaysNeeded; i++) {
       const dObj = new Date(year, month + 1, i);
       const dStr = formatYMD(dObj);
-      cellsHtml += `<div class="dg-clickup-cal-cell other-month" data-date="${dStr}">${i}</div>`;
+      const isPast = dStr < todayStr;
+      cellsHtml += `<div class="dg-clickup-cal-cell other-month ${isPast ? 'disabled' : ''}" data-date="${dStr}">${i}</div>`;
     }
 
     calGridEl.innerHTML = cellsHtml;
@@ -1544,7 +1871,9 @@ function setupDueDatePicker(initialStartDate, initialStartTime, initialDueDate, 
     calGridEl.querySelectorAll(".dg-clickup-cal-cell").forEach((cell) => {
       cell.onclick = (e) => {
         e.stopPropagation();
+        if (cell.classList.contains("disabled")) return;
         const clickedDate = cell.dataset.date;
+        if (!clickedDate || clickedDate < todayStr) return;
         if (currentPickerTab === "start") {
           formSelectedStartDate = clickedDate;
           // If due date is before start date, clear due date
@@ -1795,6 +2124,60 @@ function setupRecurringControls(initialRecur) {
   syncRecurEnabledState();
 }
 
+export function setQuestPriority(prio) {
+  const prioInput = el("dgQuestPrioritySelect");
+  const display = el("dgQuestPriorityDisplay");
+  if (!prioInput || !display) return;
+
+  const val = String(prio || "").toLowerCase().trim();
+  prioInput.value = val;
+
+  if (val === "urgent" || val === "high") {
+    display.innerHTML = `<i class="bi bi-flag-fill" style="color: #dc2626; font-size: 0.95rem;"></i> <span style="color: #dc2626; font-weight: 600;">Urgent</span>`;
+  } else if (val === "normal" || val === "medium") {
+    display.innerHTML = `<i class="bi bi-flag-fill" style="color: #f59e0b; font-size: 0.95rem;"></i> <span style="color: #f59e0b; font-weight: 600;">Normal</span>`;
+  } else if (val === "low") {
+    display.innerHTML = `<i class="bi bi-flag-fill" style="color: #16a34a; font-size: 0.95rem;"></i> <span style="color: #16a34a; font-weight: 600;">Low</span>`;
+  } else if (val === "none") {
+    display.innerHTML = `<i class="bi bi-flag" style="color: #94a3b8; font-size: 0.95rem;"></i> <span style="color: #64748b; font-weight: 500;">None</span>`;
+  } else {
+    display.innerHTML = `<span class="text-muted">Select urgency...</span>`;
+  }
+}
+
+function setupPriorityPicker() {
+  const wrap = el("dgQuestPriorityPickerWrap");
+  const btn = el("dgQuestPriorityPickerBtn");
+  const dropdown = el("dgQuestPriorityDropdown");
+  if (!btn || !dropdown) return;
+
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (btn.disabled || btn.classList.contains("dg-quest-control-disabled")) return;
+    dropdown.classList.toggle("d-none");
+  };
+
+  dropdown.querySelectorAll(".dg-quest-prio-item").forEach((item) => {
+    item.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const prio = item.getAttribute("data-prio");
+      setQuestPriority(prio);
+      dropdown.classList.add("d-none");
+      if (typeof window.__dgSyncFormLockState__ === "function") {
+        window.__dgSyncFormLockState__();
+      }
+    };
+  });
+
+  document.addEventListener("click", (e) => {
+    if (wrap && !wrap.contains(e.target)) {
+      dropdown.classList.add("d-none");
+    }
+  });
+}
+
 export function openQuestForm(mode, task, refs, tab) {
   const isEdit = mode === "edit";
   const isDaily = tab === "daily";
@@ -1870,15 +2253,19 @@ export function openQuestForm(mode, task, refs, tab) {
     }
   };
 
-  // Populate native hidden select & custom user selector (include all users including current user)
+  // Populate native hidden select & custom user selector (only users with a valid user account/record)
   const currentUserId = refs.currentUserId || "";
   const uniqueUsers = [];
   const seenUserIds = new Set();
 
   (refs.users || []).forEach((u) => {
     if (!u || !u.id) return;
-    if (seenUserIds.has(u.id)) return;
-    seenUserIds.add(u.id);
+    // Must have a valid account record (uid, docId, or registered email)
+    const hasAccount = Boolean((u.uid && u.uid !== "unknown") || u.docId || u.email);
+    if (!hasAccount) return;
+    const canonKey = u.docId || u.uid || u.id;
+    if (seenUserIds.has(canonKey)) return;
+    seenUserIds.add(canonKey);
     uniqueUsers.push(u);
   });
 
@@ -1889,17 +2276,25 @@ export function openQuestForm(mode, task, refs, tab) {
     )
     .join("");
 
-  // Populate custom user selector — for new tasks, default assign to the logged-in user!
+  // Populate custom user selector — empty by default for new tasks (must be chosen manually)
   if (isEdit && task && task.assign_to) {
-    formSelectedUserIds = Array.isArray(task.assign_to) ? task.assign_to.slice() : [task.assign_to];
+    const rawAssign = Array.isArray(task.assign_to) ? task.assign_to : [task.assign_to];
+    const resolvedIds = new Set();
+    rawAssign.forEach((rawId) => {
+      const match = findUserInCacheList(rawId, uniqueUsers);
+      if (match && (match.uid || match.docId || match.email)) {
+        resolvedIds.add(match.id);
+      }
+    });
+    formSelectedUserIds = Array.from(resolvedIds);
   } else {
-    formSelectedUserIds = currentUserId ? [currentUserId] : [];
+    formSelectedUserIds = [];
   }
   setupAssignSelector(uniqueUsers);
   updateAssignSelectedUI();
 
   // Populate Report To selector (supervisors / managers / any team member)
-  const allUsersForReport = (refs.users || []).slice();
+  const allUsersForReport = uniqueUsers.slice();
   el("dgQuestReportToSelect").innerHTML = allUsersForReport
     .map(
       (u) =>
@@ -1908,7 +2303,15 @@ export function openQuestForm(mode, task, refs, tab) {
     .join("");
 
   if (isEdit && task && task.report_to) {
-    formSelectedReportToIds = Array.isArray(task.report_to) ? task.report_to.slice() : [task.report_to];
+    const rawReport = Array.isArray(task.report_to) ? task.report_to : [task.report_to];
+    const resolvedReportIds = new Set();
+    rawReport.forEach((rawId) => {
+      const match = findUserInCacheList(rawId, allUsersForReport);
+      if (match && (match.uid || match.docId || match.email)) {
+        resolvedReportIds.add(match.id);
+      }
+    });
+    formSelectedReportToIds = Array.from(resolvedReportIds);
   } else {
     formSelectedReportToIds = [];
   }
@@ -1964,8 +2367,8 @@ export function openQuestForm(mode, task, refs, tab) {
     isEdit && task ? task.deadline_time || "" : "";
   el("dgQuestPointSelect").value =
     isEdit && task && task.points ? String(task.points) : "";
-  el("dgQuestPrioritySelect").value =
-    isEdit && task && task.priority ? task.priority : "";
+  setQuestPriority(isEdit && task && task.priority ? task.priority : "");
+  setupPriorityPicker();
   el("dgQuestTagsInput").value =
     isEdit && task && task.tags ? task.tags.join(", ") : "";
   el("dgQuestDueDate").value =
@@ -2004,6 +2407,7 @@ export function openQuestForm(mode, task, refs, tab) {
     const reportCtrl = el("dgQuestReportToControl");
     const dueBtn = el("dgQuestDuePickerBtn");
     const pointEl = el("dgQuestPointSelect");
+    const prioBtn = el("dgQuestPriorityPickerBtn");
     const prioEl = el("dgQuestPrioritySelect");
     const tagsEl = el("dgQuestTagsInput");
     const recurCard = document.querySelector("#dgQuestRecurSection .dg-quest-recur-card");
@@ -2030,6 +2434,15 @@ export function openQuestForm(mode, task, refs, tab) {
     }
 
     if (pointEl) pointEl.disabled = !hasReport;
+    if (prioBtn) {
+      prioBtn.disabled = !hasReport;
+      if (hasReport) {
+        prioBtn.classList.remove("dg-quest-control-disabled");
+      } else {
+        prioBtn.classList.add("dg-quest-control-disabled");
+        el("dgQuestPriorityDropdown")?.classList.add("d-none");
+      }
+    }
     if (prioEl) prioEl.disabled = !hasReport;
     if (tagsEl) tagsEl.disabled = !hasReport;
 
@@ -2125,7 +2538,7 @@ export function openQuestDetail(task, ctx, tab) {
     .map((p) => p && p.name)
     .filter(Boolean);
   const tags = task.tags || [];
-  const assign = getAssignList(task);
+  const assign = getAssignList(task, ctx);
 
   let prioColor = "#94a3b8";
   let prioLabel = "None";
@@ -2145,15 +2558,27 @@ export function openQuestDetail(task, ctx, tab) {
     : "#64748b";
 
   let assignees = "";
-  if (assign.length) {
+  const seenDetailAssign = new Set();
+  const uniqueDetailAssignUsers = [];
+  assign.forEach((uid) => {
+    const u =
+      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        : { uid, name: uid };
+    const uKey = u.docId || u.uid || u.id || uid;
+    if (!seenDetailAssign.has(uKey)) {
+      seenDetailAssign.add(uKey);
+      uniqueDetailAssignUsers.push(u);
+    }
+  });
+
+  if (uniqueDetailAssignUsers.length) {
     assignees =
       '<div class="small fw-bold text-muted mt-3 mb-1">Ditugaskan Kepada (Assign To):</div><div style="display:flex;flex-wrap:wrap;gap:0.4rem">' +
-      assign
+      uniqueDetailAssignUsers
         .slice(0, 4)
-        .map((uid) => {
-          const u =
-            ctx.users && ctx.users[uid] ? ctx.users[uid] : { uid, name: uid };
-          const nm = u.name || u.email || uid;
+        .map((u) => {
+          const nm = u.name || u.email || u.id || u.uid;
           const init = nm
             .split(" ")
             .slice(0, 2)
@@ -2166,8 +2591,8 @@ export function openQuestDetail(task, ctx, tab) {
           return `<span style="display:inline-flex;align-items:center;gap:0.4rem;border-radius:999px;border:1px solid #e2e8f0;background:#fff;padding:0.15rem 0.6rem 0.15rem 0.2rem;font-size:0.75rem">${inner} ${escapeHtml(nm)}</span>`;
         })
         .join("") +
-      (assign.length > 4
-        ? `<span class="dg-quest-tag">+${assign.length - 4} lainnya</span>`
+      (uniqueDetailAssignUsers.length > 4
+        ? `<span class="dg-quest-tag">+${uniqueDetailAssignUsers.length - 4} lainnya</span>`
         : "") +
       "</div>";
   }
@@ -2178,15 +2603,27 @@ export function openQuestDetail(task, ctx, tab) {
       ? [task.report_to]
       : [];
   let reportToHtml = "";
-  if (reportToList.length) {
+  const seenDetailReport = new Set();
+  const uniqueDetailReportUsers = [];
+  reportToList.forEach((uid) => {
+    const u =
+      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
+        : { uid, name: uid };
+    const uKey = u.docId || u.uid || u.id || uid;
+    if (!seenDetailReport.has(uKey)) {
+      seenDetailReport.add(uKey);
+      uniqueDetailReportUsers.push(u);
+    }
+  });
+
+  if (uniqueDetailReportUsers.length) {
     reportToHtml =
       '<div class="small fw-bold text-muted mt-3 mb-1">Lapor Kepada (Report To):</div><div style="display:flex;flex-wrap:wrap;gap:0.4rem">' +
-      reportToList
+      uniqueDetailReportUsers
         .slice(0, 4)
-        .map((uid) => {
-          const u =
-            ctx.users && ctx.users[uid] ? ctx.users[uid] : { uid, name: uid };
-          const nm = u.name || u.email || uid;
+        .map((u) => {
+          const nm = u.name || u.email || u.id || u.uid;
           const init = nm
             .split(" ")
             .slice(0, 2)
@@ -2199,6 +2636,9 @@ export function openQuestDetail(task, ctx, tab) {
           return `<span style="display:inline-flex;align-items:center;gap:0.4rem;border-radius:999px;border:1px solid #fde68a;background:#fffbeb;padding:0.15rem 0.6rem 0.15rem 0.2rem;font-size:0.75rem">${inner} ${escapeHtml(nm)}</span>`;
         })
         .join("") +
+      (uniqueDetailReportUsers.length > 4
+        ? `<span class="dg-quest-tag">+${uniqueDetailReportUsers.length - 4} lainnya</span>`
+        : "") +
       "</div>";
   }
 
@@ -2242,6 +2682,7 @@ export function openQuestDetail(task, ctx, tab) {
       </div>
     </div>
     ${assignees}
+    ${reportToHtml}
     ${tagsHtml}
     <div class="small fw-bold text-muted mt-3 mb-1">Deskripsi / Catatan:</div>
     <div class="p-3 border rounded bg-light small dg-quest-desc-content" style="line-height:1.6">${descHtml}</div>
@@ -2279,6 +2720,14 @@ export function openDailyReportModal(checkedTasks, userName) {
     : "—";
 
   const container = el("dgReportTasksContainer");
+  // Clean up any existing instances first
+  Object.values(reportEditorInstances).forEach((inst) => {
+    try {
+      if (inst && typeof inst.destroy === "function") inst.destroy();
+    } catch (_) {}
+  });
+  reportEditorInstances = {};
+
   if (!checkedTasks.length) {
     container.innerHTML =
       '<p class="dg-quest-empty-msg">Belum ada item yang dicentang. Silakan centang to-do Anda terlebih dahulu di board.</p>';
@@ -2287,17 +2736,33 @@ export function openDailyReportModal(checkedTasks, userName) {
       .map(
         (t, i) => `
         <div class="dg-quest-report-item" data-task-id="${t.id}">
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+          <div style="flex:1;min-width:0;width:100%;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">
               <span class="dg-quest-report-item-title">${i + 1}. ${escapeHtml(t.title || "Untitled")}</span>
               <span class="dg-quest-report-item-points">${t.points || 0} Pt</span>
             </div>
-            <textarea rows="2" class="dg-quest-report-item-detail" data-detail-for="${t.id}" placeholder="Catatan / bukti pengerjaan (opsional)..."></textarea>
+            <div class="dg-quest-report-editor-wrap" data-editor-task-id="${t.id}"></div>
           </div>
         </div>
       `,
       )
       .join("");
+
+    // Initialize Rich Text Editor for each checked task
+    checkedTasks.forEach((t) => {
+      const editorWrap = container.querySelector(
+        `.dg-quest-report-editor-wrap[data-editor-task-id="${t.id}"]`,
+      );
+      if (editorWrap) {
+        const editor = createRichEditor(editorWrap, {
+          placeholder: "Catatan / bukti pengerjaan (opsional)...",
+          showFooter: true,
+        });
+        if (editor) {
+          reportEditorInstances[t.id] = editor;
+        }
+      }
+    });
   }
 
   openSubModal("dgDailyReportModal");
@@ -2317,8 +2782,14 @@ export function collectReportDetails() {
     ?.querySelectorAll(".dg-quest-report-item")
     .forEach((item) => {
       const id = item.getAttribute("data-task-id");
-      const input = item.querySelector("[data-detail-for]");
-      if (id && input) details[id] = input.value.trim();
+      if (!id) return;
+      if (reportEditorInstances[id]) {
+        const html = reportEditorInstances[id].getHTML();
+        details[id] = html ? html.trim() : "";
+      } else {
+        const input = item.querySelector("[data-detail-for]");
+        if (input) details[id] = input.value.trim();
+      }
     });
   return details;
 }
@@ -2364,6 +2835,57 @@ export function notifySuccess(msg) {
 
 export function notifyError(msg) {
   toast(msg, "error");
+}
+
+export function updateBulkActionBar(selectedCount, totalDeletableCount) {
+  const bulkBar = el("dgQuestBulkBar");
+  if (!bulkBar) return;
+
+  if (selectedCount > 0) {
+    bulkBar.classList.remove("d-none");
+    const countText = el("dgQuestBulkCountText");
+    if (countText) countText.textContent = `${selectedCount} task dipilih`;
+    const deleteCount = el("dgQuestBulkDeleteCount");
+    if (deleteCount) deleteCount.textContent = selectedCount;
+
+    const selectAllBtnText = el("dgQuestSelectAllBtnText");
+    if (selectAllBtnText) {
+      if (totalDeletableCount > 0 && selectedCount >= totalDeletableCount) {
+        selectAllBtnText.textContent = "Batal Pilih Semua";
+      } else {
+        selectAllBtnText.textContent = "Pilih Semua";
+      }
+    }
+  } else {
+    bulkBar.classList.add("d-none");
+  }
+}
+
+export function syncCardSelections(selectedSet) {
+  document.querySelectorAll(".dg-quest-card").forEach((cardNode) => {
+    const taskId = cardNode.getAttribute("data-task-id");
+    const checkbox = cardNode.querySelector(".dg-quest-select-checkbox");
+    const isSelected = Boolean(taskId && selectedSet.has(taskId));
+
+    cardNode.classList.toggle("is-selected", isSelected);
+    if (checkbox) {
+      checkbox.checked = isSelected;
+    }
+  });
+}
+
+export function setBulkDeleteButtonBusy(busy) {
+  const btn = el("dgQuestBulkDeleteBtn");
+  if (btn) {
+    btn.disabled = busy;
+    if (busy) {
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menghapus...';
+    } else {
+      const deleteCount = el("dgQuestBulkDeleteCount");
+      const count = deleteCount ? deleteCount.textContent : "0";
+      btn.innerHTML = `<i class="bi bi-trash3-fill"></i> Hapus Terpilih (<span id="dgQuestBulkDeleteCount">${count}</span>)`;
+    }
+  }
 }
 
 export function closeSubModalById(modalId) {

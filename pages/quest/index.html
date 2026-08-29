@@ -23,8 +23,8 @@
     <!-- New architecture foundation -->
     <link href="../../assets/css/theme.css" rel="stylesheet" />
     <link href="../../assets/css/layout.css" rel="stylesheet" />
-    <!-- Quest feature styles -->
-    <link href="../../pages/quest/quest.css" rel="stylesheet" />
+    <!-- Quest modal and board styles -->
+    <link href="../../assets/js/components/quest-modal/quest-modal.css" rel="stylesheet" />
 
     <!-- Shared theme manager -->
     <script src="../../assets/js/theme.js" defer></script>
@@ -124,6 +124,25 @@
             </div>
             <div id="questSideUpcomingList" class="quest-list"></div>
           </section>
+        </div>
+
+        <!-- Floating Bulk Action Bar for Multi-Select Delete -->
+        <div id="questBulkBar" class="dg-quest-bulk-bar d-none">
+          <div class="dg-quest-bulk-left">
+            <span class="dg-quest-bulk-badge"><i class="bi bi-check2-square"></i></span>
+            <span id="questBulkCountText" class="dg-quest-bulk-count">0 task dipilih</span>
+          </div>
+          <div class="dg-quest-bulk-right">
+            <button type="button" id="questSelectAllBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-secondary" title="Pilih Semua yang bisa dihapus">
+              <i class="bi bi-check2-all"></i> <span id="questSelectAllBtnText">Pilih Semua</span>
+            </button>
+            <button type="button" id="questClearSelectBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-ghost">
+              Batal
+            </button>
+            <button type="button" id="questBulkDeleteBtn" class="dg-quest-bulk-btn dg-quest-bulk-btn-danger">
+              <i class="bi bi-trash3-fill"></i> Hapus Terpilih (<span id="questBulkDeleteCount">0</span>)
+            </button>
+          </div>
         </div>
       </div>
     </main>

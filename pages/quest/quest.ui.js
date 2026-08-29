@@ -10,6 +10,9 @@
 
 import { getMs, escapeHtml, formatDateID } from "../../assets/js/utils.js";
 import { toast, setButtonBusy } from "../../assets/js/ui.js";
+import { createRichEditor } from "../../assets/js/components/rich-editor/rich-editor.js";
+
+let reportEditorInstances = {};
 
 /* ------------------------------------------------------------------ */
 /* State helpers                                                       */
@@ -58,9 +61,25 @@ export function setActiveTab(tab) {
  * @param {{overdue:Array, today:Array, upcoming:Array}} sections
  * @param {Object} ctx { users, currentUid, currentRole }
  */
+function renderTableHead() {
+  return `
+    <div class="dg-quest-table-head">
+      <span class="dg-col-name">Name</span>
+      <span class="dg-col-time">Due Date</span>
+      <span class="dg-col-prio">Priority</span>
+      <span class="dg-col-points">Points</span>
+      <span class="dg-col-assign">Assignee</span>
+      <span class="dg-col-report">Report To</span>
+      <span class="dg-col-status">Status</span>
+      <span class="dg-col-actions text-end">Actions</span>
+    </div>
+  `;
+}
+
 export function renderBoard(tab, sections, ctx) {
   const isSide = tab === "side";
   const p = isSide ? "questSide" : "quest";
+
   const overdueList = el(p + "OverdueList");
   const todayList = el(p + "TodayList");
   const upcomingList = el(p + "UpcomingList");
@@ -69,20 +88,28 @@ export function renderBoard(tab, sections, ctx) {
     overdueList.innerHTML =
       sections.overdue.length === 0
         ? emptyState("No overdue quests.")
-        : sections.overdue.map((t) => card(t, "overdue", ctx)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.overdue.map((t) => card(t, "overdue", ctx)).join("")}</div></div>`;
     el(p + "OverdueButton")?.classList.toggle("d-none", sections.overdue.length === 0);
   }
   if (todayList) {
     todayList.innerHTML =
       sections.today.length === 0
         ? emptyState("No quests for today.")
-        : sections.today.map((t) => card(t, "today", ctx)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.today.map((t) => card(t, "today", ctx)).join("")}</div></div>`;
+  }
+
+  const submitBtn = el(isSide ? "questSideDailyReportBtn" : "questDailyReportBtn");
+  if (submitBtn) {
+    const hasMyTodayTasks = (sections.today || []).some(
+      (t) => Boolean(t.isAssignee && !t.isApproved)
+    );
+    submitBtn.classList.toggle("d-none", !hasMyTodayTasks);
   }
   if (upcomingList) {
     upcomingList.innerHTML =
       sections.upcoming.length === 0
         ? emptyState("No upcoming quests.")
-        : sections.upcoming.map((t) => card(t, "upcoming", ctx)).join("");
+        : `<div class="dg-quest-table-wrap">${renderTableHead()}<div class="dg-quest-table-rows">${sections.upcoming.map((t) => card(t, "upcoming", ctx)).join("")}</div></div>`;
   }
 }
 
@@ -94,9 +121,42 @@ function emptyState(text) {
   return '<p class="quest-empty">' + escapeHtml(text) + "</p>";
 }
 
-function getAssignList(task) {
+function getAssignList(task, ctx) {
   if (!task.assign_to) return [];
-  return Array.isArray(task.assign_to) ? task.assign_to.slice() : [task.assign_to];
+  const raw = Array.isArray(task.assign_to) ? task.assign_to.slice() : [task.assign_to];
+  if (!ctx || !ctx.users) return [...new Set(raw.map(id => String(id).toLowerCase()))];
+
+  const seen = new Set();
+  const unique = [];
+  raw.forEach((uid) => {
+    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
+    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
+    const key = String(uKey).toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(uid);
+    }
+  });
+  return unique;
+}
+
+function getReportToList(task, ctx) {
+  if (!task.report_to) return [];
+  const raw = Array.isArray(task.report_to) ? task.report_to.slice() : [task.report_to];
+  if (!ctx || !ctx.users) return [...new Set(raw.map(id => String(id).toLowerCase()))];
+
+  const seen = new Set();
+  const unique = [];
+  raw.forEach((uid) => {
+    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
+    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
+    const key = String(uKey).toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(uid);
+    }
+  });
+  return unique;
 }
 
 function priorityStyle(priority) {
@@ -129,7 +189,8 @@ function card(task, category, ctx) {
   const desc = escapeHtml(task.descText || "No description provided.");
   const dueText = escapeHtml(task.deadline_time || "");
   const priority = priorityStyle(task.priority);
-  const assign = getAssignList(task);
+  const assign = getAssignList(task, ctx);
+  const reportTo = getReportToList(task, ctx);
 
   const lockState = task.lockState || { claimed: false, done: false };
   const locked = lockState.claimed;
@@ -142,13 +203,22 @@ function card(task, category, ctx) {
       : "";
 
   let avatars = "";
-  const max = 4;
+  const max = 3;
   assign.slice(0, max).forEach((uid) => {
     const user = ctx.users && ctx.users[uid] ? ctx.users[uid] : { uid, name: uid };
     avatars += avatar(user);
   });
   if (assign.length > max) {
     avatars += '<span class="quest-avatar-more">+' + (assign.length - max) + "</span>";
+  }
+
+  let reportAvatars = "";
+  reportTo.slice(0, max).forEach((uid) => {
+    const user = ctx.users && ctx.users[uid] ? ctx.users[uid] : { uid, name: uid };
+    reportAvatars += avatar(user, "report");
+  });
+  if (reportTo.length > max) {
+    reportAvatars += '<span class="quest-avatar-more quest-avatar-more-report">+' + (reportTo.length - max) + "</span>";
   }
 
   let tags = "";
@@ -163,42 +233,129 @@ function card(task, category, ctx) {
   const recurHtml = task.recur ? " <i class='bi bi-arrow-repeat'></i>" : "";
   const deadlineHtml = dueText ? '<span class="quest-card-deadline" style="background:' + badgeBg(category) + ';"><i class="bi bi-clock"></i>' + escapeHtml(dueText) + recurHtml + "</span>" : "";
 
-  let actions = "";
-  if (category !== "upcoming") {
-    actions +=
-      '<button type="button" class="quest-check-btn" data-check="' + id + '"' + (locked || done ? " disabled" : "") + '><i class="bi bi-check"></i></button>';
-  }
-  actions +=
-    '<button type="button" class="quest-card-link-btn" data-detail="' + id + '"><i class="bi bi-eye"></i> Detail</button>';
-  if (task.isOwner) {
-    actions +=
-      '<button type="button" class="quest-card-link-btn quest-warn" data-edit="' + id + '"><i class="bi bi-pencil"></i> Edit</button>';
-    actions +=
-      '<button type="button" class="quest-card-link-btn quest-danger" data-delete="' + id + '"><i class="bi bi-trash"></i> Delete</button>';
+  const isSuperAdminOrOwner =
+    ctx.currentRole === "owner" || ctx.currentRole === "super-admin";
+  const canDelete =
+    isSuperAdminOrOwner ||
+    task.isOwner ||
+    (task.isReportTo && !task.isAssignee);
+
+  const isSelected = Boolean(
+    ctx.selectedForDelete && ctx.selectedForDelete.has(id),
+  );
+  const selectedClass = isSelected ? " is-selected" : "";
+
+  const isApproved = Boolean(task.isApproved || /approved/i.test(task.status));
+  const isRejected = !isApproved && Boolean(task.isRejected || /rejected/i.test(task.status));
+  const isReported = !isApproved && !isRejected && Boolean(
+    task.isReported ||
+      task.lockState?.done ||
+      /reported/i.test(task.status) ||
+      /reported/i.test(task.task_status),
+  );
+
+  let leftControl = "";
+  if (canDelete) {
+    leftControl += `<label class="dg-quest-select-task-box" title="Centang untuk pilih & hapus massal">
+      <input type="checkbox" class="dg-quest-select-checkbox" data-select-task="${id}" ${isSelected ? "checked" : ""} />
+      <span class="dg-quest-checkbox-custom"></span>
+    </label>`;
   }
 
-  return (
-    '<div class="quest-card ' + lockClass + '" style="border-left-color:' + borderColor(task, category) + ';" data-task-id="' + id + '">' +
-    '<div class="quest-card-main">' +
-    '<div class="quest-card-title-row"><h3 class="quest-card-title">' + title + "</h3>" + prioHtml + lockBadge + "</div>" +
-    deadlineHtml +
-    '<p class="quest-card-desc">' + desc + "</p>" +
-    '<div class="quest-card-meta">' +
-    (avatars ? '<div class="quest-card-avatars">' + avatars + "</div>" : "") +
-    tags +
-    pointsHtml +
-    "</div>" +
-    "</div>" +
-    '<div class="quest-card-actions">' + actions + "</div>" +
-    "</div>"
+  const isWorkerAssignee = Boolean(
+    category !== "upcoming" &&
+      task.isAssignee &&
+      (!task.isOwner || task.isSelfAssigned),
   );
+
+  if (isWorkerAssignee) {
+    if (isApproved) {
+      leftControl += `<button type="button" class="dg-quest-check-btn is-approved" title="Tugas telah disetujui (Approved)" disabled><i class="bi bi-patch-check-fill"></i></button>`;
+    } else if (isReported) {
+      leftControl += `<button type="button" class="dg-quest-check-btn is-reported" title="Laporan sudah dikirim (Menunggu Review)" disabled><i class="bi bi-send-check"></i></button>`;
+    } else {
+      const isChecked = task.isChecked ? " checked" : "";
+      leftControl += `<button type="button" class="dg-quest-check-btn${isChecked}" data-check="${id}" title="Centang untuk laporan"><i class="bi bi-check-lg"></i></button>`;
+    }
+  }
+
+  let rightActions = `<button type="button" class="dg-quest-link-btn" data-detail="${id}" title="Detail"><i class="bi bi-eye"></i> Detail</button>`;
+
+  if (canDelete) {
+    rightActions += `<button type="button" class="dg-quest-link-btn dg-warn" data-edit="${id}" title="Edit"><i class="bi bi-pencil"></i> Edit</button>`;
+    rightActions += `<button type="button" class="dg-quest-link-btn dg-danger" data-delete="${id}" title="Hapus"><i class="bi bi-trash"></i> Hapus</button>`;
+  }
+
+  const assignNames = assign
+    .slice(0, 2)
+    .map((uid) => (ctx.users && ctx.users[uid] ? ctx.users[uid].name || ctx.users[uid].email || uid : uid))
+    .join(", ") + (assign.length > 2 ? ` +${assign.length - 2}` : "");
+
+  const reportNames = reportTo
+    .slice(0, 2)
+    .map((uid) => (ctx.users && ctx.users[uid] ? ctx.users[uid].name || ctx.users[uid].email || uid : uid))
+    .join(", ") + (reportTo.length > 2 ? ` +${reportTo.length - 2}` : "");
+
+  const assignGroup = avatars
+    ? `<div class="dg-quest-meta-item dg-quest-meta-assign" title="Assign To: ${escapeHtml(assignNames)}"><div class="dg-quest-avatars">${avatars}</div><span class="dg-quest-meta-name">${escapeHtml(assignNames)}</span></div>`
+    : "";
+  const reportGroup = reportAvatars
+    ? `<div class="dg-quest-meta-item dg-quest-meta-report" title="Report To: ${escapeHtml(reportNames)}"><div class="dg-quest-avatars dg-quest-avatars-report">${reportAvatars}</div><span class="dg-quest-meta-name dg-quest-meta-name-report">${escapeHtml(reportNames)}</span></div>`
+    : "";
+
+  let statusBadge = "";
+  if (isApproved) {
+    statusBadge = '<span class="dg-quest-badge dg-quest-badge-approved" title="Status: Approved"><i class="bi bi-patch-check-fill"></i> Approved</span>';
+  } else if (isReported) {
+    statusBadge = '<span class="dg-quest-badge dg-quest-badge-reported" title="Status: Reported"><i class="bi bi-send-check"></i> Reported</span>';
+  } else if (isRejected) {
+    statusBadge = `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Perlu Revisi')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`;
+  } else {
+    statusBadge = '<span class="dg-quest-badge dg-quest-badge-todo" title="Status: To Do"><i class="bi bi-circle"></i> To Do</span>';
+  }
+
+  const cardDoneClass = isApproved ? " dg-quest-approved" : isReported ? " dg-quest-done" : isRejected ? " dg-quest-rejected" : "";
+
+  return `
+    <div class="dg-quest-card ${lockClass}${selectedClass}${cardDoneClass}" style="border-left-color:${borderColor(task, category)};" data-task-id="${id}" data-can-delete="${canDelete ? "true" : "false"}">
+      <div class="dg-col-name dg-quest-card-name-col">
+        ${leftControl ? `<div class="dg-quest-card-left">${leftControl}</div>` : ""}
+        <div class="dg-quest-title-wrap">
+          <h4 class="dg-quest-card-title" title="${escapeHtml(title)}">${title}</h4>
+          ${tags ? `<div class="dg-quest-tags-wrap">${tags}</div>` : ""}
+        </div>
+        ${isRejected && task.rejectionReason ? `<span class="dg-quest-rejection-dot" title="Revisi: ${escapeHtml(task.rejectionReason)}"><i class="bi bi-exclamation-circle-fill text-danger"></i></span>` : ""}
+      </div>
+      <div class="dg-col-time">
+        ${deadlineHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-prio">
+        ${prioHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-points">
+        ${pointsHtml || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-assign">
+        ${assignGroup || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-report">
+        ${reportGroup || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-status">
+        ${statusBadge || lockBadge || '<span class="dg-quest-col-empty">-</span>'}
+      </div>
+      <div class="dg-col-actions dg-quest-card-actions">
+        ${rightActions}
+      </div>
+    </div>
+  `;
 }
 
 function claimBadge(text, cls) {
   return '<span class="quest-claim-badge ' + cls + '">' + text + "</span>";
 }
 
-function avatar(user) {
+function avatar(user, type = "assign") {
   const name = user.name || user.email || user.uid || "U";
   const initials = name
     .trim()
@@ -207,10 +364,13 @@ function avatar(user) {
     .map((w) => w[0] || "")
     .join("")
     .toUpperCase();
+  const isReport = type === "report";
+  const cls = isReport ? "quest-avatar quest-avatar-report" : "quest-avatar";
+  const title = (isReport ? "Report to: " : "Assigned to: ") + name;
   if (user.photo) {
-    return '<span class="quest-avatar"><img src="' + escapeHtml(user.photo) + '" alt="' + escapeHtml(name) + '" title="' + escapeHtml(name) + '" /></span>';
+    return '<span class="' + cls + '" title="' + escapeHtml(title) + '"><img src="' + escapeHtml(user.photo) + '" alt="' + escapeHtml(name) + '" /></span>';
   }
-  return '<span class="quest-avatar" title="' + escapeHtml(name) + '">' + escapeHtml(initials || "U") + "</span>";
+  return '<span class="' + cls + '" title="' + escapeHtml(title) + '">' + escapeHtml(initials || "U") + "</span>";
 }
 
 /* ------------------------------------------------------------------ */
@@ -335,7 +495,10 @@ export function openQuestForm(mode, task, refs) {
   el("questDeptSelect").onchange = (e) => {
     populatePositionsForDept(e.target.value, "", refs.positions || []);
   };
-  el("questAssignSelect").innerHTML = (refs.users || [])
+  const validUsers = (refs.users || []).filter(
+    (u) => u && u.id && Boolean((u.uid && u.uid !== "unknown") || u.docId || u.email),
+  );
+  el("questAssignSelect").innerHTML = validUsers
     .map((u) => '<option value="' + escapeHtml(u.id) + '">' + escapeHtml(u.name || u.email || u.id) + "</option>")
     .join("");
 
@@ -348,7 +511,13 @@ export function openQuestForm(mode, task, refs) {
   el("questPointSelect").value = isEdit && task && task.points ? String(task.points) : "1";
   el("questPrioritySelect").value = isEdit && task && task.priority ? task.priority : "normal";
   el("questTagsInput").value = isEdit && task && task.tags ? task.tags.join(", ") : "";
-  el("questSideDueDate").value = isEdit && task && task.due_date ? String(task.due_date).slice(0, 10) : "";
+  
+  const todayYMD = new Date().toISOString().split("T")[0];
+  const sideDateEl = el("questSideDueDate");
+  if (sideDateEl) {
+    sideDateEl.min = todayYMD;
+    sideDateEl.value = isEdit && task && task.due_date ? String(task.due_date).slice(0, 10) : "";
+  }
 
   if (isEdit && task && task.assign_to) {
     const assign = Array.isArray(task.assign_to) ? task.assign_to : [task.assign_to];
@@ -402,7 +571,7 @@ export function openQuestDetail(task, ctx) {
   const deptNames = (task.departments || []).map((d) => d && d.name).filter(Boolean);
   const posNames = (task.positions || []).map((p) => p && p.name).filter(Boolean);
   const tags = task.tags || [];
-  const assign = getAssignList(task);
+  const assign = getAssignList(task, ctx);
 
   const prioColor = priority === "urgent" ? "#dc2626" : priority === "medium" ? "#f59e0b" : "#16a34a";
   const prioLabel = priority === "urgent" ? "High" : priority === "medium" ? "Medium" : "Normal";
@@ -498,24 +667,48 @@ export function openDailyReportModal(checkedTasks, userName, userUid) {
   el("reportDeptInput").value = Object.keys(deptSet).length ? Object.keys(deptSet).join(", ") : "—";
 
   const container = el("reportTasksContainer");
+  // Clean up any existing instances first
+  Object.values(reportEditorInstances).forEach((inst) => {
+    try {
+      if (inst && typeof inst.destroy === "function") inst.destroy();
+    } catch (_) {}
+  });
+  reportEditorInstances = {};
+
   if (!checkedTasks.length) {
-    container.innerHTML = '<p class="quest-empty">Belum ada quest yang dicentang. Centang quest terlebih dahulu di board.</p>';
+    container.innerHTML =
+      '<p class="text-muted small mb-0">Belum ada item yang dicentang. Silakan centang to-do Anda terlebih dahulu di board.</p>';
   } else {
     container.innerHTML = checkedTasks
       .map((t, i) => {
         return (
           '<div class="quest-report-item" data-task-id="' + t.id + '">' +
-          '<div style="flex:1;min-width:0">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem">' +
+          '<div style="flex:1;min-width:0;width:100%;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">' +
           '<span class="quest-report-item-title">' + (i + 1) + ". " + escapeHtml(t.title || "Untitled") + "</span>" +
           '<span class="quest-report-item-points">' + (t.points || 0) + " Point</span>" +
           "</div>" +
-          '<textarea rows="2" class="quest-report-item-detail" data-detail-for="' + t.id + '" placeholder="Detail pekerjaan (opsional)..."></textarea>' +
+          '<div class="quest-report-editor-wrap" data-editor-task-id="' + t.id + '"></div>' +
           "</div>" +
           "</div>"
         );
       })
       .join("");
+
+    checkedTasks.forEach((t) => {
+      const editorWrap = container.querySelector(
+        '.quest-report-editor-wrap[data-editor-task-id="' + t.id + '"]',
+      );
+      if (editorWrap) {
+        const editor = createRichEditor(editorWrap, {
+          placeholder: "Catatan / bukti pengerjaan (opsional)...",
+          showFooter: true,
+        });
+        if (editor) {
+          reportEditorInstances[t.id] = editor;
+        }
+      }
+    });
   }
 
   openModal("dailyReportModal");
@@ -531,10 +724,16 @@ export function setReportSubmitBusy(busy, label) {
 
 export function collectReportDetails() {
   const details = {};
-  el("reportTasksContainer").querySelectorAll(".quest-report-item").forEach((item) => {
+  el("reportTasksContainer")?.querySelectorAll(".quest-report-item").forEach((item) => {
     const id = item.getAttribute("data-task-id");
-    const input = item.querySelector("[data-detail-for]");
-    if (id && input) details[id] = input.value.trim();
+    if (!id) return;
+    if (reportEditorInstances[id]) {
+      const html = reportEditorInstances[id].getHTML();
+      details[id] = html ? html.trim() : "";
+    } else {
+      const input = item.querySelector("[data-detail-for]");
+      if (input) details[id] = input.value.trim();
+    }
   });
   return details;
 }
@@ -559,10 +758,55 @@ export function notifyError(message) {
   toast(message, "error");
 }
 
-export function closeById(target) {
-  if (target === "questDetailModal") closeModal("questDetailModal");
-  else if (target === "questFormModal") closeModal("questFormModal");
-  else if (target === "dailyReportModal") closeModal("dailyReportModal");
+export function updateBulkActionBar(selectedCount, totalDeletableCount) {
+  const bulkBar = el("questBulkBar");
+  if (!bulkBar) return;
+
+  if (selectedCount > 0) {
+    bulkBar.classList.remove("d-none");
+    const countText = el("questBulkCountText");
+    if (countText) countText.textContent = `${selectedCount} task dipilih`;
+    const deleteCount = el("questBulkDeleteCount");
+    if (deleteCount) deleteCount.textContent = selectedCount;
+
+    const selectAllBtnText = el("questSelectAllBtnText");
+    if (selectAllBtnText) {
+      if (totalDeletableCount > 0 && selectedCount >= totalDeletableCount) {
+        selectAllBtnText.textContent = "Batal Pilih Semua";
+      } else {
+        selectAllBtnText.textContent = "Pilih Semua";
+      }
+    }
+  } else {
+    bulkBar.classList.add("d-none");
+  }
+}
+
+export function syncCardSelections(selectedSet) {
+  document.querySelectorAll(".quest-card").forEach((cardNode) => {
+    const taskId = cardNode.getAttribute("data-task-id");
+    const checkbox = cardNode.querySelector(".dg-quest-select-checkbox");
+    const isSelected = Boolean(taskId && selectedSet.has(taskId));
+
+    cardNode.classList.toggle("is-selected", isSelected);
+    if (checkbox) {
+      checkbox.checked = isSelected;
+    }
+  });
+}
+
+export function setBulkDeleteButtonBusy(busy) {
+  const btn = el("questBulkDeleteBtn");
+  if (btn) {
+    btn.disabled = busy;
+    if (busy) {
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Menghapus...';
+    } else {
+      const deleteCount = el("questBulkDeleteCount");
+      const count = deleteCount ? deleteCount.textContent : "0";
+      btn.innerHTML = `<i class="bi bi-trash3-fill"></i> Hapus Terpilih (<span id="questBulkDeleteCount">${count}</span>)`;
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */

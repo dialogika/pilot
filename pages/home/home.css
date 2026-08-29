@@ -153,3 +153,26 @@
   word-break: break-all;
   min-width: 0;
 }
+
+/* --- Daily report task detail rich content & images --- */
+.daily-report-task-detail {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+.daily-report-task-detail img,
+.daily-report-task-detail .dg-editor-img {
+  max-width: 100% !important;
+  max-height: 380px;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.daily-report-task-detail p {
+  margin-bottom: 0.5rem;
+}
+.daily-report-task-detail p:last-child {
+  margin-bottom: 0;
+}

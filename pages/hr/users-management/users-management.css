@@ -1,0 +1,67 @@
+/* =====================================================================
+   pages/hr/users-management/users-management.css
+   Users Management feature styles ONLY.
+   Global shell (topbar/sidebar/layout), Bootstrap, Tailwind, and
+   theme tokens provide the base. This file adds ONLY feature-specific
+   tweaks not covered by utilities — no global leakage.
+   ===================================================================== */
+
+/* Legacy parity: Poppins already set on body; dg-main inherits */
+.dg-main {
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+/* --- Legacy button (btn-dlg-green) — subset copy from assets/css/style.css
+     Uses theme tokens so it stays compatible with dark mode. --- */
+.btn-dlg-green {
+  padding: 8px 25px;
+  color: var(--text-inverse, #fff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(to bottom, #006a4e 5%, #002a1f 100%);
+  box-shadow: 0 5px 16px -6px rgba(114, 4, 207, 0.35);
+  white-space: nowrap;
+  border-radius: 9999px;
+  border: none;
+  transition: 0.2s;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.btn-dlg-green:hover {
+  color: var(--text-inverse, #fff);
+  background: linear-gradient(to bottom, #002a1f 5%, #006a4e 100%);
+  box-shadow: 0 0 4px 2px rgba(114, 4, 207, 0.35);
+}
+.btn-dlg-blue {
+  background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+  box-shadow: 0 5px 16px -6px rgba(114, 4, 207, 0.35);
+  color: #fff;
+  border: none;
+}
+.btn-dlg-blue:hover {
+  background: linear-gradient(to bottom, #0b2b6a 5%, #0f61a8 100%);
+  color: #fff;
+}
+
+/* --- Table row hover is via Tailwind hover:bg-slate-50; keep sticky safety --- */
+#um-tbody tr td.sticky {
+  background-color: var(--surface, #fff);
+}
+
+/* --- Skeleton (feature-specific) --- */
+#um-tbody .animate-pulse { opacity: 1; }
+
+/* --- Modal overlay safety: ensure hidden class truly hides --- */
+#add-edit-modal.hidden,
+#delete-confirm-modal.hidden,
+#customRangeOverlay.hidden { display: none !important; }
+
+/* --- Prevent background scroll when modal open (JS toggles body overflow) --- */
+body[style*="overflow: hidden"] { overscroll-behavior: contain; }
+
+/* --- Responsive: ensure horizontal scroll for table on mobile --- */
+@media (max-width: 640px) {
+  .overflow-x-auto table { min-width: 800px; }
+}

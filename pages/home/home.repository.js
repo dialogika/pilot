@@ -207,13 +207,71 @@ export { ANNOUNCEMENT_COLORS };
 /* Daily report approvals                                              */
 /* ------------------------------------------------------------------ */
 
+function extractUserIdentifiers(raw) {
+  const list = [];
+  const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  arr.forEach((item) => {
+    if (!item) return;
+    if (typeof item === "string") {
+      list.push(item.toLowerCase().trim());
+    } else if (typeof item === "object") {
+      if (item.uid) list.push(String(item.uid).toLowerCase().trim());
+      if (item.id) list.push(String(item.id).toLowerCase().trim());
+      if (item.userId) list.push(String(item.userId).toLowerCase().trim());
+      if (item.name) list.push(String(item.name).toLowerCase().trim());
+      if (item.email) list.push(String(item.email).toLowerCase().trim());
+      if (item.value) list.push(String(item.value).toLowerCase().trim());
+    }
+  });
+  return list;
+}
+
 /**
- * Subscribe to pending daily reports, dept-filtered + sorted.
+ * Check if a daily report document is targeted to or involves the current user.
+ */
+function isReportTargetedToUser(data, myAliases, userRole, userDept) {
+  if (!myAliases || !myAliases.length) return false;
+
+  // 1. Author/submitter
+  const authorId = String(data.user_id || data.userId || data.author_id || "").toLowerCase().trim();
+  if (authorId && myAliases.includes(authorId)) return true;
+
+  // 2. Creator
+  const createdList = extractUserIdentifiers(data.created_by || data.createdBy);
+  if (createdList.some((u) => myAliases.includes(u))) return true;
+
+  // 3. Report To (Target Supervisors)
+  const reportList = extractUserIdentifiers(data.report_to || data.reportTo);
+
+  const tasksArr = Array.isArray(data.tasks) ? data.tasks : [];
+  tasksArr.forEach((t) => {
+    if (!t) return;
+    extractUserIdentifiers(t.report_to || t.reportTo).forEach((x) => {
+      reportList.push(x);
+    });
+    extractUserIdentifiers(t.created_by || t.createdBy).forEach((x) => {
+      createdList.push(x);
+    });
+  });
+
+  if (reportList.length > 0) {
+    // If specific report_to is defined, ONLY those listed in report_to receive/see it
+    return reportList.some((u) => myAliases.includes(u));
+  }
+
+  // If report has no explicit report_to, only author/assignee and creator can see it
+  return false;
+}
+
+/**
+ * Subscribe to pending daily reports, strictly filtered by report_to + sorted.
  * @param {string} userDept
  * @param {(reports:Array)=>void} onReports  each report: { id, data }
+ * @param {string} [userRole]
+ * @param {Array<string>} [myAliases]
  * @returns {()=>void} unsubscribe
  */
-export function subscribeDailyReports(userDept, onReports) {
+export function subscribeDailyReports(userDept, onReports, userRole, myAliases = []) {
   const q = query(
     collection(db, "intern_dailyreport"),
     where("status", "in", [
@@ -221,25 +279,22 @@ export function subscribeDailyReports(userDept, onReports) {
       "Pending Review",
       "pending",
       "pending review",
+      "Partially Approved",
+      "partially approved",
+      "Partially_Approved",
+      "partially_approved",
     ]),
   );
   return onSnapshot(
     q,
     async (snapshot) => {
-      const dept = String(userDept || "").toLowerCase().trim();
       const reports = [];
       snapshot.forEach((ds) => {
-        const data = ds.data();
-        let reportDept = "";
-        if (Array.isArray(data.departments) && data.departments.length > 0) {
-          const arr = data.departments.map((d) => String(d).toLowerCase().trim());
-          reportDept = dept && arr.includes(dept) ? dept : arr[0] || "";
-        } else {
-          reportDept = String(
-            data.department || data.internship_department || data.team_department || "",
-          ).toLowerCase().trim();
+        const data = ds.data() || {};
+        // Only include if targeted to the current user (in report_to / author / creator)
+        if (!isReportTargetedToUser(data, myAliases, userRole, userDept)) {
+          return;
         }
-        if (!dept || !reportDept || reportDept !== dept) return;
         reports.push({ id: ds.id, data });
       });
 
@@ -279,6 +334,20 @@ async function backfillTaskPoints(task) {
   return t;
 }
 
+async function updateTaskDocStatus(taskId, patch) {
+  if (!taskId) return;
+  let updated = false;
+  try {
+    await updateDoc(doc(db, "tasks", taskId), patch);
+    updated = true;
+  } catch (_) {}
+  if (!updated) {
+    try {
+      await updateDoc(doc(db, "quests", taskId), patch);
+    } catch (_) {}
+  }
+}
+
 /**
  * Approve all tasks of a report.
  * @param {string} reportId
@@ -298,6 +367,24 @@ export async function approveReport(reportId, reviewer) {
     reviewer_name: reviewer.name,
     reviewed_at: serverTimestamp(),
   });
+
+  const taskIds = Array.isArray(reportData.task_ids) ? reportData.task_ids : [];
+  const idsToApprove = new Set();
+  tasks.forEach((t) => {
+    if (t.task_id) idsToApprove.add(t.task_id);
+    if (t.id) idsToApprove.add(t.id);
+  });
+  taskIds.forEach((id) => idsToApprove.add(id));
+
+  await Promise.all(
+    Array.from(idsToApprove).map((tid) =>
+      updateTaskDocStatus(tid, {
+        status: STATUS.approved,
+        last_approved_at: serverTimestamp(),
+        last_approved_by: reviewer.uid || "",
+      }),
+    ),
+  );
 }
 
 /**
@@ -310,16 +397,28 @@ export async function approveReport(reportId, reviewer) {
 export async function submitApproveIndividual(reportId, tasks, selectedIndices, reviewer) {
   const updatedTasks = await Promise.all(
     tasks.map(async (task, idx) => {
-      const approved = selectedIndices.includes(idx);
-      const base = approved ? await backfillTaskPoints(task) : { ...task };
-      return { ...base, status: approved ? STATUS.approved : STATUS.rejected };
+      const isNewlySelected = selectedIndices.includes(idx);
+      const currentStatus = task.status || STATUS.pending;
+      if (isNewlySelected) {
+        const base = await backfillTaskPoints(task);
+        return { ...base, status: STATUS.approved };
+      }
+      return { ...task, status: currentStatus };
     }),
   );
-  const allApproved = updatedTasks.length > 0 && updatedTasks.every((t) => t.status === STATUS.approved);
-  const allRejected = updatedTasks.length > 0 && updatedTasks.every((t) => t.status === STATUS.rejected);
+  const allApproved = updatedTasks.length > 0 && updatedTasks.every((t) => String(t.status).toLowerCase() === "approved");
+  const allRejected = updatedTasks.length > 0 && updatedTasks.every((t) => String(t.status).toLowerCase() === "rejected");
+  const anyApproved = updatedTasks.some((t) => String(t.status).toLowerCase() === "approved");
+  const anyPending = updatedTasks.some((t) => {
+    const s = String(t.status || "").toLowerCase();
+    return s === "pending" || s === "pending review" || s === "";
+  });
+
   let reportStatus = STATUS.partiallyApproved;
   if (allApproved) reportStatus = STATUS.approved;
   else if (allRejected) reportStatus = STATUS.rejected;
+  else if (!anyApproved && anyPending) reportStatus = STATUS.pending;
+  else reportStatus = STATUS.partiallyApproved;
 
   await updateDoc(doc(db, "intern_dailyreport", reportId), {
     tasks: updatedTasks,
@@ -328,6 +427,89 @@ export async function submitApproveIndividual(reportId, tasks, selectedIndices, 
     reviewer_name: reviewer.name,
     reviewed_at: serverTimestamp(),
   });
+
+  await Promise.all(
+    updatedTasks.map(async (t) => {
+      const tid = t.task_id || t.id;
+      if (!tid) return;
+      const s = String(t.status || "").toLowerCase();
+      if (s === "approved") {
+        await updateTaskDocStatus(tid, {
+          status: STATUS.approved,
+          last_approved_at: serverTimestamp(),
+          last_approved_by: reviewer.uid || "",
+        });
+      } else if (s === "rejected") {
+        await updateTaskDocStatus(tid, {
+          status: STATUS.rejected,
+          rejection_reason: "Ditolak dalam review individual",
+          last_reported_at: null,
+          last_reported_by: null,
+        });
+      }
+    }),
+  );
+}
+
+/**
+ * Reject the selected tasks (by index) of a report with an optional reason.
+ * @param {string} reportId
+ * @param {Array} tasks
+ * @param {Array<number>} selectedIndices
+ * @param {string} reason
+ * @param {{uid:string, name:string}} reviewer
+ */
+export async function submitRejectIndividual(reportId, tasks, selectedIndices, reason, reviewer) {
+  const updatedTasks = tasks.map((task, idx) => {
+    const isNewlySelected = selectedIndices.includes(idx);
+    const currentStatus = task.status || STATUS.pending;
+    if (isNewlySelected) {
+      return {
+        ...task,
+        status: STATUS.rejected,
+        rejection_reason: reason || "",
+        feedback: reason || "",
+      };
+    }
+    return { ...task, status: currentStatus };
+  });
+
+  const allApproved = updatedTasks.length > 0 && updatedTasks.every((t) => String(t.status).toLowerCase() === "approved");
+  const allRejected = updatedTasks.length > 0 && updatedTasks.every((t) => String(t.status).toLowerCase() === "rejected");
+  const anyPending = updatedTasks.some((t) => {
+    const s = String(t.status || "").toLowerCase();
+    return s === "pending" || s === "pending review" || s === "";
+  });
+
+  let reportStatus = STATUS.partiallyApproved;
+  if (allApproved) reportStatus = STATUS.approved;
+  else if (allRejected) reportStatus = STATUS.rejected;
+  else if (anyPending) reportStatus = STATUS.partiallyApproved;
+  else reportStatus = STATUS.partiallyApproved;
+
+  await updateDoc(doc(db, "intern_dailyreport", reportId), {
+    tasks: updatedTasks,
+    status: reportStatus,
+    reviewer_id: reviewer.uid,
+    reviewer_name: reviewer.name,
+    reviewed_at: serverTimestamp(),
+    ...(reason ? { rejection_reason: reason } : {}),
+  });
+
+  await Promise.all(
+    updatedTasks.map(async (t, idx) => {
+      const isNewlySelected = selectedIndices.includes(idx);
+      if (!isNewlySelected) return;
+      const tid = t.task_id || t.id;
+      if (!tid) return;
+      await updateTaskDocStatus(tid, {
+        status: STATUS.rejected,
+        rejection_reason: reason || "",
+        last_reported_at: null,
+        last_reported_by: null,
+      });
+    }),
+  );
 }
 
 /**
@@ -337,6 +519,11 @@ export async function submitApproveIndividual(reportId, tasks, selectedIndices, 
  * @param {{uid:string, name:string}} reviewer
  */
 export async function rejectReport(reportId, reason, reviewer) {
+  const reportSnap = await getDoc(doc(db, "intern_dailyreport", reportId));
+  const reportData = reportSnap.exists() ? reportSnap.data() || {} : {};
+  const tasks = Array.isArray(reportData.tasks) ? reportData.tasks : [];
+  const taskIds = Array.isArray(reportData.task_ids) ? reportData.task_ids : [];
+
   await updateDoc(doc(db, "intern_dailyreport", reportId), {
     status: STATUS.rejected,
     reviewer_id: reviewer.uid,
@@ -344,6 +531,24 @@ export async function rejectReport(reportId, reason, reviewer) {
     reviewed_at: serverTimestamp(),
     rejection_reason: reason || "",
   });
+
+  const idsToRevert = new Set();
+  tasks.forEach((t) => {
+    if (t.task_id) idsToRevert.add(t.task_id);
+    if (t.id) idsToRevert.add(t.id);
+  });
+  taskIds.forEach((id) => idsToRevert.add(id));
+
+  await Promise.all(
+    Array.from(idsToRevert).map((tid) =>
+      updateTaskDocStatus(tid, {
+        status: STATUS.rejected,
+        rejection_reason: reason || "",
+        last_reported_at: null,
+        last_reported_by: null,
+      }),
+    ),
+  );
 }
 
 /**
@@ -414,19 +619,35 @@ export async function approvePendingUser(userId, approver) {
   }
 }
 
-/**
- * Reject a pending user: delete the pending record.
- * @param {string} userId
- */
-export async function rejectPendingUser(userId) {
-  const pendingRef = doc(db, "pending_users", userId);
-  const snap = await getDoc(pendingRef);
-  if (!snap.exists()) throw new Error("User not found in pending list.");
-  await deleteDoc(pendingRef);
+export async function setUserRole(userIdOrEmail, role) {
+  let targetUid = String(userIdOrEmail || "").trim();
+  if (targetUid.includes("@")) {
+    try {
+      const q = query(collection(db, "users"), where("email", "==", targetUid));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        targetUid = snap.docs[0].id;
+      }
+    } catch (_) {}
+  }
+  const call = httpsCallable(functions, "setUserRole");
+  try {
+    const result = await call({ userId: targetUid, uid: targetUid, role });
+    // Also update firestore doc for full sync
+    try {
+      await updateDoc(doc(db, "users", targetUid), {
+        role: role,
+        "access.role_id": role,
+      });
+    } catch (_) {}
+    return result.data;
+  } catch (error) {
+    throw new Error(error?.message || "Gagal mengubah role pengguna.");
+  }
 }
 
 /* ------------------------------------------------------------------ */
 /* Misc                                                                */
 /* ------------------------------------------------------------------ */
 
-export { auth };
+export { auth, db };
