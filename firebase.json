@@ -51,6 +51,14 @@
       {
         "source": "/performance-appraisal/form",
         "destination": "/pages/hr/performance-appraisal/form.html"
+      },
+      {
+        "source": "/office-inventory",
+        "destination": "/pages/hr/office-inventory/index.html"
+      },
+      {
+        "source": "/inventory",
+        "destination": "/pages/hr/office-inventory/index.html"
       }
     ],
     "headers": [
