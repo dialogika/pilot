@@ -113,4 +113,4 @@ All Firestore calls reuse the central instance from `assets/js/firebase-config.j
 - Uses `requireAuth()` from `/assets/js/auth-guard.js`. Unauthenticated visitors are redirected to `/login`.
 - Topbar: `renderTopbar({ user, role })` renders user profile, notifications, search, and navigation controls.
 - Sidebar: `renderSidebar({ role, activePage: "office-inventory" })` renders sidebar and live counter badges.
-- Breadcrumb points to `/home` and `/ Data / Inventory`.
+- Breadcrumb points to `🏠 / HR DIVISION / OFFICE INVENTORY`.
