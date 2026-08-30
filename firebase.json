@@ -22,9 +22,49 @@
         "source": "/data/company-position.html",
         "destination": "/company-position",
         "type": 301
+      },
+      {
+        "source": "/data/candidate-management.html",
+        "destination": "/candidate-management",
+        "type": 301
+      },
+      {
+        "source": "/data/internship-candidate-detail.html",
+        "destination": "/internship-candidate-detail",
+        "type": 301
+      },
+      {
+        "source": "/data/mentor-candidate-detail.html",
+        "destination": "/mentor-candidate-detail",
+        "type": 301
+      },
+      {
+        "source": "/data/team-candidate-detail.html",
+        "destination": "/team-candidate-detail",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/candidate-management",
+        "destination": "/pages/hr/candidate-management/index.html"
+      },
+      {
+        "source": "/hr/candidate-management",
+        "destination": "/pages/hr/candidate-management/index.html"
+      },
+      {
+        "source": "/internship-candidate-detail",
+        "destination": "/data/internship-candidate-detail.html"
+      },
+      {
+        "source": "/mentor-candidate-detail",
+        "destination": "/data/mentor-candidate-detail.html"
+      },
+      {
+        "source": "/team-candidate-detail",
+        "destination": "/data/team-candidate-detail.html"
+      },
       {
         "source": "/login",
         "destination": "/pages/login/index.html"

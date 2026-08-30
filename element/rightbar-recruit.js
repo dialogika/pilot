@@ -23,7 +23,7 @@ export function renderRightbarRecruit() {
             <h2>Recruitment Shortcut</h2>
         </div>
         <div class="menu-grid">
-            <a href="/data/candidate-management.html" class="menu-item">
+            <a href="/candidate-management" class="menu-item">
                 <i data-lucide="users"></i>
                 <span>Candidate Management</span>
             </a>
