@@ -47,9 +47,22 @@
         "source": "/setting/team-management.html",
         "destination": "/team-management",
         "type": 301
+      },
+      {
+        "source": "/data/scouting-candidate.html",
+        "destination": "/scouting-candidate",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/scouting-candidate",
+        "destination": "/pages/hr/scouting-candidate/index.html"
+      },
+      {
+        "source": "/hr/scouting-candidate",
+        "destination": "/pages/hr/scouting-candidate/index.html"
+      },
       {
         "source": "/team-management",
         "destination": "/pages/hr/team-management/index.html"

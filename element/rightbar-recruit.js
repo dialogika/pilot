@@ -27,7 +27,7 @@ export function renderRightbarRecruit() {
                 <i data-lucide="users"></i>
                 <span>Candidate Management</span>
             </a>
-            <a href="/data/scouting-candidate.html" class="menu-item">
+            <a href="/scouting-candidate" class="menu-item">
                 <i data-lucide="search"></i>
                 <span>Scouting Candidate</span>
             </a>
