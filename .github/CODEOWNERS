@@ -1,7 +1,7 @@
-# All repository changes require Yuan's review
+# All repository changes require Yuan's and Dialogika's review
 
-- @yuan
+- @yuan @dialogika
 
-# CODEOWNERS itself requires Yuan's review
+# CODEOWNERS itself requires Yuan's and Dialogika's review
 
-/.github/CODEOWNERS @yuan
+/.github/CODEOWNERS @yuan @dialogika
