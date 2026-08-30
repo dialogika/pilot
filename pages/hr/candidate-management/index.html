@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <title>Candidate Management — Dialogika</title>
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS (CDN for utility classes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link rel="stylesheet" href="/assets/css/theme.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+
+    <!-- Scoped Feature Styles -->
+    <link href="/pages/hr/candidate-management/candidate-management.css" rel="stylesheet" />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+  </head>
+
+  <body class="antialiased candidate-profile-wrapper">
+    <!-- Shell Mount Points -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <!-- Main Content Area -->
+    <main class="dg-main">
+      <div class="w-full">
+        <!-- BREADCRUMB -->
+        <nav class="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-4">
+          <a href="/home" class="hover:text-blue-700 transition"><i class="bi bi-house-fill"></i></a>
+          <span class="text-slate-400">/</span>
+          <span>HR DIVISION</span>
+          <span class="text-slate-400">/</span>
+          <span class="text-slate-400">CANDIDATE MANAGEMENT</span>
+        </nav>
+
+        <!-- TAB BAR -->
+        <div class="candidate-tab-bar" id="candidateTabBar">
+          <button type="button" class="candidate-tab-btn active" data-tab="team">
+            <i class="fa-solid fa-users"></i> Team
+            <span class="tab-count" id="tabCountTeam">0</span>
+          </button>
+          <button type="button" class="candidate-tab-btn" data-tab="mentor">
+            <i class="fa-solid fa-chalkboard-user"></i> Mentor
+            <span class="tab-count" id="tabCountMentor">0</span>
+          </button>
+          <button type="button" class="candidate-tab-btn" data-tab="internship">
+            <i class="fa-solid fa-briefcase"></i> Internship
+            <span class="tab-count" id="tabCountInternship">0</span>
+          </button>
+          <button type="button" class="candidate-tab-btn" data-tab="positions">
+            <i class="fa-solid fa-sliders"></i> Positions
+          </button>
+        </div>
+
+        <!-- ========== TEAM TAB ========== -->
+        <div class="tab-panel active" id="panel-team">
+          <!-- Hero Panel -->
+          <div class="hero-panel mb-4">
+            <div class="hero-actions d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
+              <div class="hero-copy">
+                <span class="hero-kicker"><i class="fa-solid fa-sparkles"></i> Team Recruitment Pipeline</span>
+                <h1 class="hero-title">Candidate Team</h1>
+              </div>
+              <div class="hero-action-stack d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <div class="hero-action-toolbar">
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-interview-btn"
+                    data-tab="team"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Jadwal Interview"
+                  >
+                    <i class="fa-regular fa-calendar-days"></i>
+                  </button>
+                  <a
+                    href="/data/kandidat-nonaktif.html"
+                    class="hero-icon-btn btn-accent-danger"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Kandidat Nonaktif"
+                  >
+                    <i class="fa-solid fa-user-slash"></i>
+                  </a>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-view-toggle"
+                    data-tab="team"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Tampilan"
+                  >
+                    <span class="view-mode-slider-track" style="padding:0">
+                      <span
+                        class="view-mode-slider-thumb"
+                        aria-hidden="true"
+                        style="position:static;width:auto;height:auto;background:transparent;color:inherit;border-radius:0"
+                      >
+                        <i class="fa-solid fa-table-cells-large"></i>
+                      </span>
+                    </span>
+                  </button>
+                  <div class="toolbar-segmented d-none" role="group">
+                    <button type="button" class="btn view-btn active tab-grid-btn" data-tab="team">
+                      <i class="fas fa-th-large"></i>
+                    </button>
+                    <button type="button" class="btn view-btn tab-list-btn" data-tab="team">
+                      <i class="fas fa-list"></i>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-template-btn"
+                    data-tab="team"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Template"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="candidate-toolbar">
+            <div class="row g-3 justify-content-between align-items-center">
+              <div class="col-lg-5">
+                <label class="toolbar-label">Cari Kandidat</label>
+                <div class="input-group toolbar-search">
+                  <span class="input-group-text bg-transparent border-0"><i class="fas fa-search"></i></span>
+                  <input
+                    type="text"
+                    class="form-control toolbar-input bg-transparent border-0 shadow-none tab-search-input"
+                    data-tab="team"
+                    placeholder="Cari nama, kampus, posisi, atau kontak..."
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 col-lg-3">
+                <label class="toolbar-label">Filter Status</label>
+                <select class="form-select toolbar-select w-100 tab-status-filter" data-tab="team">
+                  <option value="">Semua status</option>
+                  <option value="screening">Screening</option>
+                  <option value="interview">Interview</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="onboarding">On Boarding</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="col-md-4 col-lg-2">
+                <label class="toolbar-label">Urutkan</label>
+                <select class="form-select toolbar-select w-100 tab-sort-select" data-tab="team">
+                  <option value="none">Urutkan</option>
+                  <option value="status">Status</option>
+                  <option value="created_desc">Tanggal input (terbaru)</option>
+                  <option value="created_asc">Tanggal input (terlama)</option>
+                  <option value="interview_asc">Tanggal interview (terdekat)</option>
+                  <option value="interview_desc">Tanggal interview (terjauh)</option>
+                  <option value="name_asc">Nama A-Z</option>
+                  <option value="name_desc">Nama Z-A</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline Stat Summary -->
+          <div class="pipeline-summary-grid tab-pipeline" data-tab="team"></div>
+
+          <!-- Candidate Grid -->
+          <div class="candidate-grid tab-grid" data-tab="team"></div>
+
+          <!-- Candidate List Table View -->
+          <div class="list-view-container mt-4 tab-list-wrap" data-tab="team" style="display:none">
+            <div class="candidate-list-shell">
+              <table class="table align-middle shadow-sm border-0 mb-0">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                  <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                    <th class="ps-4 px-3 py-3">Candidate Overview</th>
+                  </tr>
+                </thead>
+                <tbody class="text-[13px] text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== MENTOR TAB ========== -->
+        <div class="tab-panel" id="panel-mentor">
+          <!-- Hero Panel -->
+          <div class="hero-panel mb-4">
+            <div class="hero-actions d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
+              <div class="hero-copy">
+                <span class="hero-kicker"><i class="fa-solid fa-sparkles"></i> Mentor Recruitment Pipeline</span>
+                <h1 class="hero-title">Candidate Mentor</h1>
+              </div>
+              <div class="hero-action-stack d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <div class="hero-action-toolbar">
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-interview-btn"
+                    data-tab="mentor"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Jadwal Interview"
+                  >
+                    <i class="fa-regular fa-calendar-days"></i>
+                  </button>
+                  <a
+                    href="/data/kandidat-nonaktif.html"
+                    class="hero-icon-btn btn-accent-danger"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Kandidat Nonaktif"
+                  >
+                    <i class="fa-solid fa-user-slash"></i>
+                  </a>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-view-toggle"
+                    data-tab="mentor"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Tampilan"
+                  >
+                    <span class="view-mode-slider-track" style="padding:0">
+                      <span
+                        class="view-mode-slider-thumb"
+                        aria-hidden="true"
+                        style="position:static;width:auto;height:auto;background:transparent;color:inherit;border-radius:0"
+                      >
+                        <i class="fa-solid fa-table-cells-large"></i>
+                      </span>
+                    </span>
+                  </button>
+                  <div class="toolbar-segmented d-none" role="group">
+                    <button type="button" class="btn view-btn active tab-grid-btn" data-tab="mentor">
+                      <i class="fas fa-th-large"></i>
+                    </button>
+                    <button type="button" class="btn view-btn tab-list-btn" data-tab="mentor">
+                      <i class="fas fa-list"></i>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-template-btn"
+                    data-tab="mentor"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Template"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="candidate-toolbar">
+            <div class="row g-3 justify-content-between align-items-center">
+              <div class="col-lg-5">
+                <label class="toolbar-label">Cari Kandidat</label>
+                <div class="input-group toolbar-search">
+                  <span class="input-group-text bg-transparent border-0"><i class="fas fa-search"></i></span>
+                  <input
+                    type="text"
+                    class="form-control toolbar-input bg-transparent border-0 shadow-none tab-search-input"
+                    data-tab="mentor"
+                    placeholder="Cari nama, kampus, posisi, atau kontak..."
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 col-lg-3">
+                <label class="toolbar-label">Filter Status</label>
+                <select class="form-select toolbar-select w-100 tab-status-filter" data-tab="mentor">
+                  <option value="">Semua status</option>
+                  <option value="screening">Screening</option>
+                  <option value="interview">Interview</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="micro_teaching">MT</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="col-md-4 col-lg-2">
+                <label class="toolbar-label">Urutkan</label>
+                <select class="form-select toolbar-select w-100 tab-sort-select" data-tab="mentor">
+                  <option value="none">Urutkan</option>
+                  <option value="status">Status</option>
+                  <option value="created_desc">Tanggal input (terbaru)</option>
+                  <option value="created_asc">Tanggal input (terlama)</option>
+                  <option value="interview_asc">Tanggal interview (terdekat)</option>
+                  <option value="interview_desc">Tanggal interview (terjauh)</option>
+                  <option value="name_asc">Nama A-Z</option>
+                  <option value="name_desc">Nama Z-A</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline Stat Summary -->
+          <div class="pipeline-summary-grid tab-pipeline" data-tab="mentor"></div>
+
+          <!-- Candidate Grid -->
+          <div class="candidate-grid tab-grid" data-tab="mentor"></div>
+
+          <!-- Candidate List Table View -->
+          <div class="list-view-container mt-4 tab-list-wrap" data-tab="mentor" style="display:none">
+            <div class="candidate-list-shell">
+              <table class="table align-middle shadow-sm border-0 mb-0">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                  <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                    <th class="ps-4 px-3 py-3">Candidate Overview</th>
+                  </tr>
+                </thead>
+                <tbody class="text-[13px] text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== INTERNSHIP TAB ========== -->
+        <div class="tab-panel" id="panel-internship">
+          <!-- Hero Panel -->
+          <div class="hero-panel mb-4">
+            <div class="hero-actions d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
+              <div class="hero-copy">
+                <span class="hero-kicker"><i class="fa-solid fa-sparkles"></i> Internship Recruitment Pipeline</span>
+                <h1 class="hero-title">Candidate Internship</h1>
+              </div>
+              <div class="hero-action-stack d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <div class="hero-action-toolbar">
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-interview-btn"
+                    data-tab="internship"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Jadwal Interview"
+                  >
+                    <i class="fa-regular fa-calendar-days"></i>
+                  </button>
+                  <a
+                    href="/data/kandidat-nonaktif.html"
+                    class="hero-icon-btn btn-accent-danger"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Kandidat Nonaktif"
+                  >
+                    <i class="fa-solid fa-user-slash"></i>
+                  </a>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-view-toggle"
+                    data-tab="internship"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Tampilan"
+                  >
+                    <span class="view-mode-slider-track" style="padding:0">
+                      <span
+                        class="view-mode-slider-thumb"
+                        aria-hidden="true"
+                        style="position:static;width:auto;height:auto;background:transparent;color:inherit;border-radius:0"
+                      >
+                        <i class="fa-solid fa-table-cells-large"></i>
+                      </span>
+                    </span>
+                  </button>
+                  <div class="toolbar-segmented d-none" role="group">
+                    <button type="button" class="btn view-btn active tab-grid-btn" data-tab="internship">
+                      <i class="fas fa-th-large"></i>
+                    </button>
+                    <button type="button" class="btn view-btn tab-list-btn" data-tab="internship">
+                      <i class="fas fa-list"></i>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="hero-icon-btn tab-template-btn"
+                    data-tab="internship"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Ubah Template"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="candidate-toolbar">
+            <div class="row g-3 justify-content-between align-items-center">
+              <div class="col-lg-5">
+                <label class="toolbar-label">Cari Kandidat</label>
+                <div class="input-group toolbar-search">
+                  <span class="input-group-text bg-transparent border-0"><i class="fas fa-search"></i></span>
+                  <input
+                    type="text"
+                    class="form-control toolbar-input bg-transparent border-0 shadow-none tab-search-input"
+                    data-tab="internship"
+                    placeholder="Cari nama, kampus, posisi, atau kontak..."
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 col-lg-3">
+                <label class="toolbar-label">Filter Status</label>
+                <select class="form-select toolbar-select w-100 tab-status-filter" data-tab="internship">
+                  <option value="">Semua status</option>
+                  <option value="screening">Screening</option>
+                  <option value="interview">Interview</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="onboarding">Onboarding</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="col-md-4 col-lg-2">
+                <label class="toolbar-label">Urutkan</label>
+                <select class="form-select toolbar-select w-100 tab-sort-select" data-tab="internship">
+                  <option value="none">Urutkan</option>
+                  <option value="status">Status</option>
+                  <option value="created_desc">Tanggal input (terbaru)</option>
+                  <option value="created_asc">Tanggal input (terlama)</option>
+                  <option value="interview_asc">Tanggal interview (terdekat)</option>
+                  <option value="interview_desc">Tanggal interview (terjauh)</option>
+                  <option value="name_asc">Nama A-Z</option>
+                  <option value="name_desc">Nama Z-A</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline Stat Summary -->
+          <div class="pipeline-summary-grid tab-pipeline" data-tab="internship"></div>
+
+          <!-- Candidate Grid -->
+          <div class="candidate-grid tab-grid" data-tab="internship"></div>
+
+          <!-- Candidate List Table View -->
+          <div class="list-view-container mt-4 tab-list-wrap" data-tab="internship" style="display:none">
+            <div class="candidate-list-shell">
+              <table class="table align-middle shadow-sm border-0 mb-0">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                  <tr class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                    <th class="ps-4 px-3 py-3">Candidate Overview</th>
+                  </tr>
+                </thead>
+                <tbody class="text-[13px] text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== POSITIONS TAB ========== -->
+        <div class="tab-panel" id="panel-positions">
+          <!-- Hero Panel -->
+          <div class="hero-panel mb-4">
+            <div class="hero-actions d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
+              <div class="hero-copy">
+                <span class="hero-kicker"><i class="fa-solid fa-sliders"></i> Recruitment Positions</span>
+                <h1 class="hero-title">Position Management</h1>
+              </div>
+              <div class="hero-action-stack d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <div class="hero-action-toolbar">
+                  <button type="button" class="btn btn-add-pos-custom" id="btnAddPosition">
+                    <i class="fa-solid fa-plus"></i> Tambah Posisi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Subtabs Filter -->
+          <div class="candidate-toolbar py-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <label class="toolbar-label mb-2">Filter Kategori</label>
+                <div class="position-subtabs" id="positionCategorySubtabs">
+                  <button type="button" class="position-subtab-btn active" data-category="internship">
+                    Internship
+                  </button>
+                  <button type="button" class="position-subtab-btn" data-category="team">
+                    Team
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Positions Card Grid -->
+          <div class="candidate-grid" id="positionsCardGrid">
+            <div class="text-center py-4 text-muted" style="grid-column:1/-1">Memuat data...</div>
+          </div>
+
+          <!-- Inactive Positions Section -->
+          <div id="inactivePositionsSection" style="display:none">
+            <div class="inactive-section-header">
+              <div class="inactive-section-icon"><i class="fa-solid fa-archive"></i></div>
+              <div>
+                <div class="inactive-section-title">Inactive Positions</div>
+                <div class="inactive-section-desc">Posisi yang tidak aktif</div>
+              </div>
+              <span class="inactive-section-count" id="inactivePositionCount">0</span>
+            </div>
+            <div
+              class="candidate-grid"
+              id="inactivePositionsGrid"
+              style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========== SHARED MODALS ========== -->
+
+    <!-- Interview Schedule Modal -->
+    <div class="modal fade" id="interviewScheduleModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content schedule-modal-content border-0">
+          <div class="modal-header schedule-modal-header">
+            <h5 class="schedule-modal-title" id="interviewScheduleModalLabel">
+              <i class="fa-regular fa-calendar-days"></i> Jadwal Interview
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body schedule-modal-body">
+            <div class="schedule-modal-toolbar">
+              <div class="row g-2">
+                <div class="col-12 col-lg-4">
+                  <input
+                    type="search"
+                    id="interviewScheduleSearch"
+                    class="form-control"
+                    placeholder="Cari nama kandidat atau interviewer..."
+                  />
+                </div>
+                <div class="col-6 col-lg-2">
+                  <input type="date" id="interviewScheduleDateFilter" class="form-control" />
+                </div>
+                <div class="col-6 col-lg-2">
+                  <select id="interviewScheduleStatusFilter" class="form-select">
+                    <option value="">Semua Status</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="today">Today</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <select id="interviewScheduleSort" class="form-select">
+                    <option value="nearest" selected>Tanggal & waktu terdekat</option>
+                    <option value="farthest">Tanggal & waktu terjauh</option>
+                    <option value="candidate_asc">Nama kandidat A-Z</option>
+                    <option value="candidate_desc">Nama kandidat Z-A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div id="interviewScheduleLoading" class="schedule-modal-loading d-none">
+              Memuat jadwal interview...
+            </div>
+            <div id="interviewScheduleEmpty" class="schedule-modal-empty d-none">
+              Belum ada jadwal interview tersedia.
+            </div>
+            <div class="table-responsive schedule-modal-table-wrap" id="interviewScheduleTableWrap">
+              <table class="table schedule-modal-table align-middle mb-0">
+                <colgroup>
+                  <col style="width:24%" />
+                  <col style="width:14%" />
+                  <col style="width:23%" />
+                  <col style="width:23%" />
+                  <col style="width:16%" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Tanggal Interview</th>
+                    <th>Waktu</th>
+                    <th>Nama Kandidat</th>
+                    <th>Interviewer</th>
+                    <th>Posisi</th>
+                  </tr>
+                </thead>
+                <tbody id="interviewScheduleTableBody"></tbody>
+              </table>
+            </div>
+            <div class="schedule-modal-pagination" id="interviewSchedulePagWrap">
+              <div class="schedule-modal-pagination-meta" id="interviewSchedulePagMeta">
+                Menampilkan 0 data
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="interviewSchedulePrevBtn">
+                  Sebelumnya
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="interviewScheduleNextBtn">
+                  Berikutnya
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp Template Modal -->
+    <div class="modal fade" id="templateBaseModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content schedule-modal-content border-0">
+          <div class="modal-header schedule-modal-header">
+            <h5 class="schedule-modal-title" id="templateBaseModalLabel">
+              <i class="fa-regular fa-pen-to-square"></i> Ubah Template Dasar
+              <span
+                id="templateCategoryLabel"
+                style="font-weight:700;color:#2563eb;font-size:0.88rem;margin-left:8px"
+              ></span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body schedule-modal-body">
+            <div class="small text-muted mb-3">Kelola semua template chat WhatsApp secara langsung.</div>
+            <div id="templateBaseValidationMsg" class="alert alert-warning d-none py-2 px-3 mb-3"></div>
+            <div class="template-editor-grid" id="templateEditorGrid"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" id="saveTemplateBaseBtn">
+              Simpan Perubahan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Position Form Modal -->
+    <div class="modal fade" id="positionFormModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content schedule-modal-content border-0">
+          <div class="modal-header schedule-modal-header">
+            <h5 class="schedule-modal-title" id="positionFormModalLabel">
+              <i class="fa-solid fa-sliders"></i> Tambah Posisi
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body schedule-modal-body">
+            <form id="positionForm">
+              <input type="hidden" id="positionDocId" value="" />
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Nama Posisi</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="positionNameInput"
+                    placeholder="Contoh: Frontend Developer"
+                    required
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold">Kategori</label>
+                  <select class="form-select" id="positionCategoryInput" required>
+                    <option value="">Pilih kategori</option>
+                    <option value="internship">Internship</option>
+                    <option value="team">Team</option>
+                  </select>
+                </div>
+                <input type="hidden" id="positionActiveInput" value="true" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" id="btnSavePosition">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main Module Script -->
+    <script type="module" src="/pages/hr/candidate-management/candidate-management.js"></script>
+  </body>
+</html>
