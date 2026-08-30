@@ -42,9 +42,22 @@
         "source": "/data/team-candidate-detail.html",
         "destination": "/team-candidate-detail",
         "type": 301
+      },
+      {
+        "source": "/setting/team-management.html",
+        "destination": "/team-management",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/team-management",
+        "destination": "/pages/hr/team-management/index.html"
+      },
+      {
+        "source": "/hr/team-management",
+        "destination": "/pages/hr/team-management/index.html"
+      },
       {
         "source": "/candidate-management",
         "destination": "/pages/hr/candidate-management/index.html"
