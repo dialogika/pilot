@@ -26,6 +26,8 @@ import {
   deleteDoc,
   writeBatch,
   serverTimestamp,
+  arrayUnion,
+  deleteField,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   ref,
@@ -33,6 +35,45 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { getMs } from "../../utils.js";
+
+export function isReportedToday(data, myAliases) {
+  if (!data) return false;
+  const normStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+  if (normStatus === "rejected" || normStatus === "approved" || normStatus.includes("approv") || normStatus.includes("reject")) return false;
+  if (data.user_status && (String(data.user_status).toLowerCase() === "approved" || String(data.user_status).toLowerCase() === "rejected")) return false;
+
+  const msAppr = getMs(data.last_approved_at || data.approved_at);
+  const msRej = getMs(data.last_rejected_at || data.rejected_at);
+  const msRep = getMs(data.last_reported_at);
+
+  if (msAppr && msRep && msAppr >= msRep) return false;
+  if (msRej && msRep && msRej >= msRep) return false;
+
+  // Check per-user rejection in rejected_users
+  if (data.rejected_users && myAliases && myAliases.length > 0) {
+    const isUserRejected = Object.keys(data.rejected_users).some((uid) => myAliases.includes(String(uid).toLowerCase().trim()));
+    if (isUserRejected) return false;
+  }
+
+  const lrb = data.last_reported_by;
+  const lra = data.last_reported_at;
+  if (!Array.isArray(lrb) || !lrb.length || !lra) return false;
+  const ms = getMs(lra);
+  if (!ms) return false;
+  const reported = new Date(ms);
+  const today = new Date();
+  const isToday =
+    reported.getFullYear() === today.getFullYear() &&
+    reported.getMonth() === today.getMonth() &&
+    reported.getDate() === today.getDate();
+  if (!isToday) return false;
+
+  if (myAliases && myAliases.length > 0) {
+    const reportedByList = lrb.map((x) => String(x).toLowerCase().trim());
+    return reportedByList.some((uid) => myAliases.includes(uid));
+  }
+  return false;
+}
 
 /* ------------------------------------------------------------------ */
 /* Auth                                                                */
@@ -45,63 +86,110 @@ export { auth, storage };
 /* ------------------------------------------------------------------ */
 
 /**
- * Resolve all aliases for a user (Auth UID, Firestore User Doc ID, Email, Name).
- * @param {string} [uid]
+ * Helper to fetch all possible aliases for a user (docId, uid, email, full name, etc.)
+ * Strictly matches the target user's record without fuzzy-matching other users.
+ * @param {string} uid
  * @returns {Promise<Array<string>>}
  */
 export async function getUserAliases(uid) {
   const aliases = new Set();
-  if (uid) {
-    aliases.add(uid);
-    aliases.add(String(uid).toLowerCase());
+  const currentUid = uid || auth.currentUser?.uid || "";
+  const currentEmail = auth.currentUser?.email || "";
+  const currentDisplayName = auth.currentUser?.displayName || "";
+
+  if (currentUid) {
+    aliases.add(currentUid);
+    aliases.add(String(currentUid).toLowerCase().trim());
   }
-  if (auth.currentUser) {
-    if (auth.currentUser.uid) {
-      aliases.add(auth.currentUser.uid);
-      aliases.add(String(auth.currentUser.uid).toLowerCase());
-    }
-    if (auth.currentUser.email) {
-      aliases.add(auth.currentUser.email);
-      aliases.add(String(auth.currentUser.email).toLowerCase());
-    }
+  if (currentEmail) {
+    aliases.add(currentEmail);
+    aliases.add(String(currentEmail).toLowerCase().trim());
+  }
+  if (currentDisplayName) {
+    aliases.add(currentDisplayName);
+    aliases.add(String(currentDisplayName).toLowerCase().trim());
+    aliases.add(String(currentDisplayName).toLowerCase().replace(/[\s_-]+/g, ""));
   }
 
   try {
     const usersMap = await loadUsersMap();
-    Object.keys(usersMap).forEach((k) => {
-      const u = usersMap[k];
-      if (u) {
-        const uDocId = u.docId ? String(u.docId).toLowerCase() : "";
-        const uUid = u.uid ? String(u.uid).toLowerCase() : "";
-        const uEmail = u.email ? String(u.email).toLowerCase() : "";
-        const uName = u.name ? String(u.name).toLowerCase() : "";
-        const kLower = String(k).toLowerCase();
+    const matchedUsers = new Set();
 
-        const matches =
-          (uUid && aliases.has(uUid)) ||
-          (uDocId && aliases.has(uDocId)) ||
-          (uEmail && aliases.has(uEmail)) ||
-          (uName && aliases.has(uName)) ||
-          aliases.has(kLower);
+    // 1. Direct lookup by key in usersMap
+    const searchKeys = [
+      currentUid,
+      String(currentUid).toLowerCase().trim(),
+      currentEmail,
+      String(currentEmail).toLowerCase().trim(),
+      currentDisplayName,
+      String(currentDisplayName).toLowerCase().trim(),
+      String(currentDisplayName).toLowerCase().replace(/[\s_-]+/g, ""),
+    ].filter(Boolean);
 
-        if (matches) {
-          if (k) aliases.add(k);
-          if (u.docId) aliases.add(u.docId);
-          if (u.uid) aliases.add(u.uid);
-          if (u.name) aliases.add(u.name);
-          if (u.email) {
-            aliases.add(u.email);
-            aliases.add(u.email.toLowerCase());
-          }
-          if (Array.isArray(u.allAliases)) {
-            u.allAliases.forEach((a) => {
-              if (a) aliases.add(a);
-            });
-          }
-        }
+    searchKeys.forEach((k) => {
+      if (usersMap[k]) {
+        matchedUsers.add(usersMap[k]);
       }
     });
-  } catch (_) {}
+
+    // 2. Exact match on uid, docId, email, or normalized name
+    if (!matchedUsers.size) {
+      Object.values(usersMap).forEach((u) => {
+        if (!u) return;
+        const uDocId = u.docId ? String(u.docId).toLowerCase().trim() : "";
+        const uUid = u.uid ? String(u.uid).toLowerCase().trim() : "";
+        const uEmail = u.email ? String(u.email).toLowerCase().trim() : "";
+        const uName = u.name ? String(u.name).toLowerCase().trim() : "";
+        const uNameNoSpace = uName.replace(/[\s_-]+/g, "");
+
+        const uidTarget = String(currentUid).toLowerCase().trim();
+        const emailTarget = String(currentEmail).toLowerCase().trim();
+        const nameTarget = String(currentDisplayName).toLowerCase().trim();
+        const nameTargetNoSpace = nameTarget.replace(/[\s_-]+/g, "");
+
+        if (
+          (uidTarget && (uDocId === uidTarget || uUid === uidTarget)) ||
+          (emailTarget && uEmail === emailTarget) ||
+          (nameTarget && nameTarget.length >= 3 && (uName === nameTarget || (uNameNoSpace && uNameNoSpace === nameTargetNoSpace)))
+        ) {
+          matchedUsers.add(u);
+        }
+      });
+    }
+
+    // 3. Collect only the exact aliases of the matched user record
+    matchedUsers.forEach((u) => {
+      if (u.docId) {
+        aliases.add(u.docId);
+        aliases.add(String(u.docId).toLowerCase().trim());
+        aliases.add(String(u.docId).toLowerCase().replace(/[\s_-]+/g, ""));
+      }
+      if (u.uid) {
+        aliases.add(u.uid);
+        aliases.add(String(u.uid).toLowerCase().trim());
+      }
+      if (u.email) {
+        aliases.add(u.email);
+        aliases.add(String(u.email).toLowerCase().trim());
+      }
+      if (u.name) {
+        aliases.add(u.name);
+        aliases.add(String(u.name).toLowerCase().trim());
+        aliases.add(String(u.name).toLowerCase().replace(/[\s_-]+/g, ""));
+      }
+      if (Array.isArray(u.allAliases)) {
+        u.allAliases.forEach((a) => {
+          if (a) {
+            aliases.add(a);
+            aliases.add(String(a).toLowerCase().trim());
+            aliases.add(String(a).toLowerCase().replace(/[\s_-]+/g, ""));
+          }
+        });
+      }
+    });
+  } catch (e) {
+    console.warn("quest-modal.repository: getUserAliases lookup error:", e);
+  }
 
   return Array.from(aliases);
 }
@@ -196,6 +284,265 @@ export async function listQuestTasks() {
       } catch (_) {}
     }
   }
+
+  // 4. Cross-reference latest intern_dailyreport statuses strictly for the CURRENT user
+  const myAliases = auth.currentUser ? await getUserAliases(auth.currentUser.uid) : [];
+  const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
+  if (auth.currentUser) {
+    if (auth.currentUser.uid) myAliasSet.add(auth.currentUser.uid.toLowerCase().trim());
+    if (auth.currentUser.email) myAliasSet.add(auth.currentUser.email.toLowerCase().trim());
+    if (auth.currentUser.displayName) myAliasSet.add(auth.currentUser.displayName.toLowerCase().trim());
+  }
+
+  try {
+    const dailySnap = await getDocs(collection(db, "intern_dailyreport"));
+    const dailyDocs = [];
+    dailySnap.forEach((docSnap) => {
+      dailyDocs.push({ id: docSnap.id, data: docSnap.data() || {} });
+    });
+
+    // Sort ascending so newer reports overwrite older reports
+    function getDocSortTime(d) {
+      if (!d) return 0;
+      const t = getMs(d.created_at || d.timestamp || d.submitted_at);
+      if (t) return t;
+      if (d.date) {
+        const dt = getMs(d.date);
+        if (dt) return dt;
+      }
+      if (d.report_date) {
+        const rdt = new Date(d.report_date).getTime();
+        if (!isNaN(rdt) && rdt > 0) return rdt;
+      }
+      return Date.now();
+    }
+    dailyDocs.sort((a, b) => getDocSortTime(a.data) - getDocSortTime(b.data));
+
+    const taskReportStatusMap = {};
+    dailyDocs.forEach(({ data: ddata }) => {
+      const authorId = String(ddata.user_id || ddata.userId || ddata.author_id || "").toLowerCase().trim();
+      const authorEmail = String(ddata.email || "").toLowerCase().trim();
+      const authorName = String(ddata.name || ddata.user_name || "").toLowerCase().trim();
+      const authorNameNoSpace = authorName.replace(/[\s_-]+/g, "");
+
+      const docStatus = String(ddata.status || "").trim();
+      const tasks = Array.isArray(ddata.tasks) ? ddata.tasks : [];
+      tasks.forEach((t) => {
+        const tid = String(t.task_id || t.taskId || t.id || "").trim();
+        const tTitle = String(t.title || t.task || "").toLowerCase().trim();
+        const whoList = Array.isArray(t.who_did_this) ? t.who_did_this.map((w) => String(w).toLowerCase().trim()) : [];
+
+        const isMyReport =
+          !auth.currentUser ||
+          whoList.some((w) => myAliasSet.has(w)) ||
+          (authorId && (myAliasSet.has(authorId) || myAliasSet.has(authorId.replace(/[\s_-]+/g, "")))) ||
+          (authorEmail && (myAliasSet.has(authorEmail) || myAliasSet.has(authorEmail.replace(/[\s_-]+/g, "")))) ||
+          (authorName && (myAliasSet.has(authorName) || (authorNameNoSpace && Array.from(myAliasSet).some((a) => a.replace(/[\s_-]+/g, "") === authorNameNoSpace))));
+
+        const rawTStatus = String(t.status || "").toLowerCase().trim();
+        const rawDocStatus = docStatus.toLowerCase().trim();
+        
+        let finalStatus = "Reported";
+        if (rawTStatus.includes("approv") || (rawDocStatus === "approved" && !rawTStatus.includes("reject"))) {
+          finalStatus = "Approved";
+        } else if (rawTStatus.includes("reject") || (rawDocStatus === "rejected" && !rawTStatus.includes("approv"))) {
+          finalStatus = "Rejected";
+        } else {
+          finalStatus = "Reported";
+        }
+
+        const reason = t.rejection_reason || t.feedback || ddata.rejection_reason || ddata.feedback || "";
+        const entry = { status: finalStatus, reason, isMyReport: Boolean(isMyReport), authorId };
+
+        if (tid) {
+          const existing = taskReportStatusMap[tid];
+          if (
+            !existing ||
+            (!existing.isMyReport && isMyReport) ||
+            (existing.status !== "Approved" && finalStatus === "Approved") ||
+            (existing.status !== "Approved" && finalStatus === "Rejected")
+          ) {
+            taskReportStatusMap[tid] = entry;
+          }
+        }
+        if (tTitle) {
+          const existing = taskReportStatusMap[tTitle];
+          if (
+            !existing ||
+            (!existing.isMyReport && isMyReport) ||
+            (existing.status !== "Approved" && finalStatus === "Approved") ||
+            (existing.status !== "Approved" && finalStatus === "Rejected")
+          ) {
+            taskReportStatusMap[tTitle] = entry;
+          }
+        }
+      });
+    });
+
+    // Also cross-reference legacy/root quest_reports
+    try {
+      const qrSnap = await getDocs(collection(db, "quest_reports"));
+      const qrDocs = [];
+      qrSnap.forEach((ds) => qrDocs.push({ id: ds.id, data: ds.data() || {} }));
+      qrDocs.sort((a, b) => {
+        const aTime = getMs(a.data.created_at || a.data.timestamp || a.data.submitted_at || a.data.date || 0) || 0;
+        const bTime = getMs(b.data.created_at || b.data.timestamp || b.data.submitted_at || b.data.date || 0) || 0;
+        return aTime - bTime;
+      });
+
+      qrDocs.forEach(({ data: qdata }) => {
+        const authorId = String(qdata.submittedBy || qdata.user_id || qdata.userId || qdata.authorId || "").toLowerCase().trim();
+        const authorEmail = String(qdata.email || "").toLowerCase().trim();
+        const authorName = String(qdata.name || qdata.user_name || "").toLowerCase().trim();
+        const isMyReport =
+          !auth.currentUser ||
+          (authorId && myAliasSet.has(authorId)) ||
+          (authorEmail && myAliasSet.has(authorEmail)) ||
+          (authorName && myAliasSet.has(authorName));
+
+        const tid = String(qdata.task_id || qdata.taskId || "").trim();
+        const tTitle = String(qdata.title || qdata.task || "").toLowerCase().trim();
+        const appr = String(qdata.approval_status || qdata.approvalStatus || qdata.status || "").trim();
+        const reason = qdata.feedback || qdata.rejection_reason || "";
+        if (appr) {
+          const entry = { status: appr, reason, isMyReport: Boolean(isMyReport) };
+          if (tid) {
+            const existing = taskReportStatusMap[tid];
+            if (!existing || (!existing.isMyReport && isMyReport) || (existing.status !== "Approved" && appr.toLowerCase().includes("approv")) || (existing.status !== "Approved" && appr.toLowerCase().includes("reject"))) {
+              taskReportStatusMap[tid] = entry;
+            }
+          }
+          if (tTitle) {
+            const existing = taskReportStatusMap[tTitle];
+            if (!existing || (!existing.isMyReport && isMyReport) || (existing.status !== "Approved" && appr.toLowerCase().includes("approv")) || (existing.status !== "Approved" && appr.toLowerCase().includes("reject"))) {
+              taskReportStatusMap[tTitle] = entry;
+            }
+          }
+        }
+      });
+    } catch (_) {}
+
+    rows.forEach((row) => {
+      const data = row.data || {};
+      const tid = String(row.id || "").trim();
+      const titleLower = String(data.task || data.task_name || data.title || "").toLowerCase().trim();
+      let reportStatus = taskReportStatusMap[tid] || (titleLower ? taskReportStatusMap[titleLower] : null);
+
+      if (!reportStatus && titleLower) {
+        const foundKey = Object.keys(taskReportStatusMap).find((k) => {
+          if (!k || k.length < 4) return false;
+          return titleLower.includes(k) || k.includes(titleLower);
+        });
+        if (foundKey) {
+          reportStatus = taskReportStatusMap[foundKey];
+        }
+      }
+
+      const directStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+      const userRejection = data.rejected_users && Object.keys(data.rejected_users).some((uid) => myAliasSet.has(String(uid).toLowerCase().trim()));
+      const userRejectionData = userRejection
+        ? Object.entries(data.rejected_users).find(([uid]) => myAliasSet.has(String(uid).toLowerCase().trim()))?.[1]
+        : null;
+
+      // Per-user approval detection (multi-assignee): approved_users[uid] mirrors rejected_users[uid]
+      const userApproval = data.approved_users && Object.keys(data.approved_users).some(
+        (uid) => myAliasSet.has(String(uid).toLowerCase().trim())
+      );
+
+      const msRej = getMs(data.last_rejected_at || data.rejected_at);
+      const msRep = getMs(data.last_reported_at);
+      const isRejectionNewerThanReport = Boolean(msRej && msRep && msRej >= msRep);
+
+      const hasTaskRejection =
+        userRejection ||
+        directStatus === "rejected" ||
+        directStatus.includes("reject") ||
+        isRejectionNewerThanReport ||
+        Boolean(data.rejection_reason || data.feedback);
+
+      const taskRejectionReason =
+        (userRejectionData && userRejectionData.reason) || data.rejection_reason || data.feedback || "Ditolak dalam review";
+      const isReported = isReportedToday(data, myAliases);
+
+      // Priority 1: explicit per-user approval flag (approved_users[uid]) – most reliable
+      if (userApproval) {
+        row.data.user_status = "Approved";
+        row.data.rejection_reason = "";
+      } else if (userRejection) {
+        row.data.user_status = "Rejected";
+        row.data.rejection_reason = taskRejectionReason;
+      } else if (reportStatus) {
+        // Priority 2: status from intern_dailyreport cross-reference
+        const stLower = String(reportStatus.status || "").toLowerCase();
+        if (stLower.includes("reject")) {
+          row.data.user_status = "Rejected";
+          row.data.rejection_reason = reportStatus.reason || taskRejectionReason;
+        } else if (stLower.includes("approv")) {
+          row.data.user_status = "Approved";
+          row.data.rejection_reason = "";
+        } else if (stLower.includes("pend") || stLower.includes("report") || stLower.includes("partial")) {
+          if (hasTaskRejection) {
+            row.data.user_status = "Rejected";
+            row.data.rejection_reason = taskRejectionReason;
+          } else {
+            row.data.user_status = "Reported";
+            row.data.rejection_reason = "";
+          }
+        } else if (hasTaskRejection) {
+          row.data.user_status = "Rejected";
+          row.data.rejection_reason = taskRejectionReason;
+        } else {
+          row.data.user_status = "To Do";
+          row.data.rejection_reason = "";
+        }
+      } else {
+        // Priority 3: fallback to task-level signals
+        const isPersonallyApproved = directStatus.includes("approv");
+
+        if (isPersonallyApproved) {
+          row.data.user_status = "Approved";
+          row.data.rejection_reason = "";
+        } else if (hasTaskRejection) {
+          row.data.user_status = "Rejected";
+          row.data.rejection_reason = taskRejectionReason;
+        } else if (isReported) {
+          row.data.user_status = "Reported";
+          row.data.rejection_reason = "";
+        } else {
+          row.data.user_status = "To Do";
+          row.data.rejection_reason = "";
+        }
+      }
+    });
+  } catch (e) {
+    console.warn("[QuestModal] Could not cross-reference intern_dailyreport:", e);
+    // Even if cross-reference fails, run approved_users/rejected_users check via normalizeTask
+  }
+
+  // Final pass: apply approved_users / rejected_users from task doc data
+  // This runs outside try-catch so it's always executed even if intern_dailyreport fetch failed
+  rows.forEach((row) => {
+    if (row.data.user_status && row.data.user_status !== "To Do") return; // already resolved
+    const data = row.data || {};
+    const directStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+    // Check approved_users[uid] per-user (most reliable for multi-assignee)
+    const userApproval = data.approved_users && Object.keys(data.approved_users).some(
+      (uid) => myAliasSet.has(String(uid).toLowerCase().trim())
+    );
+    const userRejection = data.rejected_users && Object.keys(data.rejected_users).some(
+      (uid) => myAliasSet.has(String(uid).toLowerCase().trim())
+    );
+    if (userApproval) {
+      row.data.user_status = "Approved";
+      row.data.rejection_reason = "";
+    } else if (userRejection || directStatus.includes("reject")) {
+      row.data.user_status = "Rejected";
+      row.data.rejection_reason = data.rejection_reason || data.feedback || "";
+    } else if (directStatus.includes("approv")) {
+      row.data.user_status = "Approved";
+      row.data.rejection_reason = "";
+    }
+  });
 
   return rows;
 }
@@ -376,11 +723,29 @@ export async function toggleTask(taskId, status) {
  * @param {Array<string>} whoDidThis
  */
 export async function markTaskReported(taskId, whoDidThis = []) {
-  const patch = { status: "reported" };
-  if (Array.isArray(whoDidThis) && whoDidThis.length > 0) {
-    patch.last_reported_by = whoDidThis;
-    patch.last_reported_at = serverTimestamp();
+  const cleanWho = (Array.isArray(whoDidThis) ? whoDidThis : [whoDidThis])
+    .map((x) => String(x).trim())
+    .filter(Boolean);
+
+  const authUid = auth.currentUser ? auth.currentUser.uid : "";
+  const allWho = Array.from(new Set([...cleanWho, authUid].filter(Boolean)));
+
+  const patch = {
+    status: "reported",
+    last_reported_at: serverTimestamp(),
+  };
+
+  if (allWho.length > 0) {
+    patch.last_reported_by = arrayUnion(...allWho);
+    allWho.forEach((uid) => {
+      patch[`rejected_users.${uid}`] = deleteField();
+    });
   }
+
+  patch.rejection_reason = deleteField();
+  patch.feedback = deleteField();
+  patch.last_rejected_at = deleteField();
+  patch.last_rejected_by = deleteField();
 
   let updated = false;
   try {

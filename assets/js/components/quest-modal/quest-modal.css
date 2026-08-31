@@ -1892,6 +1892,19 @@
   border-color: var(--dg-border, #e2e8f0) !important;
 }
 
+.dg-quest-desc-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+  display: block;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.dg-quest-desc-content p:last-child {
+  margin-bottom: 0;
+}
+
 /* Priority / Urgency Flag Picker */
 .dg-quest-prio-picker-wrap {
   position: relative;

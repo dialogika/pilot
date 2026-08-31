@@ -23,6 +23,7 @@ import {
   updateDoc,
   onSnapshot,
   serverTimestamp,
+  arrayRemove,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMs } from "../../assets/js/utils.js";
 
@@ -227,39 +228,31 @@ function extractUserIdentifiers(raw) {
 }
 
 /**
- * Check if a daily report document is targeted to or involves the current user.
+ * Check if a daily report document is targeted to the current user for approval review (report_to).
  */
 function isReportTargetedToUser(data, myAliases, userRole, userDept) {
   if (!myAliases || !myAliases.length) return false;
+  const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
 
-  // 1. Author/submitter
-  const authorId = String(data.user_id || data.userId || data.author_id || "").toLowerCase().trim();
-  if (authorId && myAliases.includes(authorId)) return true;
-
-  // 2. Creator
-  const createdList = extractUserIdentifiers(data.created_by || data.createdBy);
-  if (createdList.some((u) => myAliases.includes(u))) return true;
-
-  // 3. Report To (Target Supervisors)
+  // Extract all report_to identifiers from root doc and its tasks
   const reportList = extractUserIdentifiers(data.report_to || data.reportTo);
-
   const tasksArr = Array.isArray(data.tasks) ? data.tasks : [];
   tasksArr.forEach((t) => {
     if (!t) return;
     extractUserIdentifiers(t.report_to || t.reportTo).forEach((x) => {
       reportList.push(x);
     });
-    extractUserIdentifiers(t.created_by || t.createdBy).forEach((x) => {
-      createdList.push(x);
-    });
   });
 
-  if (reportList.length > 0) {
-    // If specific report_to is defined, ONLY those listed in report_to receive/see it
-    return reportList.some((u) => myAliases.includes(u));
+  const reportSet = new Set(reportList.map((x) => String(x).toLowerCase().trim()).filter(Boolean));
+
+  if (reportSet.size > 0) {
+    for (const u of reportSet) {
+      if (myAliasSet.has(u)) return true;
+    }
+    return false;
   }
 
-  // If report has no explicit report_to, only author/assignee and creator can see it
   return false;
 }
 
@@ -487,13 +480,17 @@ export async function submitRejectIndividual(reportId, tasks, selectedIndices, r
   else if (anyPending) reportStatus = STATUS.partiallyApproved;
   else reportStatus = STATUS.partiallyApproved;
 
+  const reportSnap = await getDoc(doc(db, "intern_dailyreport", reportId));
+  const reportData = reportSnap.exists() ? reportSnap.data() || {} : {};
+  const authorUid = reportData.user_id || reportData.userId || reportData.author_id || "";
+
   await updateDoc(doc(db, "intern_dailyreport", reportId), {
     tasks: updatedTasks,
     status: reportStatus,
     reviewer_id: reviewer.uid,
     reviewer_name: reviewer.name,
     reviewed_at: serverTimestamp(),
-    ...(reason ? { rejection_reason: reason } : {}),
+    ...(reason ? { rejection_reason: reason, feedback: reason } : {}),
   });
 
   await Promise.all(
@@ -503,10 +500,20 @@ export async function submitRejectIndividual(reportId, tasks, selectedIndices, r
       const tid = t.task_id || t.id;
       if (!tid) return;
       await updateTaskDocStatus(tid, {
-        status: STATUS.rejected,
         rejection_reason: reason || "",
-        last_reported_at: null,
-        last_reported_by: null,
+        feedback: reason || "",
+        last_rejected_at: serverTimestamp(),
+        last_rejected_by: reviewer.uid,
+        ...(authorUid
+          ? {
+              last_reported_by: arrayRemove(authorUid),
+              [`rejected_users.${authorUid}`]: {
+                reason: reason || "",
+                rejected_at: new Date().toISOString(),
+                rejected_by: reviewer.uid,
+              },
+            }
+          : {}),
       });
     }),
   );
@@ -523,13 +530,23 @@ export async function rejectReport(reportId, reason, reviewer) {
   const reportData = reportSnap.exists() ? reportSnap.data() || {} : {};
   const tasks = Array.isArray(reportData.tasks) ? reportData.tasks : [];
   const taskIds = Array.isArray(reportData.task_ids) ? reportData.task_ids : [];
+  const authorUid = reportData.user_id || reportData.userId || reportData.author_id || "";
+
+  const updatedTasks = tasks.map((t) => ({
+    ...t,
+    status: STATUS.rejected,
+    rejection_reason: reason || "",
+    feedback: reason || "",
+  }));
 
   await updateDoc(doc(db, "intern_dailyreport", reportId), {
+    tasks: updatedTasks,
     status: STATUS.rejected,
     reviewer_id: reviewer.uid,
     reviewer_name: reviewer.name,
     reviewed_at: serverTimestamp(),
     rejection_reason: reason || "",
+    feedback: reason || "",
   });
 
   const idsToRevert = new Set();
@@ -542,10 +559,20 @@ export async function rejectReport(reportId, reason, reviewer) {
   await Promise.all(
     Array.from(idsToRevert).map((tid) =>
       updateTaskDocStatus(tid, {
-        status: STATUS.rejected,
         rejection_reason: reason || "",
-        last_reported_at: null,
-        last_reported_by: null,
+        feedback: reason || "",
+        last_rejected_at: serverTimestamp(),
+        last_rejected_by: reviewer.uid,
+        ...(authorUid
+          ? {
+              last_reported_by: arrayRemove(authorUid),
+              [`rejected_users.${authorUid}`]: {
+                reason: reason || "",
+                rejected_at: new Date().toISOString(),
+                rejected_by: reviewer.uid,
+              },
+            }
+          : {}),
       }),
     ),
   );
@@ -617,6 +644,15 @@ export async function approvePendingUser(userId, approver) {
       throw new Error("Registrasi pengguna tidak ditemukan.");
     throw new Error(error?.message || "Gagal menyetujui pengguna.");
   }
+}
+
+/**
+ * Reject a pending user: delete pending record from pending_users collection.
+ * @param {string} userId
+ */
+export async function rejectPendingUser(userId) {
+  if (!userId) return;
+  await deleteDoc(doc(db, "pending_users", userId));
 }
 
 export async function setUserRole(userIdOrEmail, role) {
