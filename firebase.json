@@ -60,23 +60,11 @@
         "destination": "/pages/hr/scouting-candidate/index.html"
       },
       {
-        "source": "/hr/scouting-candidate",
-        "destination": "/pages/hr/scouting-candidate/index.html"
-      },
-      {
         "source": "/team-management",
         "destination": "/pages/hr/team-management/index.html"
       },
       {
-        "source": "/hr/team-management",
-        "destination": "/pages/hr/team-management/index.html"
-      },
-      {
         "source": "/candidate-management",
-        "destination": "/pages/hr/candidate-management/index.html"
-      },
-      {
-        "source": "/hr/candidate-management",
         "destination": "/pages/hr/candidate-management/index.html"
       },
       {
@@ -128,15 +116,7 @@
         "destination": "/pages/hr/office-inventory/index.html"
       },
       {
-        "source": "/inventory",
-        "destination": "/pages/hr/office-inventory/index.html"
-      },
-      {
         "source": "/company-position",
-        "destination": "/pages/hr/company-position/index.html"
-      },
-      {
-        "source": "/positions",
         "destination": "/pages/hr/company-position/index.html"
       }
     ],
