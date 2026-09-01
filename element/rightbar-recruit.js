@@ -35,9 +35,9 @@ export function renderRightbarRecruit() {
                 <i data-lucide="briefcase"></i>
                 <span>Head Count</span>
             </a>
-            <a href="/quest/dashboard-recruitment.html" class="menu-item">
+            <a href="/dashboard-recruitment" class="menu-item" onclick="window.location.href='/dashboard-recruitment'; return false;">
                 <i data-lucide="layout-dashboard"></i>
-                <span>Dashboard</span>
+                <span>Recruitment Specialist</span>
             </a>
         </div>
     `;

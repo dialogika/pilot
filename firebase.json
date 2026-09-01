@@ -52,6 +52,11 @@
         "source": "/data/scouting-candidate.html",
         "destination": "/scouting-candidate",
         "type": 301
+      },
+      {
+        "source": "/quest/dashboard-recruitment.html",
+        "destination": "/dashboard-recruitment",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -118,6 +123,14 @@
       {
         "source": "/company-position",
         "destination": "/pages/hr/company-position/index.html"
+      },
+      {
+        "source": "/dashboard-recruitment",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/recruitment-dashboard",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
       }
     ],
     "headers": [
