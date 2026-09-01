@@ -133,16 +133,16 @@ export function renderStats(list) {
   let totalDeltaIcon = "";
   if (newPrev3Months === 0 && newLast3Months > 0) {
     totalDeltaText = "+100%";
-    totalDeltaIcon = '<i class="bi bi-arrow-up ms-1"></i>';
+    totalDeltaIcon = '<i class="fas fa-arrow-up ms-1"></i>';
   } else if (newPrev3Months > 0) {
     const diff = ((newLast3Months - newPrev3Months) / newPrev3Months) * 100;
     const rounded = Math.round(diff * 10) / 10;
     if (rounded > 0) {
       totalDeltaText = "+" + rounded + "%";
-      totalDeltaIcon = '<i class="bi bi-arrow-up ms-1"></i>';
+      totalDeltaIcon = '<i class="fas fa-arrow-up ms-1"></i>';
     } else if (rounded < 0) {
       totalDeltaText = String(rounded) + "%";
-      totalDeltaIcon = '<i class="bi bi-arrow-down ms-1"></i>';
+      totalDeltaIcon = '<i class="fas fa-arrow-down ms-1"></i>';
     } else {
       totalDeltaText = "0%";
     }
@@ -153,11 +153,13 @@ export function renderStats(list) {
 
   onLeaveEl.textContent = String(onLeaveCount);
   const onLeavePct = total > 0 ? Math.round((onLeaveCount / total) * 1000) / 10 : 0;
-  onLeavePctEl.innerHTML = "+" + onLeavePct + '% <i class="bi bi-arrow-up ms-1"></i>';
+  const onLeaveSign = onLeavePct >= 0 ? "+" : "";
+  onLeavePctEl.innerHTML = onLeaveSign + onLeavePct + '% <i class="fas fa-arrow-' + (onLeavePct >= 0 ? 'up' : 'down') + ' ms-1"></i>';
 
   leftEl.textContent = String(leftCount);
   const leftPct = total > 0 ? Math.round((leftCount / total) * 1000) / 10 : 0;
-  leftPctEl.innerHTML = "+" + leftPct + '% <i class="bi bi-arrow-up ms-1"></i>';
+  const leftSign = leftPct >= 0 ? "+" : "";
+  leftPctEl.innerHTML = leftSign + leftPct + '% <i class="fas fa-arrow-' + (leftPct >= 0 ? 'up' : 'down') + ' ms-1"></i>';
 }
 
 /* ------------------------------------------------------------------ */
@@ -214,7 +216,11 @@ export function renderTable(list, state) {
   const pageItems = data.slice(startIndex, endIndex);
 
   tbody.innerHTML = "";
-  pageItems.forEach((u) => tbody.appendChild(buildRow(u)));
+  if (total === 0) {
+    tbody.innerHTML = '<tr><td colspan="14" class="text-center text-muted py-5">Belum ada data internship.</td></tr>';
+  } else {
+    pageItems.forEach((u) => tbody.appendChild(buildRow(u)));
+  }
 
   paginationInfo.textContent =
     total === 0 ? "Showing 0 entries" : "Showing " + (startIndex + 1) + " - " + endIndex + " of " + total + " entries";
@@ -235,10 +241,10 @@ function buildRow(u) {
         : "badge-soft-success";
 
   const promoteHtml = u.promotedToTeam
-    ? '<span class="badge bg-success" style="font-size: 0.75rem;"><i class="bi bi-check me-1"></i>Team Member</span>'
+    ? '<span class="badge bg-success" style="font-size: 0.75rem;"><i class="fas fa-check me-1"></i>Team Member</span>'
     : '<button type="button" class="btn-action shadow-sm internship-promote-btn" data-user-id="' +
       escapeHtml(u.id) +
-      '" title="Promosikan ke Team"><i class="bi bi-arrow-up"></i></button>';
+      '" title="Promosikan ke Team"><i class="fas fa-arrow-up"></i></button>';
 
   const tr = document.createElement("tr");
   tr.innerHTML =
@@ -248,14 +254,14 @@ function buildRow(u) {
     '<div><div class="fw-bold text-dark mb-0">' + escapeHtml(u.name || "-") + "</div></div>" +
     "</div></td>" +
     '<td class="internship-col-status"><span class="badge-soft ' + statusClass + '">' +
-    '<i class="bi bi-circle-fill" style="font-size: 6px;"></i> ' + escapeHtml(statusInfo.label) +
+    '<i class="fas fa-circle" style="font-size: 6px;"></i> ' + escapeHtml(statusInfo.label) +
     "</span></td>" +
-    "<td>" + escapeHtml(formatDateValue(u.endDateObj) || "-") + "</td>" +
+    "<td>" + escapeHtml(u.endDate || formatDateValue(u.endDateObj) || "-") + "</td>" +
     '<td><span class="badge-soft badge-soft-primary">' + escapeHtml(u.position || "-") + "</span></td>" +
     '<td><span class="badge-soft badge-soft-secondary">' + escapeHtml(u.department || "-") + "</span></td>" +
     "<td>" + escapeHtml(u.mode || "-") + "</td>" +
     "<td>" + escapeHtml(truncate(u.address || "-", 20)) + "</td>" +
-    "<td>" + escapeHtml(formatDateValue(u.birthDateObj) || "-") + "</td>" +
+    "<td>" + escapeHtml(u.birthDate || formatDateValue(u.birthDateObj) || "-") + "</td>" +
     "<td>" + escapeHtml(u.campus || "-") + "</td>" +
     "<td>" + escapeHtml(u.phone || "-") + "</td>" +
     "<td>" + escapeHtml(u.email || "-") + "</td>" +
@@ -266,10 +272,10 @@ function buildRow(u) {
     promoteHtml +
     '<button type="button" class="btn-action shadow-sm internship-edit-btn" data-user-id="' +
     escapeHtml(u.id) +
-    '"><i class="bi bi-pencil"></i></button>' +
+    '"><i class="fas fa-edit"></i></button>' +
     '<button type="button" class="btn-action shadow-sm text-danger internship-delete-btn" data-user-id="' +
     escapeHtml(u.id) +
-    '"><i class="bi bi-trash"></i></button>' +
+    '"><i class="fas fa-trash-alt"></i></button>' +
     "</div></td>";
   return tr;
 }

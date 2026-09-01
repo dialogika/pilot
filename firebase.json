@@ -17,6 +17,11 @@
         "source": "/index.html",
         "destination": "/login",
         "type": 301
+      },
+      {
+        "source": "/internships",
+        "destination": "/internship-management",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -37,7 +42,7 @@
         "destination": "/pages/home/index.html"
       },
       {
-        "source": "/internships",
+        "source": "/internship-management",
         "destination": "/pages/internships/index.html"
       },
       {

@@ -63,18 +63,21 @@ async function initializeInternships() {
 async function loadInternships() {
   ui.showTableLoading();
   try {
-    const [positions, departments, interns] = await Promise.all([
+    const [posRes, depRes, internsRes] = await Promise.allSettled([
       repo.loadPositionsMap(),
       repo.loadDepartmentsMap(),
       repo.listInterns(),
     ]);
-    positionsMap = positions;
-    departmentsMap = departments;
+
+    positionsMap = posRes.status === "fulfilled" && posRes.value ? posRes.value : {};
+    departmentsMap = depRes.status === "fulfilled" && depRes.value ? depRes.value : {};
+    const interns = internsRes.status === "fulfilled" && Array.isArray(internsRes.value) ? internsRes.value : [];
 
     // Resolve position key -> label for filtering/display.
     internshipsAll = interns.map((u) => ({
       ...u,
-      position: u.positionKey && positionsMap[u.positionKey] ? positionsMap[u.positionKey] : u.positionKey,
+      position: u.positionKey && positionsMap[u.positionKey] ? positionsMap[u.positionKey] : (u.position || u.positionKey || "-"),
+      department: u.department && departmentsMap[u.department] ? departmentsMap[u.department] : (u.department || "-"),
     }));
 
     state.page = 1;
@@ -83,6 +86,8 @@ async function loadInternships() {
   } catch (error) {
     console.error("Error loading internship users", error);
     ui.notifyError("Gagal memuat data internship.");
+    ui.renderStats([]);
+    ui.renderTable([], state);
   }
 }
 
@@ -102,6 +107,7 @@ async function handleAdd(event) {
   payload.name = form.name;
   payload.role = "Internship";
   payload.internshipStatus = form.status;
+  payload.status = form.status;
 
   const startVal = form.startDate ? new Date(form.startDate) : null;
   const endVal = form.endDate ? new Date(form.endDate) : null;
@@ -158,6 +164,7 @@ async function handleEdit(event) {
   const updates = {};
   updates.name = form.name;
   updates.internshipStatus = form.status;
+  updates.status = form.status;
 
   const startVal = form.startDate ? new Date(form.startDate) : null;
   const endVal = form.endDate ? new Date(form.endDate) : null;
@@ -331,6 +338,13 @@ function wireEventHandlers() {
 
   if (addBtn) {
     addBtn.addEventListener("click", () => ui.openAddModal(positionsMap, departmentsMap));
+  }
+
+  const exportBtn = document.getElementById("internshipExportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      ui.notifySuccess("Fitur export data sedang disiapkan.");
+    });
   }
 
   // Delegated row actions (edit / delete / promote).
