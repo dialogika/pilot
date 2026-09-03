@@ -33,6 +33,11 @@
         "source": "/data/intern-presence.html",
         "destination": "/intern-presence",
         "type": 301
+      },
+      {
+        "source": "/data/intern-satisfaction.html",
+        "destination": "/intern-satisfaction",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -79,6 +84,10 @@
       {
         "source": "/intern-presence",
         "destination": "/data/intern-presence.html"
+      },
+      {
+        "source": "/intern-satisfaction",
+        "destination": "/pages/hr/intern-satisfaction/index.html"
       }
     ],
     "headers": [
