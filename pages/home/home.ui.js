@@ -93,10 +93,19 @@ export function adjustFeatureGridByDivision(role, position) {
   const container = document.getElementById("appsOverviewContainer");
   if (!container) return;
 
+  const roleLower = String(role || "").trim().toLowerCase();
   const posLower = String(position || "").trim().toLowerCase();
   
-  // CEO sees everything
-  if (posLower === "chief executive officer") {
+  // Leadership & Management see all divisions
+  if (
+    roleLower === "owner" ||
+    roleLower === "admin" ||
+    roleLower === "team" ||
+    posLower === "chief executive officer" ||
+    posLower === "ceo" ||
+    posLower === "super administrator" ||
+    posLower === "co-founder"
+  ) {
     const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
     allSections.forEach((id) => {
       const sect = document.getElementById(id);

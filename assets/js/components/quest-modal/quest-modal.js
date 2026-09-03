@@ -64,71 +64,55 @@ function getUserAllIds(key) {
   if (!key) return [];
   const ids = new Set();
   ids.add(key);
-  const keyLower = String(key).toLowerCase();
+  const keyLower = String(key).toLowerCase().trim();
   ids.add(keyLower);
 
-  const u = usersMap[key] || usersMap[keyLower];
+  let u = usersMap[key] || usersMap[keyLower];
+  if (!u) {
+    for (const candidate of Object.values(usersMap)) {
+      if (!candidate) continue;
+      const cDocId = candidate.docId ? String(candidate.docId).toLowerCase().trim() : "";
+      const cUid = candidate.uid ? String(candidate.uid).toLowerCase().trim() : "";
+      const cEmail = candidate.email ? String(candidate.email).toLowerCase().trim() : "";
+      const cName = candidate.name ? String(candidate.name).toLowerCase().trim() : "";
+      if (
+        (cDocId && cDocId === keyLower) ||
+        (cUid && cUid === keyLower) ||
+        (cEmail && cEmail === keyLower) ||
+        (cName && cName.length >= 3 && cName === keyLower)
+      ) {
+        u = candidate;
+        break;
+      }
+    }
+  }
+
   if (u) {
     if (u.docId) {
       ids.add(u.docId);
-      ids.add(String(u.docId).toLowerCase());
+      ids.add(String(u.docId).toLowerCase().trim());
     }
     if (u.uid) {
       ids.add(u.uid);
-      ids.add(String(u.uid).toLowerCase());
+      ids.add(String(u.uid).toLowerCase().trim());
     }
     if (u.email) {
       ids.add(u.email);
-      ids.add(String(u.email).toLowerCase());
+      ids.add(String(u.email).toLowerCase().trim());
+    }
+    if (u.name) {
+      ids.add(u.name);
+      ids.add(String(u.name).toLowerCase().trim());
     }
     if (Array.isArray(u.allAliases)) {
       u.allAliases.forEach((a) => {
         if (a) {
           ids.add(a);
-          ids.add(String(a).toLowerCase());
+          ids.add(String(a).toLowerCase().trim());
         }
       });
     }
   }
-
-  // Also check across all users in usersMap in case key matches docId, uid, email, or name
-  Object.values(usersMap).forEach((user) => {
-    if (!user) return;
-    const uName = String(user.name || user.displayName || user.username || "").toLowerCase();
-    if (
-      user.docId === key ||
-      String(user.docId).toLowerCase() === keyLower ||
-      user.uid === key ||
-      String(user.uid).toLowerCase() === keyLower ||
-      String(user.email).toLowerCase() === keyLower ||
-      (uName && uName === keyLower)
-    ) {
-      if (user.docId) {
-        ids.add(user.docId);
-        ids.add(String(user.docId).toLowerCase());
-      }
-      if (user.uid) {
-        ids.add(user.uid);
-        ids.add(String(user.uid).toLowerCase());
-      }
-      if (user.email) {
-        ids.add(user.email);
-        ids.add(String(user.email).toLowerCase());
-      }
-      if (user.name) {
-        ids.add(user.name);
-        ids.add(String(user.name).toLowerCase());
-      }
-      if (Array.isArray(user.allAliases)) {
-        user.allAliases.forEach((a) => {
-          if (a) {
-            ids.add(a);
-            ids.add(String(a).toLowerCase());
-          }
-        });
-      }
-    }
-  });
 
   return Array.from(ids);
 }
@@ -220,6 +204,8 @@ export function initQuestModal() {
 export async function openQuestModal(opts = {}) {
   initQuestModal();
   currentTab = opts.initialTab === "quest" ? "quest" : "daily";
+  checkedTaskIds.clear();
+  selectedDeleteTaskIds.clear();
 
   ui.showModalOverlay();
   ui.setActiveTab(currentTab);
@@ -353,7 +339,7 @@ async function loadBoard() {
 function normalizeTask(id, data, departments, positionsMap) {
   const task = { ...data, id };
   task.title =
-    data.title || (isSideQuestTask(data) ? "Untitled Quest" : "Untitled Daily");
+    data.title || data.task_name || data.task || (isSideQuestTask(data) ? "Untitled Quest" : "Untitled Daily");
   task.points =
     typeof data.points === "number" ? data.points : Number(data.points) || 0;
   task.descText = stripHtml(data.description || "");
@@ -384,12 +370,14 @@ function normalizeTask(id, data, departments, positionsMap) {
       const cleanUid = String(uid).toLowerCase().trim();
       return (
         (currentUidLower && cleanUid === currentUidLower) ||
-        (currentEmailLower && cleanUid === currentEmailLower)
+        (currentEmailLower && cleanUid === currentEmailLower) ||
+        myAliases.includes(cleanUid)
       );
     });
 
-  task.isSelfAssigned = Boolean(task.isOwner && isDirectAssignee);
-  task.isAssignee = isDirectAssignee;
+  const isUserAnAssignee = isDirectAssignee;
+  task.isAssignee = isUserAnAssignee;
+  task.isSelfAssigned = Boolean(task.isOwner && isUserAnAssignee);
 
   const reportList = (Array.isArray(data.report_to)
     ? data.report_to
@@ -416,22 +404,94 @@ function normalizeTask(id, data, departments, positionsMap) {
       data.date ||
       data.start_date,
   );
-  task.questDeadlinePassed = questDeadlinePassed(task);
-  task.lockState = computeLockState(task);
-  task.isChecked = checkedTaskIds.has(id);
 
-  const normStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
-  const isApproved = normStatus === "approved";
-  const isRejected = normStatus === "rejected";
-  const reportedToday = !isRejected && !isApproved && isReportedToday(data, myAliases);
+  const userStatus = String(data.user_status || "").toLowerCase();
+  const globalStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+  const isSingleAssignee = assignList.length <= 1;
+  const isAssignee = Boolean(task.isAssignee);
+
+  const userRejection = isAssignee && Boolean(data.rejected_users && Object.keys(data.rejected_users).some((uid) => myAliases.includes(String(uid).toLowerCase().trim())));
+  const userRejectionData = userRejection
+    ? Object.entries(data.rejected_users).find(([uid]) => myAliases.includes(String(uid).toLowerCase().trim()))?.[1]
+    : null;
+  // Check per-user approval (multi-assignee), mirroring rejected_users
+  const userApproval = isAssignee && Boolean(data.approved_users && Object.keys(data.approved_users).some(
+    (uid) => myAliases.includes(String(uid).toLowerCase().trim())
+  ));
+
+  const msRej = toMs(data.last_rejected_at || data.rejected_at);
+  const msRep = toMs(data.last_reported_at);
+  const isRejectionNewerThanReport = Boolean(msRej && msRep && msRej >= msRep);
+
+  const directRejection =
+    isAssignee &&
+    (userRejection ||
+      (isSingleAssignee && (globalStatus === "rejected" || globalStatus.includes("reject") || isRejectionNewerThanReport || Boolean(data.rejection_reason || data.feedback))));
+
+  const taskRejectionReason =
+    (userRejectionData && userRejectionData.reason) ||
+    data.rejection_reason ||
+    data.feedback ||
+    "Ditolak dalam review";
+
+  const effectiveStatus = isAssignee
+    ? (userStatus || (isSingleAssignee ? globalStatus : (globalStatus.includes("reject") ? "rejected" : globalStatus.includes("approv") ? "approved" : "")))
+    : "";
+
+  const isApproved =
+    isAssignee &&
+    (userApproval ||
+      effectiveStatus === "approved" ||
+      effectiveStatus.includes("approv") ||
+      (isSingleAssignee && (globalStatus === "approved" || globalStatus.includes("approv"))));
+
+  const isRejected = isAssignee && !isApproved && (effectiveStatus === "rejected" || effectiveStatus.includes("reject") || directRejection);
+  const reportedToday = isAssignee && !isRejected && !isApproved && isReportedToday(data, myAliases);
+  const isReported = isAssignee && !isRejected && !isApproved && (effectiveStatus === "reported" || reportedToday);
+
   task.isApproved = isApproved;
   task.isRejected = isRejected;
-  task.rejectionReason = data.rejection_reason || "";
-  task.isReported = !isRejected && !isApproved && (reportedToday || normStatus === "reported" || normStatus === "pending review");
+  task.isReported = isReported;
+
+  if (isAssignee) {
+    task.user_status = isApproved ? "Approved" : isRejected ? "Rejected" : isReported ? "Reported" : "To Do";
+  } else {
+    const anyApproved = Boolean((data.approved_users && Object.keys(data.approved_users).length > 0) || globalStatus.includes("approv"));
+    const anyRejected = Boolean((data.rejected_users && Object.keys(data.rejected_users).length > 0) || globalStatus.includes("reject") || (isRejectionNewerThanReport && Boolean(data.rejection_reason || data.feedback)));
+    const anyReported = Boolean((Array.isArray(data.last_reported_by) && data.last_reported_by.length > 0 && !anyRejected && !anyApproved) || globalStatus.includes("report"));
+
+    if (anyApproved) task.user_status = "Approved";
+    else if (anyRejected) task.user_status = "Rejected";
+    else if (anyReported) task.user_status = "Reported";
+    else task.user_status = "To Do";
+  }
+
+  task.rejectionReason = isRejected ? taskRejectionReason : (data.rejection_reason || data.feedback || "");
+
+  task.lockState = computeLockState(task);
+  task.isChecked = checkedTaskIds.has(id);
   return task;
 }
 
 function isReportedToday(data, myAliases) {
+  if (!data) return false;
+  const normStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+  if (normStatus === "rejected" || normStatus === "approved" || normStatus.includes("approv") || normStatus.includes("reject")) return false;
+  if (data.user_status && (String(data.user_status).toLowerCase() === "approved" || String(data.user_status).toLowerCase() === "rejected")) return false;
+
+  const msAppr = toMs(data.last_approved_at || data.approved_at);
+  const msRej = toMs(data.last_rejected_at || data.rejected_at);
+  const msRep = toMs(data.last_reported_at);
+
+  if (msAppr && msRep && msAppr >= msRep) return false;
+  if (msRej && msRep && msRej >= msRep) return false;
+
+  // Check per-user rejection in rejected_users
+  if (data.rejected_users && myAliases && myAliases.length > 0) {
+    const isUserRejected = Object.keys(data.rejected_users).some((uid) => myAliases.includes(String(uid).toLowerCase().trim()));
+    if (isUserRejected) return false;
+  }
+
   const lrb = data.last_reported_by;
   const lra = data.last_reported_at;
   if (!Array.isArray(lrb) || !lrb.length || !lra) return false;
@@ -449,7 +509,7 @@ function isReportedToday(data, myAliases) {
     const reportedByList = lrb.map((x) => String(x).toLowerCase().trim());
     return reportedByList.some((uid) => myAliases.includes(uid));
   }
-  return true;
+  return false;
 }
 
 function buildBoard(tasks, tab) {
@@ -663,11 +723,27 @@ function wireEventHandlers() {
 
     // Task Detail
     const detailBtn = e.target.closest("[data-detail]");
-    if (detailBtn && detailBtn.dataset.detail) {
-      const taskId = detailBtn.dataset.detail;
-      const task = questTasks[taskId];
+    if (detailBtn) {
+      const taskId = detailBtn.dataset.detail || detailBtn.getAttribute("data-detail") || "";
+      const cleanId = String(taskId).trim();
+      let task = questTasks[cleanId] || questTasks[taskId];
+      if (!task && currentBoardCache) {
+        const allBoardTasks = [
+          ...(currentBoardCache.today || []),
+          ...(currentBoardCache.upcoming || []),
+          ...(currentBoardCache.overdue || []),
+        ];
+        task = allBoardTasks.find((t) => String(t.id).trim() === cleanId);
+      }
       if (task) {
-        ui.openQuestDetail(task, { users: usersMap }, currentTab);
+        try {
+          ui.openQuestDetail(task, { users: usersMap }, currentTab);
+        } catch (err) {
+          console.error("[QuestModal] Error opening quest detail:", err);
+          ui.notifyError("Gagal membuka detail: " + (err && err.message ? err.message : err));
+        }
+      } else {
+        console.warn("[QuestModal] Task not found for ID:", taskId);
       }
       return;
     }
@@ -737,6 +813,7 @@ function wireEventHandlers() {
 function switchTab(tab) {
   currentTab = tab;
   selectedDeleteTaskIds.clear();
+  checkedTaskIds.clear();
   ui.setActiveTab(tab);
   loadBoard();
 }
@@ -986,16 +1063,36 @@ async function confirmDeleteTask(taskId) {
 }
 
 function handleOpenDailyReport() {
+  const isQuestTab = currentTab === "quest";
   const checked = Array.from(checkedTaskIds)
     .map((id) => questTasks[id])
-    .filter(Boolean);
-  ui.openDailyReportModal(checked, currentUserName);
+    .filter((task) => Boolean(task && (isQuestTab ? task.isSide : !task.isSide)));
+
+  if (!checked.length) {
+    ui.notifyError(
+      isQuestTab
+        ? "Belum ada item Quest yang dicentang. Silakan centang to-do Quest Anda terlebih dahulu."
+        : "Belum ada item Daily yang dicentang. Silakan centang to-do Daily Anda terlebih dahulu."
+    );
+    return;
+  }
+  ui.openDailyReportModal(checked, currentUserName, isQuestTab ? "quest" : "daily");
 }
 
 async function handleSubmitDailyReport() {
-  const checkedIds = ui.collectCheckedIds();
+  const isQuestTab = currentTab === "quest";
+  const rawCheckedIds = ui.collectCheckedIds();
+  const checkedIds = rawCheckedIds.filter((id) => {
+    const task = questTasks[id];
+    return Boolean(task && (isQuestTab ? task.isSide : !task.isSide));
+  });
+
   if (!checkedIds.length) {
-    ui.notifyError("Belum ada item yang dicentang.");
+    ui.notifyError(
+      isQuestTab
+        ? "Belum ada item Quest yang dicentang."
+        : "Belum ada item Daily yang dicentang."
+    );
     return;
   }
   const details = ui.collectReportDetails();
@@ -1040,6 +1137,7 @@ async function handleSubmitDailyReport() {
     if (task.created_by) createdBySet.add(String(task.created_by));
     if (task.createdBy) createdBySet.add(String(task.createdBy));
 
+    const isTaskSide = Boolean(task.isSide || isQuestTab);
     const pts = typeof task.points === "number" ? task.points : Number(task.points) || 0;
     totalPoints += pts;
     tasksDetail.push({
@@ -1050,6 +1148,9 @@ async function handleSubmitDailyReport() {
       who_did_this: [activeUid],
       report_to: rto,
       created_by: task.created_by || task.createdBy || "",
+      status: "Pending Review",
+      quest_type: isTaskSide ? "side" : "daily",
+      questType: isTaskSide ? "Quest" : "Daily",
     });
   });
 
@@ -1074,6 +1175,8 @@ async function handleSubmitDailyReport() {
     task_ids: checkedIds.slice(),
     total_points: totalPoints,
     status: "Pending Review",
+    quest_type: isQuestTab ? "side" : "daily",
+    questType: isQuestTab ? "Quest" : "Daily",
   };
 
   ui.setReportSubmitBusy(true, "Mengirim...");
@@ -1260,6 +1363,13 @@ function normalizeNumberList(value) {
 
 function computeLockState(task) {
   const result = { claimed: false, done: false, claimedBy: "" };
+  if (task.isApproved || /approved/i.test(task.status) || /approved/i.test(task.user_status) || /approved/i.test(task.task_status)) return result;
+  if (task.isRejected || /rejected/i.test(task.status) || /rejected/i.test(task.user_status) || /rejected/i.test(task.task_status)) return result;
+  const msAppr = toMs(task.last_approved_at || task.approved_at);
+  const msRej = toMs(task.last_rejected_at || task.rejected_at);
+  const msRep = toMs(task.last_reported_at);
+  if (msAppr && msRep && msAppr >= msRep) return result;
+  if (msRej && msRep && msRej >= msRep) return result;
   const lrb = task.last_reported_by;
   const lra = task.last_reported_at;
   if (!Array.isArray(lrb) || !lrb.length || !lra) return result;
@@ -1272,7 +1382,12 @@ function computeLockState(task) {
     reported.getMonth() === today.getMonth() &&
     reported.getDate() === today.getDate();
   if (!isToday) return result;
-  if (currentUserUid && lrb.indexOf(currentUserUid) !== -1) {
+  const myAliases = getCurrentUserAllIds().map((x) => String(x).toLowerCase().trim());
+  const reportedByList = lrb.map((x) => String(x).toLowerCase().trim());
+  const isMyUid = currentUserUid && reportedByList.includes(String(currentUserUid).toLowerCase().trim());
+  const hasMyAlias = myAliases && myAliases.some((alias) => reportedByList.includes(alias));
+
+  if (isMyUid || hasMyAlias) {
     result.done = true;
   } else {
     result.claimed = true;

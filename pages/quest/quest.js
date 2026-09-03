@@ -176,6 +176,68 @@ function normalizeTask(id, data, departments, positionsMap) {
       data.start_date ||
       data.startDate,
   );
+  const userStatus = String(data.user_status || "").toLowerCase();
+  const globalStatus = String(data.status || data.task_status || data.Status || "").toLowerCase();
+  const isSingleAssignee = assignList.length <= 1;
+  const isAssignee = Boolean(task.isAssignee);
+
+  const userRejection = isAssignee && Boolean(data.rejected_users && Object.keys(data.rejected_users).some((uid) => myAliases.includes(String(uid).toLowerCase().trim())));
+  const userRejectionData = userRejection
+    ? Object.entries(data.rejected_users).find(([uid]) => myAliases.includes(String(uid).toLowerCase().trim()))?.[1]
+    : null;
+  // Check per-user approval (multi-assignee), mirroring rejected_users
+  const userApproval = isAssignee && Boolean(data.approved_users && Object.keys(data.approved_users).some(
+    (uid) => myAliases.includes(String(uid).toLowerCase().trim())
+  ));
+
+  const msRej = toMs(data.last_rejected_at || data.rejected_at);
+  const msRep = toMs(data.last_reported_at);
+  const isRejectionNewerThanReport = Boolean(msRej && msRep && msRej >= msRep);
+
+  const directRejection =
+    isAssignee &&
+    (userRejection ||
+      (isSingleAssignee && (globalStatus === "rejected" || globalStatus.includes("reject") || isRejectionNewerThanReport || Boolean(data.rejection_reason || data.feedback))));
+
+  const taskRejectionReason =
+    (userRejectionData && userRejectionData.reason) ||
+    data.rejection_reason ||
+    data.feedback ||
+    "Ditolak dalam review";
+
+  const effectiveStatus = isAssignee
+    ? (userStatus || (isSingleAssignee ? globalStatus : (globalStatus.includes("reject") ? "rejected" : globalStatus.includes("approv") ? "approved" : "")))
+    : "";
+
+  const isApproved =
+    isAssignee &&
+    (userApproval ||
+      effectiveStatus === "approved" ||
+      effectiveStatus.includes("approv") ||
+      (isSingleAssignee && (globalStatus === "approved" || globalStatus.includes("approv"))));
+
+  const isRejected = isAssignee && !isApproved && (effectiveStatus === "rejected" || effectiveStatus.includes("reject") || directRejection);
+  const reportedToday = isAssignee && !isRejected && !isApproved && repo.isReportedToday(data, myAliases);
+  const isReported = isAssignee && !isRejected && !isApproved && (effectiveStatus === "reported" || reportedToday);
+
+  task.isApproved = isApproved;
+  task.isRejected = isRejected;
+  task.isReported = isReported;
+
+  if (isAssignee) {
+    task.user_status = isApproved ? "Approved" : isRejected ? "Rejected" : isReported ? "Reported" : "To Do";
+  } else {
+    const anyApproved = Boolean((data.approved_users && Object.keys(data.approved_users).length > 0) || globalStatus.includes("approv"));
+    const anyRejected = Boolean((data.rejected_users && Object.keys(data.rejected_users).length > 0) || globalStatus.includes("reject") || (isRejectionNewerThanReport && Boolean(data.rejection_reason || data.feedback)));
+    const anyReported = Boolean((Array.isArray(data.last_reported_by) && data.last_reported_by.length > 0 && !anyRejected && !anyApproved) || globalStatus.includes("report"));
+
+    if (anyApproved) task.user_status = "Approved";
+    else if (anyRejected) task.user_status = "Rejected";
+    else if (anyReported) task.user_status = "Reported";
+    else task.user_status = "To Do";
+  }
+
+  task.rejectionReason = isRejected ? taskRejectionReason : (data.rejection_reason || data.feedback || "");
   task.questDeadlinePassed = questDeadlinePassed(task);
   task.lockState = computeLockState(task);
   return task;
@@ -344,12 +406,16 @@ async function submitDailyReport() {
       if (d && d.name) deptSet[d.name] = true;
     });
     totalPoints += task.points;
+    const isTaskSide = Boolean(task.isSide || task.type === "side" || task.quest_type === "side");
     tasksDetail.push({
       task_id: id,
       title: task.title || "Untitled",
       points: task.points,
       detail: details[id] || "",
       who_did_this: [currentUserUid],
+      status: "Pending Review",
+      quest_type: isTaskSide ? "side" : "daily",
+      questType: isTaskSide ? "Quest" : "Daily",
     });
   });
 
@@ -382,6 +448,8 @@ async function submitDailyReport() {
     task_ids: checkedIds.slice(),
     total_points: totalPoints,
     status: "Pending Review",
+    quest_type: "side",
+    questType: "Quest",
   };
 
   ui.setReportSubmitBusy(true, "Submitting...");
@@ -411,6 +479,7 @@ async function submitDailyReport() {
 }
 
 function isClaimedByOthers(task) {
+  if (task.isAssignee) return false;
   const lrb = task.last_reported_by;
   const lra = task.last_reported_at;
   if (!Array.isArray(lrb) || !lrb.length || !lra) return false;
@@ -718,7 +787,8 @@ async function handleBulkDelete() {
     ? "Apakah Anda yakin ingin menghapus 1 task yang dipilih?"
     : `Apakah Anda yakin ingin menghapus ${count} task yang dipilih secara massal? Tindakan ini tidak dapat dibatalkan.`;
 
-  if (!confirm(msg)) return;
+  const ok = await ui.confirmAction(msg, true);
+  if (!ok) return;
 
   ui.setBulkDeleteButtonBusy(true);
   try {
@@ -899,6 +969,13 @@ function normalizeNumberList(value) {
 
 function computeLockState(task) {
   const result = { claimed: false, done: false, claimedBy: "" };
+  if (task.isApproved || /approved/i.test(task.status) || /approved/i.test(task.user_status) || /approved/i.test(task.task_status)) return result;
+  if (task.isRejected || /rejected/i.test(task.status) || /rejected/i.test(task.user_status) || /rejected/i.test(task.task_status)) return result;
+  const msAppr = toMs(task.last_approved_at || task.approved_at);
+  const msRej = toMs(task.last_rejected_at || task.rejected_at);
+  const msRep = toMs(task.last_reported_at);
+  if (msAppr && msRep && msAppr >= msRep) return result;
+  if (msRej && msRep && msRej >= msRep) return result;
   const lrb = task.last_reported_by;
   const lra = task.last_reported_at;
   if (!Array.isArray(lrb) || !lrb.length || !lra) return result;
