@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permit & Reimburse Management - Dialogika Team</title>
+
+  <!-- External Stylesheets -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Shared architecture foundation styles -->
+  <link href="/assets/css/theme.css" rel="stylesheet" />
+  <link href="/assets/css/layout.css" rel="stylesheet" />
+  <link href="/assets/css/style.css" rel="stylesheet" />
+  <link href="/pages/hr/permit-reimburse/permit-reimburse.css" rel="stylesheet" />
+
+  <!-- Shared theme manager -->
+  <script src="/assets/js/theme.js" defer></script>
+</head>
+<body class="antialiased">
+  <!-- Shared App Shell Mounts -->
+  <div id="dg-topbar-mount"></div>
+  <div id="dg-sidebar-mount"></div>
+
+  <main class="dg-main">
+    <div class="container-fluid max-w-7xl px-3 px-md-4 py-3">
+
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb-nav mb-3">
+        <a href="/home" title="Home">
+          <i class="fas fa-home text-xs"></i>
+        </a>
+        <span class="separator-blue">/</span>
+        <a href="/home" class="crumb-blue">HR DIVISION</a>
+        <span class="separator">/</span>
+        <span class="active-crumb">PERMIT & REIMBURSE MANAGEMENT</span>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="d-flex flex-column mb-4">
+        <h1 class="page-title mb-1">Permit & Reimburse Management</h1>
+        <p class="page-subtitle mb-0">
+          Kelola persetujuan izin karyawan dan pantau riwayat penggantian jam kerja (reimburse) dalam satu dashboard terintegrasi.
+        </p>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="tab-bar">
+        <button id="permitTabBtn" type="button" class="tab-btn active">
+          Permit Management
+        </button>
+        <button id="reimburseTabBtn" type="button" class="tab-btn">
+          Reimburse
+        </button>
+      </div>
+
+      <!-- Tab 1: Permit Management Panel -->
+      <div id="permitTabPanel" class="tab-panel">
+        <div class="card-shell">
+          <div class="card-shell-header">
+            <h2 class="card-shell-title">
+              <i class="bi bi-list-task text-indigo-600"></i>
+              Daftar Pengajuan Izin
+            </h2>
+            <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2.5">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input
+                  id="permitSearchInput"
+                  type="text"
+                  class="search-input"
+                  placeholder="Cari nama atau posisi..."
+                />
+              </div>
+              <select id="permitStatusFilter" class="filter-select">
+                <option value="all">Semua Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table-modern">
+              <thead>
+                <tr>
+                  <th>Tanggal Pengajuan</th>
+                  <th>Nama</th>
+                  <th>Tanggal Izin</th>
+                  <th>Jenis Izin</th>
+                  <th>Alasan</th>
+                  <th>Status</th>
+                  <th class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="permitTableBody">
+                <!-- Populated by UI -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Permit Pagination Bar -->
+          <div id="permitPaginationWrap" class="pagination-wrap">
+            <div id="permitPaginationInfo" class="pagination-info">
+              Menampilkan 0 data
+            </div>
+            <div id="permitPaginationControls" class="pagination-controls">
+              <!-- Populated by UI -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Reimburse Management Panel -->
+      <div id="reimburseTabPanel" class="tab-panel hidden">
+        <div class="card-shell">
+          <div class="card-shell-header">
+            <h2 class="card-shell-title">
+              <i class="bi bi-wallet2 text-indigo-600"></i>
+              Daftar Reimburse
+            </h2>
+            <div class="d-flex align-items-center gap-2.5">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input
+                  id="reimburseSearchInput"
+                  type="text"
+                  class="search-input"
+                  placeholder="Cari nama karyawan..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table-modern">
+              <thead>
+                <tr>
+                  <th>Foto</th>
+                  <th>Nama</th>
+                  <th>Total Hari</th>
+                  <th>Total Jam</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="reimburseTableBody">
+                <!-- Populated by UI -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Reimburse Pagination Bar -->
+          <div id="reimbursePaginationWrap" class="pagination-wrap">
+            <div id="reimbursePaginationInfo" class="pagination-info">
+              Menampilkan 0 data
+            </div>
+            <div id="reimbursePaginationControls" class="pagination-controls">
+              <!-- Populated by UI -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Approve Choice Modal (Apakah mendapatkan reimburse?) -->
+  <div id="approveChoiceModal" class="modal-backdrop hidden">
+    <div class="modal-panel max-w-sm">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="text-base font-bold text-slate-900 m-0">Kompensasi Reimburse</h3>
+        <button type="button" class="btn-close modal-close-btn"></button>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">
+        Apakah pengajuan izin ini mendapatkan kewajiban penggantian jam kerja (reimburse)?
+      </p>
+      <div class="d-flex justify-content-end gap-2">
+        <button id="btnApproveChoiceNo" type="button" class="btn btn-sm btn-outline-secondary font-bold text-xs px-3 py-2 rounded-xl">
+          Tidak (Izin Murni)
+        </button>
+        <button id="btnApproveChoiceYes" type="button" class="btn btn-sm btn-success font-bold text-xs px-3 py-2 rounded-xl">
+          Ya (Ada Reimburse)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permit Reimburse Detail Input Modal -->
+  <div id="permitReimburseDetailModal" class="modal-backdrop hidden">
+    <div class="modal-panel max-w-sm">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="text-base font-bold text-slate-900 m-0">Detail Reimburse</h3>
+        <button type="button" class="btn-close modal-close-btn"></button>
+      </div>
+      <div class="mb-3">
+        <label class="form-label text-xs font-bold text-slate-700">Total Hari Reimburse</label>
+        <input id="reimburseDaysInput" type="number" min="1" class="form-control form-control-sm rounded-xl text-xs" value="1" />
+      </div>
+      <div class="mb-4">
+        <label class="form-label text-xs font-bold text-slate-700">Total Jam Reimburse</label>
+        <input id="reimburseHoursInput" type="number" step="0.5" min="0" class="form-control form-control-sm rounded-xl text-xs" value="0" />
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-sm btn-light font-bold text-xs px-3 py-2 rounded-xl modal-close-btn">
+          Batal
+        </button>
+        <button id="btnProceedReimburseDetail" type="button" class="btn btn-sm btn-primary font-bold text-xs px-3 py-2 rounded-xl">
+          Lanjutkan ke Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approve Email Modal -->
+  <div id="approveEmailModal" class="modal-backdrop hidden">
+    <div class="modal-panel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="text-base font-bold text-slate-900 m-0">Draft Email Persetujuan Izin</h3>
+        <button type="button" class="btn-close modal-close-btn"></button>
+      </div>
+      <div class="mb-3">
+        <textarea id="approveEmailTextarea" class="form-control text-xs font-mono rounded-xl p-3" rows="9"></textarea>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-sm btn-light font-bold text-xs px-3 py-2 rounded-xl modal-close-btn">
+          Batal
+        </button>
+        <button id="btnSendApproveEmail" type="button" class="btn btn-sm btn-success font-bold text-xs px-3 py-2 rounded-xl d-inline-flex align-items-center gap-1.5">
+          <i class="bi bi-send"></i> Kirim & Approve
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Email Modal -->
+  <div id="rejectEmailModal" class="modal-backdrop hidden">
+    <div class="modal-panel">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="text-base font-bold text-slate-900 m-0">Draft Email Penolakan Izin</h3>
+        <button type="button" class="btn-close modal-close-btn"></button>
+      </div>
+      <div class="mb-3">
+        <textarea id="rejectEmailTextarea" class="form-control text-xs font-mono rounded-xl p-3" rows="8"></textarea>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-sm btn-light font-bold text-xs px-3 py-2 rounded-xl modal-close-btn">
+          Batal
+        </button>
+        <button id="btnSendRejectEmail" type="button" class="btn btn-sm btn-danger font-bold text-xs px-3 py-2 rounded-xl d-inline-flex align-items-center gap-1.5">
+          <i class="bi bi-send"></i> Kirim & Reject
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div id="deleteConfirmModal" class="modal-backdrop hidden">
+    <div class="modal-panel max-w-sm text-center">
+      <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 d-inline-flex align-items-center justify-content-center text-xl mb-3">
+        <i class="bi bi-trash"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900 mb-2">Hapus Pengajuan Izin?</h3>
+      <p class="text-xs text-slate-500 mb-4">
+        Tindakan ini tidak dapat dibatalkan. Pengajuan ini akan dihapus permanen dari database.
+      </p>
+      <div class="d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-sm btn-light font-bold text-xs px-3 py-2 rounded-xl modal-close-btn">
+          Batal
+        </button>
+        <button id="btnConfirmDeletePermit" type="button" class="btn btn-sm btn-danger font-bold text-xs px-3 py-2 rounded-xl">
+          Hapus Permanen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reimburse Group Detail Modal -->
+  <div id="reimburseDetailModal" class="modal-backdrop hidden">
+    <div class="modal-panel reimburse-detail-modal-panel">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <h3 id="reimburseDetailName" class="reimburse-detail-title m-0">Detail Reimburse</h3>
+          <p id="reimburseDetailSubtitle" class="reimburse-detail-subtitle mb-0">Pending: 0 hari – Completed: 0 hari</p>
+        </div>
+        <button type="button" class="btn-close modal-close-btn"></button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-grid-modal">
+        <div class="stat-card-box">
+          <div class="stat-card-label">TOTAL HARI</div>
+          <div id="reimburseDetailTotalDays" class="stat-card-num">0</div>
+        </div>
+        <div class="stat-card-box">
+          <div class="stat-card-label">TOTAL JAM</div>
+          <div id="reimburseDetailTotalHours" class="stat-card-num">0</div>
+        </div>
+      </div>
+
+      <!-- Timeline Content Area -->
+      <div id="reimburseDetailTimeline" class="reimburse-timeline-area">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn-modal-dark modal-close-btn">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/pages/hr/permit-reimburse/permit-reimburse.js"></script>
+</body>
+</html>

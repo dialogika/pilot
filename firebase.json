@@ -1,6 +1,8 @@
 {
   "hosting": {
     "public": ".",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
       {
@@ -61,6 +63,11 @@
       {
         "source": "/setting/operational-expenses.html",
         "destination": "/operational-expenses",
+        "type": 301
+      },
+      {
+        "source": "/data/permit-reimburse-management.html",
+        "destination": "/permit-reimburse",
         "type": 301
       }
     ],
@@ -144,6 +151,14 @@
       {
         "source": "/hr/operational-expenses",
         "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/permit-reimburse",
+        "destination": "/pages/hr/permit-reimburse/index.html"
+      },
+      {
+        "source": "/hr/permit-reimburse",
+        "destination": "/pages/hr/permit-reimburse/index.html"
       }
     ],
     "headers": [
