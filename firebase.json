@@ -57,6 +57,11 @@
         "source": "/quest/dashboard-recruitment.html",
         "destination": "/dashboard-recruitment",
         "type": 301
+      },
+      {
+        "source": "/setting/operational-expenses.html",
+        "destination": "/operational-expenses",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -131,6 +136,14 @@
       {
         "source": "/recruitment-dashboard",
         "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/hr/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
       }
     ],
     "headers": [
