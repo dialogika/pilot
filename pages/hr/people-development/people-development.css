@@ -1,0 +1,310 @@
+/* =====================================================================
+   pages/hr/people-development/people-development.css
+   People Development feature styles.
+   Reuses theme/layout design tokens; no global scope leakage.
+   ===================================================================== */
+
+.dg-main {
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Full-width page wrapper (no max-width constraint) */
+.pd-page-wrapper {
+  width: 100%;
+  padding: 0;
+}
+
+/* Primary button — mirrors style.css .btn-dlg-blue */
+.btn-dlg-blue {
+  background: linear-gradient(135deg, var(--dlg-blue-start, #0B2B6A), var(--dlg-blue-end, #1247af));
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+.btn-dlg-blue:hover {
+  opacity: 0.92;
+}
+
+/* =====================================================================
+   Menu Modal (Matching Gambar 2 & Preserving Sidebar)
+   ===================================================================== */
+.pd-menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  /* z-index 999 is BELOW .sidebar (1000) and .top-bar (1001),
+     so sidebar remains bright and completely visible (not dimmed)! */
+  z-index: 999;
+}
+.pd-menu-overlay.active {
+  display: block;
+}
+
+.pd-menu-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 580px;
+  z-index: 1050; /* Above overlay, sidebar, and topbar */
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+.pd-menu-container.active {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pd-menu-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: color 0.2s, background 0.2s;
+}
+.pd-menu-close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.pd-menu-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.pd-menu-header h2 {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.pd-menu-grid {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.pd-menu-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 26px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #2d3748;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.pd-menu-item:hover {
+  background: #0B2B6A;
+  border-color: #0B2B6A;
+  color: #ffffff;
+  box-shadow: 0 15px 30px rgba(11, 43, 106, 0.25);
+  transform: translateY(-3px);
+}
+
+.pd-menu-icon {
+  width: 30px;
+  height: 30px;
+  stroke: #2d3748;
+  transition: stroke 0.25s ease, transform 0.2s ease;
+}
+
+.pd-menu-item:hover .pd-menu-icon {
+  stroke: #ffffff;
+  transform: scale(1.05);
+}
+
+.pd-menu-label {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  letter-spacing: -0.01em;
+}
+
+/* Card Foundations */
+.pd-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.pd-card:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+.pd-stat-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pd-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+
+/* Stat numbers */
+.pd-stat-value {
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 2.25rem;
+  letter-spacing: -0.025em;
+}
+
+/* Tab Navigation */
+.pd-tab-btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.625rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.pd-tab-btn.active {
+  background-color: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.pd-tab-btn:not(.active) {
+  background: transparent;
+  color: #64748b;
+}
+
+.pd-tab-btn:not(.active):hover {
+  color: #334155;
+}
+
+/* Leaderboard */
+.pd-leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+}
+
+.pd-rank-1 {
+  background-color: rgba(238, 242, 255, 0.4);
+  border: 1px solid #e0e7ff;
+}
+
+.pd-rank-normal {
+  border: 1px solid #f1f5f9;
+}
+
+.pd-rank-normal:hover {
+  background-color: #f8fafc;
+}
+
+.pd-rank-badge {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-style: italic;
+  width: 2rem;
+  text-align: center;
+}
+
+/* Status Badges in Log Kehadiran */
+.pd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pd-badge-ontime {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.pd-badge-late {
+  background-color: #fef9c3;
+  color: #a16207;
+}
+
+.pd-badge-absent,
+.pd-badge-sick {
+  background-color: #ffe4e6;
+  color: #be123c;
+}
+
+.pd-badge-permit {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Survey Emojis */
+.pd-emoji-btn {
+  font-size: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+  filter: grayscale(80%);
+  opacity: 0.7;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.pd-emoji-btn:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.25);
+}
+
+.pd-emoji-btn.selected {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.28);
+  box-shadow: 0 10px 15px -3px rgba(254, 240, 138, 0.5), 0 4px 6px -4px rgba(254, 240, 138, 0.5);
+  background-color: #fefce8;
+}
+
+/* Pulse animation for loading */
+.pd-skeleton {
+  animation: pd-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: #e2e8f0;
+  border-radius: 0.375rem;
+}
+
+@keyframes pd-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

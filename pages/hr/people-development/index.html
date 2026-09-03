@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People Development - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + Tailwind CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Pilot Core Foundations -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+    <!-- Feature-specific styles -->
+    <link href="/pages/hr/people-development/people-development.css" rel="stylesheet">
+
+    <!-- Theme Script -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+<body class="antialiased bg-slate-50/50">
+
+    <!-- Shared Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="pd-page-wrapper">
+
+            <!-- Breadcrumb & Header -->
+            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <nav class="flex gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">
+                        <a href="/home"><i class="bi bi-house-fill"></i></a>
+                        <span>/</span>
+                        <span>HR Division</span>
+                        <span>/</span>
+                        <span class="text-slate-400">People Development</span>
+                    </nav>
+                    <h1 id="pdGreetingText" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Halo, Selamat Pagi! 👋
+                    </h1>
+                    <p id="pdSubGreetingText" class="text-slate-500 text-sm mt-1">
+                        Ringkasan performa, kehadiran, dan KPI divisi hari ini.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="pdBellBtn" class="bg-white p-2 rounded-xl border border-slate-200 hover:shadow-sm transition" title="Notifikasi">
+                        <i class="bi bi-bell text-slate-600 text-lg"></i>
+                    </button>
+                    <button id="pdMainMenuBtn" class="btn-dlg-blue text-white px-4 py-2 rounded-xl font-semibold flex items-center gap-2 transition text-sm">
+                        <i class="bi bi-list text-lg"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 4 Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                <!-- Total Presensi -->
+                <div class="pd-card pd-stat-card p-5 border-l-4 border-l-emerald-500" onclick="window.location.href='/intern-presence'">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <i class="bi bi-person-check-fill text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Hadir</span>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Presensi</p>
+                    <h3 id="attendancePresentPercent" class="pd-stat-value mt-1 text-emerald-600">0.0%</h3>
+                </div>
+
+                <!-- Total Absensi -->
+                <div class="pd-card pd-stat-card p-5 border-l-4 border-l-rose-500" onclick="window.location.href='/intern-presence'">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
+                            <i class="bi bi-person-x-fill text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Absen</span>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Absensi</p>
+                    <h3 id="attendanceAbsentPercent" class="pd-stat-value mt-1 text-rose-600">0.0%</h3>
+                </div>
+
+                <!-- Satisfaction Score -->
+                <div class="pd-card p-5 border-l-4 border-l-blue-500">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                            <i class="bi bi-emoji-smile-fill text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Index</span>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Satisfaction Score</p>
+                    <h3 id="pdSatisfactionScore" class="pd-stat-value mt-1 text-slate-800">4.8/5.0</h3>
+                </div>
+
+                <!-- Training Progress -->
+                <div class="pd-card p-5 border-l-4 border-l-purple-500">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+                            <i class="bi bi-mortarboard-fill text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Progress</span>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Training Progress</p>
+                    <h3 id="pdTrainingProgress" class="pd-stat-value mt-1 text-slate-800">72%</h3>
+                </div>
+            </div>
+
+            <!-- KPI Assessment per Division -->
+            <div class="pd-card p-6 mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                    <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                        <i class="bi bi-graph-up text-indigo-600"></i>
+                        <span>KPI Assessment per Division</span>
+                    </h2>
+                    <span class="text-xs text-slate-400 font-medium tracking-wide italic">Berdasarkan pencapaian target mingguan</span>
+                </div>
+                <div id="pdKpiContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- Detail Perencanaan Training -->
+            <div class="pd-card p-6 mb-8">
+                <h2 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-800">
+                    <i class="bi bi-journal-check text-indigo-600"></i>
+                    <span>Detail Perencanaan Training</span>
+                </h2>
+                <div id="pdTrainingContainer" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- Leaderboard Gamification -->
+            <div class="pd-card overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <h2 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                        <i class="bi bi-trophy-fill text-amber-500"></i>
+                        <span>Leaderboard Gamification</span>
+                    </h2>
+                    <div class="flex bg-slate-100 p-1 rounded-xl">
+                        <button id="btn-weekly" class="pd-tab-btn active">Weekly</button>
+                        <button id="btn-monthly" class="pd-tab-btn">Monthly</button>
+                    </div>
+                </div>
+                <div id="pdLeaderboardContainer" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- Log Kehadiran Harian -->
+            <div class="pd-card overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <i class="bi bi-clock-history text-indigo-600"></i>
+                        <span>Log Kehadiran Harian</span>
+                    </h2>
+                    <a href="/intern-presence" class="text-indigo-600 font-bold text-xs hover:underline uppercase tracking-tight">
+                        Lihat Semua &rarr;
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4">Nama Intern</th>
+                                <th class="px-6 py-4">Waktu</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdAttendanceTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Dynamic rendering via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Satisfaction Survey Form -->
+            <div class="pd-card p-6 max-w-2xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-2 bg-pink-50 text-pink-600 rounded-xl">
+                        <i class="bi bi-heart-fill text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg text-slate-800">Satisfaction Survey</h2>
+                        <p class="text-xs text-slate-500">Beri penilaian pengalaman Anda hari ini untuk pengembangan tim.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 my-5">
+                    <button type="button" class="pd-emoji-btn" data-rating="1" title="Sangat Buruk">😢</button>
+                    <button type="button" class="pd-emoji-btn" data-rating="2" title="Kurang">😐</button>
+                    <button type="button" class="pd-emoji-btn" data-rating="3" title="Cukup">🙂</button>
+                    <button type="button" class="pd-emoji-btn" data-rating="4" title="Puas">😊</button>
+                    <button type="button" class="pd-emoji-btn selected" data-rating="5" title="Sangat Puas">😍</button>
+                </div>
+
+                <textarea id="pdSurveyFeedback" class="w-full text-sm p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition mb-4" placeholder="Apa yang bisa ditingkatkan atau apresiasi hari ini?" rows="2"></textarea>
+                
+                <button id="pdSurveySubmitBtn" type="button" class="btn-dlg-blue text-white px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:opacity-95 transition">
+                    Submit Feedback
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Menu Modal Overlay -->
+    <div id="pdMenuOverlay" class="pd-menu-overlay"></div>
+    <div id="pdMenuContainer" class="pd-menu-container">
+        <button id="pdMenuCloseBtn" class="pd-menu-close-btn" type="button" title="Tutup">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="pd-menu-header">
+            <h2>Menu</h2>
+        </div>
+        <div class="pd-menu-grid">
+            <a href="/intern-presence" class="pd-menu-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pd-menu-icon">
+                    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <path d="M11 10h5"/>
+                    <path d="M11 14h5"/>
+                    <path d="M11 18h5"/>
+                    <line x1="8" y1="10" x2="8.01" y2="10"/>
+                    <line x1="8" y1="14" x2="8.01" y2="14"/>
+                    <line x1="8" y1="18" x2="8.01" y2="18"/>
+                </svg>
+                <span class="pd-menu-label">Intern Presence</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Menu Modal Script -->
+    <script>
+        (function() {
+            const overlay = document.getElementById('pdMenuOverlay');
+            const container = document.getElementById('pdMenuContainer');
+            const openBtn = document.getElementById('pdMainMenuBtn');
+            const closeBtn = document.getElementById('pdMenuCloseBtn');
+
+            function openMenu() {
+                overlay && overlay.classList.add('active');
+                container && container.classList.add('active');
+            }
+            function closeMenu() {
+                overlay && overlay.classList.remove('active');
+                container && container.classList.remove('active');
+            }
+
+            if (openBtn) openBtn.addEventListener('click', openMenu);
+            if (overlay) overlay.addEventListener('click', closeMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        })();
+    </script>
+
+    <!-- Orchestrator Entry Point -->
+    <script type="module" src="/pages/hr/people-development/people-development.js"></script>
+</body>
+</html>
