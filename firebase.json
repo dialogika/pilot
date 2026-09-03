@@ -67,6 +67,11 @@
         "source": "/data/presence-team.html",
         "destination": "/presence-team",
         "type": 301
+      },
+      {
+        "source": "/data/exit-interview.html",
+        "destination": "/exit-interview",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -157,6 +162,14 @@
       {
         "source": "/hr/presence-team",
         "destination": "/pages/hr/presence-team/index.html"
+      },
+      {
+        "source": "/exit-interview",
+        "destination": "/pages/hr/exit-interview/index.html"
+      },
+      {
+        "source": "/hr/exit-interview",
+        "destination": "/pages/hr/exit-interview/index.html"
       }
     ],
     "headers": [
