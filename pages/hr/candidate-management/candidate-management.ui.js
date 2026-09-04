@@ -893,3 +893,97 @@ export function setTemplateValidation(msg, tone) {
   el.textContent = msg;
   el.className = "alert py-2 px-3 mb-3 " + (tone === "success" ? "alert-success" : tone === "danger" ? "alert-danger" : "alert-warning");
 }
+
+/**
+ * Renders tab pagination footer for a candidate category tab.
+ * @param {string} cat
+ * @param {Object} info - { currentPage, totalRows, rowsPerPage, totalPages }
+ * @param {Function} onPageChange - (newPage) => void
+ */
+export function renderTabPagination(cat, info, onPageChange) {
+  const container = document.getElementById(`pagination-${cat}`);
+  if (!container) return;
+
+  const { currentPage, totalRows, rowsPerPage, totalPages } = info;
+  if (!totalRows || totalRows <= 0) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+  const start = (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, totalRows);
+
+  const left = `<p class="candidate-pagination-meta text-slate-500 font-medium text-xs mb-0">Menampilkan <span class="fw-bold text-slate-700">${start}</span> - <span class="fw-bold text-slate-700">${end}</span> dari <span class="fw-bold text-slate-700">${totalRows}</span> kandidat</p>`;
+
+  let pages = "";
+  // Prev button
+  const prevDisabled = currentPage <= 1;
+  pages += `
+    <button type="button" class="candidate-page-btn candidate-page-nav" data-page="prev" ${prevDisabled ? "disabled" : ""} title="Halaman Sebelumnya">
+      <i class="fas fa-chevron-left text-xs"></i>
+    </button>
+  `;
+
+  // Page numbers with smart sliding window
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  if (startPage > 1) {
+    pages += `<button type="button" class="candidate-page-btn" data-page="1">1</button>`;
+    if (startPage > 2) {
+      pages += `<span class="candidate-page-dots">...</span>`;
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const active = i === currentPage;
+    pages += `<button type="button" class="candidate-page-btn ${active ? "active" : ""}" data-page="${i}">${i}</button>`;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      pages += `<span class="candidate-page-dots">...</span>`;
+    }
+    pages += `<button type="button" class="candidate-page-btn" data-page="${totalPages}">${totalPages}</button>`;
+  }
+
+  // Next button
+  const nextDisabled = currentPage >= totalPages;
+  pages += `
+    <button type="button" class="candidate-page-btn candidate-page-nav" data-page="next" ${nextDisabled ? "disabled" : ""} title="Halaman Berikutnya">
+      <i class="fas fa-chevron-right text-xs"></i>
+    </button>
+  `;
+
+  container.innerHTML = `
+    <div class="candidate-pagination-inner d-flex flex-column flex-sm-row justify-content-between align-items-center w-100 gap-3">
+      ${left}
+      <div class="candidate-pagination-pages d-flex align-items-center gap-1">
+        ${pages}
+      </div>
+    </div>
+  `;
+
+  container.onclick = (e) => {
+    const btn = e.target.closest(".candidate-page-btn");
+    if (!btn || btn.disabled || btn.classList.contains("active")) return;
+    const targetPage = btn.dataset.page;
+    if (targetPage === "prev") {
+      if (currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
+    } else if (targetPage === "next") {
+      if (currentPage < totalPages && onPageChange) onPageChange(currentPage + 1);
+    } else {
+      const p = parseInt(targetPage, 10);
+      if (!isNaN(p) && p !== currentPage && onPageChange) {
+        onPageChange(p);
+      }
+    }
+  };
+}
+

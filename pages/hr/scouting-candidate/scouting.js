@@ -32,6 +32,10 @@ const state = {
     status: "all",
     sort: "newest",
   },
+  pagination: {
+    page: 1,
+    pageSize: 6,
+  },
   modalInstance: null,
 };
 
@@ -55,7 +59,7 @@ function getFilteredTalents() {
   });
 
   // 1. Search filter
-  const term = state.filterState.search.trim().toLowerCase();
+  const term = state.filterState.search.toLowerCase().trim();
   if (term) {
     result = result.filter((t) => {
       const basic = t.basic_info || {};
@@ -96,11 +100,35 @@ function getFilteredTalents() {
 }
 
 /**
- * Apply filters and update the view.
+ * Apply filters and update the view with pagination.
  */
 function applyFiltersAndRender() {
   const filtered = getFilteredTalents();
-  ScoutingUI.renderTalents(filtered, state.assignUsersMap);
+  const totalRows = filtered.length;
+  const pageSize = state.pagination.pageSize || 12;
+  const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+
+  if (state.pagination.page > totalPages) state.pagination.page = totalPages;
+  if (state.pagination.page < 1) state.pagination.page = 1;
+
+  const startIndex = (state.pagination.page - 1) * pageSize;
+  const pageItems = filtered.slice(startIndex, startIndex + pageSize);
+
+  ScoutingUI.renderTalents(pageItems, state.assignUsersMap);
+
+  ScoutingUI.renderPagination(
+    {
+      currentPage: state.pagination.page,
+      totalRows,
+      rowsPerPage: pageSize,
+      totalPages,
+    },
+    (newPage) => {
+      state.pagination.page = newPage;
+      applyFiltersAndRender();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  );
 }
 
 /**
@@ -437,6 +465,7 @@ function wireEvents() {
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       state.filterState.search = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
@@ -446,6 +475,7 @@ function wireEvents() {
   if (statusFilter) {
     statusFilter.addEventListener("change", (e) => {
       state.filterState.status = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
@@ -455,6 +485,7 @@ function wireEvents() {
   if (sortSelect) {
     sortSelect.addEventListener("change", (e) => {
       state.filterState.sort = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
