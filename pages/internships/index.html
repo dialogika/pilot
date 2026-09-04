@@ -6,7 +6,17 @@
     <link rel="icon" type="image/webp" href="../../assets/img/favicon.webp" />
     <title>Internship Management - Team Dialogika</title>
 
-    <!-- Bootstrap 5.3 + Icons + Poppins (CDN) -->
+    <script>
+      if (window.location.pathname === "/internships" || window.location.pathname === "/internships/") {
+        window.location.replace("/internship-management" + window.location.search + window.location.hash);
+      }
+    </script>
+
+    <!-- Font Awesome + Bootstrap 5.3 + Icons + Poppins (CDN) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -40,27 +50,30 @@
         <!-- Header -->
         <div class="internship-header">
           <div>
-            <h2>Internship Management</h2>
-            <nav aria-label="breadcrumb">
-              <ol class="internship-breadcrumb">
-                <li><a href="/home"><i class="bi bi-house me-1"></i></a></li>
-                <li class="internship-breadcrumb-sep">•</li>
-                <li>Setting</li>
-                <li class="internship-breadcrumb-sep">•</li>
-                <li>Internship Directory</li>
-              </ol>
+            <nav class="d-flex align-items-center gap-2 mb-2" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2563eb;">
+              <a href="/home" style="color: #2563eb; text-decoration: none;"><i class="bi bi-house-fill"></i></a>
+              <span>/</span>
+              <span>HR Division</span>
+              <span>/</span>
+              <span style="color: #94a3b8;">Internship Management</span>
             </nav>
+            <h2 class="fw-bold mb-0" style="font-size: 1.875rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em;">Internship Management</h2>
           </div>
-          <button class="btn btn-dlg-green" id="internshipAddBtn">
-            <i class="bi bi-plus-lg me-2"></i> New Intern
-          </button>
+          <div class="d-flex gap-3 align-items-center">
+            <button class="btn btn-light border bg-white rounded-3 px-3 fw-semibold text-muted" id="internshipExportBtn">
+              <i class="fas fa-download me-2"></i> Export
+            </button>
+            <button class="btn btn-dlg-green" id="internshipAddBtn">
+              <i class="fas fa-plus me-2"></i> New Intern
+            </button>
+          </div>
         </div>
 
         <!-- Stats Cards -->
         <div class="row g-4 mb-5">
           <div class="col-xl-3 col-md-6">
             <div class="stats-card" id="internshipCardTotal">
-              <div class="icon-shape bg-dark text-white"><i class="bi bi-people"></i></div>
+              <div class="icon-shape bg-dark text-white"><i class="fas fa-users"></i></div>
               <div class="d-flex justify-content-between align-items-end">
                 <div>
                   <h3 id="statsCardTotalCount">0</h3>
@@ -78,7 +91,7 @@
           </div>
           <div class="col-xl-3 col-md-6">
             <div class="stats-card" id="internshipCardActive">
-              <div class="icon-shape bg-success bg-opacity-10 text-success"><i class="bi bi-person-check"></i></div>
+              <div class="icon-shape bg-success bg-opacity-10 text-success"><i class="fas fa-user-check"></i></div>
               <div class="d-flex justify-content-between align-items-end">
                 <div>
                   <h3 id="statsCardActiveCount">0</h3>
@@ -92,7 +105,7 @@
           </div>
           <div class="col-xl-3 col-md-6">
             <div class="stats-card" id="internshipCardOnLeave">
-              <div class="icon-shape bg-danger bg-opacity-10 text-danger"><i class="bi bi-person-clock"></i></div>
+              <div class="icon-shape bg-danger bg-opacity-10 text-danger"><i class="fas fa-user-clock"></i></div>
               <div class="d-flex justify-content-between align-items-end">
                 <div>
                   <h3 id="statsCardOnLeaveCount">0</h3>
@@ -110,7 +123,7 @@
           </div>
           <div class="col-xl-3 col-md-6">
             <div class="stats-card" id="internshipCardLeft">
-              <div class="icon-shape bg-warning bg-opacity-10 text-primary"><i class="bi bi-door-open"></i></div>
+              <div class="icon-shape bg-warning bg-opacity-10" style="color: #f7b12c;"><i class="fas fa-door-open" style="color: #f7b12c;"></i></div>
               <div class="d-flex justify-content-between align-items-end">
                 <div>
                   <h3 id="statsCardLeftCount">0</h3>
@@ -146,7 +159,7 @@
               </select>
             </div>
             <div class="position-relative">
-              <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="font-size: 12px"></i>
+              <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="font-size: 12px"></i>
               <input
                 id="internshipSearchInput"
                 type="text"
@@ -189,12 +202,12 @@
               <ul class="pagination pagination-sm mb-0 gap-1">
                 <li class="page-item">
                   <button id="internshipPrevPage" class="page-link">
-                    <i class="bi bi-chevron-left me-1"></i> Prev
+                    <i class="fas fa-chevron-left me-1"></i> Prev
                   </button>
                 </li>
                 <li class="page-item">
                   <button id="internshipNextPage" class="page-link">
-                    Next <i class="bi bi-chevron-right ms-1"></i>
+                    Next <i class="fas fa-chevron-right ms-1"></i>
                   </button>
                 </li>
               </ul>
