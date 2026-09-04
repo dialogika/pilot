@@ -9,7 +9,7 @@
 // =====================================================================
 
 import { getMs, escapeHtml, formatDateID } from "../../assets/js/utils.js";
-import { toast, setButtonBusy } from "../../assets/js/ui.js";
+import { toast, setButtonBusy, confirmDialog } from "../../assets/js/ui.js";
 import { createRichEditor } from "../../assets/js/components/rich-editor/rich-editor.js";
 
 let reportEditorInstances = {};
@@ -121,20 +121,58 @@ function emptyState(text) {
   return '<p class="quest-empty">' + escapeHtml(text) + "</p>";
 }
 
+function resolveUser(rawId, usersMap) {
+  if (!rawId) return null;
+  if (typeof rawId === "object" && rawId !== null && (rawId.name || rawId.uid || rawId.docId)) {
+    return rawId;
+  }
+  const strId = String(rawId).trim();
+  if (!strId) return null;
+  const strLower = strId.toLowerCase();
+
+  let user = usersMap ? (usersMap[strId] || usersMap[strLower]) : null;
+  if (!user && usersMap) {
+    const allUsers = Object.values(usersMap);
+    for (const u of allUsers) {
+      if (!u) continue;
+      const uDocId = String(u.docId || u.id || "").toLowerCase();
+      const uUid = String(u.uid || "").toLowerCase();
+      const uEmail = String(u.email || "").toLowerCase();
+      const uName = String(u.name || u.displayName || u.full_name || "").toLowerCase();
+      const uAliases = Array.isArray(u.allAliases) ? u.allAliases.map((a) => String(a).toLowerCase()) : [];
+
+      if (
+        (uDocId && uDocId === strLower) ||
+        (uUid && uUid === strLower) ||
+        (uEmail && uEmail === strLower) ||
+        (uAliases.length && uAliases.includes(strLower)) ||
+        (uName && uName === strLower)
+      ) {
+        user = u;
+        break;
+      }
+    }
+  }
+
+  return user || { uid: strId, name: strId, photo: "" };
+}
+
 function getAssignList(task, ctx) {
   if (!task.assign_to) return [];
   const raw = Array.isArray(task.assign_to) ? task.assign_to.slice() : [task.assign_to];
-  if (!ctx || !ctx.users) return [...new Set(raw.map(id => String(id).toLowerCase()))];
-
+  const usersMap = ctx?.users;
   const seen = new Set();
   const unique = [];
+
   raw.forEach((uid) => {
-    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
-    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
-    const key = String(uKey).toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(uid);
+    if (!uid) return;
+    const user = resolveUser(uid, usersMap);
+    const canonicalKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
+    if (!seen.has(canonicalKey)) {
+      seen.add(canonicalKey);
+      unique.push(user.docId || user.uid || uid);
     }
   });
   return unique;
@@ -143,17 +181,19 @@ function getAssignList(task, ctx) {
 function getReportToList(task, ctx) {
   if (!task.report_to) return [];
   const raw = Array.isArray(task.report_to) ? task.report_to.slice() : [task.report_to];
-  if (!ctx || !ctx.users) return [...new Set(raw.map(id => String(id).toLowerCase()))];
-
+  const usersMap = ctx?.users;
   const seen = new Set();
   const unique = [];
+
   raw.forEach((uid) => {
-    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
-    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
-    const key = String(uKey).toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(uid);
+    if (!uid) return;
+    const user = resolveUser(uid, usersMap);
+    const canonicalKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
+    if (!seen.has(canonicalKey)) {
+      seen.add(canonicalKey);
+      unique.push(user.docId || user.uid || uid);
     }
   });
   return unique;
@@ -245,13 +285,11 @@ function card(task, category, ctx) {
   );
   const selectedClass = isSelected ? " is-selected" : "";
 
-  const isApproved = Boolean(task.isApproved || /approved/i.test(task.status));
-  const isRejected = !isApproved && Boolean(task.isRejected || /rejected/i.test(task.status));
+  const isAssignee = Boolean(task.isAssignee);
+  const isApproved = Boolean(task.isApproved);
+  const isRejected = !isApproved && Boolean(task.isRejected);
   const isReported = !isApproved && !isRejected && Boolean(
-    task.isReported ||
-      task.lockState?.done ||
-      /reported/i.test(task.status) ||
-      /reported/i.test(task.task_status),
+    task.isReported || (isAssignee && task.lockState?.done)
   );
 
   let leftControl = "";
@@ -304,17 +342,24 @@ function card(task, category, ctx) {
     : "";
 
   let statusBadge = "";
-  if (isApproved) {
+  const taskStatusLower = String(task.user_status || "").toLowerCase();
+  if (isApproved || taskStatusLower === "approved" || taskStatusLower.includes("approv")) {
     statusBadge = '<span class="dg-quest-badge dg-quest-badge-approved" title="Status: Approved"><i class="bi bi-patch-check-fill"></i> Approved</span>';
-  } else if (isReported) {
+  } else if (isRejected || taskStatusLower === "rejected" || taskStatusLower.includes("reject")) {
+    statusBadge = `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Ditolak')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`;
+  } else if (isReported || taskStatusLower === "reported" || taskStatusLower.includes("report")) {
     statusBadge = '<span class="dg-quest-badge dg-quest-badge-reported" title="Status: Reported"><i class="bi bi-send-check"></i> Reported</span>';
-  } else if (isRejected) {
-    statusBadge = `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Perlu Revisi')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`;
   } else {
     statusBadge = '<span class="dg-quest-badge dg-quest-badge-todo" title="Status: To Do"><i class="bi bi-circle"></i> To Do</span>';
   }
 
-  const cardDoneClass = isApproved ? " dg-quest-approved" : isReported ? " dg-quest-done" : isRejected ? " dg-quest-rejected" : "";
+  const cardDoneClass = (isAssignee && isApproved)
+    ? " dg-quest-approved"
+    : (isAssignee && isRejected)
+    ? " dg-quest-rejected"
+    : (isAssignee && isReported)
+    ? " dg-quest-done"
+    : "";
 
   return `
     <div class="dg-quest-card ${lockClass}${selectedClass}${cardDoneClass}" style="border-left-color:${borderColor(task, category)};" data-task-id="${id}" data-can-delete="${canDelete ? "true" : "false"}">
@@ -324,7 +369,7 @@ function card(task, category, ctx) {
           <h4 class="dg-quest-card-title" title="${escapeHtml(title)}">${title}</h4>
           ${tags ? `<div class="dg-quest-tags-wrap">${tags}</div>` : ""}
         </div>
-        ${isRejected && task.rejectionReason ? `<span class="dg-quest-rejection-dot" title="Revisi: ${escapeHtml(task.rejectionReason)}"><i class="bi bi-exclamation-circle-fill text-danger"></i></span>` : ""}
+        ${isRejected && isWorkerAssignee ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger ms-1" style="font-size:0.65rem;font-weight:600;vertical-align:middle;padding:0.15rem 0.4rem;border-radius:0.35rem;" title="Catatan Revisi: ${escapeHtml(task.rejectionReason || 'Ditolak')}"><i class="bi bi-exclamation-triangle-fill me-1"></i>Perlu Revisi</span>` : ""}
       </div>
       <div class="dg-col-time">
         ${deadlineHtml || '<span class="dg-quest-col-empty">-</span>'}
@@ -565,9 +610,16 @@ export function openQuestDetail(task, ctx) {
   const deadlineTime = task.deadline_time || "—";
   const priority = String(task.priority || "normal").toLowerCase();
   const points = task.points || 0;
-  const descHtml = task.description && String(task.description).replace(/<[^>]*>/g, "").trim().length > 0
-    ? task.description
-    : '<em style="color:#94a3b8">No description</em>';
+  const rawDesc = String(task.description || "").trim();
+  const hasDesc = Boolean(
+    rawDesc &&
+    rawDesc !== "<p><br></p>" &&
+    rawDesc !== "<br>" &&
+    (rawDesc.includes("<img") || rawDesc.includes("data:image/") || rawDesc.replace(/<[^>]*>/g, "").trim().length > 0)
+  );
+  const descHtml = hasDesc
+    ? rawDesc
+    : '<em style="color:#94a3b8">Tidak ada deskripsi.</em>';
   const deptNames = (task.departments || []).map((d) => d && d.name).filter(Boolean);
   const posNames = (task.positions || []).map((p) => p && p.name).filter(Boolean);
   const tags = task.tags || [];
@@ -575,8 +627,45 @@ export function openQuestDetail(task, ctx) {
 
   const prioColor = priority === "urgent" ? "#dc2626" : priority === "medium" ? "#f59e0b" : "#16a34a";
   const prioLabel = priority === "urgent" ? "High" : priority === "medium" ? "Medium" : "Normal";
-  const statusText = task.status || "Initiate";
-  const statusColor = /reported|done|complete/i.test(statusText) ? "#16a34a" : /overdue|late/i.test(statusText) ? "#dc2626" : "#64748b";
+  const isAssignee = Boolean(task.isAssignee);
+  const isApproved = Boolean(task.isApproved);
+  const isRejected = !isApproved && Boolean(task.isRejected);
+  const isReported = !isApproved && !isRejected && Boolean(task.isReported || (isAssignee && task.lockState?.done));
+
+  const taskStatusLower = String(task.user_status || "").toLowerCase();
+  const isShowRejected = isRejected || taskStatusLower === "rejected" || taskStatusLower.includes("reject");
+  const isShowApproved = isApproved || taskStatusLower === "approved" || taskStatusLower.includes("approv");
+  const isShowReported = isReported || taskStatusLower === "reported" || taskStatusLower.includes("report");
+
+  const statusText = isShowApproved
+    ? "Approved"
+    : isShowRejected
+    ? "Rejected"
+    : isShowReported
+    ? "Reported"
+    : "To Do";
+
+  const statusColor = isShowApproved
+    ? "#16a34a"
+    : isShowRejected
+    ? "#dc2626"
+    : isShowReported
+    ? "#0284c7"
+    : "#64748b";
+
+  const rejectionReason = (isRejected ? task.rejectionReason : "") || task.rejectionReason || "";
+  let rejectionFeedbackHtml = "";
+  if (isShowRejected) {
+    rejectionFeedbackHtml =
+      '<div style="margin-top:0.75rem;border-radius:0.75rem;border:1.5px solid #fecaca;background:#fff5f5;padding:0.75rem 1rem;">' +
+      '<div style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.35rem;">' +
+      '<i class="bi bi-exclamation-octagon-fill" style="color:#dc2626;font-size:1rem;"></i>' +
+      '<span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#dc2626;">Komentar Penolakan / Catatan Revisi</span>' +
+      "</div>" +
+      '<div style="font-size:0.82rem;line-height:1.6;color:#1e293b;word-break:break-word;">' +
+      (rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:#64748b">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>') +
+      "</div></div>";
+  }
 
   let assignees = "";
   if (assign.length) {
@@ -614,6 +703,7 @@ export function openQuestDetail(task, ctx) {
     '<span class="quest-card-badge" style="background:' + prioColor + "1a;color:" + prioColor + '"><i class="bi bi-flag"></i> ' + escapeHtml(prioLabel) + "</span>" +
     (points > 0 ? '<span class="quest-card-points">' + points + " Point</span>" : "") +
     "</div>" +
+    rejectionFeedbackHtml +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;margin-top:0.75rem">' +
     infoCard("Deadline", escapeHtml(deadlineTime)) +
     infoCard("Department", deptNames.length ? escapeHtml(deptNames.join(", ")) : "<em style='color:#94a3b8'>—</em>") +
@@ -756,6 +846,10 @@ export function notifySuccess(message) {
 
 export function notifyError(message) {
   toast(message, "error");
+}
+
+export async function confirmAction(message, danger = false) {
+  return confirmDialog(message, { danger });
 }
 
 export function updateBulkActionBar(selectedCount, totalDeletableCount) {
