@@ -19,12 +19,66 @@
         "type": 301
       },
       {
-        "source": "/internships",
-        "destination": "/internship-management",
+        "source": "/data/company-position.html",
+        "destination": "/company-position",
+        "type": 301
+      },
+      {
+        "source": "/data/candidate-management.html",
+        "destination": "/candidate-management",
+        "type": 301
+      },
+      {
+        "source": "/data/internship-candidate-detail.html",
+        "destination": "/internship-candidate-detail",
+        "type": 301
+      },
+      {
+        "source": "/data/mentor-candidate-detail.html",
+        "destination": "/mentor-candidate-detail",
+        "type": 301
+      },
+      {
+        "source": "/data/team-candidate-detail.html",
+        "destination": "/team-candidate-detail",
+        "type": 301
+      },
+      {
+        "source": "/setting/team-management.html",
+        "destination": "/team-management",
+        "type": 301
+      },
+      {
+        "source": "/data/scouting-candidate.html",
+        "destination": "/scouting-candidate",
         "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/scouting-candidate",
+        "destination": "/pages/hr/scouting-candidate/index.html"
+      },
+      {
+        "source": "/team-management",
+        "destination": "/pages/hr/team-management/index.html"
+      },
+      {
+        "source": "/candidate-management",
+        "destination": "/pages/hr/candidate-management/index.html"
+      },
+      {
+        "source": "/internship-candidate-detail",
+        "destination": "/data/internship-candidate-detail.html"
+      },
+      {
+        "source": "/mentor-candidate-detail",
+        "destination": "/data/mentor-candidate-detail.html"
+      },
+      {
+        "source": "/team-candidate-detail",
+        "destination": "/data/team-candidate-detail.html"
+      },
       {
         "source": "/login",
         "destination": "/pages/login/index.html"
@@ -42,8 +96,16 @@
         "destination": "/pages/home/index.html"
       },
       {
+        "source": "/quest",
+        "destination": "/pages/quest/index.html"
+      },
+      {
         "source": "/internship-management",
         "destination": "/pages/hr/internship-management/index.html"
+      },
+      {
+        "source": "/internships",
+        "destination": "/pages/internships/index.html"
       },
       {
         "source": "/users-management",
@@ -60,6 +122,10 @@
       {
         "source": "/office-inventory",
         "destination": "/pages/hr/office-inventory/index.html"
+      },
+      {
+        "source": "/company-position",
+        "destination": "/pages/hr/company-position/index.html"
       }
     ],
     "headers": [
@@ -69,6 +135,24 @@
           {
             "key": "Cache-Control",
             "value": "no-store"
+          }
+        ]
+      },
+      {
+        "source": "**/*.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.css",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, no-cache, must-revalidate"
           }
         ]
       },

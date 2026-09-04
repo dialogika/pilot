@@ -97,8 +97,8 @@ export async function resolvePositionName(rawValue) {
  * @returns {Promise<{name:string,email:string,photo:string,position:string}>}
  */
 export async function getTopbarProfile(uid, fallback = {}) {
-  const doc = await getUserDoc(uid);
-  const data = doc || {};
+  const userDoc = await getUserDoc(uid);
+  const data = userDoc || {};
 
   const name = data.name || fallback.name || fallback.email || "User";
   const email = data.email || fallback.email || "";
