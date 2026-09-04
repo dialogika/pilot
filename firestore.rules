@@ -1,0 +1,458 @@
+rules_version = '2';
+
+// =============================================================================
+// Firestore Security Rules — dialogika-co
+// =============================================================================
+// Basis: MASTER-PLAN-Sistem-Informasi-Dialogika-2026-08-04.md §4 (disesuaikan)
+//        BLUEPRINT-Redesign-Team-Internal-Dialogika-2026-08-03.md §6 (Permission Matrix, disesuaikan)
+//
+// UPDATE 2026-08-11 (New Update.pdf + jawaban Ron via AskUserQuestion):
+//   Role berubah dari 1 tier atas ("kepala_tim") jadi TUJUH tier:
+//     owner | admin | team | staff | intern | mentor | member
+//   - "team" = nama baru untuk "kepala_tim" lama (istilah sama, cuma diganti nama).
+//   - owner & admin bisa lihat semuanya; admin TIDAK bisa mengubah/mengedit role owner.
+//   - Untuk akses data operasional sehari-hari, owner/admin/team diperlakukan SATU
+//     tingkat "manajemen" (isManagement()) dengan hak yang sama seperti kepala_tim
+//     lama — PDF Ron cuma menegaskan owner & admin "bisa lihat semuanya" untuk
+//     membedakan admin dari owner (soal role-editing), bukan untuk MENGURANGI hak
+//     team dari yang sudah ada. Kalau asumsi ini salah, tinggal pisahkan
+//     isManagement() jadi isManagement() (owner+admin) vs isTeam() sendiri.
+//   - Untuk role-management (setUserRole), HANYA owner & admin yang boleh — team
+//     tidak lagi bisa mengubah role user lain (assumsi eksplisit, lihat functions/index.js).
+//   - Rantai rating quest difficulty (lihat §QUEST): owner -> {admin, team} -> staff -> intern.
+//     Ron eksplisit: "admin setara dengan team" untuk urusan rating ini.
+//   - Tools Management (gaya Discord): Ron konfirmasi INI dua-duanya — visibility
+//     menu/sidebar DAN akses baca/tulis dokumen Firestore lintas departemen.
+//     Ditambahkan pola generik `collection_access/{collectionName}` + helper
+//     hasSharedAccess(), dicontohkan di `data_member` dan `mentors_screening`
+//     (dua contoh yang Ron sebut eksplisit). Perluas pola yang sama untuk koleksi
+//     lain sesuai kebutuhan — jangan bikin wildcard umum.
+//
+// PRINSIP UTAMA (tidak berubah):
+//   - Role dibaca dari CUSTOM CLAIM (request.auth.token.role), BUKAN dari field
+//     dokumen users/{uid}.role — supaya client tidak bisa self-elevate dengan
+//     menulis field role di dokumen sendiri, dan supaya rules tidak perlu extra
+//     get() (yang ikut kena biaya read) di setiap evaluasi.
+//   - Custom claim (role) HANYA di-set lewat Cloud Function `setUserRole`
+//     (Admin SDK) — tidak ada jalan lain untuk user mengubah claim miliknya sendiri.
+//   - Koleksi agregat (user_scores, notifications-create) HANYA ditulis lewat
+//     Cloud Functions (Admin SDK, bypass rules) — client tidak boleh tulis
+//     langsung supaya poin tidak bisa dimanipulasi dari browser.
+//   - Field `quests.difficulty` dan `quests.points` HANYA bisa berubah lewat
+//     Cloud Function `setQuestDifficulty` (Admin SDK) — client tidak boleh
+//     menulis dua field ini langsung lewat update biasa, siapa pun rolenya,
+//     supaya rantai rating & mapping poin tidak bisa dilewati dari browser.
+//   - Default: DENY. Setiap koleksi harus eksplisit di-allow.
+//
+// STATUS: v3 — role jadi 7 tier, quest difficulty ladder, tools/collection sharing.
+// Koleksi legacy yang belum ada di matrix eksplisit diberi rule fallback
+// "internal team boleh baca, management boleh tulis" (ditandai FALLBACK) —
+// ini SEMENTARA, tinjau ulang satu per satu seiring modul dibangun.
+//
+// ⚠️ BELUM DI-DEPLOY. File ini hasil rewrite berdasarkan New Update.pdf (2026-08-11).
+// Ron perlu review dulu sebelum `firebase deploy --only firestore:rules`.
+// Lihat UPDATE-2026-08-11-Role-Tools-Quest-Schema.md untuk ringkasan perubahan.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return isSignedIn() ? request.auth.token.role : null;
+    }
+
+    function isOwnerRole() {
+      return role() == 'owner';
+    }
+
+    function isAdmin() {
+      return role() == 'admin';
+    }
+
+    function isTeam() {
+      return role() == 'team';
+    }
+
+    function isStaff() {
+      return role() == 'staff';
+    }
+
+    function isIntern() {
+      return role() == 'intern';
+    }
+
+    function isMentor() {
+      return role() == 'mentor';
+    }
+
+    function isMember() {
+      return role() == 'member';
+    }
+
+    // "Manajemen" = owner + admin + team, diperlakukan setara untuk akses data
+    // operasional sehari-hari (lihat catatan UPDATE 2026-08-11 di atas file).
+    // Ini pengganti langsung isKepalaTim() versi lama.
+    function isManagement() {
+      return isOwnerRole() || isAdmin() || isTeam();
+    }
+
+    // "Internal" = boleh login ke team.dialogika.co (bukan member/public)
+    function isInternalTeam() {
+      return isManagement() || isStaff() || isIntern() || isMentor();
+    }
+
+    // Cek dokumen ini "milik" uid ini sendiri (dulu namanya isOwner() —
+    // DIRENAME ke isSelf() 2026-08-11 karena "owner" sekarang nama ROLE,
+    // supaya tidak bentrok makna).
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Departemen user yang sedang login, dibaca dari dokumen users/{uid} sendiri.
+    // Sengaja TIDAK dari custom claim (department belum masuk claim) — dipakai
+    // HANYA di rule yang butuh cross-department sharing (biaya 1 extra read,
+    // jangan dipanggil di setiap match block).
+    function myDepartment() {
+      return isSignedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('employment', {}).get('department', null)
+        : null;
+    }
+
+    // Pola sharing lintas departemen ala "Tools Management" (New Update.pdf,
+    // gaya Discord permission). Baca config dari collection_access/{collectionName}:
+    //   { owner_department: "rebuy", shared_read_departments: ["marketing"], shared_write_departments: [] }
+    // mode: 'read' atau 'write'.
+    function hasSharedAccess(collectionName, mode) {
+      let cfg = get(/databases/$(database)/documents/collection_access/$(collectionName)).data;
+      return mode == 'read'
+        ? myDepartment() in cfg.get('shared_read_departments', [])
+        : myDepartment() in cfg.get('shared_write_departments', []);
+    }
+
+    // -------------------------------------------------------------------
+    // IDENTITY
+    // -------------------------------------------------------------------
+
+    // users: tiap orang baca profil sendiri; manajemen baca semua.
+    // WRITE field sensitif (role) TIDAK lewat sini sama sekali — itu hanya
+    // lewat Cloud Function setUserRole (Admin SDK, bypass rules). Client
+    // hanya boleh update field non-sensitif profil sendiri.
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isInternalTeam();
+      allow create: if false; // dibuat via Cloud Function saat approve pending_users
+      allow update: if (isSelf(uid)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['name', 'photo_url', 'phone', 'bio', 'updated_at']))
+                    || isManagement();
+      allow delete: if isManagement();
+    }
+
+    match /pending_users/{id} {
+      allow read: if isManagement();
+      allow create: if true; // form registrasi publik, sebelum login
+      allow update, delete: if isManagement();
+    }
+
+    // roles: koleksi "data" (bukan hardcode) untuk permission dinamis (MASTER-PLAN §4.3).
+    // Field baru per role (Tools Management, New Update.pdf): visible_tools: string[]
+    // — daftar tool_id yang boleh dilihat role ini di sidebar (lihat match /tools/{id}).
+    match /roles/{roleId} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    // tools: katalog "menu/halaman" internal, gaya Discord "channel" (New Update.pdf).
+    // { name, category (mis. nama departemen/System), page_path }
+    // Visibility per role dibaca dari roles/{roleId}.visible_tools di client/UI,
+    // bukan di rules ini — rules cuma menjaga siapa boleh baca katalognya & siapa
+    // boleh mengedit katalognya (menambah tool baru).
+    match /tools/{toolId} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    // collection_access: config sharing lintas departemen (dipakai hasSharedAccess()).
+    // Baru dicontohkan untuk data_member & mentors_screening — perluas per kebutuhan.
+    match /collection_access/{collectionName} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    match /positions/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    match /departments/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    match /user_presence/{uid} {
+      allow read: if isInternalTeam();
+      allow write: if isSelf(uid); // user update presence miliknya sendiri (online/offline heartbeat)
+    }
+
+    // -------------------------------------------------------------------
+    // QUEST SYSTEM (MASTER-PLAN §1-3, + difficulty ladder New Update.pdf §2026-08-11)
+    // -------------------------------------------------------------------
+    // Field baru yang perlu ditambahkan di skema quests (lihat UPDATE doc):
+    //   difficulty: "amateur"|"novice"|"intermediate"|"hard"|null  -- HANYA via Cloud Function
+    //   points: number                                              -- HANYA via Cloud Function (derivasi dari difficulty)
+    //   blocked_by: [quest_id, ...]  -- quest lain yang harus selesai dulu sebelum ini bisa dikerjakan
+    //   blocking: [quest_id, ...]    -- kebalikan blocked_by, dipertahankan denormalized biar query 2 arah murah
+    //   parent_quest_id: quest_id|null -- subtask = quest dengan parent_quest_id terisi
+    //   contexts: [string, ...]      -- ala GTD context (mis. "@kantor", "@laptop")
+    //   time_estimate_minutes: number|null
+
+    match /quests/{questId} {
+      allow read: if isManagement()
+                  || (isSignedIn() && request.auth.uid in resource.data.get('assign_to', []))
+                  || (isSignedIn() && request.auth.uid in resource.data.get('report_to', []))
+                  || (isSignedIn() && resource.data.get('created_by', '') == request.auth.uid);
+      allow create: if isInternalTeam();
+      // Update boleh oleh assignee (ubah status/progress miliknya) atau manajemen (kelola penuh).
+      // TAPI: field difficulty & points TIDAK BOLEH ikut di-update lewat jalur ini, siapa pun
+      // rolenya — dua field itu cuma boleh berubah lewat Cloud Function setQuestDifficulty,
+      // supaya rantai rating (owner->admin/team->staff->intern) & mapping poin tidak bisa
+      // dilewati langsung dari browser.
+      allow update: if (isManagement()
+                  || (isSignedIn() && request.auth.uid in resource.data.get('assign_to', []))
+                  || (isSignedIn() && resource.data.get('created_by', '') == request.auth.uid))
+              && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['difficulty', 'points']);
+				allow delete: if isManagement()
+              || (isSignedIn() && resource.data.get('created_by', '') == request.auth.uid);
+
+      match /logs/{logId} {
+        allow read: if isManagement()
+                    || (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/quests/$(questId)).data.get('assign_to', []));
+        allow write: if false; // logs ditulis via Cloud Function/trigger, bukan client langsung
+      }
+    }
+
+    match /recurrence_templates/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    // user_scores & history: LEADERBOARD, dibaca semua internal, ditulis HANYA
+    // via Cloud Function (increment poin di onQuestUpdate) — client tidak boleh
+    // tulis sama sekali supaya tidak bisa manipulasi poin sendiri.
+    match /user_scores/{uid} {
+      allow read: if isInternalTeam();
+      allow write: if false;
+    }
+    match /user_scores_history/{id} {
+      allow read: if isInternalTeam();
+      allow write: if false;
+    }
+
+    match /projects/{projectId} {
+      allow read: if isManagement()
+                  || (isSignedIn() && request.auth.uid in resource.data.get('members', []));
+      allow write: if isManagement()
+                   || (isSignedIn() && request.auth.uid in resource.data.get('members', []));
+
+      match /{subcollection}/{docId} {
+        // lists, files, messages, message_drafts, message_subscribers — ikuti akses project induk
+        allow read, write: if isManagement()
+                            || (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/projects/$(projectId)).data.get('members', []));
+      }
+    }
+
+    // -------------------------------------------------------------------
+    // NOTIFICATIONS (MASTER-PLAN §5)
+    // -------------------------------------------------------------------
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow create: if false; // hanya Cloud Function (onQuestUpdate, dst) yang buat notifikasi
+      // User cuma boleh ubah field "read" miliknya sendiri (tandai sudah dibaca), tidak field lain.
+      allow update: if isSignedIn() && resource.data.user_id == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false; // retensi/cleanup lewat Cloud Function terjadwal
+    }
+
+    // -------------------------------------------------------------------
+    // HR / INTERNSHIP — data sensitif, akses ketat (BLUEPRINT §6)
+    // -------------------------------------------------------------------
+    match /talents/{id} { allow read, write: if isManagement(); }
+    match /interns_screening/{id} { allow read, write: if isManagement(); }
+
+    // mentors_screening: CONTOH sharing lintas departemen (New Update.pdf) —
+    // "data pendaftaran mentor milik Happy, tapi Rebuy boleh baca untuk cek riwayat
+    // mentor". Butuh dokumen collection_access/mentors_screening dengan
+    // shared_read_departments berisi "rebuy" (atau nama department_id yang sesuai)
+    // supaya staff Rebuy bisa baca.
+    match /mentors_screening/{id} {
+      allow read: if isManagement() || (isStaff() && hasSharedAccess('mentors_screening', 'read'));
+      allow write: if isManagement() || (isStaff() && hasSharedAccess('mentors_screening', 'write'));
+    }
+
+    match /interns_resume/{id} {
+      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
+      allow write: if isManagement();
+    }
+    match /recruitment_positions/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+    match /recruitment_dashboard_notes/{id} { allow read, write: if isManagement(); }
+    match /team_management/{id} { allow read, write: if isManagement(); }
+
+    // Attendance & HR — user lihat/isi milik sendiri, manajemen lihat semua.
+    match /user_attendance/{id} {
+      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
+      allow create: if isInternalTeam(); // presensi diri sendiri
+      allow update, delete: if isManagement();
+    }
+    match /permits/{id} {
+      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
+      allow create: if isInternalTeam();
+      allow update, delete: if isManagement();
+    }
+    match /reimburse/{id} {
+      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
+      allow create: if isInternalTeam();
+      allow update, delete: if isManagement();
+    }
+    match /operational_expenses/{id} { allow read, write: if isManagement(); }
+    match /duty_schedules/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
+    match /duty_types/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
+    
+    // Exit Interviews — seluruh user yang sudah login (isSignedIn) boleh akses
+    match /exit_interviews/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    // -------------------------------------------------------------------
+    // DAILY REPORT (Laporan Harian Intern & Team)
+    // -------------------------------------------------------------------
+    match /intern_dailyreport/{id} {
+      // 1. Read: Management bisa membaca semua laporan; Internal team membaca milik sendiri
+      allow read: if isManagement() || (isInternalTeam() && isSelf(resource.data.get('user_id', '')));
+      // 2. Create: User internal membuat laporan atas nama dirinya sendiri
+      allow create: if isInternalTeam() && (isSelf(request.resource.data.get('user_id', '')) || isManagement());
+      // 3. Update: Management bisa approve/reject; Author bisa edit jika status masih Pending Review
+      allow update: if isManagement() || (isInternalTeam() && isSelf(resource.data.get('user_id', '')) && resource.data.get('status', '') == 'Pending Review');
+      // 4. Delete: Hanya tier Management yang boleh menghapus
+      allow delete: if isManagement();
+    }
+    
+
+    // -------------------------------------------------------------------
+    // SALES / CRM — Closing division, sensitif (invoice/payment)
+    // -------------------------------------------------------------------
+    match /leads/{id} {
+      allow read: if isManagement()
+                  || (isStaff() && resource.data.get('assigned_to', '') == request.auth.uid);
+      allow write: if isManagement() || isStaff();
+    }
+    match /leads_settings_interests/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
+    match /leads_settings_ads_channels/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
+    match /invoices/{id} { allow read, write: if isManagement(); }
+    match /products/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
+    match /enrollments/{id} {
+      allow read: if isManagement() || isStaff()
+                  || (isMember() && resource.data.get('member_id', '') == request.auth.uid);
+      allow write: if isManagement() || isStaff();
+    }
+
+    // -------------------------------------------------------------------
+    // CLASS / MENTOR
+    // -------------------------------------------------------------------
+    match /class_planning/{id} {
+      allow read: if isInternalTeam() || isMember();
+      allow write: if isManagement() || isStaff();
+    }
+    match /class_availability/{id} {
+      allow read: if isInternalTeam() || isMember();
+      allow write: if isManagement() || isStaff();
+    }
+    match /mentors/{id} {
+      // Data mentor INTERNAL (fee/kontrak) — jangan expose ke member/publik.
+      // Untuk publik pakai koleksi terpisah mentors_public (lihat bagian CMS).
+      allow read: if isInternalTeam() || (isMentor() && isSelf(resource.data.get('user_id', '')));
+      allow write: if isManagement() || (isMentor() && isSelf(resource.data.get('user_id', ''))); // mentor update profil sendiri
+    }
+    match /schedule_logs/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement() || isStaff();
+    }
+    match /promo_classes/{id} { allow read: if isInternalTeam() || isMember(); allow write: if isManagement(); }
+    match /promo_batches/{id} { allow read: if isInternalTeam() || isMember(); allow write: if isManagement(); }
+    match /webinars/{id} { allow read: if true; allow write: if isManagement(); } // webinar boleh publik
+
+    // data_member: CONTOH sharing lintas departemen (New Update.pdf) — "milik Rebuy,
+    // tapi Marketing boleh lihat/edit". Butuh dokumen collection_access/data_member
+    // dengan shared_read_departments/shared_write_departments berisi department_id
+    // Marketing.
+    match /data_member/{id} {
+      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''))
+                  || (isStaff() && hasSharedAccess('data_member', 'read'));
+      allow write: if isManagement() || (isStaff() && hasSharedAccess('data_member', 'write'));
+    }
+
+    match /subscription_email/{id} {
+      allow read: if isManagement();
+      allow create: if true; // form subscribe publik
+      allow update, delete: if isManagement();
+    }
+
+    // -------------------------------------------------------------------
+    // BRANDING & OFFICE
+    // -------------------------------------------------------------------
+    match /branding_content/{id} { allow read, write: if isInternalTeam(); }
+    match /inventory/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement() || isStaff();
+    }
+
+    // trash: soft-delete, jangan biarkan staff biasa hapus permanen dari sini.
+    match /trash/{id} {
+      allow read: if isManagement();
+      allow write: if isManagement();
+    }
+
+    // -------------------------------------------------------------------
+    // CMS untuk dialogika.co (MASTER-PLAN §6) — PUBLIK boleh baca
+    // -------------------------------------------------------------------
+    match /site_content/{id} {
+      allow read: if true; // publik, tidak perlu login
+      allow write: if isManagement() || isStaff(); // FALLBACK: idealnya dibatasi staff divisi branding saja, tapi karena role branding belum granular, sementara semua staff boleh — perlu ditinjau ulang saat modul branding dibangun (bisa pakai collection_access juga).
+    }
+    match /site_pages/{slug} {
+      allow read: if resource.data.get('published', false) == true || isInternalTeam();
+      allow write: if isManagement() || isStaff();
+    }
+    match /mentors_public/{id} {
+      allow read: if true; // ini memang subset aman untuk publik
+      allow write: if false; // HANYA ditulis via Cloud Function onMentorUpdate (sync dari mentors internal)
+    }
+    match /site_forms/{slug} {
+      allow read: if true; // perlu dibaca publik untuk render form
+      allow write: if isManagement();
+    }
+    match /form_submissions/{id} {
+      allow read: if isManagement();
+      allow create: if true; // submit form publik, tanpa login
+      allow update, delete: if false; // immutable setelah submit, sync ke leads via Cloud Function
+    }
+
+    // -------------------------------------------------------------------
+    // FALLBACK untuk koleksi legacy yang belum eksplisit di-matrix
+    // -------------------------------------------------------------------
+    // Sengaja TIDAK dibuat wildcard "match /{document=**}" allow-all — itu
+    // berbahaya. Kalau ada koleksi yang lupa dipetakan, defaultnya DENY
+    // (Firestore default), bukan diam-diam allow. Kalau nanti muncul error
+    // "missing or insufficient permissions" di UI untuk koleksi tertentu,
+    // itu tandanya rule untuk koleksi itu belum ditambahkan di sini —
+    // tambahkan eksplisit, jangan buka wildcard.
+  }
+}

@@ -52,6 +52,26 @@
         "source": "/data/scouting-candidate.html",
         "destination": "/scouting-candidate",
         "type": 301
+      },
+      {
+        "source": "/quest/dashboard-recruitment.html",
+        "destination": "/dashboard-recruitment",
+        "type": 301
+      },
+      {
+        "source": "/setting/operational-expenses.html",
+        "destination": "/operational-expenses",
+        "type": 301
+      },
+      {
+        "source": "/data/presence-team.html",
+        "destination": "/presence-team",
+        "type": 301
+      },
+      {
+        "source": "/data/exit-interview.html",
+        "destination": "/exit-interview",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -126,6 +146,38 @@
       {
         "source": "/company-position",
         "destination": "/pages/hr/company-position/index.html"
+      },
+      {
+        "source": "/dashboard-recruitment",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/recruitment-dashboard",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/hr/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/presence-team",
+        "destination": "/pages/hr/presence-team/index.html"
+      },
+      {
+        "source": "/hr/presence-team",
+        "destination": "/pages/hr/presence-team/index.html"
+      },
+      {
+        "source": "/exit-interview",
+        "destination": "/pages/hr/exit-interview/index.html"
+      },
+      {
+        "source": "/hr/exit-interview",
+        "destination": "/pages/hr/exit-interview/index.html"
       }
     ],
     "headers": [

@@ -12,7 +12,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
-import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js";
+import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
 
 import * as TeamRepo from "./team-management.repository.js";
 import * as TeamUI from "./team-management.ui.js";
