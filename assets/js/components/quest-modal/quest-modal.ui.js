@@ -29,13 +29,13 @@ export function ensureQuestModalDOM() {
   if (!document.querySelector('link[href*="quest-modal.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "../../assets/js/components/quest-modal/quest-modal.css";
+    link.href = "/assets/js/components/quest-modal/quest-modal.css";
     document.head.appendChild(link);
   }
   if (!document.querySelector('link[href*="rich-editor.css"]')) {
     const linkEditor = document.createElement("link");
     linkEditor.rel = "stylesheet";
-    linkEditor.href = "../../assets/js/components/rich-editor/rich-editor.css";
+    linkEditor.href = "/assets/js/components/rich-editor/rich-editor.css";
     document.head.appendChild(linkEditor);
   }
 
@@ -527,12 +527,20 @@ export function hideModalOverlay() {
 
 function openSubModal(id) {
   const node = el(id);
-  if (node) node.hidden = false;
+  if (node) {
+    node.hidden = false;
+    node.removeAttribute("hidden");
+    node.style.display = "flex";
+  }
 }
 
 function closeSubModal(id) {
   const node = el(id);
-  if (node) node.hidden = true;
+  if (node) {
+    node.hidden = true;
+    node.setAttribute("hidden", "");
+    node.style.display = "none";
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -653,21 +661,66 @@ function deadlineBg(category) {
   return "#2563eb";
 }
 
+function resolveUser(rawId, usersMap) {
+  if (!rawId) return { uid: "", name: "Unknown", photo: "" };
+  if (typeof rawId === "object" && rawId !== null) {
+    return {
+      uid: rawId.uid || rawId.docId || rawId.id || "",
+      name: rawId.name || rawId.displayName || rawId.full_name || rawId.email || "Unknown",
+      photo: rawId.photo || rawId.photoURL || rawId.avatar || "",
+      docId: rawId.docId || rawId.uid || rawId.id || "",
+      email: rawId.email || "",
+      allAliases: Array.isArray(rawId.allAliases) ? rawId.allAliases : [],
+    };
+  }
+  const strId = String(rawId).trim();
+  if (!strId) return { uid: "", name: "Unknown", photo: "" };
+  const strLower = strId.toLowerCase();
+
+  let user = usersMap ? (usersMap[strId] || usersMap[strLower]) : null;
+  if (!user && usersMap) {
+    const allUsers = Object.values(usersMap);
+    for (const u of allUsers) {
+      if (!u) continue;
+      const uDocId = String(u.docId || u.id || "").toLowerCase();
+      const uUid = String(u.uid || "").toLowerCase();
+      const uEmail = String(u.email || "").toLowerCase();
+      const uName = String(u.name || u.displayName || u.full_name || "").toLowerCase();
+      const uAliases = Array.isArray(u.allAliases) ? u.allAliases.map((a) => String(a).toLowerCase()) : [];
+
+      if (
+        (uDocId && uDocId === strLower) ||
+        (uUid && uUid === strLower) ||
+        (uEmail && uEmail === strLower) ||
+        (uAliases.length && uAliases.includes(strLower)) ||
+        (uName && uName === strLower)
+      ) {
+        user = u;
+        break;
+      }
+    }
+  }
+
+  return user || { uid: strId, name: strId, photo: "" };
+}
+
 function getAssignList(task, ctx) {
   if (!task.assign_to) return [];
   const raw = Array.isArray(task.assign_to)
     ? task.assign_to.slice()
     : [task.assign_to];
-  if (!ctx || !ctx.users) return raw;
+  const usersMap = ctx?.users;
   const seen = new Set();
   const unique = [];
   raw.forEach((uid) => {
-    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
-    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
-    const key = String(uKey).toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(uid);
+    if (!uid) return;
+    const user = resolveUser(uid, usersMap);
+    const canonicalKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
+    if (!seen.has(canonicalKey)) {
+      seen.add(canonicalKey);
+      unique.push(user.docId || user.uid || uid);
     }
   });
   return unique;
@@ -678,16 +731,18 @@ function getReportToList(task, ctx) {
   const raw = Array.isArray(task.report_to)
     ? task.report_to.slice()
     : [task.report_to];
-  if (!ctx || !ctx.users) return raw;
+  const usersMap = ctx?.users;
   const seen = new Set();
   const unique = [];
   raw.forEach((uid) => {
-    const u = ctx.users[uid] || ctx.users[String(uid).toLowerCase()];
-    const uKey = u ? (u.docId || u.uid || u.email || uid) : uid;
-    const key = String(uKey).toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(uid);
+    if (!uid) return;
+    const user = resolveUser(uid, usersMap);
+    const canonicalKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
+    if (!seen.has(canonicalKey)) {
+      seen.add(canonicalKey);
+      unique.push(user.docId || user.uid || uid);
     }
   });
   return unique;
@@ -703,20 +758,18 @@ function card(task, category, ctx, tab) {
   const assign = getAssignList(task, ctx);
   const reportTo = getReportToList(task, ctx);
 
-  const isApproved = Boolean(task.isApproved || /approved/i.test(task.status));
-  const isRejected = !isApproved && Boolean(task.isRejected || /rejected/i.test(task.status));
+  const isAssignee = Boolean(task.isAssignee);
+  const isApproved = Boolean(task.isApproved);
+  const isRejected = !isApproved && Boolean(task.isRejected);
   const isReported = !isApproved && !isRejected && Boolean(
-    task.isReported ||
-      task.lockState?.done ||
-      /reported/i.test(task.status) ||
-      /reported/i.test(task.task_status),
+    task.isReported || (isAssignee && task.lockState?.done)
   );
-  const doneClass = isApproved
+  const doneClass = (isAssignee && isApproved)
     ? "dg-quest-approved"
-    : isReported
-    ? "dg-quest-done"
-    : isRejected
+    : (isAssignee && isRejected)
     ? "dg-quest-rejected"
+    : (isAssignee && isReported)
+    ? "dg-quest-done"
     : "";
 
   let avatars = "";
@@ -725,11 +778,11 @@ function card(task, category, ctx, tab) {
   const uniqueAssignUsers = [];
 
   assign.forEach((uid) => {
-    const user =
-      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        : { uid, name: uid };
-    const userKey = user.docId || user.uid || uid;
+    if (!uid) return;
+    const user = resolveUser(uid, ctx?.users);
+    const userKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
     if (!renderedUserKeys.has(userKey)) {
       renderedUserKeys.add(userKey);
       uniqueAssignUsers.push(user);
@@ -748,11 +801,11 @@ function card(task, category, ctx, tab) {
   const uniqueReportUsers = [];
 
   reportTo.forEach((uid) => {
-    const user =
-      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        : { uid, name: uid };
-    const userKey = user.docId || user.uid || uid;
+    if (!uid) return;
+    const user = resolveUser(uid, ctx?.users);
+    const userKey = String(
+      user.docId || user.uid || user.id || user.email || user.name || uid
+    ).toLowerCase();
     if (!renderedReportKeys.has(userKey)) {
       renderedReportKeys.add(userKey);
       uniqueReportUsers.push(user);
@@ -853,12 +906,13 @@ function card(task, category, ctx, tab) {
       </div>`
     : "";
 
-  const statusBadgeHtml = isApproved
+  const taskStatusLower = String(task.user_status || "").toLowerCase();
+  const statusBadgeHtml = (isApproved || taskStatusLower === "approved" || taskStatusLower.includes("approv"))
     ? '<span class="dg-quest-badge dg-quest-badge-approved" title="Status: Approved"><i class="bi bi-patch-check-fill"></i> Approved</span>'
-    : isReported
+    : (isRejected || taskStatusLower === "rejected" || taskStatusLower.includes("reject"))
+    ? `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Ditolak')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`
+    : (isReported || taskStatusLower === "reported" || taskStatusLower.includes("report"))
     ? '<span class="dg-quest-badge dg-quest-badge-reported" title="Status: Reported"><i class="bi bi-send-check"></i> Reported</span>'
-    : isRejected
-    ? `<span class="dg-quest-badge dg-quest-badge-rejected" title="${escapeHtml(task.rejectionReason ? 'Alasan: ' + task.rejectionReason : 'Perlu Revisi')}"><i class="bi bi-x-circle-fill"></i> Rejected</span>`
     : '<span class="dg-quest-badge dg-quest-badge-todo" title="Status: To Do"><i class="bi bi-circle"></i> To Do</span>';
 
   return `
@@ -869,7 +923,7 @@ function card(task, category, ctx, tab) {
           <h4 class="dg-quest-card-title" title="${escapeHtml(title)}">${title}</h4>
           ${tagsHtml ? `<div class="dg-quest-tags-wrap">${tagsHtml}</div>` : ""}
         </div>
-        ${isRejected && task.rejectionReason ? `<span class="dg-quest-rejection-dot" title="Revisi: ${escapeHtml(task.rejectionReason)}"><i class="bi bi-exclamation-circle-fill text-danger"></i></span>` : ""}
+        ${isRejected && isWorkerAssignee ? `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger ms-1" style="font-size:0.65rem;font-weight:600;vertical-align:middle;padding:0.15rem 0.4rem;border-radius:0.35rem;" title="Catatan Revisi: ${escapeHtml(task.rejectionReason || 'Ditolak')}"><i class="bi bi-exclamation-triangle-fill me-1"></i>Perlu Revisi</span>` : ""}
       </div>
       <div class="dg-col-time">
         ${deadlineHtml || '<span class="dg-quest-col-empty">-</span>'}
@@ -2517,20 +2571,29 @@ export function readQuestForm(tab) {
 /* ------------------------------------------------------------------ */
 
 export function openQuestDetail(task, ctx, tab) {
-  el("dgQuestDetailTitle").textContent =
-    task.title || (tab === "daily" ? "Detail Daily" : "Detail Quest");
+  if (!task) return;
+  ensureQuestModalDOM();
+  const titleEl = el("dgQuestDetailTitle");
+  if (titleEl) {
+    titleEl.textContent =
+      task.title || (tab === "daily" ? "Detail Daily" : "Detail Quest");
+  }
   const body = el("dgQuestDetailBody");
+  if (!body) return;
 
-  const deadlineTime = task.deadline_time || "—";
+  const deadlineTime = task.deadline_time || task.deadlineTime || task.due_time || "—";
   const priority = String(task.priority || "normal").toLowerCase();
-  const points = task.points || 0;
-  const descHtml =
-    task.description &&
-    String(task.description)
-      .replace(/<[^>]*>/g, "")
-      .trim().length > 0
-      ? task.description
-      : '<em style="color:#94a3b8">Tidak ada deskripsi.</em>';
+  const points = typeof task.points === "number" ? task.points : Number(task.points) || 0;
+  const rawDesc = String(task.description || "").trim();
+  const hasDesc = Boolean(
+    rawDesc &&
+    rawDesc !== "<p><br></p>" &&
+    rawDesc !== "<br>" &&
+    (rawDesc.includes("<img") || rawDesc.includes("data:image/") || rawDesc.replace(/<[^>]*>/g, "").trim().length > 0)
+  );
+  const descHtml = hasDesc
+    ? rawDesc
+    : '<em style="color:#94a3b8">Tidak ada deskripsi.</em>';
   const deptNames = (task.departments || [])
     .map((d) => d && d.name)
     .filter(Boolean);
@@ -2552,20 +2615,55 @@ export function openQuestDetail(task, ctx, tab) {
     prioColor = "#16a34a";
     prioLabel = "Low";
   }
-  const statusText = task.status || "Initiate";
-  const statusColor = /reported|done|complete/i.test(statusText)
+  const isAssignee = Boolean(task.isAssignee);
+  const isApproved = Boolean(task.isApproved);
+  const isRejected = !isApproved && Boolean(task.isRejected);
+  const isReported = !isApproved && !isRejected && Boolean(task.isReported || (isAssignee && task.lockState?.done));
+
+  const taskStatusLower = String(task.user_status || "").toLowerCase();
+  const isShowRejected = isRejected || taskStatusLower === "rejected" || taskStatusLower.includes("reject");
+  const isShowApproved = isApproved || taskStatusLower === "approved" || taskStatusLower.includes("approv");
+  const isShowReported = isReported || taskStatusLower === "reported" || taskStatusLower.includes("report");
+
+  const statusText = isShowApproved
+    ? "Approved"
+    : isShowRejected
+    ? "Rejected"
+    : isShowReported
+    ? "Reported"
+    : "To Do";
+
+  const statusColor = isShowApproved
     ? "#16a34a"
+    : isShowRejected
+    ? "#dc2626"
+    : isShowReported
+    ? "#0284c7"
     : "#64748b";
+
+  const rejectionReason = (isRejected ? task.rejectionReason : "") || task.rejectionReason || "";
+  let rejectionFeedbackHtml = "";
+  if (isShowRejected) {
+    rejectionFeedbackHtml = `
+      <div style="margin-top:0.85rem;border-radius:0.75rem;border:1.5px solid #fecaca;background:#fff5f5;padding:0.75rem 1rem;box-shadow:0 1px 3px rgba(220,38,38,0.05);">
+        <div style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.35rem;">
+          <i class="bi bi-exclamation-octagon-fill" style="color:#dc2626;font-size:1rem;"></i>
+          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#dc2626;">Komentar Penolakan / Catatan Revisi</span>
+        </div>
+        <div style="font-size:0.82rem;line-height:1.6;color:#1e293b;word-break:break-word;">
+          ${rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:#64748b">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>'}
+        </div>
+      </div>
+    `;
+  }
 
   let assignees = "";
   const seenDetailAssign = new Set();
   const uniqueDetailAssignUsers = [];
   assign.forEach((uid) => {
-    const u =
-      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        : { uid, name: uid };
-    const uKey = u.docId || u.uid || u.id || uid;
+    if (!uid) return;
+    const u = resolveUser(uid, ctx?.users);
+    const uKey = String(u.docId || u.uid || u.id || u.email || u.name || uid).toLowerCase();
     if (!seenDetailAssign.has(uKey)) {
       seenDetailAssign.add(uKey);
       uniqueDetailAssignUsers.push(u);
@@ -2606,11 +2704,9 @@ export function openQuestDetail(task, ctx, tab) {
   const seenDetailReport = new Set();
   const uniqueDetailReportUsers = [];
   reportToList.forEach((uid) => {
-    const u =
-      ctx.users && (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        ? (ctx.users[uid] || ctx.users[String(uid).toLowerCase()])
-        : { uid, name: uid };
-    const uKey = u.docId || u.uid || u.id || uid;
+    if (!uid) return;
+    const u = resolveUser(uid, ctx?.users);
+    const uKey = String(u.docId || u.uid || u.id || u.email || u.name || uid).toLowerCase();
     if (!seenDetailReport.has(uKey)) {
       seenDetailReport.add(uKey);
       uniqueDetailReportUsers.push(u);
@@ -2661,6 +2757,7 @@ export function openQuestDetail(task, ctx, tab) {
       ${points > 0 ? `<span class="dg-quest-points">${points} Point</span>` : ""}
       ${task.recur ? "<span class='text-primary small fw-semibold'><i class='bi bi-arrow-repeat'></i> Berulang harian</span>" : ""}
     </div>
+    ${rejectionFeedbackHtml}
     <div class="row g-2 mt-2">
       <div class="col-4">
         <div class="p-2 border rounded bg-light">
@@ -2699,7 +2796,13 @@ export function closeQuestDetail() {
 /* Daily Report Sub-Modal                                              */
 /* ------------------------------------------------------------------ */
 
-export function openDailyReportModal(checkedTasks, userName) {
+export function openDailyReportModal(checkedTasks, userName, reportType = "daily") {
+  const isQuest = reportType === "quest";
+  const titleEl = document.querySelector("#dgDailyReportModal .dg-quest-submodal-title");
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="bi bi-file-earmark-text text-success me-1"></i> Submit ${isQuest ? "Quest" : "Daily"} Report`;
+  }
+
   const now = new Date();
   el("dgReportDateInput").value = now.toLocaleDateString("id-ID", {
     weekday: "long",
