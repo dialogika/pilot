@@ -1,4 +1,4 @@
-// pages/internships/internships.repository.js
+// pages/hr/internship-management/internship-management.repository.js
 // =====================================================================
 // INTERNSHIPS DATA ACCESS — the ONLY Internships module that talks to
 // Firebase.
@@ -15,7 +15,7 @@
 //        positions/position, departments/department.
 // =====================================================================
 
-import { auth, db } from "../../assets/js/firebase-config.js";
+import { auth, db } from "../../../assets/js/firebase-config.js";
 import {
   collection,
   query,
@@ -27,7 +27,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getMs } from "../../assets/js/utils.js";
+import { getMs } from "../../../assets/js/utils.js";
 
 export { auth };
 
@@ -61,12 +61,6 @@ function toDate(value) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/**
- * Check if a Firestore users document represents an intern across
- * legacy and current role representations.
- * @param {Object} data
- * @returns {boolean}
- */
 /**
  * Check if a Firestore users document represents an intern across
  * legacy and current role representations.

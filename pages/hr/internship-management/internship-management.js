@@ -1,25 +1,25 @@
-// pages/internships/internships.js
+// pages/hr/internship-management/internship-management.js
 // =====================================================================
 // INTERNSHIPS ORCHESTRATOR — coordinates auth, shell, repository and UI.
 //
 // Flow:
 //   requireAuth() → renderTopbar/renderSidebar
 //       ↓
-//   internships.repository.js (data access)
+//   internship-management.repository.js (data access)
 //       ↓
-//   internships.ui.js (rendering + events)
+//   internship-management.ui.js (rendering + events)
 //
 // Rules:
-//  - No Firestore queries here (use internships.repository.js).
-//  - No raw DOM rendering of data here (use internships.ui.js).
+//  - No Firestore queries here (use internship-management.repository.js).
+//  - No raw DOM rendering of data here (use internship-management.ui.js).
 //  - This file decides WHEN things happen and wires repo → ui.
 // =====================================================================
 
-import { requireAuth } from "../../assets/js/auth-guard.js";
-import { renderTopbar } from "../../assets/js/components/topbar/topbar.js";
-import { renderSidebar } from "../../assets/js/components/sidebar/sidebar.js";
-import * as repo from "./internships.repository.js";
-import * as ui from "./internships.ui.js";
+import { requireAuth } from "../../../assets/js/auth-guard.js";
+import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
+import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import * as repo from "./internship-management.repository.js";
+import * as ui from "./internship-management.ui.js";
 
 let internshipsAll = [];
 let positionsMap = {};
@@ -42,7 +42,7 @@ async function initializeInternships() {
 
     // 2. Shared shell.
     renderTopbar({ user, role });
-    renderSidebar({ role, activePage: "internships" });
+    renderSidebar({ role, activePage: "internship-management" });
 
     // 3. Wire events before first render (delegation handles dynamic rows).
     wireEventHandlers();
@@ -50,9 +50,9 @@ async function initializeInternships() {
     // 4. Load data.
     await loadInternships();
 
-    console.log("Internships initialized");
+    console.log("Internship Management initialized");
   } catch (error) {
-    console.error("Failed to initialize Internships:", error);
+    console.error("Failed to initialize Internship Management:", error);
   }
 }
 

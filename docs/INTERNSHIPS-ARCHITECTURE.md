@@ -25,32 +25,30 @@ remain separate features (see `docs/team-internal-map.html`).
 ## 2. Public Route
 
 ```
-/internships   →   pages/internships/index.html
+/internship-management   →   pages/hr/internship-management/index.html
+/internships             →   redirect 301 to /internship-management
 ```
 
-Firebase Hosting rewrite in `firebase.json`. The browser URL stays `/internships`
-(no client-side router). The physical `pages/internships/index.html` path is an
-implementation detail, not a public URL.
+Firebase Hosting rewrite and redirect in `firebase.json`. The browser URL stays `/internship-management`
+(no client-side router).
 
 The legacy public page `setting/internship-management.html` still works and is kept
 **untouched** for comparison.
-
-> Feature name is `internships` (confirmed with the team), not the legacy filename.
 
 ---
 
 ## 3. Physical File Location
 
 ```
-pages/internships/
+pages/hr/internship-management/
 ├── index.html
-├── internships.js
-├── internships.repository.js
-├── internships.ui.js
-└── internships.css
+├── internship-management.js
+├── internship-management.repository.js
+├── internship-management.ui.js
+└── internship-management.css
 ```
 
-Same minimum structure as Home/Quest: one file per concern, no over-splitting.
+Structured consistently under `pages/hr/` alongside `users-management`, `performance-appraisal`, and `office-inventory`.
 
 ---
 
@@ -186,7 +184,7 @@ is a no-op (returns `false`, shows a warning).
 
 - **Routing:** `GET /internships` → 200; browser stays at `/internships`.
 - **Module syntax:** `node --check` on all three ES modules.
-- **Asset availability:** every CSS/JS reference returns 200 (incl. `pages/internships/*`).
+- **Asset availability:** every CSS/JS reference returns 200 (incl. `pages/hr/internship-management/*`).
 - **UI render:** headless Chrome self-test exercises `internships.ui.js` against seeded
   data — status derivation, stats, table render/search/filter, modal open/read: **22/22 pass**.
 - **Auth boundary:** unauthenticated visit to `/internships` redirects to `/index.html` (login).
@@ -226,18 +224,18 @@ is a no-op (returns `false`, shows a warning).
 ```
 Browser
    ↓
-/internships                  (public URL, rewrite)
+/internship-management                  (public URL, rewrite)
    ↓
-pages/internships/index.html  (physical file)
+pages/hr/internship-management/index.html (physical file)
    ↓
-internships.js                (orchestrator)
-   ├── internships.repository.js   (data access)
+internship-management.js                (orchestrator)
+   ├── internship-management.repository.js   (data access)
    │       ↓
    │   assets/js/firebase-config.js
    │       ↓
    │   Firebase (Firestore)
    │
-   └── internships.ui.js      (rendering + events)
+   └── internship-management.ui.js      (rendering + events)
            ↓
           DOM
 ```

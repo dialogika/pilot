@@ -43,7 +43,7 @@
       },
       {
         "source": "/internship-management",
-        "destination": "/pages/internships/index.html"
+        "destination": "/pages/hr/internship-management/index.html"
       },
       {
         "source": "/users-management",

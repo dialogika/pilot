@@ -1,17 +1,17 @@
-// pages/internships/internships.ui.js
+// pages/hr/internship-management/internship-management.ui.js
 // =====================================================================
 // INTERNSHIPS UI — rendering, DOM manipulation, event handling, modal
 // interactions.
 //
 // RULES:
-//  - NO Firestore queries here (use internships.repository.js).
+//  - NO Firestore queries here (use internship-management.repository.js).
 //  - Pure view logic; receives plain data, renders into DOM.
 //  - Reuses shared ui.js (showModal/hideModal/toast/confirmDialog) and
 //    utils.js (escapeHtml, getMs, truncateText).
 // =====================================================================
 
-import { escapeHtml, getMs } from "../../assets/js/utils.js";
-import { toast, showModal, hideModal, confirmDialog, setButtonBusy } from "../../assets/js/ui.js";
+import { escapeHtml, getMs } from "../../../assets/js/utils.js";
+import { toast, showModal, hideModal, confirmDialog, setButtonBusy } from "../../../assets/js/ui.js";
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
