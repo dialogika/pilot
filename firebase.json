@@ -1,6 +1,8 @@
 {
   "hosting": {
     "public": ".",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
       {
@@ -52,9 +54,38 @@
         "source": "/data/scouting-candidate.html",
         "destination": "/scouting-candidate",
         "type": 301
+      },
+      {
+        "source": "/setting/product-management.html",
+        "destination": "/product-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/product-management",
+        "destination": "/product-management",
+        "type": 301
+      },
+      {
+        "source": "/quest/dashboard-recruitment.html",
+        "destination": "/dashboard-recruitment",
+        "type": 301
+      },
+      {
+        "source": "/setting/operational-expenses.html",
+        "destination": "/operational-expenses",
+        "type": 301
+      },
+      {
+        "source": "/data/permit-reimburse-management.html",
+        "destination": "/permit-reimburse",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/product-management",
+        "destination": "/pages/product/product-management/index.html"
+      },
       {
         "source": "/scouting-candidate",
         "destination": "/pages/hr/scouting-candidate/index.html"
@@ -126,6 +157,30 @@
       {
         "source": "/company-position",
         "destination": "/pages/hr/company-position/index.html"
+      },
+      {
+        "source": "/dashboard-recruitment",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/recruitment-dashboard",
+        "destination": "/pages/hr/recruitment-dashboard/index.html"
+      },
+      {
+        "source": "/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/hr/operational-expenses",
+        "destination": "/pages/hr/operational-expenses/index.html"
+      },
+      {
+        "source": "/permit-reimburse",
+        "destination": "/pages/hr/permit-reimburse/index.html"
+      },
+      {
+        "source": "/hr/permit-reimburse",
+        "destination": "/pages/hr/permit-reimburse/index.html"
       }
     ],
     "headers": [
