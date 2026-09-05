@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recruitment Specialist - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + Fonts (Standard across Pilot) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Flatpickr (date range picker) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
+    <!-- Lucide Icons (for rightbar-recruit) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet" />
+    <link href="/assets/css/layout.css" rel="stylesheet" />
+
+    <!-- Feature-scoped styles -->
+    <link
+      href="/pages/hr/recruitment-dashboard/recruitment-dashboard.css?v=1.0.2"
+      rel="stylesheet"
+    />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+  </head>
+
+  <body class="antialiased">
+    <!-- Shared app shell mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <div class="container-fluid">
+        <!-- ── Breadcrumb ────────────────────────────────────────── -->
+        <div class="mb-4">
+          <nav class="breadcrumb-nav">
+            <a href="/home" title="Home" style="color: #2563eb !important;">
+              <i class="fas fa-home text-xs" style="color: #2563eb !important;"></i>
+            </a>
+            <span class="separator-blue" style="color: #2563eb !important;">/</span>
+            <a href="/home" style="color: #2563eb !important;">HR DIVISION</a>
+            <span class="separator" style="color: #94a3b8 !important;">/</span>
+            <span class="active-crumb" style="color: #94a3b8 !important;">RECRUITMENT DASHBOARD</span>
+          </nav>
+        </div>
+
+        <!-- ── Greeting + Date Range Filter ────────────────────── -->
+        <section class="d-flex justify-content-between align-items-center mb-5">
+          <div>
+            <h2 class="fw-bold mb-0" id="greetingText">Good Morning,</h2>
+            <p class="text-muted-custom mb-0" id="dateText">Today is Monday, 09 January 2026</p>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <input type="text" id="calendarPicker" class="d-none" />
+            <button
+              class="btn btn-weekly"
+              onclick="document.getElementById('calendarPicker')._flatpickr.open()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span class="calendar-text">Monthly Range</span>
+            </button>
+            <button class="btn btn-filter-action" id="btnAllTime">All Time</button>
+            <button class="btn btn-filter-action btn-outline-secondary" id="btnResetFilter">Reset</button>
+          </div>
+        </section>
+
+        <!-- ── Important Notes ─────────────────────────────────── -->
+        <section class="row g-4 mb-4">
+          <div class="col-12">
+            <div class="card h-100 important-note-box border-0 d-flex flex-column">
+              <div class="mb-3">
+                <h5 class="fw-bold mb-2 important-note-title">Important Notes</h5>
+                <hr />
+                <p class="important-note-text mb-0" id="recruitmentImportantNotesText">
+                  Posisi yang saat ini dibuka : all position
+                </p>
+              </div>
+              <div class="mt-auto pt-2">
+                <button
+                  class="btn btn-edit-notes btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2"
+                  id="editRecruitmentNotesBtn"
+                >
+                  <i class="fas fa-pen"></i> Edit Notes
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Section Switcher (Team/Mentor/Internship) ───────── -->
+        <section
+          class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4"
+        >
+          <div>
+            <h5 class="fw-bold mb-1" id="activeSectionTitle">Team Recruitment</h5>
+            <p class="text-muted-custom mb-0">
+              Statistik, interview, kandidat, dan kontrak mengikuti section aktif.
+            </p>
+          </div>
+          <div class="section-switcher" id="sectionSwitcher">
+            <button class="section-tab active" data-section="team">Team</button>
+            <button class="section-tab" data-section="mentor">Mentor</button>
+            <button class="section-tab" data-section="internship">Internship</button>
+          </div>
+        </section>
+
+        <!-- ── Metric Cards ────────────────────────────────────── -->
+        <section class="row g-4 mb-4">
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card p-3 h-100 border-0 shadow-sm stats-clickable"
+              id="headCountCard"
+              tabindex="0"
+            >
+              <span class="text-muted-custom metric-card-label">Head Count</span>
+              <div class="stat-number mt-2">
+                <span id="currentHeadCount">0</span>
+                <span id="maxHeadCount" style="font-size: 1rem; color: #b2bec3"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card p-3 h-100 border-0 shadow-sm stats-clickable"
+              id="applicantsCard"
+              tabindex="0"
+            >
+              <span class="text-muted-custom metric-card-label">Applicants</span>
+              <div class="stat-number mt-2" id="applicantsCount">0</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card p-3 h-100 border-0 shadow-sm stats-clickable"
+              id="onLeaveCard"
+              tabindex="0"
+            >
+              <span class="text-muted-custom metric-card-label">Kontrak Akan Berakhir</span>
+              <div class="stat-number mt-2 text-warning" id="onLeaveCount">0</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card p-3 h-100 border-0 shadow-sm stats-clickable"
+              id="offboardingCard"
+              tabindex="0"
+            >
+              <span class="text-muted-custom metric-card-label">Off Boarding</span>
+              <div class="stat-number mt-2 text-danger" id="offboardingCount">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Upcoming Interview + Platform Job Posting ───────── -->
+        <section class="dashboard-grid-2 mb-4">
+          <div class="card p-4 h-100 shadow-sm">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+              <h5 class="fw-bold mb-0">Upcoming Interview</h5>
+              <div class="interview-tabs" id="interviewTabs">
+                <button class="interview-tab active" data-role="all">Semua</button>
+                <button class="interview-tab" data-role="team">Team</button>
+                <button class="interview-tab" data-role="mentor">Mentor</button>
+                <button class="interview-tab" data-role="internship">Internship</button>
+              </div>
+            </div>
+            <div id="upcomingInterviewList"></div>
+          </div>
+          <div class="card p-4 h-100 shadow-sm">
+            <h5 class="fw-bold mb-2">Platform Job Posting (Internship only)</h5>
+            <div class="text-muted-custom mb-4">
+              Total Candidate:
+              <span class="text-dark fw-bold" id="platformTotalCandidate">0</span>
+            </div>
+            <div id="platformJobpostingList"></div>
+          </div>
+        </section>
+
+        <!-- ── Overdue Interview ───────────────────────────────── -->
+        <section class="mb-5">
+          <div
+            class="card p-4 shadow-sm border-danger border-opacity-25"
+            style="background-color: #fff5f5"
+          >
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold mb-0 text-danger">Overdue Interview</h5>
+              <span class="badge bg-danger rounded-pill" id="overdueCountBadge">0</span>
+            </div>
+            <div
+              class="d-flex flex-column gap-2 overflow-auto"
+              style="max-height: 320px"
+              id="overdueInterviewList"
+            ></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ── Stats Detail Modal ────────────────────────────────────── -->
+    <div
+      class="modal fade"
+      id="statsDetailsModal"
+      tabindex="-1"
+      aria-labelledby="statsDetailsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="statsDetailsModalLabel">Detail</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="text-muted small" id="statsDetailsModalSubtitle"></div>
+              <div class="text-muted small" id="statsDetailsModalCount"></div>
+            </div>
+            <div id="statsDetailsModalBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Notes Edit Modal ──────────────────────────────────────── -->
+    <div
+      class="modal fade"
+      id="recruitmentNotesModal"
+      tabindex="-1"
+      aria-labelledby="recruitmentNotesModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="recruitmentNotesModalLabel">Important Notes</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <textarea
+                class="form-control"
+                id="recruitmentNotesInput"
+                rows="8"
+                placeholder="Tulis notes..."
+              ></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Batal
+              </button>
+              <button type="button" class="btn btn-primary" id="saveRecruitmentNotesBtn">
+                Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle + Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Feature Orchestrator (module) -->
+    <script
+      type="module"
+      src="/pages/hr/recruitment-dashboard/recruitment-dashboard.js"
+    ></script>
+  </body>
+</html>
