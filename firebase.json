@@ -52,9 +52,23 @@
         "source": "/data/scouting-candidate.html",
         "destination": "/scouting-candidate",
         "type": 301
+      },
+      {
+        "source": "/setting/product-management.html",
+        "destination": "/product-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/product-management",
+        "destination": "/product-management",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/product-management",
+        "destination": "/pages/product/product-management/index.html"
+      },
       {
         "source": "/scouting-candidate",
         "destination": "/pages/hr/scouting-candidate/index.html"
