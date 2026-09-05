@@ -17,6 +17,7 @@ data/package.json
 # OS / editor junk
 .DS_Store
 Thumbs.db
+.obsidian/
 
 # Firebase
 .firebase/

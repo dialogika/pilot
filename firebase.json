@@ -38,9 +38,23 @@
         "source": "/data/intern-satisfaction.html",
         "destination": "/intern-satisfaction",
         "type": 301
+      },
+      {
+        "source": "/setting/mentor-management.html",
+        "destination": "/mentor-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/mentor-management",
+        "destination": "/mentor-management",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/mentor-management",
+        "destination": "/pages/product/mentor-management/index.html"
+      },
       {
         "source": "/login",
         "destination": "/pages/login/index.html"
