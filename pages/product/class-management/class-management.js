@@ -20,6 +20,7 @@ import {
   computeHealthScore,
   renderSummary,
   renderClassTable,
+  renderPagination,
   renderCalendar,
   renderStatusBreakdown,
   renderAtRiskClasses,
@@ -52,6 +53,8 @@ let currentFilters = {
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let currentView = "table";
+let currentPage = 1;
+let pageSize = 10;
 
 let mentorsData = [];
 let remedialClassesData = [];
@@ -152,15 +155,40 @@ function applyFilters() {
 function updateAll() {
   const filtered = applyFilters();
   renderSummary(filtered);
+
+  // Pagination calculations
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedClasses = filtered.slice(startIndex, startIndex + pageSize);
+
   renderClassTable(
-    filtered,
+    pagedClasses,
     selectedClassIds,
     (id, isChecked) => {
       if (isChecked) selectedClassIds.add(id);
       else selectedClassIds.delete(id);
     },
-    handleOpenDetail
+    handleOpenDetail,
+    totalItems
   );
+
+  renderPagination(
+    { currentPage, pageSize, totalItems },
+    (newPage) => {
+      currentPage = newPage;
+      updateAll();
+    },
+    (newPageSize) => {
+      pageSize = newPageSize;
+      currentPage = 1;
+      updateAll();
+    }
+  );
+
   renderCalendar(filtered, calYear, calMonth, handleOpenDetail);
   renderStatusBreakdown(filtered);
   renderAtRiskClasses(filtered, handleOpenDetail);
@@ -581,6 +609,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (searchInput) {
     searchInput.addEventListener("input", () => {
       currentFilters.search = searchInput.value.trim();
+      currentPage = 1;
       updateAll();
     });
   }
@@ -589,6 +618,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterStatus) {
     filterStatus.addEventListener("change", () => {
       currentFilters.status = filterStatus.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -597,6 +627,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterMentor) {
     filterMentor.addEventListener("change", () => {
       currentFilters.mentor = filterMentor.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -605,6 +636,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterPic) {
     filterPic.addEventListener("change", () => {
       currentFilters.pic = filterPic.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -613,6 +645,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterLocation) {
     filterLocation.addEventListener("change", () => {
       currentFilters.location = filterLocation.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -621,6 +654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterType) {
     filterType.addEventListener("change", () => {
       currentFilters.type = filterType.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -629,6 +663,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterStall) {
     filterStall.addEventListener("change", () => {
       currentFilters.stall = filterStall.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -637,6 +672,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterDateFrom) {
     filterDateFrom.addEventListener("change", () => {
       currentFilters.dateFrom = filterDateFrom.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -645,6 +681,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (filterDateTo) {
     filterDateTo.addEventListener("change", () => {
       currentFilters.dateTo = filterDateTo.value;
+      currentPage = 1;
       updateAll();
     });
   }
@@ -678,6 +715,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (field === "health") label = "Health";
         sortLabel.textContent = `${label} ${arrow}`;
       }
+      currentPage = 1;
       updateAll();
     });
   });

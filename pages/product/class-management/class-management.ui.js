@@ -73,11 +73,13 @@ export function renderSummary(list) {
   if (avgHealthEl) avgHealthEl.textContent = avgHealth.toFixed(1);
 }
 
-export function renderClassTable(list, selectedClassIds, onToggleSelect, onOpenDetail) {
+export function renderClassTable(list, selectedClassIds, onToggleSelect, onOpenDetail, totalFilteredCount) {
   const tbody = document.getElementById("classTableBody");
   const countText = document.getElementById("classCountText");
   if (!tbody) return;
   tbody.innerHTML = "";
+
+  const totalCount = totalFilteredCount !== undefined ? totalFilteredCount : list.length;
 
   if (list.length === 0) {
     const emptyRow = document.createElement("tr");
@@ -276,8 +278,108 @@ export function renderClassTable(list, selectedClassIds, onToggleSelect, onOpenD
     tbody.appendChild(tr);
   });
 
-  if (countText) countText.textContent = `${list.length} kelas`;
+  if (countText) countText.textContent = `${totalCount} kelas`;
   if (window.lucide) window.lucide.createIcons();
+}
+
+export function renderPagination({ currentPage, pageSize, totalItems }, onPageChange, onPageSizeChange) {
+  const container = document.getElementById("classPagination");
+  if (!container) return;
+  if (totalItems === 0) {
+    container.innerHTML = "";
+    container.classList.add("hidden");
+    return;
+  }
+  container.classList.remove("hidden");
+
+  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, totalItems);
+
+  let pagesHtml = "";
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+
+  // Prev button
+  const prevDisabled = currentPage === 1;
+  pagesHtml += `
+    <button type="button" class="pagination-btn ${prevDisabled ? "disabled" : ""}" data-page="${currentPage - 1}" ${prevDisabled ? "disabled" : ""} title="Halaman Sebelumnya">
+      <i class="bi bi-chevron-left text-[11px]"></i>
+    </button>
+  `;
+
+  if (startPage > 1) {
+    pagesHtml += `<button type="button" class="pagination-btn" data-page="1">1</button>`;
+    if (startPage > 2) {
+      pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
+    }
+  }
+
+  for (let p = startPage; p <= endPage; p++) {
+    const isActive = p === currentPage;
+    pagesHtml += `
+      <button type="button" class="pagination-btn ${isActive ? "active" : ""}" data-page="${p}">
+        ${p}
+      </button>
+    `;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      pagesHtml += `<span class="px-1 text-slate-400">...</span>`;
+    }
+    pagesHtml += `<button type="button" class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+  }
+
+  // Next button
+  const nextDisabled = currentPage === totalPages;
+  pagesHtml += `
+    <button type="button" class="pagination-btn ${nextDisabled ? "disabled" : ""}" data-page="${currentPage + 1}" ${nextDisabled ? "disabled" : ""} title="Halaman Berikutnya">
+      <i class="bi bi-chevron-right text-[11px]"></i>
+    </button>
+  `;
+
+  container.innerHTML = `
+    <div class="flex items-center gap-3">
+      <div class="text-[11px] text-slate-500 font-medium">
+        Menampilkan <span class="font-bold text-slate-800">${start}</span> - <span class="font-bold text-slate-800">${end}</span> dari <span class="font-bold text-slate-800">${totalItems}</span> kelas
+      </div>
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <span>Baris per halaman:</span>
+        <select id="selectPageSize" class="py-1 px-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500/20 cursor-pointer">
+          <option value="10" ${pageSize === 10 ? "selected" : ""}>10</option>
+          <option value="25" ${pageSize === 25 ? "selected" : ""}>25</option>
+          <option value="50" ${pageSize === 50 ? "selected" : ""}>50</option>
+          <option value="100" ${pageSize === 100 ? "selected" : ""}>100</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center gap-1" id="paginationButtonList">
+      ${pagesHtml}
+    </div>
+  `;
+
+  const sizeSelect = container.querySelector("#selectPageSize");
+  if (sizeSelect) {
+    sizeSelect.addEventListener("change", (e) => {
+      onPageSizeChange(parseInt(e.target.value, 10));
+    });
+  }
+
+  const btnList = container.querySelector("#paginationButtonList");
+  if (btnList) {
+    btnList.querySelectorAll(".pagination-btn[data-page]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = parseInt(btn.getAttribute("data-page"), 10);
+        if (p >= 1 && p <= totalPages && p !== currentPage) {
+          onPageChange(p);
+        }
+      });
+    });
+  }
 }
 
 const MONTH_NAMES = [
