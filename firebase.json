@@ -79,9 +79,23 @@
         "source": "/data/permit-reimburse-management.html",
         "destination": "/permit-reimburse",
         "type": 301
+      },
+      {
+        "source": "/setting/class-management.html",
+        "destination": "/class-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-management",
+        "destination": "/class-management",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/class-management",
+        "destination": "/pages/product/class-management/index.html"
+      },
       {
         "source": "/product-management",
         "destination": "/pages/product/product-management/index.html"
