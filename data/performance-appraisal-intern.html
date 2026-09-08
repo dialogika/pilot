@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Appraisal Intern - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--surface-hover);
+            color: var(--text-strong);
+        }
+        .appraisal-card {
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .appraisal-card:hover {
+            box-shadow: 0 18px 40px -22px rgba(15, 23, 42, 0.35);
+            transform: translateY(-4px);
+            border-color: var(--border-sep);
+        }
+        [x-cloak] { display: none !important; }
+    
+</style>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body class="antialiased">
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+            <div class="max-w-6xl mx-auto px-6 py-6">
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                    <div>
+                        <nav class="flex gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">
+                            <a href="/home"><span><i class="bi bi-house-fill"></i></span></a>
+                            <span>/</span>
+                            <span>HR Division</span>
+                            <span>/</span>
+                            <span class="text-slate-400">Performance Appraisal Intern</span>
+                        </nav>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Performance Appraisal Intern</h1>
+                        <p class="text-slate-500 mt-1 font-medium text-sm md:text-base">
+                            Daftar intern untuk evaluasi performance. Data diambil dari collection <span class="font-semibold">interns_resume</span>.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-stretch gap-3">
+                        <span id="summaryText" class="text-sm text-slate-500 font-medium px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+                            Menunggu data interns...
+                        </span>
+                    </div>
+                </header>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-8">
+                    <div class="relative flex-grow group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                        <input id="internSearchInput" type="text" placeholder="Cari nama, divisi, atau posisi..." class="w-full pl-9 pr-3 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none text-sm text-slate-700 shadow-sm transition-all">
+                    </div>
+                </div>
+
+                <div id="loadingState" class="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm mb-8">
+                    <div class="spinner-border text-indigo-600 mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-slate-500 text-base font-medium">Memuat data intern dari interns_resume...</p>
+                </div>
+
+                <div id="emptyState" class="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm mb-8" style="display:none;">
+                    <i class="bi bi-people text-5xl text-slate-300 mb-3 block"></i>
+                    <p class="text-slate-600 font-semibold text-lg mb-1">Belum ada data intern yang sesuai filter.</p>
+                    <p class="text-slate-400 text-sm">Coba kata kunci pencarian yang lain.</p>
+                </div>
+
+                <div id="cardContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style="display:none;">
+                    <!-- Cards will be injected here -->
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, auth, db } from "../assets/js/firebase-config.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        
+
+        
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+            try {
+                localStorage.removeItem('userData');
+            } catch (e) {}
+            window.location.href = "../index.html";
+        };
+
+        const topbarTarget = document.getElementById("topbarContainer");
+        if (topbarTarget) {
+            renderTopBar(topbarTarget);
+        }
+        const sidebarTarget = document.getElementById("sidebarContainer");
+        if (sidebarTarget) {
+            renderSidebar(sidebarTarget);
+        }
+
+        const searchInput = document.getElementById("internSearchInput");
+        const loadingState = document.getElementById("loadingState");
+        const emptyState = document.getElementById("emptyState");
+        const cardContainer = document.getElementById("cardContainer");
+        const summaryText = document.getElementById("summaryText");
+
+        let allInterns = [];
+        let positionMap = {};
+
+        async function loadPositions() {
+            try {
+                let posSnap = await getDocs(collection(db, "position"));
+                if (posSnap.empty) {
+                    posSnap = await getDocs(collection(db, "positions"));
+                }
+                posSnap.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    positionMap[docSnap.id] = data.name || data.title || data.position || data.label || docSnap.id;
+                });
+            } catch (e) {
+                console.error("Failed to load positions", e);
+            }
+        }
+
+        function renderInterns(data) {
+            cardContainer.innerHTML = "";
+            if (!data || data.length === 0) {
+                cardContainer.style.display = "none";
+                emptyState.style.display = "block";
+                summaryText.textContent = "Tidak ada data intern.";
+                return;
+            }
+            
+            data.forEach((intern) => {
+                const card = document.createElement("div");
+                card.className = "appraisal-card p-6 flex flex-col items-center text-center";
+                
+                const name = intern.name || "Unknown";
+                const photo = intern.photo || intern.avatar || intern.profile_picture || intern.foto || "https://i.pravatar.cc/150?u=" + intern.id;
+                const division = intern.division || intern.divisi || intern.department || "No Division";
+                let position = intern.position || intern.posisi || intern.role || "No Position";
+                
+                if (positionMap[position]) {
+                    position = positionMap[position];
+                }
+
+                card.innerHTML = `
+                    <div class="relative mb-4">
+                        <img src="${photo}" alt="${name}" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 shadow-sm" onerror="this.src='https://i.pravatar.cc/150?u=${intern.id}'">
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-900 mb-1 line-clamp-1">${name}</h3>
+                    <span class="inline-flex px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[11px] font-bold uppercase tracking-wider mb-2">${division}</span>
+                    <p class="text-sm text-slate-500 font-medium">${position}</p>
+                `;
+                
+                card.onclick = () => {
+                    window.location.href = `performance-appraisal-form.html?id=${intern.id}`;
+                };
+
+                cardContainer.appendChild(card);
+            });
+            
+            cardContainer.style.display = "grid";
+            emptyState.style.display = "none";
+            summaryText.innerHTML = `<i class="bi bi-person-check me-1"></i> Menampilkan ${data.length} intern`;
+        }
+
+        function applyFilters() {
+            let list = allInterns.slice();
+            const term = String(searchInput.value || "").toLowerCase().trim();
+
+            if (term) {
+                list = list.filter((intern) => {
+                    const name = String(intern.name || "").toLowerCase();
+                    const division = String(intern.division || intern.divisi || intern.department || "").toLowerCase();
+                    let position = String(intern.position || intern.posisi || intern.role || "").toLowerCase();
+                    if (positionMap[intern.position]) {
+                        position = positionMap[intern.position].toLowerCase();
+                    }
+                    return (
+                        name.includes(term) ||
+                        division.includes(term) ||
+                        position.includes(term)
+                    );
+                });
+            }
+
+            renderInterns(list);
+        }
+
+        async function loadInterns() {
+            loadingState.style.display = "block";
+            emptyState.style.display = "none";
+            cardContainer.style.display = "none";
+            summaryText.textContent = "Sedang memuat data interns...";
+
+            try {
+                const snap = await getDocs(collection(db, "interns_resume"));
+                allInterns = [];
+                snap.forEach((docSnap) => {
+                    const d = docSnap.data() || {};
+                    allInterns.push({
+                        id: docSnap.id,
+                        name: d.name || d.nama || d.nama_lengkap || "",
+                        photo: d.photo || d.profile_picture || d.avatar || d.image || d.foto || "",
+                        division: d.division || d.divisi || d.department || "",
+                        position: d.position || d.posisi || d.role || d.job_title || "",
+                        raw: d
+                    });
+                });
+                loadingState.style.display = "none";
+                applyFilters();
+            } catch (e) {
+                console.error("Gagal memuat interns_resume:", e);
+                loadingState.style.display = "none";
+                emptyState.style.display = "block";
+                summaryText.textContent = "Gagal memuat data intern. Silahkan periksa koneksi atau izin.";
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                applyFilters();
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await loadPositions();
+                await loadInterns();
+            } else {
+                window.location.href = "../index.html";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1977,27 +1977,8 @@
             buildAcceptedMessage,
             buildRejectedMessage
         } from "../element/whatsapp-message-builder.js";
-        const renderBreadcrumb = (container, config) => {
-            if (!container) return;
-            const items = (config && Array.isArray(config.items)) ? config.items : [];
-            if (!items.length) {
-                container.innerHTML = "";
-                return;
-            }
-            const html = items.map((item, index) => {
-                const isLast = index === items.length - 1;
-                const label = (item && item.label ? item.label : "").toString();
-                if (!label) return "";
-                if (isLast || item.current) {
-                    return '<span class="text-slate-500 fw-semibold">' + label + '</span>';
-                }
-                const href = (item && item.href ? item.href : "#").toString();
-                return '<a href="' + href + '" class="text-decoration-none text-primary fw-semibold">' + label + '</a>';
-            }).filter(Boolean).join('<span class="mx-2 text-slate-400">/</span>');
-            container.innerHTML = '<nav aria-label="breadcrumb">' + html + '</nav>';
-        };
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { app, auth, db, storage } from "../assets/js/firebase-config.js";
+        import { app, auth, db, storage } from "../assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore,
@@ -2020,7 +2001,26 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             getBlob
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        
+        const renderBreadcrumb = (container, config) => {
+            if (!container) return;
+            const items = (config && Array.isArray(config.items)) ? config.items : [];
+            if (!items.length) {
+                container.innerHTML = "";
+                return;
+            }
+            const html = items.map((item, index) => {
+                const isLast = index === items.length - 1;
+                const label = (item && item.label ? item.label : "").toString();
+                const iconHtml = item && item.iconHtml ? item.iconHtml : "";
+                if (!label && !iconHtml) return "";
+                if (isLast || item.current) {
+                    return '<span class="text-slate-400">' + (iconHtml ? iconHtml + ' ' : '') + label + '</span>';
+                }
+                const href = (item && item.href ? item.href : "#").toString();
+                return '<a href="' + href + '" class="hover:text-blue-700 transition">' + (iconHtml ? iconHtml : label) + '</a>';
+            }).filter(Boolean).join('<span class="text-slate-400">/</span>');
+            container.innerHTML = '<nav aria-label="breadcrumb" class="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest">' + html + '</nav>';
+        };
 
         const STATUS_PIPELINE = [
             { value: "screening", label: "Screening", caption: "", badgeClass: "status-screening" },
@@ -2071,9 +2071,10 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
         const renderCandidateDetailBreadcrumb = () => {
             renderBreadcrumb(document.getElementById("internshipCandidateDetailBreadcrumb"), {
                 items: [
-                    { label: "Home", href: "/home", iconHtml: '<i class="bi bi-house-fill"></i>' },
-                    { label: "Candidate Management", href: "./candidate-management.html" },
-                    { label: "Internship Candidate Detail", current: true }
+                    { label: "", href: "/home", iconHtml: '<i class="bi bi-house-fill"></i>' },
+                    { label: "HR Division", href: "/candidate-management" },
+                    { label: "Candidate Management", href: "/candidate-management" },
+                    { label: "Mentor Candidate Detail", current: true }
                 ]
             });
         };
@@ -3467,7 +3468,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                         '<div class="d-flex flex-column gap-4">' +
                             '<div id="internshipCandidateDetailBreadcrumb"></div>' +
                             '<div class="d-flex justify-content-between align-items-start flex-wrap gap-3">' +
-                                '<a href="./candidate-management.html" class="detail-back-link"><i class="fa-solid fa-arrow-left"></i><span>Kembali ke daftar kandidat</span></a>' +
+                                '<a href="/candidate-management" class="detail-back-link"><i class="fa-solid fa-arrow-left"></i><span>Kembali ke daftar kandidat</span></a>' +
                                 '<div class="detail-chip-row mt-0">' +
                                     '<span class="detail-meta-chip"><i class="fa-regular fa-hashtag"></i>' + escapeHtml(vm.id || "-") + '</span>' +
                                     '<span class="detail-meta-chip"><i class="fa-regular fa-calendar"></i>' + escapeHtml(formatDate(vm.createdAt)) + '</span>' +
@@ -3584,7 +3585,8 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                     enforceActiveCandidate: true
                 });
             }
-            await updateDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), firestorePayload);
+            const collectionToUse = currentCandidate?._active_collection || INTERNSHIP_CANDIDATES_COLLECTION;
+            await updateDoc(doc(db, collectionToUse, talentId), firestorePayload);
             return { source: "firestore" };
         }
 
@@ -3657,45 +3659,53 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                     '<div class="empty-state-card">' +
                         '<div class="fw-bold text-dark mb-2">ID kandidat tidak ditemukan</div>' +
                         '<div class="mb-4">Buka halaman ini dari card kandidat agar detail yang tepat dapat dimuat.</div>' +
-                        '<a href="./candidate-management.html" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
+                        '<a href="/candidate-management" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
                     '</div>';
                 return;
             }
 
             try {
-                await Promise.all([ensureUsersLoaded(), ensureDepartmentsLoaded(), ensureAuthorizedInterviewersLoaded()]);
-                const snap = await getDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId));
+                await Promise.allSettled([ensureUsersLoaded(), ensureDepartmentsLoaded(), ensureAuthorizedInterviewersLoaded()]);
+                let activeCollectionName = INTERNSHIP_CANDIDATES_COLLECTION;
+                let snap = await getDoc(doc(db, activeCollectionName, talentId));
+                if (!snap.exists()) {
+                    const fallbackSnap = await getDoc(doc(db, "mentor_screening", talentId));
+                    if (fallbackSnap.exists()) {
+                        snap = fallbackSnap;
+                        activeCollectionName = "mentor_screening";
+                    }
+                }
                 if (!snap.exists()) {
                     detailRoot.innerHTML =
                         '<div class="empty-state-card">' +
                             '<div class="fw-bold text-dark mb-2">Data kandidat tidak ditemukan</div>' +
                             '<div class="mb-4">Kemungkinan data sudah dihapus atau ID kandidat tidak valid.</div>' +
-                            '<a href="./candidate-management.html" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
+                            '<a href="/candidate-management" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
                         '</div>';
                     return;
                 }
-                currentCandidate = { id: snap.id, ...(snap.data() || {}) };
+                currentCandidate = { id: snap.id, _active_collection: activeCollectionName, ...(snap.data() || {}) };
                 renderCandidateDetail();
-                subscribeToCandidate(talentId);
+                subscribeToCandidate(talentId, activeCollectionName);
             } catch (error) {
                 console.error("Gagal memuat detail kandidat", error);
                 detailRoot.innerHTML =
                     '<div class="empty-state-card">' +
                         '<div class="fw-bold text-dark mb-2">Terjadi kesalahan saat memuat data</div>' +
                         '<div class="mb-4">Silakan refresh halaman atau coba lagi beberapa saat.</div>' +
-                        '<a href="./candidate-management.html" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
+                        '<a href="/candidate-management" class="btn btn-primary">Kembali ke daftar kandidat</a>' +
                     '</div>';
             }
         }
 
-        function subscribeToCandidate(talentId) {
+        function subscribeToCandidate(talentId, collectionName = INTERNSHIP_CANDIDATES_COLLECTION) {
             if (unsubscribeCandidate) {
                 unsubscribeCandidate();
                 unsubscribeCandidate = null;
             }
-            unsubscribeCandidate = onSnapshot(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId), (snap) => {
+            unsubscribeCandidate = onSnapshot(doc(db, collectionName, talentId), (snap) => {
                 if (!snap.exists()) return;
-                currentCandidate = { id: snap.id, ...(snap.data() || {}) };
+                currentCandidate = { id: snap.id, _active_collection: collectionName, ...(snap.data() || {}) };
                 renderCandidateDetail();
             }, (error) => {
                 console.error("Gagal menerima update real-time kandidat", error);
@@ -3703,7 +3713,11 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
         }
 
         async function getLatestCandidateSnapshot(talentId) {
-            const snap = await getDoc(doc(db, INTERNSHIP_CANDIDATES_COLLECTION, talentId));
+            const collectionToUse = currentCandidate?._active_collection || INTERNSHIP_CANDIDATES_COLLECTION;
+            let snap = await getDoc(doc(db, collectionToUse, talentId));
+            if (!snap.exists() && collectionToUse === "mentors_screening") {
+                snap = await getDoc(doc(db, "mentor_screening", talentId));
+            }
             if (!snap.exists()) {
                 throw new Error("Data kandidat tidak ditemukan di backend.");
             }

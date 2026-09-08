@@ -23,21 +23,21 @@ export function renderRightbarRecruit() {
             <h2>Recruitment Shortcut</h2>
         </div>
         <div class="menu-grid">
-            <a href="../data/candidate-management.html" class="menu-item">
+            <a href="/candidate-management" class="menu-item">
                 <i data-lucide="users"></i>
                 <span>Candidate Management</span>
             </a>
-            <a href="../data/scouting-candidate.html" class="menu-item">
+            <a href="/scouting-candidate" class="menu-item">
                 <i data-lucide="search"></i>
                 <span>Scouting Candidate</span>
             </a>
-            <a href="../data/company-position.html" class="menu-item">
+            <a href="/company-position" class="menu-item">
                 <i data-lucide="briefcase"></i>
                 <span>Head Count</span>
             </a>
-            <a href="../quest/dashboard-recruitment.html" class="menu-item">
+            <a href="/dashboard-recruitment" class="menu-item" onclick="window.location.href='/dashboard-recruitment'; return false;">
                 <i data-lucide="layout-dashboard"></i>
-                <span>Dashboard</span>
+                <span>Recruitment Specialist</span>
             </a>
         </div>
     `;

@@ -73,6 +73,10 @@ async function initializeHome() {
       displayName,
       userData?.name,
       userData?.full_name,
+      userData?.username,
+      userData?.id,
+      userData?.docId,
+      ...(Array.isArray(userData?.allAliases) ? userData.allAliases : []),
     ]
       .filter(Boolean)
       .map((s) => String(s).toLowerCase().trim());

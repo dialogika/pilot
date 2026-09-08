@@ -21,6 +21,8 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  arrayRemove,
+  deleteField,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   ref,
@@ -61,12 +63,41 @@ export async function loadUsersMap() {
     const snap = await getDocs(collection(db, "users"));
     snap.forEach((docSnap) => {
       const u = docSnap.data() || {};
-      map[docSnap.id] = {
-        uid: docSnap.id,
-        name: u.full_name || u.displayName || u.name || u.email || docSnap.id,
-        email: u.email || "",
-        photo: u.photo || u.photoURL || u.avatar || "",
+      const name = u.full_name || u.displayName || u.name || u.nama || u.email || docSnap.id;
+      const photo = u.photo || u.photoURL || u.photoUrl || u.avatar || u.avatar_url || "";
+      const email = String(u.email || "").trim();
+      const authUid = u.uid || u.userId || u.user_id || u.id || docSnap.id;
+
+      const allAliases = Array.from(
+        new Set(
+          [
+            docSnap.id,
+            String(docSnap.id).toLowerCase(),
+            authUid,
+            String(authUid).toLowerCase(),
+            email,
+            email.toLowerCase(),
+            name,
+          ].filter(Boolean)
+        )
+      );
+
+      const userData = {
+        uid: authUid,
+        docId: docSnap.id,
+        id: docSnap.id,
+        name: name,
+        email: email,
+        photo: String(photo || "").trim(),
+        allAliases: allAliases,
       };
+
+      allAliases.forEach((alias) => {
+        if (alias) {
+          map[alias] = userData;
+          map[String(alias).toLowerCase()] = userData;
+        }
+      });
     });
   } catch (e) {
     console.warn("report-modal: users collection unreadable:", e);
@@ -74,10 +105,26 @@ export async function loadUsersMap() {
   return map;
 }
 
+function isSideQuestTask(data) {
+  if (!data) return false;
+  if (data.project_id || data.projectId) return false;
+  const qt = String(data.quest_type || data.questType || "")
+    .toLowerCase()
+    .replace(/[\s_]/g, "");
+  if (qt === "side" || qt === "sidequest" || qt === "side-quest" || qt === "quest") return true;
+  if (qt === "main" || qt === "mainquest" || qt === "daily") return false;
+  const t = String(data.type || "")
+    .toLowerCase()
+    .replace(/[\s_]/g, "");
+  if (t === "side" || t === "sidequest" || t === "side-quest" || t === "quest") return true;
+  if (t === "main" || t === "mainquest" || t === "daily") return false;
+  return false;
+}
+
 /**
  * Load all quest reports and associate them with tasks.
  */
-export async function loadReportsData() {
+export async function loadReportsData({ includeArchived = false } = {}) {
   const tasksById = {};
   const taskQuestTypeById = {};
   const completeTaskIds = [];
@@ -87,22 +134,20 @@ export async function loadReportsData() {
     const data = docSnap.data() || {};
     tasksById[docSnap.id] = data;
     const archived = !!(data.archived || data.is_archived);
-    if (archived) return;
+    tasksById[docSnap.id]._isArchived = archived;
 
     let questType = "Daily";
     if (data.project_id || data.projectId) {
       questType = "Project";
-    } else if (
-      data.quest_type === "side" ||
-      data.questType === "side" ||
-      data.type === "side" ||
-      (data.task_status !== undefined && data.task_status !== null)
-    ) {
+    } else if (isSideQuestTask(data)) {
       questType = "Quest";
     } else {
       questType = "Daily";
     }
     taskQuestTypeById[docSnap.id] = questType;
+
+    if (archived && !includeArchived) return;
+
     if (!completeTaskIds.includes(docSnap.id)) {
       completeTaskIds.push(docSnap.id);
     }
@@ -207,7 +252,7 @@ export async function loadReportsData() {
     const entry = latestByTaskId[taskId] || {};
     const rdata = entry.data || {};
     const data = tasksById[taskId] || {};
-    const questType = taskQuestTypeById[taskId] || "Quest";
+    const questType = taskQuestTypeById[taskId] || "Daily";
 
     const notifyRaw = data.notify_to || data.notifyTo || [];
     const notifyIds = Array.isArray(notifyRaw)
@@ -240,7 +285,7 @@ export async function loadReportsData() {
       dateStr = data.due_date || data.dueDate || "";
     }
 
-    const filesArr = Array.isArray(rdata.files) ? rdata.files : [];
+    const filesArr = Array.isArray(rdata.files) ? rdata.files.slice() : [];
     if (filesArr.length === 0) {
       const legacyUrl = rdata.fileUrl || rdata.file_url || rdata.url || "";
       const legacyName = rdata.fileName || rdata.file_name || rdata.name || "Attachment";
@@ -250,6 +295,20 @@ export async function loadReportsData() {
           name: legacyName,
           type: rdata.fileType || rdata.type || "",
         });
+      } else if (reportHtml && reportHtml.includes("<img")) {
+        const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+        let match;
+        let imgIdx = 1;
+        while ((match = imgRegex.exec(reportHtml)) !== null) {
+          if (match[1] && match[1] !== "#") {
+            filesArr.push({
+              url: match[1],
+              name: imgIdx === 1 ? "Attachment Image" : `Attachment Image ${imgIdx}`,
+              type: "image/png",
+            });
+            imgIdx++;
+          }
+        }
       }
     }
 
@@ -277,9 +336,17 @@ export async function loadReportsData() {
 
     const appr = String(rdata.approval_status || rdata.approvalStatus || "").toLowerCase();
     const statusVal = appr === "approved" || appr === "rejected" ? appr : "pending";
+    const isArchived = !!(rdata.archived || rdata.is_archived || (tasksById[taskId] && tasksById[taskId]._isArchived));
+    if (isArchived && !includeArchived) return; // skip archived unless requested
+
+    const reportDocId = entry.docId || "";
+    const rowId = entry.source === "sub"
+      ? `sub_${taskId}_${reportDocId || "rep"}`
+      : `root_${reportDocId || taskId}`;
 
     reports.push({
-      id: taskId,
+      id: rowId,
+      taskId: taskId,
       questType: questType,
       date: dateStr,
       task: title,
@@ -292,7 +359,8 @@ export async function loadReportsData() {
       fileUrl: fileUrl,
       fileIconClass: fileIconClass,
       files: filesArr,
-      status: statusVal,
+      status: isArchived ? "archived" : statusVal,
+      archived: isArchived,
       notifyTo: notifyIds,
       notifyCount: notifyIds.length,
       assignees: assignIds,
@@ -321,9 +389,9 @@ export async function loadReportsData() {
       const authorName = ddata.name || ddata.user_name || "Unknown";
       const repDate = ddata.date_label || ddata.report_date || ddata.date || normalizeDateString(ddata.created_at || ddata.timestamp, "");
       const repStatus = String(ddata.status || "").toLowerCase();
-
       tasks.forEach((t, idx) => {
-        const taskId = t.task_id || t.id || `${docSnap.id}_${idx}`;
+        const taskId = t.task_id || t.taskId || t.id || "";
+        const rowId = `daily_${docSnap.id}_${idx}`;
         const title = t.title || t.task || `Tugas ${idx + 1}`;
         const reportHtml = t.detail || t.description || t.content || "";
         const tmpDiv = document.createElement("div");
@@ -335,13 +403,38 @@ export async function loadReportsData() {
           previewText = previewText.substring(0, previewMax).replace(/\s+\S*$/, "") + "...";
         }
 
-        // Determine quest type (Default to Daily unless mapped otherwise)
+        // Determine quest type.
+        // Check task detail item, parent report document, or catalog metadata.
         let questType = "Daily";
-        if (t.task_id && taskQuestTypeById[t.task_id]) {
-          questType = taskQuestTypeById[t.task_id];
-        } else if (t.questType || t.quest_type) {
-          const qt = String(t.questType || t.quest_type).toLowerCase();
-          questType = qt.includes("project") ? "Project" : qt.includes("side") || qt.includes("quest") ? "Quest" : "Daily";
+        const tQt = String(t.questType || t.quest_type || "").toLowerCase().replace(/[\s_]/g, "");
+        const dQt = String(ddata.questType || ddata.quest_type || "").toLowerCase().replace(/[\s_]/g, "");
+
+        // 1. Explicit marker on task item
+        if (tQt === "project") {
+          questType = "Project";
+        } else if (tQt === "side" || tQt === "sidequest" || tQt === "side-quest" || tQt === "quest") {
+          questType = "Quest";
+        } else if (tQt === "daily" || tQt === "main" || tQt === "mainquest") {
+          questType = "Daily";
+        // 2. Explicit marker on parent report document
+        } else if (dQt === "project") {
+          questType = "Project";
+        } else if (dQt === "side" || dQt === "sidequest" || dQt === "side-quest" || dQt === "quest") {
+          questType = "Quest";
+        } else if (dQt === "daily" || dQt === "main" || dQt === "mainquest") {
+          questType = "Daily";
+        // 3. Fallback to task catalog lookup
+        } else if (taskId && taskQuestTypeById[taskId]) {
+          questType = taskQuestTypeById[taskId];
+        } else if (taskId && tasksById[taskId]) {
+          const td = tasksById[taskId];
+          if (td.project_id || td.projectId) {
+            questType = "Project";
+          } else if (isSideQuestTask(td)) {
+            questType = "Quest";
+          } else {
+            questType = "Daily";
+          }
         }
 
         // Status
@@ -350,22 +443,30 @@ export async function loadReportsData() {
         if (taskStatus === "approved" || repStatus === "approved") statusVal = "approved";
         else if (taskStatus === "rejected" || repStatus === "rejected") statusVal = "rejected";
 
+        const isArchived = !!(ddata.archived || ddata.is_archived || t.archived);
+        if (isArchived && !includeArchived) return; // skip archived unless requested
+
         // Files from images in content or explicit attachments
-        const filesArr = Array.isArray(t.files) ? t.files : [];
+        const filesArr = Array.isArray(t.files) ? t.files.slice() : [];
         let fileName = "";
         let fileTitle = "";
         let fileUrl = "#";
         let fileIconClass = "bi bi-file-earmark";
 
         // Check for embedded <img> src in reportHtml if filesArr is empty
-        if (filesArr.length === 0 && reportHtml.includes("<img")) {
-          const imgMatch = reportHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
-          if (imgMatch && imgMatch[1]) {
-            filesArr.push({
-              url: imgMatch[1],
-              name: "Attachment Image",
-              type: "image/png",
-            });
+        if (filesArr.length === 0 && reportHtml && reportHtml.includes("<img")) {
+          const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+          let match;
+          let imgIdx = 1;
+          while ((match = imgRegex.exec(reportHtml)) !== null) {
+            if (match[1] && match[1] !== "#") {
+              filesArr.push({
+                url: match[1],
+                name: imgIdx === 1 ? "Attachment Image" : `Attachment Image ${imgIdx}`,
+                type: "image/png",
+              });
+              imgIdx++;
+            }
           }
         }
 
@@ -387,15 +488,21 @@ export async function loadReportsData() {
           }
         }
 
-        const reportToArr = (Array.isArray(t.report_to) ? t.report_to : t.report_to ? [t.report_to] : []).concat(
-          Array.isArray(ddata.report_to) ? ddata.report_to : ddata.report_to ? [ddata.report_to] : []
-        );
-        const createdByArr = (Array.isArray(t.created_by) ? t.created_by : t.created_by ? [t.created_by] : []).concat(
-          Array.isArray(ddata.created_by) ? ddata.created_by : ddata.created_by ? [ddata.created_by] : []
-        );
+        const rawReportTo = Array.isArray(t.report_to) && t.report_to.length
+          ? t.report_to
+          : (Array.isArray(ddata.report_to) ? ddata.report_to : ddata.report_to ? [ddata.report_to] : (t.report_to ? [t.report_to] : []));
+        const reportToArr = Array.from(new Set((Array.isArray(rawReportTo) ? rawReportTo : [rawReportTo]).filter(Boolean)));
+
+        const rawCreatedBy = Array.isArray(t.created_by) && t.created_by.length
+          ? t.created_by
+          : (Array.isArray(ddata.created_by) ? ddata.created_by : ddata.created_by ? [ddata.created_by] : (t.created_by ? [t.created_by] : []));
+        const createdByArr = Array.from(new Set((Array.isArray(rawCreatedBy) ? rawCreatedBy : [rawCreatedBy]).filter(Boolean)));
+
+        const finalAuthorId = authorId || (Array.isArray(t.who_did_this) ? t.who_did_this[0] : "") || "";
 
         reports.push({
-          id: taskId,
+          id: rowId,
+          taskId: taskId,
           questType: questType,
           date: repDate,
           task: title,
@@ -408,13 +515,14 @@ export async function loadReportsData() {
           fileUrl: fileUrl,
           fileIconClass: fileIconClass,
           files: filesArr,
-          status: statusVal,
+          status: isArchived ? "archived" : statusVal,
+          archived: isArchived,
           notifyTo: [],
           notifyCount: 0,
-          assignees: [authorId || authorName],
+          assignees: [finalAuthorId || authorName],
           reportTo: reportToArr,
           createdBy: createdByArr,
-          authorId: authorId,
+          authorId: finalAuthorId,
           departments: ddata.department ? [ddata.department] : [],
           positions: ddata.position ? [ddata.position] : [],
           startDate: repDate,
@@ -425,6 +533,8 @@ export async function loadReportsData() {
           reportSource: "intern_dailyreport",
           reportDocId: docSnap.id,
           taskIndex: idx,
+          rawTask: t,
+          raw: t,
         });
       });
     });
@@ -440,14 +550,19 @@ export async function loadReportsData() {
  */
 export async function persistApprovalStatus(report, status, feedbackHtml = "") {
   if (!report) return;
+  const isApprove = String(status).toLowerCase() === "approved";
+  const newStatusStr = isApprove ? "Approved" : "Rejected";
+  const normStatus = isApprove ? "approved" : "rejected";
+
   const payload = {
-    approval_status: status,
-    approvalStatus: status,
+    approval_status: normStatus,
+    approvalStatus: normStatus,
     approvalUpdatedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
   };
 
   if (feedbackHtml) {
     payload.feedback = feedbackHtml;
+    payload.rejection_reason = feedbackHtml;
     payload.feedback_at = serverTimestamp ? serverTimestamp() : new Date().toISOString();
     payload.feedback_by = auth.currentUser ? auth.currentUser.uid : "";
   }
@@ -459,26 +574,35 @@ export async function persistApprovalStatus(report, status, feedbackHtml = "") {
       if (repSnap.exists()) {
         const repData = repSnap.data() || {};
         const tasks = Array.isArray(repData.tasks) ? repData.tasks : [];
-        const isApprove = status === "approved";
-        const newStatusStr = isApprove ? "Approved" : "Rejected";
 
         if (typeof report.taskIndex === "number" && tasks[report.taskIndex]) {
           tasks[report.taskIndex].status = newStatusStr;
+          tasks[report.taskIndex].approval_status = normStatus;
           if (feedbackHtml) tasks[report.taskIndex].feedback = feedbackHtml;
+          tasks[report.taskIndex].rejection_reason = isApprove ? "" : (feedbackHtml || "");
+          tasks[report.taskIndex].reviewed_at = new Date().toISOString();
+          tasks[report.taskIndex].reviewed_by = auth.currentUser ? auth.currentUser.uid : "";
         } else {
           tasks.forEach((t) => {
-            if (t.task_id === report.id || t.id === report.id || t.title === report.task) {
+            const tId = t.task_id || t.taskId || t.id;
+            if (tId === report.taskId || tId === report.id || t.title === report.task) {
               t.status = newStatusStr;
+              t.approval_status = normStatus;
               if (feedbackHtml) t.feedback = feedbackHtml;
+              t.rejection_reason = isApprove ? "" : (feedbackHtml || "");
+              t.reviewed_at = new Date().toISOString();
+              t.reviewed_by = auth.currentUser ? auth.currentUser.uid : "";
             }
           });
         }
 
         const allApproved = tasks.length > 0 && tasks.every((t) => String(t.status).toLowerCase() === "approved");
         const allRejected = tasks.length > 0 && tasks.every((t) => String(t.status).toLowerCase() === "rejected");
-        let overallStatus = "Partially Approved";
+        let overallStatus = "Pending Review";
         if (allApproved) overallStatus = "Approved";
         else if (allRejected) overallStatus = "Rejected";
+        else if (tasks.some((t) => String(t.status).toLowerCase() === "approved")) overallStatus = "Partially Approved";
+        else if (tasks.some((t) => String(t.status).toLowerCase() === "rejected")) overallStatus = "Partially Rejected";
 
         await updateDoc(repRef, {
           tasks: tasks,
@@ -486,7 +610,7 @@ export async function persistApprovalStatus(report, status, feedbackHtml = "") {
           reviewer_id: auth.currentUser ? auth.currentUser.uid : "",
           reviewer_name: auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : "",
           reviewed_at: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
-          ...(feedbackHtml ? { rejection_reason: feedbackHtml } : {}),
+          ...(feedbackHtml ? { rejection_reason: feedbackHtml, feedback: feedbackHtml } : {}),
         });
       }
     } catch (e) {
@@ -495,7 +619,98 @@ export async function persistApprovalStatus(report, status, feedbackHtml = "") {
   } else if (report.reportSource === "root" && report.reportDocId) {
     await updateDoc(doc(db, "quest_reports", report.reportDocId), payload);
   } else if (report.reportSource === "sub" && report.reportDocId) {
-    await updateDoc(doc(db, "tasks", report.id, "reports", report.reportDocId), payload);
+    const parentTaskId = report.taskId || report.id;
+    await updateDoc(doc(db, "tasks", parentTaskId, "reports", report.reportDocId), payload);
+  }
+
+  // Update corresponding task doc in quests / tasks
+  const rawTaskId =
+    report.taskId ||
+    (report.rawTask && (report.rawTask.task_id || report.rawTask.taskId || report.rawTask.id)) ||
+    (report.raw && (report.raw.task_id || report.raw.taskId || report.raw.id)) ||
+    (report.reportSource !== "intern_dailyreport" ? report.id : "");
+  const targetTaskId = rawTaskId ? String(rawTaskId).trim() : "";
+
+  if (targetTaskId) {
+    const authorUid =
+      report.authorId ||
+      (report.rawTask && (report.rawTask.user_id || report.rawTask.userId || report.rawTask.author_id || (Array.isArray(report.rawTask.who_did_this) ? report.rawTask.who_did_this[0] : ""))) ||
+      (report.raw && (report.raw.user_id || report.raw.userId || report.raw.author_id)) ||
+      "";
+
+    // Detect if task exists in quests or tasks
+    let targetCollection = "quests";
+    let isSingleAssignee = true;
+    try {
+      let taskSnap = null;
+      try {
+        taskSnap = await getDoc(doc(db, "quests", targetTaskId));
+        if (taskSnap && taskSnap.exists()) targetCollection = "quests";
+      } catch (_) {}
+      if (!taskSnap || !taskSnap.exists()) {
+        try {
+          taskSnap = await getDoc(doc(db, "tasks", targetTaskId));
+          if (taskSnap && taskSnap.exists()) targetCollection = "tasks";
+        } catch (_) {}
+      }
+      if (taskSnap && taskSnap.exists()) {
+        const td = taskSnap.data() || {};
+        const assignList = Array.isArray(td.assign_to) ? td.assign_to : td.assign_to ? [td.assign_to] : [];
+        isSingleAssignee = assignList.length <= 1;
+      }
+    } catch (_) {}
+
+    const taskPatch = isApprove
+      ? {
+          status: "approved",
+          task_status: "approved",
+          last_approved_at: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
+          last_approved_by: auth.currentUser ? auth.currentUser.uid : "",
+          rejection_reason: deleteField(),
+          feedback: deleteField(),
+          last_rejected_at: deleteField(),
+          last_rejected_by: deleteField(),
+          ...(authorUid ? { [`rejected_users.${authorUid}`]: deleteField() } : {}),
+          // Store per-user approval so co-assignees can verify their own approval state
+          ...(authorUid && !isSingleAssignee
+            ? {
+                [`approved_users.${authorUid}`]: {
+                  approved_at: new Date().toISOString(),
+                  approved_by: auth.currentUser ? auth.currentUser.uid : "",
+                },
+              }
+            : {}),
+        }
+      : {
+          status: "rejected",
+          task_status: "rejected",
+          last_rejected_at: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
+          last_rejected_by: auth.currentUser ? auth.currentUser.uid : "",
+          rejection_reason: feedbackHtml || "",
+          feedback: feedbackHtml || "",
+          ...(authorUid
+            ? {
+                last_reported_by: arrayRemove(authorUid),
+                [`rejected_users.${authorUid}`]: {
+                  reason: feedbackHtml || "",
+                  rejected_at: new Date().toISOString(),
+                  rejected_by: auth.currentUser ? auth.currentUser.uid : "",
+                },
+                [`approved_users.${authorUid}`]: deleteField(),
+              }
+            : {}),
+        };
+
+    try {
+      await updateDoc(doc(db, targetCollection, targetTaskId), taskPatch);
+    } catch (err) {
+      const fallbackCol = targetCollection === "quests" ? "tasks" : "quests";
+      try {
+        await updateDoc(doc(db, fallbackCol, targetTaskId), taskPatch);
+      } catch (err2) {
+        console.warn(`Failed to update task ${targetTaskId} in ${targetCollection} and ${fallbackCol}:`, err2);
+      }
+    }
   }
 }
 
@@ -521,75 +736,263 @@ export async function uploadFeedbackFiles(taskId, files) {
 }
 
 /**
- * Archive selected task IDs.
+ * Bulk archive selected reports.
+ * For intern_dailyreport items: marks task inside doc as archived (and doc as archived if all tasks archived).
+ * For quest_reports / subcollection: sets archived = true on report doc.
+ * @param {Array} reports - array of report objects from loadReportsData
  */
-export async function bulkArchiveTasks(taskIds) {
-  for (const taskId of taskIds) {
-    let taskData = {};
+export async function bulkArchiveTasks(reports) {
+  const archivedAtIso = new Date().toISOString();
+  const archivedBy = auth.currentUser ? auth.currentUser.uid : "";
+
+  const internReportsByDoc = {};
+
+  for (const report of reports) {
+    const src = report.reportSource || "";
+    const docId = report.reportDocId || "";
+    const taskId = report.taskId || report.id || "";
+
+    if (src === "intern_dailyreport" && docId) {
+      if (!internReportsByDoc[docId]) internReportsByDoc[docId] = [];
+      internReportsByDoc[docId].push(report);
+      continue;
+    }
+
     try {
-      const tSnap = await getDoc(doc(db, "tasks", taskId));
-      if (tSnap.exists()) taskData = tSnap.data() || {};
-    } catch (e) {}
+      if (src === "root" && docId) {
+        await updateDoc(doc(db, "quest_reports", docId), {
+          archived: true,
+          is_archived: true,
+          archived_at: archivedAtIso,
+          archived_by: archivedBy,
+        });
+      } else if (src === "sub" && docId && taskId) {
+        try {
+          await updateDoc(doc(db, "tasks", taskId, "reports", docId), {
+            archived: true,
+            is_archived: true,
+            archived_at: archivedAtIso,
+            archived_by: archivedBy,
+          });
+        } catch (_) {}
+      } else if (docId) {
+        try {
+          await updateDoc(doc(db, "tasks", docId), {
+            archived: true,
+            is_archived: true,
+            archived_at: archivedAtIso,
+            archived_by: archivedBy,
+          });
+        } catch (_) {}
+      }
+    } catch (e) {
+      console.warn("bulkArchiveTasks: failed to archive", report.id, e);
+    }
+  }
 
-    const archiveEntry = {
-      taskId: taskId,
-      task: taskData,
-      archivedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
-      archivedBy: auth.currentUser ? auth.currentUser.uid : "",
-    };
-
+  // Handle intern_dailyreport grouped
+  for (const [docId, repList] of Object.entries(internReportsByDoc)) {
     try {
-      await addDoc(collection(db, "Archives"), archiveEntry);
-    } catch (e) {}
+      const repRef = doc(db, "intern_dailyreport", docId);
+      const repSnap = await getDoc(repRef);
+      if (repSnap.exists()) {
+        const repData = repSnap.data() || {};
+        const tasks = Array.isArray(repData.tasks) ? repData.tasks : [];
+        const taskIndicesToArchive = new Set(repList.map((r) => r.taskIndex).filter((i) => typeof i === "number"));
 
-    await updateDoc(doc(db, "tasks", taskId), {
-      archived: true,
-      archived_at: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
-      archived_by: auth.currentUser ? auth.currentUser.uid : "",
-    });
+        tasks.forEach((t, idx) => {
+          const matchByIndex = taskIndicesToArchive.has(idx);
+          const matchById = repList.some((r) => r.taskId && (t.task_id === r.taskId || t.id === r.taskId));
+          const matchByTitle = repList.some((r) => r.task && (t.title === r.task || t.task === r.task));
+          if (matchByIndex || matchById || matchByTitle) {
+            t.archived = true;
+            t.is_archived = true;
+            t.archived_at = archivedAtIso;
+            t.archived_by = archivedBy;
+          }
+        });
+
+        const allArchived = tasks.length > 0 && tasks.every((t) => !!(t.archived || t.is_archived));
+        await updateDoc(repRef, {
+          tasks: tasks,
+          archived: allArchived,
+          is_archived: allArchived,
+          archived_at: archivedAtIso,
+          archived_by: archivedBy,
+        });
+      }
+    } catch (e) {
+      console.warn("bulkArchiveTasks: failed on intern_dailyreport doc:", docId, e);
+    }
   }
 }
 
 /**
- * Delete selected task IDs.
+ * Unarchive / restore selected reports back to active state.
+ * @param {Array} reports - array of report objects
  */
-export async function bulkDeleteTasks(taskIds) {
-  const rootSnap = await getDocs(collection(db, "quest_reports"));
-  const rootDocs = [];
-  rootSnap.forEach((d) => rootDocs.push({ id: d.id, data: d.data() || {} }));
+export async function bulkUnarchiveTasks(reports) {
+  const internReportsByDoc = {};
 
-  for (const tId of taskIds) {
-    let tData = {};
-    try {
-      const tSnap = await getDoc(doc(db, "tasks", tId));
-      if (tSnap.exists()) tData = tSnap.data() || {};
-    } catch (e) {}
+  for (const report of reports) {
+    const src = report.reportSource || "";
+    const docId = report.reportDocId || "";
+    const taskId = report.taskId || report.id || "";
 
-    const trashEntry = {
-      taskId: tId,
-      task: tData,
-      deletedAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
-      deletedBy: auth.currentUser ? auth.currentUser.uid : "",
-    };
-
-    try {
-      await addDoc(collection(db, "Trash"), trashEntry);
-    } catch (e) {}
-
-    try {
-      const repSnap = await getDocs(collection(db, "tasks", tId, "reports"));
-      for (const d of repSnap.docs) {
-        await deleteDoc(doc(db, "tasks", tId, "reports", d.id));
-      }
-    } catch (e) {}
-
-    for (const d2 of rootDocs) {
-      const tid = d2.data.taskId || d2.data.task_id || "";
-      if (tid === tId) {
-        await deleteDoc(doc(db, "quest_reports", d2.id));
-      }
+    if (src === "intern_dailyreport" && docId) {
+      if (!internReportsByDoc[docId]) internReportsByDoc[docId] = [];
+      internReportsByDoc[docId].push(report);
+      continue;
     }
 
-    await deleteDoc(doc(db, "tasks", tId));
+    try {
+      if (src === "root" && docId) {
+        await updateDoc(doc(db, "quest_reports", docId), {
+          archived: false,
+          is_archived: false,
+        });
+      } else if (src === "sub" && docId && taskId) {
+        try {
+          await updateDoc(doc(db, "tasks", taskId, "reports", docId), {
+            archived: false,
+            is_archived: false,
+          });
+        } catch (_) {}
+      } else if (docId) {
+        try {
+          await updateDoc(doc(db, "tasks", docId), {
+            archived: false,
+            is_archived: false,
+          });
+        } catch (_) {}
+      }
+    } catch (e) {
+      console.warn("bulkUnarchiveTasks: failed to unarchive", report.id, e);
+    }
+  }
+
+  for (const [docId, repList] of Object.entries(internReportsByDoc)) {
+    try {
+      const repRef = doc(db, "intern_dailyreport", docId);
+      const repSnap = await getDoc(repRef);
+      if (repSnap.exists()) {
+        const repData = repSnap.data() || {};
+        const tasks = Array.isArray(repData.tasks) ? repData.tasks : [];
+        const taskIndicesToUnarchive = new Set(repList.map((r) => r.taskIndex).filter((i) => typeof i === "number"));
+
+        tasks.forEach((t, idx) => {
+          const matchByIndex = taskIndicesToUnarchive.has(idx);
+          const matchById = repList.some((r) => r.taskId && (t.task_id === r.taskId || t.id === r.taskId));
+          const matchByTitle = repList.some((r) => r.task && (t.title === r.task || t.task === r.task));
+          if (matchByIndex || matchById || matchByTitle) {
+            t.archived = false;
+            t.is_archived = false;
+            delete t.archived;
+            delete t.is_archived;
+            delete t.archived_at;
+            delete t.archived_by;
+          }
+        });
+
+        const anyArchived = tasks.some((t) => !!(t.archived || t.is_archived));
+        await updateDoc(repRef, {
+          tasks: tasks,
+          archived: anyArchived,
+          is_archived: anyArchived,
+        });
+      }
+    } catch (e) {
+      console.warn("bulkUnarchiveTasks: failed on intern_dailyreport doc:", docId, e);
+    }
+  }
+}
+
+/**
+ * Delete selected reports or task IDs.
+ * Moves item to Trash collection and deletes from the appropriate source collection.
+ * @param {Array} reports - array of report objects or taskId strings
+ */
+export async function bulkDeleteTasks(reports) {
+  const deletedAtIso = new Date().toISOString();
+  const deletedBy = auth.currentUser ? auth.currentUser.uid : "";
+
+  const internReportsByDoc = {};
+
+  for (const item of reports) {
+    const report = typeof item === "string" ? { id: item } : item;
+    const src = report.reportSource || "";
+    const docId = report.reportDocId || "";
+    const taskId = report.taskId || report.id || "";
+
+    try {
+      // 1. Move a backup copy to Trash collection
+      const trashEntry = {
+        taskId: taskId,
+        reportId: report.id || "",
+        taskTitle: report.task || "",
+        reportSource: src,
+        reportDocId: docId,
+        date: report.date || "",
+        deletedAt: deletedAtIso,
+        deletedBy: deletedBy,
+      };
+
+      try {
+        await addDoc(collection(db, "Trash"), trashEntry);
+      } catch (e) {
+        console.warn("bulkDeleteTasks: failed to add to Trash:", e);
+      }
+
+      if (src === "intern_dailyreport" && docId) {
+        if (!internReportsByDoc[docId]) internReportsByDoc[docId] = [];
+        internReportsByDoc[docId].push(report);
+        continue;
+      }
+
+      // 2. Delete from quest_reports (root collection)
+      if (src === "root" && docId) {
+        try {
+          await deleteDoc(doc(db, "quest_reports", docId));
+        } catch (e) {
+          console.warn("bulkDeleteTasks: failed to delete from quest_reports:", e);
+        }
+      }
+
+      // 3. Delete subcollection reports
+      if (src === "sub" && docId && taskId) {
+        try {
+          await deleteDoc(doc(db, "tasks", taskId, "reports", docId));
+        } catch (_) {}
+      }
+    } catch (e) {
+      console.warn("bulkDeleteTasks: error deleting item", report, e);
+    }
+  }
+
+  // Process intern_dailyreport grouped
+  for (const [docId, repList] of Object.entries(internReportsByDoc)) {
+    try {
+      const repRef = doc(db, "intern_dailyreport", docId);
+      const repSnap = await getDoc(repRef);
+      if (repSnap.exists()) {
+        const repData = repSnap.data() || {};
+        const tasks = Array.isArray(repData.tasks) ? repData.tasks : [];
+        const taskIndicesToDelete = new Set(repList.map((r) => r.taskIndex).filter((i) => typeof i === "number"));
+
+        const remainingTasks = tasks.filter((t, idx) => {
+          if (taskIndicesToDelete.has(idx)) return false;
+          if (repList.some((r) => (r.taskId && (t.task_id === r.taskId || t.id === r.taskId)) || (r.task && (t.title === r.task || t.task === r.task)))) return false;
+          return true;
+        });
+
+        if (remainingTasks.length > 0) {
+          await updateDoc(repRef, { tasks: remainingTasks });
+        } else {
+          await deleteDoc(repRef);
+        }
+      }
+    } catch (e) {
+      console.warn("bulkDeleteTasks: failed to delete from intern_dailyreport doc:", docId, e);
+    }
   }
 }
