@@ -140,9 +140,32 @@
         "source": "/create-invoice.html",
         "destination": "/create-invoice",
         "type": 301
+      },
+      {
+        "source": "/setting/generate-certificate.html",
+        "destination": "/generate-certificate",
+        "type": 301
+      },
+      {
+        "source": "/setting/generate-certificate",
+        "destination": "/generate-certificate",
+        "type": 301
+      },
+      {
+        "source": "/generate-certificate.html",
+        "destination": "/generate-certificate",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/generate-certificate",
+        "destination": "/pages/product/generate-certificate/index.html"
+      },
+      {
+        "source": "/product/generate-certificate",
+        "destination": "/pages/product/generate-certificate/index.html"
+      },
       {
         "source": "/create-invoice",
         "destination": "/pages/marketing/create-invoice/index.html"
