@@ -112,6 +112,7 @@ function updateStatsAndBadges() {
   const currentTabNorm = currentQuestTab === "main" ? "daily" : currentQuestTab === "side" ? "quest" : currentQuestTab;
 
   allReports.forEach((r) => {
+    if (r.archived || r.status === "archived") return;
     const qType = normalizeQuestType(r.questType);
     // Breakdown total counts regardless of tab
     if (qType === "Daily") breakdown.daily++;
@@ -153,9 +154,12 @@ function syncBulkActionButton() {
   if (topArchiveBtn) topArchiveBtn.classList.toggle("active", bulkMode === "archive");
   if (topDeleteBtn) topDeleteBtn.classList.toggle("active", bulkMode === "delete");
 
+  const statusSelect = document.getElementById("dgReportStatusSelect");
+  const isPendingView = statusSelect ? statusSelect.value === "pending" : false;
+
   if (!bulkMode) {
     wrap.innerHTML = `
-      <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn">
+      <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn" style="${isPendingView ? "" : "display:none;"}">
         <i class="bi bi-check-all"></i> Approve all
       </button>
     `;
@@ -163,10 +167,13 @@ function syncBulkActionButton() {
     return;
   }
 
-  const selectedCount = Object.keys(selectedTaskIds).filter((k) => !!selectedTaskIds[k]).length;
+  const isArchivedView = statusSelect ? statusSelect.value === "archived" : false;
+  const selectedCount = Object.keys(selectedTaskIds).filter(
+    (k) => !!selectedTaskIds[k] && currentReports.some((r) => r.id === k)
+  ).length;
   const isArchive = bulkMode === "archive";
-  const label = isArchive ? "Archive All" : "Delete All";
-  const icon = isArchive ? "bi-archive" : "bi-trash";
+  const label = isArchive ? (isArchivedView ? "Pulihkan Semua" : "Archive All") : "Delete All";
+  const icon = isArchive ? (isArchivedView ? "bi-arrow-counterclockwise" : "bi-archive") : "bi-trash";
   const cls = isArchive ? "btn-archive" : "btn-delete";
 
   wrap.innerHTML = `
@@ -186,26 +193,59 @@ function syncBulkActionButton() {
   });
 
   document.getElementById("dgReportBulkActionTrigger")?.addEventListener("click", async () => {
-    const selected = Object.keys(selectedTaskIds).filter((k) => !!selectedTaskIds[k]);
+    const selected = Object.keys(selectedTaskIds).filter(
+      (k) => !!selectedTaskIds[k] && currentReports.some((r) => r.id === k)
+    );
     if (!selected.length) {
       alert("Pilih setidaknya satu baris tugas terlebih dahulu.");
       return;
     }
     if (bulkMode === "archive") {
-      if (confirm(`Yakin ingin mengarsipkan ${selected.length} tugas yang dipilih?`)) {
-        await repo.bulkArchiveTasks(selected);
-        bulkMode = null;
-        selectedTaskIds = {};
-        syncBulkActionButton();
-        await refreshReportsData();
+      const confirmMsg = isArchivedView
+        ? `Yakin ingin memulihkan ${selected.length} laporan yang dipilih dari arsip?`
+        : `Yakin ingin mengarsipkan ${selected.length} laporan yang dipilih?`;
+      const loadingLabel = isArchivedView ? "Memulihkan..." : "Mengarsipkan...";
+
+      if (confirm(confirmMsg)) {
+        const triggerEl = document.getElementById("dgReportBulkActionTrigger");
+        if (triggerEl) {
+          triggerEl.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" style="width:0.85rem;height:0.85rem;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></span> ${loadingLabel}`;
+        }
+        try {
+          const selectedReports = currentReports.filter((r) => selected.includes(r.id));
+          if (isArchivedView) {
+            await repo.bulkUnarchiveTasks(selectedReports);
+          } else {
+            await repo.bulkArchiveTasks(selectedReports);
+          }
+        } catch (err) {
+          console.error("Bulk action failed:", err);
+          alert("Gagal memproses aksi: " + (err.message || String(err)));
+        } finally {
+          bulkMode = null;
+          selectedTaskIds = {};
+          await refreshReportsData();
+          syncBulkActionButton();
+        }
       }
     } else if (bulkMode === "delete") {
-      if (confirm(`Yakin ingin menghapus ${selected.length} tugas yang dipilih?`)) {
-        await repo.bulkDeleteTasks(selected);
-        bulkMode = null;
-        selectedTaskIds = {};
-        syncBulkActionButton();
-        await refreshReportsData();
+      if (confirm(`Yakin ingin menghapus ${selected.length} laporan yang dipilih?`)) {
+        const triggerEl = document.getElementById("dgReportBulkActionTrigger");
+        if (triggerEl) {
+          triggerEl.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" style="width:0.85rem;height:0.85rem;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></span> Menghapus...`;
+        }
+        try {
+          const selectedReports = currentReports.filter((r) => selected.includes(r.id));
+          await repo.bulkDeleteTasks(selectedReports);
+        } catch (err) {
+          console.error("Bulk delete failed:", err);
+          alert("Gagal menghapus laporan: " + (err.message || String(err)));
+        } finally {
+          bulkMode = null;
+          selectedTaskIds = {};
+          await refreshReportsData();
+          syncBulkActionButton();
+        }
       }
     }
   });
@@ -215,7 +255,9 @@ function syncBulkActionButton() {
  * Refresh full reports data from repository.
  */
 async function refreshReportsData() {
-  const rawReports = await repo.loadReportsData();
+  const statusSelect = document.getElementById("dgReportStatusSelect");
+  const isArchivedView = statusSelect ? statusSelect.value === "archived" : false;
+  const rawReports = await repo.loadReportsData({ includeArchived: isArchivedView });
   const user = auth.currentUser;
   let myAliases = [];
   let userRole = "";
@@ -267,7 +309,14 @@ function applyFiltersAndRender() {
     const text = `${r.task || ""} ${r.reportPreview || ""}`.toLowerCase();
     if (q && !text.includes(q)) return;
     if (!isWithinPeriod(r.date, period)) return;
-    if (statusFilter !== "all" && r.status !== statusFilter) return;
+    if (statusFilter === "archived") {
+      if (!r.archived && r.status !== "archived") return;
+    } else if (statusFilter !== "all") {
+      if (r.archived || r.status === "archived") return;
+      if (r.status !== statusFilter) return;
+    } else {
+      if (r.archived || r.status === "archived") return;
+    }
 
     filtered.push(r);
   });
@@ -303,9 +352,27 @@ function applyFiltersAndRender() {
         activeDetailReport = report;
         ui.openDetailModal(report, mode, usersMap);
       },
-      onToggleSelect: (taskId, isChecked) => {
-        selectedTaskIds[taskId] = isChecked;
+      onToggleSelect: (reportId, isChecked) => {
+        if (isChecked) {
+          selectedTaskIds[reportId] = true;
+        } else {
+          delete selectedTaskIds[reportId];
+        }
         syncBulkActionButton();
+        ui.syncSelectAllCheckbox(visible, selectedTaskIds);
+      },
+      onToggleSelectAll: (isChecked) => {
+        if (isChecked) {
+          currentReports.forEach((r) => {
+            selectedTaskIds[r.id] = true;
+          });
+        } else {
+          currentReports.forEach((r) => {
+            delete selectedTaskIds[r.id];
+          });
+        }
+        syncBulkActionButton();
+        applyFiltersAndRender();
       },
       onApprove: async (report) => {
         await handleApprove(report);
@@ -314,10 +381,19 @@ function applyFiltersAndRender() {
         activeDetailReport = report;
         ui.openDetailModal(report, "feedback", usersMap);
       },
+      onUnarchive: async (report) => {
+        await handleUnarchive(report);
+      },
     },
     !!bulkMode,
     selectedTaskIds
   );
+
+  // Show "Approve all" only when filtering by pending
+  const approveAllBtn = document.getElementById("dgReportApproveAllBtn");
+  if (approveAllBtn) {
+    approveAllBtn.style.display = (statusFilter === "pending" && !bulkMode) ? "" : "none";
+  }
 
   updateStatsAndBadges();
 }
@@ -354,6 +430,20 @@ async function handleRejectWithFeedback(report, feedbackText) {
     report.status = "pending";
     applyFiltersAndRender();
     alert("Gagal menolak laporan: " + (err.message || String(err)));
+  }
+}
+
+/**
+ * Handle unarchiving / restoring a report.
+ */
+async function handleUnarchive(report) {
+  try {
+    await repo.bulkUnarchiveTasks([report]);
+    await refreshReportsData();
+    syncBulkActionButton();
+  } catch (err) {
+    console.error("Failed to unarchive report:", err);
+    alert("Gagal memulihkan laporan: " + (err.message || String(err)));
   }
 }
 
@@ -430,15 +520,33 @@ function wireEvents() {
     btn.addEventListener("click", () => {
       currentQuestTab = btn.getAttribute("data-quest-tab") || "side";
       ui.setActiveTab(currentQuestTab);
+      selectedTaskIds = {};
+      syncBulkActionButton();
       applyFiltersAndRender();
     });
   });
 
   // Filters
-  document.getElementById("dgReportSearchInput")?.addEventListener("input", applyFiltersAndRender);
-  document.getElementById("dgReportPeriodSelect")?.addEventListener("change", applyFiltersAndRender);
-  document.getElementById("dgReportStatusSelect")?.addEventListener("change", applyFiltersAndRender);
-  document.getElementById("dgReportPageSizeSelect")?.addEventListener("change", applyFiltersAndRender);
+  document.getElementById("dgReportSearchInput")?.addEventListener("input", () => {
+    selectedTaskIds = {};
+    syncBulkActionButton();
+    applyFiltersAndRender();
+  });
+  document.getElementById("dgReportPeriodSelect")?.addEventListener("change", () => {
+    selectedTaskIds = {};
+    syncBulkActionButton();
+    applyFiltersAndRender();
+  });
+  document.getElementById("dgReportStatusSelect")?.addEventListener("change", async () => {
+    selectedTaskIds = {};
+    await refreshReportsData();
+    syncBulkActionButton();
+  });
+  document.getElementById("dgReportPageSizeSelect")?.addEventListener("change", () => {
+    selectedTaskIds = {};
+    syncBulkActionButton();
+    applyFiltersAndRender();
+  });
 
   // Table Sort headers
   document.querySelectorAll(".dg-report-table th[data-sort-key]").forEach((th) => {
@@ -460,14 +568,42 @@ function wireEvents() {
 
   // Sub-modal detail controls
   document.getElementById("dgReportDetailCloseBtn")?.addEventListener("click", ui.closeDetailModal);
-  document.getElementById("dgReportDetailCancelBtn")?.addEventListener("click", ui.closeDetailModal);
   document.getElementById("dgReportDetailOverlay")?.addEventListener("click", (e) => {
     if (e.target.id === "dgReportDetailOverlay") ui.closeDetailModal();
+  });
+
+  // File / Image Preview Lightbox controls
+  document.getElementById("dgReportFilePreviewCloseBtn")?.addEventListener("click", ui.closeFilePreview);
+  document.getElementById("dgReportFilePreviewBackdrop")?.addEventListener("click", ui.closeFilePreview);
+  document.getElementById("dgReportFilePreviewOverlay")?.addEventListener("click", (e) => {
+    if (e.target.id === "dgReportFilePreviewOverlay") ui.closeFilePreview();
+  });
+
+  // ESC key handler for modals
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const previewOverlay = document.getElementById("dgReportFilePreviewOverlay");
+      if (previewOverlay && previewOverlay.style.display !== "none") {
+        ui.closeFilePreview();
+        return;
+      }
+      const detailOverlay = document.getElementById("dgReportDetailOverlay");
+      if (detailOverlay && detailOverlay.classList.contains("show")) {
+        ui.closeDetailModal();
+      }
+    }
   });
 
   document.getElementById("dgReportDetailApproveBtn")?.addEventListener("click", async () => {
     if (activeDetailReport) {
       await handleApprove(activeDetailReport);
+      ui.closeDetailModal();
+    }
+  });
+
+  document.getElementById("dgReportDetailUnarchiveBtn")?.addEventListener("click", async () => {
+    if (activeDetailReport) {
+      await handleUnarchive(activeDetailReport);
       ui.closeDetailModal();
     }
   });

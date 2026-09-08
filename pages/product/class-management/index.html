@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class Management - Team Dialogika</title>
+
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet" />
+    <link href="/assets/css/layout.css" rel="stylesheet" />
+
+    <!-- Feature-scoped styles -->
+    <link href="/pages/product/class-management/class-management.css" rel="stylesheet" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="antialiased bg-slate-50 text-slate-800">
+    <!-- App Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <div class="w-full">
+        <!-- Page Header & Action -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <!-- Standard Breadcrumb -->
+            <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-1.5">
+              <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                <i class="fas fa-home text-xs"></i>
+              </a>
+              <span class="text-blue-600">/</span>
+              <span class="text-blue-600">PRODUCT DIVISION</span>
+              <span class="text-slate-400">/</span>
+              <span class="text-slate-600">CLASS MANAGEMENT</span>
+            </nav>
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold shadow-sm">
+                <i class="bi bi-bar-chart-steps"></i>
+              </div>
+              <div>
+                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Class Management</h1>
+                <p class="text-xs text-slate-500 font-medium">Kelola data kelas, progres meeting, dan status operasional setiap batch.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <a
+              href="/setting/class-planning.html"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-sm"
+            >
+              <i class="bi bi-calendar-check text-sm"></i>
+              Perencanaan Kelas
+            </a>
+            <button
+              id="btnOpenRemedial"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm"
+            >
+              <i class="bi bi-pencil-square text-sm"></i>
+              Kelas Remedial
+            </button>
+            <a
+              href="/setting/class-checkup.html"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition shadow-sm"
+            >
+              <i class="bi bi-clipboard2-pulse text-sm"></i>
+              Check-Up Class
+            </a>
+            <button
+              id="btnOpenAddClass"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm"
+            >
+              <i class="bi bi-plus-lg text-sm"></i>
+              Tambah Kelas
+            </button>
+            <div class="relative">
+              <button
+                id="btnExportMenu"
+                type="button"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              >
+                <i class="bi bi-download text-sm"></i>
+                Export
+                <i class="bi bi-chevron-down text-[10px]"></i>
+              </button>
+              <div
+                id="exportDropdown"
+                class="hidden absolute right-0 mt-1.5 w-40 bg-white border border-slate-200 rounded-xl shadow-lg z-30 py-1"
+              >
+                <button
+                  id="btnExportCsv"
+                  type="button"
+                  class="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                >
+                  <i class="bi bi-file-earmark-spreadsheet text-emerald-600"></i>
+                  Export CSV
+                </button>
+                <button
+                  id="btnExportExcel"
+                  type="button"
+                  class="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                >
+                  <i class="bi bi-file-earmark-excel text-emerald-600"></i>
+                  Export Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Total Class</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="statTotalClass" class="text-2xl font-black text-slate-900">0</span>
+                <span class="text-xs text-slate-400 font-medium">kelas</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg">
+              <i class="bi bi-stack"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Running</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="statRunningClass" class="text-2xl font-black text-slate-900">0</span>
+                <span id="statRunningRatio" class="text-xs text-emerald-600 font-bold">0% running</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+              <i class="bi bi-play-circle"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">At Risk / Stall</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="statStallClass" class="text-2xl font-black text-slate-900">0</span>
+                <span id="statStallRatio" class="text-xs text-rose-600 font-bold">0% stall</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Avg Health Score</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="statAvgHealth" class="text-2xl font-black text-slate-900">0.0</span>
+                <span class="text-xs text-slate-400 font-medium">/ 10</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+              <i class="bi bi-activity"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Area: Left (Table/Calendar) + Right (Widgets) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Column (Span 2) -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <!-- Toolbar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Daftar Kelas</h2>
+                  <p class="text-[11px] text-slate-400">Kelola status kelas, meeting, dan kesehatan kelas.</p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="relative">
+                    <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input
+                      id="searchClass"
+                      type="text"
+                      placeholder="Cari kelas..."
+                      class="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-40 sm:w-48 transition"
+                    />
+                  </div>
+                  <button
+                    id="btnToggleFilter"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    <i class="bi bi-funnel text-xs"></i>
+                    Filter
+                  </button>
+                  <a
+                    href="/setting/class-checkup.html"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 hover:bg-indigo-100 transition"
+                  >
+                    <i class="bi bi-box-arrow-up-right text-[10px]"></i>
+                    Open Check-Up
+                  </a>
+                  <!-- View Switch -->
+                  <div class="inline-flex rounded-xl border border-slate-200 p-0.5 bg-slate-50">
+                    <button
+                      id="btnViewTable"
+                      type="button"
+                      class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-900 text-white transition shadow-sm"
+                      title="Table View"
+                    >
+                      <i class="bi bi-list-ul"></i>
+                    </button>
+                    <button
+                      id="btnViewCalendar"
+                      type="button"
+                      class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 transition"
+                      title="Calendar View"
+                    >
+                      <i class="bi bi-calendar-event"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Filter Panel (Collapsible) -->
+              <div id="filterPanel" class="hidden p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 mb-4 transition">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                    <select id="filterStatus" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua Status</option>
+                      <option value="Soon">Soon</option>
+                      <option value="Running">Running</option>
+                      <option value="Reminder">Reminder</option>
+                      <option value="Stall">Stall</option>
+                      <option value="Graduate">Graduate</option>
+                      <option value="Complete">Complete</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mentor</label>
+                    <select id="filterMentor" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua Mentor</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">PIC</label>
+                    <select id="filterPic" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua PIC</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Lokasi</label>
+                    <select id="filterLocation" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua Lokasi</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipe Kelas</label>
+                    <select id="filterType" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua Tipe</option>
+                      <option value="Online">Online</option>
+                      <option value="Offline">Offline</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kondisi Stall</label>
+                    <select id="filterStall" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20">
+                      <option value="">Semua Kondisi</option>
+                      <option value="active">Aktif (Bukan Stall)</option>
+                      <option value="stall">Hanya Stall</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Tanggal</label>
+                    <input id="filterDateFrom" type="date" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Sampai Tanggal</label>
+                    <input id="filterDateTo" type="date" class="w-full py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- View 1: Table View -->
+              <div id="tableView" class="overflow-x-auto">
+                <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold mb-2">
+                  <span id="classCountText">0 kelas</span>
+                  <span id="sortLabel" class="text-blue-600">Start Date ↑</span>
+                </div>
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50/50 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                      <th class="px-3 py-2.5 w-8 text-center">
+                        <input id="checkAllClass" type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                      </th>
+                      <th class="px-3 py-2.5 cursor-pointer hover:text-slate-900 transition" data-sort="name">Class Name</th>
+                      <th class="px-3 py-2.5 text-center cursor-pointer hover:text-slate-900 transition" data-sort="status">Status</th>
+                      <th class="px-3 py-2.5 text-center cursor-pointer hover:text-slate-900 transition" data-sort="startDate">Start Date</th>
+                      <th class="px-3 py-2.5 text-center">Meeting</th>
+                      <th class="px-3 py-2.5 text-center">PIC</th>
+                      <th class="px-3 py-2.5 text-center">Mentor</th>
+                      <th class="px-3 py-2.5 text-center cursor-pointer hover:text-slate-900 transition" data-sort="health">Health</th>
+                      <th class="px-3 py-2.5 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="classTableBody" class="text-xs divide-y divide-slate-100">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+                <!-- Pagination -->
+                <div id="classPagination" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-2 border-t border-slate-100 text-xs text-slate-500"></div>
+              </div>
+
+              <!-- View 2: Calendar View -->
+              <div id="calendarView" class="hidden">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <div class="flex items-center gap-2">
+                    <button id="calPrev" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold hover:bg-slate-50">
+                      <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button id="calNext" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold hover:bg-slate-50">
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <button id="calToday" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold hover:bg-slate-50">
+                      Today
+                    </button>
+                    <span id="calMonthLabel" class="text-xs font-extrabold text-slate-800 ml-2"></span>
+                  </div>
+                  <span id="calClassCount" class="text-xs text-slate-400 font-bold"></span>
+                </div>
+                <div id="calGrid" class="cal-grid">
+                  <!-- Dynamic Calendar Cells -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (Span 1 Widgets) -->
+          <div class="space-y-4">
+            <!-- Widget 1: Status Breakdown -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Status Breakdown</h3>
+                <span id="statusLegend" class="text-[10px] text-slate-400 font-bold"></span>
+              </div>
+              <div id="statusBreakdownList" class="space-y-2">
+                <!-- Dynamic Breakdown -->
+              </div>
+            </div>
+
+            <!-- Widget 2: Kelas Perlu Perhatian -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Kelas Perlu Perhatian</h3>
+                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">Stall / Health Rendah</span>
+              </div>
+              <div id="atRiskClassList" class="space-y-2">
+                <!-- Dynamic At-risk list -->
+              </div>
+            </div>
+
+            <!-- Widget 3: Meeting Progress -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Meeting Progress</h3>
+                <span id="meetingSummary" class="text-[10px] text-slate-500 font-bold"></span>
+              </div>
+              <div id="meetingProgressList" class="space-y-2.5">
+                <!-- Dynamic Meeting Progress -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal: Class Detail -->
+    <div id="classDetailModal" class="modal-backdrop-custom">
+      <div class="bg-white rounded-3xl max-w-2xl modal-card">
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div id="detailAvatar" class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-sm font-extrabold shadow-md">
+              C
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="detailClassName" class="text-base font-extrabold text-slate-900">Class Name</h2>
+                <div id="detailStatusBadge"></div>
+              </div>
+              <p id="detailSubtitle" class="text-xs text-slate-400 font-medium mt-0.5">Location • Type</p>
+            </div>
+          </div>
+          <button id="btnCloseDetail" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm transition">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="px-5 py-2.5 bg-slate-50/60 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto" id="detailTabList">
+          <button type="button" data-tab="overview" class="tab-pill tab-pill-active">Overview</button>
+          <button type="button" data-tab="schedule" class="tab-pill tab-pill-inactive">Schedule & Dates</button>
+          <button type="button" data-tab="attendance" class="tab-pill tab-pill-inactive">Attendance & Health</button>
+          <button type="button" data-tab="members" class="tab-pill tab-pill-inactive">Members</button>
+          <button type="button" data-tab="files" class="tab-pill tab-pill-inactive">Files</button>
+        </div>
+
+        <!-- Body Scroll -->
+        <div class="p-5 modal-body-scroll space-y-4 text-xs">
+          <!-- Tab 1: Overview -->
+          <div id="tab-overview" class="space-y-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Status</span>
+                <span id="detailStatusText" class="font-bold text-slate-800">-</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Start Date</span>
+                <span id="detailStartDate" class="font-bold text-slate-800">-</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Location</span>
+                <span id="detailLocation" class="font-bold text-slate-800">-</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Type</span>
+                <span id="detailType" class="font-bold text-slate-800">-</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">PIC</span>
+                <div id="detailPic" class="font-bold text-slate-800">-</div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Notify Team</span>
+                <div id="detailNotify" class="font-bold text-slate-800">-</div>
+              </div>
+            </div>
+
+            <div>
+              <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Mentors</span>
+              <div id="detailMentorList" class="flex items-center gap-1.5 flex-wrap"></div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+              <div class="flex items-center justify-between font-bold">
+                <span class="text-[10px] text-slate-400 uppercase">Meeting Progress</span>
+                <span id="detailMeetingSummary" class="text-slate-800">0/0 meeting</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div id="detailMeetingBar" class="h-2 rounded-full bg-emerald-500 w-0 transition-all duration-300"></div>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+              <div class="flex items-center justify-between font-bold">
+                <span class="text-[10px] text-slate-400 uppercase">Health Score</span>
+                <div class="flex items-center gap-1.5">
+                  <span id="detailHealthScore" class="text-sm font-black text-slate-900">0.0</span>
+                  <span id="detailHealthLabel" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Sehat</span>
+                </div>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div id="detailHealthBar" class="h-2 rounded-full bg-emerald-500 w-0 transition-all duration-300"></div>
+              </div>
+              <p id="detailHealthMeta" class="text-[10px] text-slate-400 mt-1"></p>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Group WhatsApp Link</label>
+              <a id="detailGroupLink" href="#" target="_blank" class="text-blue-600 hover:underline break-all block">-</a>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Catatan Operasional (Comment)</label>
+              <textarea id="detailComment" rows="3" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Tambah catatan kelas..."></textarea>
+            </div>
+          </div>
+
+          <!-- Tab 2: Schedule -->
+          <div id="tab-schedule" class="hidden space-y-2">
+            <div id="detailDatesList" class="space-y-2"></div>
+          </div>
+
+          <!-- Tab 3: Attendance -->
+          <div id="tab-attendance" class="hidden space-y-3">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Attendance</span>
+                <span id="detailAttendance" class="text-base font-black text-slate-900">0%</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Delay</span>
+                <span id="detailDelay" class="text-base font-black text-slate-900">0x</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Reschedule</span>
+                <span id="detailReschedule" class="text-base font-black text-slate-900">0x</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 p-2 rounded-lg bg-slate-50">
+              Skor kesehatan dihitung berdasarkan persentase kehadiran peserta dikurangi penalti delay dan reschedule jadwal.
+            </p>
+          </div>
+
+          <!-- Tab 4: Members -->
+          <div id="tab-members" class="hidden">
+            <div id="detailMemberList"></div>
+          </div>
+
+          <!-- Tab 5: Files -->
+          <div id="tab-files" class="hidden space-y-2">
+            <div id="detailFileList" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-b-3xl">
+          <button id="btnDetailDelete" type="button" class="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition">
+            <i class="bi bi-trash me-1"></i> Hapus Kelas
+          </button>
+          <button id="btnDetailSave" type="button" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm">
+            Simpan Perubahan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Kelas Remedial -->
+    <div id="remedialModal" class="modal-backdrop-custom">
+      <div class="bg-white rounded-3xl max-w-xl modal-card">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base font-bold">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-extrabold text-slate-900">Buat Kelas Remedial</h2>
+              <p class="text-[11px] text-slate-400">Turunkan kelas remedial dari batch parent kelas aktif.</p>
+            </div>
+          </div>
+          <button id="btnCloseRemedial" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm transition">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="p-5 modal-body-scroll space-y-3.5 text-xs">
+          <!-- Parent Class Search -->
+          <div class="relative">
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih Kelas Parent <span class="text-rose-500">*</span></label>
+            <input
+              id="remedialClassSearch"
+              type="text"
+              placeholder="Ketik nama kelas parent..."
+              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              autocomplete="off"
+            />
+            <div id="remedialClassList" class="search-dropdown hidden"></div>
+            <div id="remedialClassError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+          </div>
+
+          <!-- Remedial Class Name -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Kelas Remedial <span class="text-rose-500">*</span></label>
+            <input
+              id="remedialClassName"
+              type="text"
+              placeholder="Contoh: Remedial Basic Class Batch 1"
+              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            />
+            <div id="remedialClassNameError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+          </div>
+
+          <!-- Product Auto fields -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Product Name</label>
+              <input id="remedialProductName" type="text" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs" readonly />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Product ID</label>
+              <input id="remedialProductId" type="text" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs" readonly />
+            </div>
+          </div>
+
+          <!-- Mentor Search -->
+          <div class="relative">
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih Mentor <span class="text-rose-500">*</span></label>
+            <input
+              id="remedialMentorSearch"
+              type="text"
+              placeholder="Ketik nama mentor..."
+              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              autocomplete="off"
+            />
+            <div id="remedialMentorList" class="search-dropdown hidden"></div>
+            <div id="remedialMentorError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+          </div>
+
+          <!-- Date & Total Meeting -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Mulai</label>
+              <input id="remedialStartDate" type="date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Total Meeting</label>
+              <input id="remedialMeetingTotal" type="number" min="1" value="8" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+              <div id="remedialMeetingTotalError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+            </div>
+          </div>
+
+          <!-- Type & Location -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe Kelas</label>
+              <select id="remedialType" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20">
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
+              <input id="remedialLocation" type="text" placeholder="Zoom / Kota" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+          </div>
+
+          <!-- Reason -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Alasan Remedial <span class="text-rose-500">*</span></label>
+            <textarea id="remedialReason" rows="2" placeholder="Jelaskan alasan pembukaan kelas remedial ini..." class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20"></textarea>
+            <div id="remedialReasonError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/50 rounded-b-3xl">
+          <button id="btnSaveRemedial" type="button" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
+            Simpan Kelas Remedial
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Regular Class -->
+    <div id="addClassModal" class="modal-backdrop-custom">
+      <div class="bg-white rounded-3xl max-w-lg modal-card">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-base font-bold">
+              <i class="bi bi-plus-circle"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-extrabold text-slate-900">Tambah Kelas Baru</h2>
+              <p class="text-[11px] text-slate-400">Daftarkan kelas operasional baru ke database.</p>
+            </div>
+          </div>
+          <button id="btnCloseAddClass" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm transition">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="p-5 modal-body-scroll space-y-3 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Kelas <span class="text-rose-500">*</span></label>
+            <input id="inputClassName" type="text" placeholder="Contoh: First Class Jakarta Mei #1" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Status Operasional</label>
+              <select id="inputStatus" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20">
+                <option value="Soon">Soon</option>
+                <option value="Running">Running</option>
+                <option value="Reminder">Reminder</option>
+                <option value="Stall">Stall</option>
+                <option value="Graduate">Graduate</option>
+                <option value="Complete">Complete</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe Pelaksanaan</label>
+              <select id="inputType" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20">
+                <option value="Offline">Offline</option>
+                <option value="Online">Online</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Mulai</label>
+              <input id="inputStartDate" type="date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Lokasi</label>
+              <input id="inputLocation" type="text" placeholder="Jakarta / Online (Zoom)" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama PIC</label>
+              <input id="inputPic" type="text" placeholder="Nama PIC" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Notify Team</label>
+              <input id="inputNotify" type="text" placeholder="Operation / Rebuy Team" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Mentor (Pisahkan koma jika lebih dari satu)</label>
+            <input id="inputMentor" type="text" placeholder="Nama Mentor 1, Nama Mentor 2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Link Grup WhatsApp</label>
+            <input id="inputGroupLink" type="url" placeholder="https://chat.whatsapp.com/..." class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Total Meeting</label>
+              <input id="inputMeetingTotal" type="number" min="1" value="8" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Meeting Selesai</label>
+              <input id="inputMeetingDone" type="number" min="0" value="0" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/50 rounded-b-3xl">
+          <button id="btnAddClassCancel" type="button" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition">
+            Batal
+          </button>
+          <button id="btnAddClassSave" type="button" class="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm">
+            Simpan Kelas
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="planningToast" class="hidden planning-toast planning-toast-success">
+      Notifikasi
+    </div>
+
+    <!-- Main Module Script -->
+    <script type="module" src="/pages/product/class-management/class-management.js"></script>
+  </body>
+</html>
