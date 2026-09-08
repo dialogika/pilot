@@ -1,10 +1,17 @@
 {
   "hosting": {
     "public": ".",
+
     "cleanUrls": true,
+
     "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
+      {
+        "source": "/intern-presence/",
+        "destination": "/intern-presence",
+        "type": 301
+      },
       {
         "source": "/home.html",
         "destination": "/home",
@@ -98,6 +105,11 @@
     "source": "/setting/class-management",
     "destination": "/class-management",
         "type": 301
+      },
+      {
+        "source": "/data/intern-presence.html",
+        "destination": "/intern-presence",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -176,6 +188,15 @@
       {
         "source": "/office-inventory",
         "destination": "/pages/hr/office-inventory/index.html"
+      },
+      {
+
+        "source": "/people-development",
+        "destination": "/pages/hr/people-development/index.html"
+      },
+      {
+        "source": "/intern-presence",
+        "destination": "/data/intern-presence.html"
       },
       {
         "source": "/company-position",
