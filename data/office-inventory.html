@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Inventory - Team Dialogika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        body { font-family: 'Poppins', sans-serif; background: var(--surface-toolbar); }
+
+        .inv-card {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .status-available { background: #dcfce7; color: #15803d; }
+        .status-in-use { background: #fef3c7; color: #b45309; }
+        .status-repair { background: #fee2e2; color: #b91c1c; }
+
+        .id-monospace {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--surface-hover);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+            display: none;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .overlay-panel {
+            background: var(--surface);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .overlay-panel-sm {
+            max-width: 440px;
+            text-align: center;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+    
+</style>
+    <script type="module" src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+
+    <div id="topbarContainer"></div>
+
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content">
+
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <!-- Breadcrumb -->
+                    <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-1.5">
+                        <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                            <i class="fas fa-home text-xs"></i>
+                        </a>
+                        <span class="text-blue-600">/</span>
+                        <span class="text-blue-600">HR DIVISION</span>
+                        <span class="text-slate-400">/</span>
+                        <span class="text-slate-400">OFFICE INVENTORY</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-slate-800">Office Inventory</h1>
+                </div>
+                <div class="flex gap-3">
+                    <button id="addInventoryBtn"
+                        class="flex items-center gap-2 btn-dlg-green text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-plus"></i> Tambah Inventaris
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-3 px-5 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-800 text-sm">Daftar Inventaris</h2>
+                    <div class="relative">
+                        <input id="searchInput" type="text" placeholder="Cari barang..."
+                            class="border border-slate-200 pl-4 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A] w-64">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-slate-50 text-slate-600 text-xs font-semibold border-y border-slate-100">
+                            <tr>
+                                <th class="px-4 py-2 whitespace-nowrap">ID Inventaris</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Nama Barang</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Kategori</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Lokasi</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Tgl Beli</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Tipe</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Kondisi</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Jumlah</th>
+                                <th class="px-4 py-2 whitespace-nowrap">Status</th>
+                                <th class="px-4 py-2 whitespace-nowrap text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr>
+                                <td colspan="10" class="px-6 py-12 text-center text-slate-400">
+                                    <i class="fas fa-box-open text-3xl mb-3 block"></i>
+                                    Memuat data inventaris...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- OVERLAY: TAMBAH INVENTARIS -->
+    <div id="addOverlay" class="overlay">
+        <div class="overlay-panel">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-slate-800">Tambah Inventaris Baru</h3>
+                <button id="addClose" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div class="md:col-span-2">
+                    <label class="field-label">Nama Barang</label>
+                    <input id="addNama" type="text" placeholder="Contoh: Ballpoint Pilot"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+                <div>
+                    <label class="field-label">Kategori</label>
+                    <select id="addKategori"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="ATK">ATK - Alat Tulis</option>
+                        <option value="ETK">ETK - Elektronik</option>
+                        <option value="FUR">FUR - Furnitur</option>
+                        <option value="BRS">BRS - Kebersihan</option>
+                        <option value="SMP">SMP - Penyimpanan</option>
+                        <option value="PERTEN">PERTEN - Peralatan Konten</option>
+                        <option value="DEC">DEC - Dekorasi</option>
+                        <option value="OTH">OTH - Lainnya</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Lokasi</label>
+                    <select id="addLokasi"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="">-- Pilih Lokasi --</option>
+                        <option value="UTM">UTM - Ruang Utama</option>
+                        <option value="KLS">KLS - Ruang Kelas</option>
+                        <option value="INT">INT - Dengan Intern</option>
+                        <option value="STD">STD - Ruang Studio</option>
+                        <option value="JNT">JNT - Janitor</option>
+                        <option value="HLM">HLM - Halaman Belakang</option>
+                        <option value="MUS">MUS - Musholla</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Tanggal Beli</label>
+                    <input id="addTglBeli" type="date"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+                <div>
+                    <label class="field-label">Tipe Pembelian</label>
+                    <select id="addTipe"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="OTM">OTM - One Time Purchase</option>
+                        <option value="SUB">SUB - Subscribe (Berulang)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Kondisi Barang</label>
+                    <select id="addKondisi"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Jumlah</label>
+                    <input id="addJumlah" type="number" min="1" value="1"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button id="addCancel"
+                    class="px-5 py-2 rounded-lg text-sm text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button id="addSave"
+                    class="px-5 py-2 rounded-lg text-sm btn-dlg-green text-white transition font-semibold">
+                    <i class="fas fa-save mr-1"></i> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY: EDIT INVENTARIS -->
+    <div id="editOverlay" class="overlay">
+        <div class="overlay-panel">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-slate-800">Edit Inventaris</h3>
+                <button id="editClose" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div class="md:col-span-2">
+                    <label class="field-label">Nama Barang</label>
+                    <input id="editNama" type="text" placeholder="Contoh: Ballpoint Pilot"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+                <div>
+                    <label class="field-label">Kategori</label>
+                    <select id="editKategori"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="ATK">ATK - Alat Tulis</option>
+                        <option value="ETK">ETK - Elektronik</option>
+                        <option value="FUR">FUR - Furnitur</option>
+                        <option value="BRS">BRS - Kebersihan</option>
+                        <option value="SMP">SMP - Penyimpanan</option>
+                        <option value="PERTEN">PERTEN - Peralatan Konten</option>
+                        <option value="DEC">DEC - Dekorasi</option>
+                        <option value="OTH">OTH - Lainnya</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Lokasi</label>
+                    <select id="editLokasi"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="">-- Pilih Lokasi --</option>
+                        <option value="UTM">UTM - Ruang Utama</option>
+                        <option value="KLS">KLS - Ruang Kelas</option>
+                        <option value="INT">INT - Dengan Intern</option>
+                        <option value="STD">STD - Ruang Studio</option>
+                        <option value="JNT">JNT - Janitor</option>
+                        <option value="HLM">HLM - Halaman Belakang</option>
+                        <option value="MUS">MUS - Musholla</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Tanggal Beli</label>
+                    <input id="editTglBeli" type="date"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+                <div>
+                    <label class="field-label">Tipe Pembelian</label>
+                    <select id="editTipe"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="OTM">OTM - One Time Purchase</option>
+                        <option value="SUB">SUB - Subscribe (Berulang)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Kondisi Barang</label>
+                    <select id="editKondisi"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Status</label>
+                    <select id="editStatus"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                        <option value="Available">Available</option>
+                        <option value="In Use">In Use</option>
+                        <option value="Repair">Repair</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Jumlah</label>
+                    <input id="editJumlah" type="number" min="1" value="1"
+                        class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button id="editCancel"
+                    class="px-5 py-2 rounded-lg text-sm text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button id="editSave"
+                    class="px-5 py-2 rounded-lg text-sm btn-dlg-green text-white transition font-semibold">
+                    <i class="fas fa-save mr-1"></i> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY: DELETE CONFIRM -->
+    <div id="deleteOverlay" class="overlay">
+        <div class="overlay-panel overlay-panel-sm">
+            <div class="mx-auto mb-4 w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center">
+                <i class="fas fa-trash text-red-500 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-800 mb-1">Hapus Barang</h3>
+            <p class="text-sm text-slate-600 mb-6">
+                Yakin ingin menghapus <strong id="deleteItemName"></strong>?
+                Tindakan ini tidak bisa dibatalkan.
+            </p>
+            <div class="flex justify-center gap-3">
+                <button id="deleteCancel"
+                    class="px-4 py-2 rounded-lg text-sm text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button id="deleteConfirm"
+                    class="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { renderTopBar } from "../element/topbar.js";
+        import { renderSidebar } from "../element/sidebar.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { app, auth, db } from "../assets/js/firebase-config.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore, collection, addDoc, query, where, getDoc, getDocs,
+            serverTimestamp, onSnapshot, orderBy, doc, deleteDoc, updateDoc, setDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        
+
+        window.db = db;
+        window.collection = collection;
+        window.getDoc = getDoc;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.serverTimestamp = serverTimestamp;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.setDoc = setDoc;
+
+        const topbarTarget = document.getElementById('topbarContainer');
+        renderTopBar(topbarTarget);
+        const sidebarTarget = document.getElementById('sidebarContainer');
+        renderSidebar(sidebarTarget);
+
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebarNav');
+            if (!sidebar) return;
+            const isMobile = window.innerWidth <= 991;
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        };
+
+        // --- DATA MASTER ---
+        const KATEGORI_MAP = {
+            ATK: 'Alat Tulis', ETK: 'Elektronik', FUR: 'Furnitur',
+            BRS: 'Kebersihan', SMP: 'Penyimpanan', PERTEN: 'Peralatan Konten',
+            DEC: 'Dekorasi', OTH: 'Lainnya'
+        };
+        const LOKASI_MAP = {
+            UTM: 'Ruang Utama', KLS: 'Ruang Kelas', INT: 'Dengan Intern',
+            STD: 'Ruang Studio', JNT: 'Janitor', HLM: 'Halaman Belakang', MUS: 'Musholla'
+        };
+        const STATUS_MAP = {
+            Available: { label: 'Available', class: 'status-available' },
+            'In Use': { label: 'In Use', class: 'status-in-use' },
+            Repair: { label: 'Repair', class: 'status-repair' }
+        };
+
+        let allItems = [];
+        let deletingId = null;
+        let editingId = null;
+        let kategoriCounterCache = {};
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../index.html";
+                return;
+            }
+            loadKategoriCounters();
+            listenToInventory();
+            setupControls();
+        });
+
+        // --- GENERATE ID ---
+        async function generateInventoryID(kategoriKode, lokasiKode, tglBeli, tipe) {
+            const key = kategoriKode + '.' + lokasiKode;
+            let lastUrut = kategoriCounterCache[key] || 0;
+
+            const q = query(
+                collection(db, 'inventory'),
+                where('kategori_kode', '==', kategoriKode),
+                where('lokasi_kode', '==', lokasiKode),
+                orderBy('urutan', 'desc')
+            );
+            try {
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const maxUrut = snap.docs[0].data().urutan || 0;
+                    if (maxUrut > lastUrut) lastUrut = maxUrut;
+                }
+            } catch (e) {
+                console.warn('Gagal query counter, pakai cache', e);
+            }
+
+            const urutBaru = lastUrut + 1;
+            kategoriCounterCache[key] = urutBaru;
+
+            const d = new Date(tglBeli);
+            const bulan = String(d.getMonth() + 1).padStart(2, '0');
+            const tanggal = String(d.getDate()).padStart(2, '0');
+
+            const urutStr = String(urutBaru).padStart(3, '0');
+            return `${kategoriKode}.${lokasiKode}.${urutStr}/DIA/${bulan}.${tanggal}/${tipe}`;
+        }
+
+        async function loadKategoriCounters() {
+            try {
+                const snap = await getDocs(collection(db, 'inventory'));
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d.kategori_kode && d.lokasi_kode) {
+                        const key = d.kategori_kode + '.' + d.lokasi_kode;
+                        const urut = d.urutan || 0;
+                        if (!kategoriCounterCache[key] || urut > kategoriCounterCache[key]) {
+                            kategoriCounterCache[key] = urut;
+                        }
+                    }
+                });
+            } catch (e) {
+                console.warn('Gagal load counter cache', e);
+            }
+        }
+
+        // --- LISTENER REAL-TIME ---
+        function listenToInventory() {
+            const q = query(collection(db, 'inventory'), orderBy('created_at', 'desc'));
+            onSnapshot(q, (snapshot) => {
+                allItems = [];
+                snapshot.forEach(docSnap => {
+                    allItems.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderTable();
+            }, (error) => {
+                console.error('Gagal listen inventory:', error);
+            });
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+
+            if (!allItems.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="px-6 py-12 text-center text-slate-400">
+                            <i class="fas fa-box-open text-3xl mb-3 block"></i>
+                            Belum ada data inventaris.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase();
+            let filtered = allItems;
+            if (searchVal) {
+                filtered = allItems.filter(item =>
+                    (item.nama_barang || '').toLowerCase().includes(searchVal) ||
+                    (item.id_generated || '').toLowerCase().includes(searchVal) ||
+                    (item.kategori_kode || '').toLowerCase().includes(searchVal)
+                );
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const kategoriLabel = KATEGORI_MAP[item.kategori_kode] || item.kategori_kode || '-';
+                const lokasiLabel = LOKASI_MAP[item.lokasi_kode] || item.lokasi_kode || '-';
+                const statusInfo = STATUS_MAP[item.status] || { label: item.status || 'Available', class: 'status-available' };
+
+                let tglBeli = '-';
+                if (item.tanggal_beli) {
+                    try {
+                        const d = item.tanggal_beli.toDate ? item.tanggal_beli.toDate() : new Date(item.tanggal_beli);
+                        tglBeli = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    } catch (e) { tglBeli = String(item.tanggal_beli); }
+                }
+
+                const idDisplay = item.id_generated || item.id || '-';
+                const kondisi = item.kondisi || 'Baik';
+                const jumlah = item.jumlah || 1;
+                
+                let kondisiColor = 'text-green-600 bg-green-50';
+                if (kondisi === 'Rusak Ringan') kondisiColor = 'text-yellow-600 bg-yellow-50';
+                if (kondisi === 'Rusak Berat') kondisiColor = 'text-red-600 bg-red-50';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition text-xs">
+                        <td class="px-4 py-2">
+                            <span class="id-monospace">${idDisplay}</span>
+                        </td>
+                        <td class="px-4 py-2 font-semibold text-slate-800">${item.nama_barang || '-'}</td>
+                        <td class="px-4 py-2 text-slate-600">
+                            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-semibold">${item.kategori_kode}</span>
+                            <span class="text-xs text-slate-400 ml-1">${kategoriLabel}</span>
+                        </td>
+                        <td class="px-4 py-2 text-slate-600">
+                            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-semibold">${item.lokasi_kode}</span>
+                            <span class="text-xs text-slate-400 ml-1">${lokasiLabel}</span>
+                        </td>
+                        <td class="px-4 py-2 text-xs text-slate-600">${tglBeli}</td>
+                        <td class="px-4 py-2">
+                            <span class="text-xs font-bold ${item.tipe_pembelian === 'SUB' ? 'text-amber-600' : 'text-slate-500'}">
+                                ${item.tipe_pembelian || 'OTM'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">
+                            <span class="px-1.5 py-0.5 rounded-md text-xs font-medium ${kondisiColor}">${kondisi}</span>
+                        </td>
+                        <td class="px-4 py-2 text-center font-medium text-slate-700">${jumlah}</td>
+                        <td class="px-4 py-2">
+                            <span class="status-badge ${statusInfo.class}">
+                                <i class="fas fa-circle text-[5px]"></i>
+                                ${statusInfo.label}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-right">
+                            <div class="flex justify-end gap-2 text-slate-400">
+                                <button class="hover:text-blue-500 edit-btn" data-id="${item.id}" data-nama="${item.nama_barang || ''}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="hover:text-red-500 delete-btn" data-id="${item.id}" data-nama="${item.nama_barang || ''}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deletingId = btn.dataset.id;
+                    document.getElementById('deleteItemName').textContent = btn.dataset.nama;
+                    document.getElementById('deleteOverlay').classList.add('show');
+                });
+            });
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    openEdit(btn.dataset.id);
+                });
+            });
+        }
+
+        // --- SAVE ---
+        async function saveInventory() {
+            const nama = document.getElementById('addNama').value.trim();
+            const kategori = document.getElementById('addKategori').value;
+            const lokasi = document.getElementById('addLokasi').value;
+            const tglBeli = document.getElementById('addTglBeli').value;
+            const tipe = document.getElementById('addTipe').value;
+            const kondisi = document.getElementById('addKondisi').value;
+            const jumlah = parseInt(document.getElementById('addJumlah').value) || 1;
+
+            if (!nama) { alert('Nama barang harus diisi.'); return; }
+            if (!kategori) { alert('Kategori harus dipilih.'); return; }
+            if (!lokasi) { alert('Lokasi harus dipilih.'); return; }
+            if (!tglBeli) { alert('Tanggal beli harus diisi.'); return; }
+
+            const saveBtn = document.getElementById('addSave');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const idGenerated = await generateInventoryID(kategori, lokasi, tglBeli, tipe);
+
+                await addDoc(collection(db, 'inventory'), {
+                    id_generated: idGenerated,
+                    nama_barang: nama,
+                    kategori_kode: kategori,
+                    kategori_label: KATEGORI_MAP[kategori] || kategori,
+                    lokasi_kode: lokasi,
+                    lokasi_label: LOKASI_MAP[lokasi] || lokasi,
+                    tanggal_beli: new Date(tglBeli),
+                    tipe_pembelian: tipe,
+                    kondisi: kondisi,
+                    jumlah: jumlah,
+                    status: 'Available',
+                    urutan: kategoriCounterCache[kategori + '.' + lokasi] || 1,
+                    created_at: serverTimestamp()
+                });
+
+                closeAdd();
+                alert('Barang berhasil ditambahkan!');
+            } catch (e) {
+                console.error('Gagal menyimpan:', e);
+                alert('Gagal menyimpan: ' + e.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan';
+            }
+        }
+
+        // --- DELETE ---
+        async function confirmDelete() {
+            if (!deletingId) return;
+            try {
+                await deleteDoc(doc(db, 'inventory', deletingId));
+                deletingId = null;
+                document.getElementById('deleteOverlay').classList.remove('show');
+            } catch (e) {
+                console.error('Gagal menghapus:', e);
+                alert('Gagal menghapus: ' + e.message);
+            }
+        }
+
+        async function editInventory() {
+            if (!editingId) return;
+            const nama = document.getElementById('editNama').value.trim();
+            const kategori = document.getElementById('editKategori').value;
+            const lokasi = document.getElementById('editLokasi').value;
+            const tglBeli = document.getElementById('editTglBeli').value;
+            const tipe = document.getElementById('editTipe').value;
+            const kondisi = document.getElementById('editKondisi').value;
+            const status = document.getElementById('editStatus').value;
+            const jumlah = parseInt(document.getElementById('editJumlah').value) || 1;
+
+            if (!nama) { alert('Nama barang harus diisi.'); return; }
+            if (!kategori) { alert('Kategori harus dipilih.'); return; }
+            if (!lokasi) { alert('Lokasi harus dipilih.'); return; }
+            if (!tglBeli) { alert('Tanggal beli harus diisi.'); return; }
+
+            const saveBtn = document.getElementById('editSave');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                await updateDoc(doc(db, 'inventory', editingId), {
+                    nama_barang: nama,
+                    kategori_kode: kategori,
+                    kategori_label: KATEGORI_MAP[kategori] || kategori,
+                    lokasi_kode: lokasi,
+                    lokasi_label: LOKASI_MAP[lokasi] || lokasi,
+                    tanggal_beli: new Date(tglBeli),
+                    tipe_pembelian: tipe,
+                    kondisi: kondisi,
+                    status: status,
+                    jumlah: jumlah
+                });
+
+                closeEdit();
+                alert('Inventaris berhasil diperbarui!');
+            } catch (e) {
+                console.error('Gagal menyimpan:', e);
+                alert('Gagal menyimpan: ' + e.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan';
+            }
+        }
+        function closeAdd() {
+            document.getElementById('addOverlay').classList.remove('show');
+            document.getElementById('addNama').value = '';
+            document.getElementById('addKategori').value = '';
+            document.getElementById('addLokasi').value = '';
+            document.getElementById('addTglBeli').value = '';
+            document.getElementById('addTipe').value = 'OTM';
+            document.getElementById('addKondisi').value = 'Baik';
+            document.getElementById('addJumlah').value = '1';
+        }
+        function closeEdit() {
+            document.getElementById('editOverlay').classList.remove('show');
+            editingId = null;
+        }
+
+        function openEdit(id) {
+            const item = allItems.find(i => i.id === id);
+            if (!item) return;
+
+            editingId = id;
+
+            document.getElementById('editNama').value = item.nama_barang || '';
+            document.getElementById('editKategori').value = item.kategori_kode || '';
+            document.getElementById('editLokasi').value = item.lokasi_kode || '';
+            document.getElementById('editTipe').value = item.tipe_pembelian || 'OTM';
+            document.getElementById('editKondisi').value = item.kondisi || 'Baik';
+            document.getElementById('editStatus').value = item.status || 'Available';
+            document.getElementById('editJumlah').value = item.jumlah || 1;
+
+            if (item.tanggal_beli) {
+                try {
+                    const d = item.tanggal_beli.toDate ? item.tanggal_beli.toDate() : new Date(item.tanggal_beli);
+                    const iso = d.toISOString().split('T')[0];
+                    document.getElementById('editTglBeli').value = iso;
+                } catch (e) { }
+            }
+
+            document.getElementById('editOverlay').classList.add('show');
+        }
+
+        function setupControls() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', renderTable);
+            }
+
+            document.getElementById('addInventoryBtn').addEventListener('click', () => {
+                document.getElementById('addOverlay').classList.add('show');
+            });
+            document.getElementById('addClose').addEventListener('click', closeAdd);
+            document.getElementById('addCancel').addEventListener('click', closeAdd);
+            document.getElementById('addSave').addEventListener('click', saveInventory);
+
+            document.getElementById('deleteCancel').addEventListener('click', () => {
+                deletingId = null;
+                document.getElementById('deleteOverlay').classList.remove('show');
+            });
+            document.getElementById('deleteConfirm').addEventListener('click', confirmDelete);
+            document.getElementById('editCancel').addEventListener('click', closeEdit);
+            document.getElementById('editSave').addEventListener('click', editInventory);
+        }
+    </script>
+
+</body>
+</html>

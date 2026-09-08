@@ -270,3 +270,91 @@ export function setButtonLoading(buttonId, isLoading, loadingHtml, defaultHtml) 
   btn.disabled = isLoading;
   btn.innerHTML = isLoading ? loadingHtml : defaultHtml;
 }
+
+/**
+ * Render pagination controls for Office Inventory table.
+ * @param {Object} info - { currentPage, totalRows, rowsPerPage, totalPages }
+ * @param {Function} onPageChange - (newPage) => void
+ */
+export function renderPagination(info, onPageChange) {
+  const container = document.getElementById("inventoryPagination");
+  if (!container) return;
+
+  const { currentPage, totalRows, rowsPerPage, totalPages } = info;
+  if (!totalRows || totalRows <= 0) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "flex";
+  const start = (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, totalRows);
+
+  const left = `<p class="text-slate-500 font-medium text-xs mb-0">Menampilkan <span class="font-bold text-slate-700">${start}</span> - <span class="font-bold text-slate-700">${end}</span> dari <span class="font-bold text-slate-700">${totalRows}</span> barang</p>`;
+
+  let pages = "";
+  const prevDisabled = currentPage <= 1;
+  pages += `
+    <button type="button" class="inv-page-btn" data-page="prev" ${prevDisabled ? "disabled" : ""} title="Halaman Sebelumnya">
+      <i class="fas fa-chevron-left text-xs"></i>
+    </button>
+  `;
+
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  if (startPage > 1) {
+    pages += `<button type="button" class="inv-page-btn" data-page="1">1</button>`;
+    if (startPage > 2) {
+      pages += `<span class="inv-page-dots">...</span>`;
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const active = i === currentPage;
+    pages += `<button type="button" class="inv-page-btn ${active ? "active" : ""}" data-page="${i}">${i}</button>`;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      pages += `<span class="inv-page-dots">...</span>`;
+    }
+    pages += `<button type="button" class="inv-page-btn" data-page="${totalPages}">${totalPages}</button>`;
+  }
+
+  const nextDisabled = currentPage >= totalPages;
+  pages += `
+    <button type="button" class="inv-page-btn" data-page="next" ${nextDisabled ? "disabled" : ""} title="Halaman Berikutnya">
+      <i class="fas fa-chevron-right text-xs"></i>
+    </button>
+  `;
+
+  container.innerHTML = `
+    ${left}
+    <div class="flex items-center gap-1">
+      ${pages}
+    </div>
+  `;
+
+  container.onclick = (e) => {
+    const btn = e.target.closest(".inv-page-btn");
+    if (!btn || btn.disabled || btn.classList.contains("active")) return;
+    const targetPage = btn.dataset.page;
+    if (targetPage === "prev") {
+      if (currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
+    } else if (targetPage === "next") {
+      if (currentPage < totalPages && onPageChange) onPageChange(currentPage + 1);
+    } else {
+      const p = parseInt(targetPage, 10);
+      if (!isNaN(p) && p !== currentPage && onPageChange) {
+        onPageChange(p);
+      }
+    }
+  };
+}
+
