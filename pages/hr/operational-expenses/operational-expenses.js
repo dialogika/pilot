@@ -1049,6 +1049,12 @@ function setupAutocompleteInputs() {
 // --- Initialization ---
 async function init() {
   try {
+    // Normalize URL trailing slash in browser address bar
+    if (window.location.pathname.endsWith("/") && window.location.pathname.length > 1) {
+      const cleanPath = window.location.pathname.replace(/\/+$/, "") + window.location.search + window.location.hash;
+      window.history.replaceState(null, "", cleanPath);
+    }
+
     const { user, role } = await requireAuth();
 
     // Mount Topbar and Sidebar
