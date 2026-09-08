@@ -75,8 +75,6 @@
         "destination": "/operational-expenses",
         "type": 301
       },
-      {
-
        {
     "source": "/data/presence-team.html",
     "destination": "/presence-team",
