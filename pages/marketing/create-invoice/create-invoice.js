@@ -6,6 +6,7 @@
 import { renderTopBar } from "/element/topbar.js";
 import { renderSidebar } from "/element/sidebar.js";
 import { requireAuth } from "/assets/js/auth-guard.js";
+import { confirmDialog, alertDialog } from "/assets/js/ui.js";
 import {
   fetchInvoices,
   saveInvoice,
@@ -401,7 +402,11 @@ function bindEventListeners() {
       if (deleteBtn) {
         const id = deleteBtn.getAttribute("data-id");
         if (!id) return;
-        if (!confirm("Hapus invoice ini secara permanen?")) return;
+        const confirmed = await confirmDialog("Hapus invoice ini secara permanen?", {
+          title: "Hapus Invoice",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         try {
           await deleteInvoice(id);
         } catch {
@@ -566,7 +571,10 @@ function bindEventListeners() {
       const holder = (holderField?.value || "").trim();
 
       if (!name || !number) {
-        alert("Nama bank dan nomor rekening wajib diisi.");
+        alertDialog("Nama bank dan nomor rekening wajib diisi.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
 
@@ -617,7 +625,11 @@ function bindEventListeners() {
       const deleteBtn = e.target.closest(".delete-bank");
       if (deleteBtn) {
         const id = deleteBtn.getAttribute("data-id");
-        if (!confirm("Hapus rekening ini?")) return;
+        const confirmed = await confirmDialog("Hapus rekening ini?", {
+          title: "Hapus Rekening",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         currentBanks = currentBanks.filter((b) => b.id !== id);
         await saveBanks(currentBanks);
         renderBanks(currentBanks);
@@ -737,11 +749,17 @@ function bindEventListeners() {
       });
 
       if (!selectedProductNames.length) {
-        alert("Pilih minimal 1 product untuk referral ini.");
+        alertDialog("Pilih minimal 1 product untuk referral ini.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
       if (!code || maxUsage <= 0) {
-        alert("Kode dan maksimal pemakaian wajib diisi.");
+        alertDialog("Kode dan maksimal pemakaian wajib diisi.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
 
@@ -903,7 +921,11 @@ function bindEventListeners() {
       if (deleteBtn) {
         const idx = parseInt(deleteBtn.getAttribute("data-idx"), 10);
         if (isNaN(idx)) return;
-        if (!confirm("Hapus kode referral ini?")) return;
+        const confirmed = await confirmDialog("Hapus kode referral ini?", {
+          title: "Hapus Referral",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         currentReferrals.splice(idx, 1);
         await saveReferrals(currentReferrals);
         updateReferralList();

@@ -6,6 +6,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopBar } from "../../../element/topbar.js";
 import { renderSidebar } from "../../../element/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 import {
     persistCertificateLog,
     migrateLocalLogsToFirestoreIfNeeded,
@@ -330,7 +331,10 @@ async function deleteSingleLogFromUi(logId) {
     }
 
     const confirmText = `Hapus log ini?\n\nInvoice: ${found.invoice}\nNama: ${found.recipientName}\nTanggal: ${found.createdAt}`;
-    const confirmed = window.confirm(confirmText);
+    const confirmed = await confirmDialog(confirmText, {
+        title: "Hapus Log Sertifikat",
+        confirmText: "Ya, Hapus"
+    });
     if (!confirmed) return;
 
     const previous = logState.logs.slice();
@@ -359,7 +363,10 @@ async function deleteFilteredLogsFromUi() {
     }
 
     const confirmText = `Hapus ${ids.length} log sesuai filter saat ini?\n\nTindakan ini tidak dapat dibatalkan.`;
-    const confirmed = window.confirm(confirmText);
+    const confirmed = await confirmDialog(confirmText, {
+        title: "Hapus Log Terfilter",
+        confirmText: "Ya, Hapus Semua"
+    });
     if (!confirmed) return;
 
     const previous = logState.logs.slice();

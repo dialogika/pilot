@@ -6,6 +6,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopBar } from "../../../element/topbar.js";
 import { renderSidebar } from "../../../element/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 import {
     FIRST_CLASS_FEATURES,
     fetchProducts,
@@ -162,7 +163,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             async (referralItem, index) => {
                 // Delete referral
-                if (confirm(`Hapus kode referral "${referralItem.code || "-"}"?`)) {
+                const confirmed = await confirmDialog(`Hapus kode referral "${referralItem.code || "-"}"?`, {
+                    title: "Hapus Referral",
+                    confirmText: "Ya, Hapus"
+                });
+                if (confirmed) {
                     referralsState.splice(index, 1);
                     await saveReferrals(referralsState);
                     refreshHeaderStats();
@@ -390,10 +395,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             if (totalBasePrice === 0) {
-                alert("Pilih produk terlebih dahulu untuk menghitung diskon otomatis.");
+                alertDialog("Pilih produk terlebih dahulu untuk menghitung diskon otomatis.", {
+                    title: "Informasi",
+                    type: "warning"
+                });
                 return;
             }
-            alert(`Total Harga Dasar Produk Terpilih: ${formatCurrency(totalBasePrice)}\n\nMasukkan Persentase atau Nilai Potongan untuk menghitung otomatis.`);
+            alertDialog(`Total Harga Dasar Produk Terpilih: ${formatCurrency(totalBasePrice)}\n\nMasukkan Persentase atau Nilai Potongan untuk menghitung otomatis.`, {
+                title: "Kalkulator Diskon",
+                type: "info"
+            });
         });
     }
 

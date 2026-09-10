@@ -195,9 +195,32 @@
         "source": "/referral-dashboard.html",
         "destination": "/referral-dashboard",
         "type": 301
+      },
+      {
+        "source": "/setting/leads-management.html",
+        "destination": "/leads-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/leads-management",
+        "destination": "/leads-management",
+        "type": 301
+      },
+      {
+        "source": "/leads-management.html",
+        "destination": "/leads-management",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/leads-management",
+        "destination": "/pages/marketing/leads-management/index.html"
+      },
+      {
+        "source": "/marketing/leads-management",
+        "destination": "/pages/marketing/leads-management/index.html"
+      },
       {
         "source": "/referral-dashboard",
         "destination": "/pages/marketing/referral-dashboard/index.html"
