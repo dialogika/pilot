@@ -155,9 +155,42 @@
         "source": "/generate-certificate.html",
         "destination": "/generate-certificate",
         "type": 301
+      },
+      {
+        "source": "/data/class-available.html",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/data/class-available",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-availability.html",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-availability",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/class-availability.html",
+        "destination": "/class-availability",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/class-availability",
+        "destination": "/pages/marketing/class-availability/index.html"
+      },
+      {
+        "source": "/marketing/class-availability",
+        "destination": "/pages/marketing/class-availability/index.html"
+      },
       {
         "source": "/generate-certificate",
         "destination": "/pages/product/generate-certificate/index.html"
