@@ -180,9 +180,32 @@
         "source": "/class-availability.html",
         "destination": "/class-availability",
         "type": 301
+      },
+      {
+        "source": "/setting/referral-dashboard.html",
+        "destination": "/referral-dashboard",
+        "type": 301
+      },
+      {
+        "source": "/setting/referral-dashboard",
+        "destination": "/referral-dashboard",
+        "type": 301
+      },
+      {
+        "source": "/referral-dashboard.html",
+        "destination": "/referral-dashboard",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/referral-dashboard",
+        "destination": "/pages/marketing/referral-dashboard/index.html"
+      },
+      {
+        "source": "/marketing/referral-dashboard",
+        "destination": "/pages/marketing/referral-dashboard/index.html"
+      },
       {
         "source": "/class-availability",
         "destination": "/pages/marketing/class-availability/index.html"
