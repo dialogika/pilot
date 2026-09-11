@@ -9,7 +9,7 @@
 // =====================================================================
 
 import { escapeHtml, formatDateID } from "../../utils.js";
-import { toast, setButtonBusy } from "../../ui.js";
+import { toast, setButtonBusy, confirmDialog } from "../../ui.js";
 import { createRichEditor } from "../rich-editor/rich-editor.js";
 
 let questDescEditorInstance = null;
@@ -579,7 +579,7 @@ function renderTableHead() {
       <span class="dg-col-assign">Assignee</span>
       <span class="dg-col-report">Report To</span>
       <span class="dg-col-status">Status</span>
-      <span class="dg-col-actions text-end">Actions</span>
+      <span class="dg-col-actions text-center">Actions</span>
     </div>
   `;
 }
@@ -2938,6 +2938,10 @@ export function notifySuccess(msg) {
 
 export function notifyError(msg) {
   toast(msg, "error");
+}
+
+export function confirmAction(opts) {
+  return confirmDialog(opts);
 }
 
 export function updateBulkActionBar(selectedCount, totalDeletableCount) {

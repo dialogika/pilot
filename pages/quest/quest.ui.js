@@ -71,7 +71,7 @@ function renderTableHead() {
       <span class="dg-col-assign">Assignee</span>
       <span class="dg-col-report">Report To</span>
       <span class="dg-col-status">Status</span>
-      <span class="dg-col-actions text-end">Actions</span>
+      <span class="dg-col-actions text-center">Actions</span>
     </div>
   `;
 }
@@ -848,8 +848,11 @@ export function notifyError(message) {
   toast(message, "error");
 }
 
-export async function confirmAction(message, danger = false) {
-  return confirmDialog(message, { danger });
+export async function confirmAction(messageOrOpts, danger = false) {
+  if (typeof messageOrOpts === "object" && messageOrOpts !== null) {
+    return confirmDialog(messageOrOpts);
+  }
+  return confirmDialog(messageOrOpts, { danger });
 }
 
 export function updateBulkActionBar(selectedCount, totalDeletableCount) {
@@ -877,7 +880,7 @@ export function updateBulkActionBar(selectedCount, totalDeletableCount) {
 }
 
 export function syncCardSelections(selectedSet) {
-  document.querySelectorAll(".quest-card").forEach((cardNode) => {
+  document.querySelectorAll(".dg-quest-card, .quest-card").forEach((cardNode) => {
     const taskId = cardNode.getAttribute("data-task-id");
     const checkbox = cardNode.querySelector(".dg-quest-select-checkbox");
     const isSelected = Boolean(taskId && selectedSet.has(taskId));

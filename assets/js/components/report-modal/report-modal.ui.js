@@ -7,6 +7,8 @@
 //  - Handles DOM templates, rendering statistics, table rows, and details sub-modal.
 // =====================================================================
 
+import { toast, confirmDialog } from "../../ui.js";
+
 function escapeHtml(value) {
   return (value || "")
     .toString()
@@ -585,7 +587,7 @@ export function renderTable(reports, usersMap, callbacks = {}, bulkMode = false,
 
 export function openInNewTab(url, name) {
   if (!url || url === "#") {
-    alert("Tautan file tidak tersedia.");
+    toast("Tautan file tidak tersedia.", "warning");
     return;
   }
 
@@ -742,7 +744,7 @@ export function openAttachment(file) {
   }
 
   if (!rawUrl || rawUrl === "#") {
-    alert("Tautan file tidak tersedia atau rusak.");
+    toast("Tautan file tidak tersedia atau rusak.", "warning");
     return;
   }
 
@@ -1005,6 +1007,22 @@ export function closeDetailModal() {
 export function getDetailFeedbackText() {
   const input = document.getElementById("dgDetailFeedbackInput");
   return input ? input.value.trim() : "";
+}
+
+export function notifySuccess(msg) {
+  toast(msg, "success");
+}
+
+export function notifyError(msg) {
+  toast(msg, "error");
+}
+
+export function notifyInfo(msg) {
+  toast(msg, "info");
+}
+
+export function confirmAction(opts) {
+  return confirmDialog(opts);
 }
 
 if (typeof window !== "undefined") {
