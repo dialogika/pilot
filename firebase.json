@@ -210,9 +210,32 @@
         "source": "/leads-management.html",
         "destination": "/leads-management",
         "type": 301
+      },
+      {
+        "source": "/setting/promo-classes.html",
+        "destination": "/promo-classes",
+        "type": 301
+      },
+      {
+        "source": "/setting/promo-classes",
+        "destination": "/promo-classes",
+        "type": 301
+      },
+      {
+        "source": "/promo-classes.html",
+        "destination": "/promo-classes",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/promo-classes",
+        "destination": "/pages/marketing/promo-classes/index.html"
+      },
+      {
+        "source": "/marketing/promo-classes",
+        "destination": "/pages/marketing/promo-classes/index.html"
+      },
       {
         "source": "/leads-management",
         "destination": "/pages/marketing/leads-management/index.html"
