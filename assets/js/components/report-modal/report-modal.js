@@ -197,7 +197,7 @@ function syncBulkActionButton() {
       (k) => !!selectedTaskIds[k] && currentReports.some((r) => r.id === k)
     );
     if (!selected.length) {
-      alert("Pilih setidaknya satu baris tugas terlebih dahulu.");
+      ui.notifyError("Pilih setidaknya satu baris tugas terlebih dahulu.");
       return;
     }
     if (bulkMode === "archive") {
@@ -206,7 +206,15 @@ function syncBulkActionButton() {
         : `Yakin ingin mengarsipkan ${selected.length} laporan yang dipilih?`;
       const loadingLabel = isArchivedView ? "Memulihkan..." : "Mengarsipkan...";
 
-      if (confirm(confirmMsg)) {
+      const ok = await ui.confirmAction({
+        title: isArchivedView ? "Pulihkan Laporan" : "Arsipkan Laporan",
+        message: confirmMsg,
+        confirmText: isArchivedView ? "Pulihkan" : "Arsipkan",
+        cancelText: "Batal",
+        danger: false,
+      });
+
+      if (ok) {
         const triggerEl = document.getElementById("dgReportBulkActionTrigger");
         if (triggerEl) {
           triggerEl.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" style="width:0.85rem;height:0.85rem;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></span> ${loadingLabel}`;
@@ -215,12 +223,14 @@ function syncBulkActionButton() {
           const selectedReports = currentReports.filter((r) => selected.includes(r.id));
           if (isArchivedView) {
             await repo.bulkUnarchiveTasks(selectedReports);
+            ui.notifySuccess(`${selectedReports.length} laporan berhasil dipulihkan.`);
           } else {
             await repo.bulkArchiveTasks(selectedReports);
+            ui.notifySuccess(`${selectedReports.length} laporan berhasil diarsipkan.`);
           }
         } catch (err) {
           console.error("Bulk action failed:", err);
-          alert("Gagal memproses aksi: " + (err.message || String(err)));
+          ui.notifyError("Gagal memproses aksi: " + (err.message || String(err)));
         } finally {
           bulkMode = null;
           selectedTaskIds = {};
@@ -229,7 +239,15 @@ function syncBulkActionButton() {
         }
       }
     } else if (bulkMode === "delete") {
-      if (confirm(`Yakin ingin menghapus ${selected.length} laporan yang dipilih?`)) {
+      const ok = await ui.confirmAction({
+        title: "Hapus Laporan Terpilih",
+        message: `Yakin ingin menghapus ${selected.length} laporan yang dipilih? Tindakan ini tidak dapat dibatalkan.`,
+        confirmText: "Hapus",
+        cancelText: "Batal",
+        danger: true,
+      });
+
+      if (ok) {
         const triggerEl = document.getElementById("dgReportBulkActionTrigger");
         if (triggerEl) {
           triggerEl.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" style="width:0.85rem;height:0.85rem;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></span> Menghapus...`;
@@ -237,9 +255,10 @@ function syncBulkActionButton() {
         try {
           const selectedReports = currentReports.filter((r) => selected.includes(r.id));
           await repo.bulkDeleteTasks(selectedReports);
+          ui.notifySuccess(`${selectedReports.length} laporan berhasil dihapus.`);
         } catch (err) {
           console.error("Bulk delete failed:", err);
-          alert("Gagal menghapus laporan: " + (err.message || String(err)));
+          ui.notifyError("Gagal menghapus laporan: " + (err.message || String(err)));
         } finally {
           bulkMode = null;
           selectedTaskIds = {};
@@ -411,7 +430,7 @@ async function handleApprove(report) {
     console.error("Failed to approve report:", err);
     report.status = "pending";
     applyFiltersAndRender();
-    alert("Gagal menyetujui laporan: " + (err.message || String(err)));
+    ui.notifyError("Gagal menyetujui laporan: " + (err.message || String(err)));
   }
 }
 
@@ -429,7 +448,7 @@ async function handleRejectWithFeedback(report, feedbackText) {
     console.error("Failed to reject report:", err);
     report.status = "pending";
     applyFiltersAndRender();
-    alert("Gagal menolak laporan: " + (err.message || String(err)));
+    ui.notifyError("Gagal menolak laporan: " + (err.message || String(err)));
   }
 }
 
@@ -443,7 +462,7 @@ async function handleUnarchive(report) {
     syncBulkActionButton();
   } catch (err) {
     console.error("Failed to unarchive report:", err);
-    alert("Gagal memulihkan laporan: " + (err.message || String(err)));
+    ui.notifyError("Gagal memulihkan laporan: " + (err.message || String(err)));
   }
 }
 
@@ -454,7 +473,7 @@ async function handleApproveAll() {
   if (!currentReports.length) return;
   const toApprove = currentReports.filter((r) => r.status !== "approved");
   if (!toApprove.length) {
-    alert("Semua laporan pada filter ini sudah berstatus Approved.");
+    ui.notifyInfo("Semua laporan pada filter ini sudah berstatus Approved.");
     return;
   }
 
@@ -640,6 +659,6 @@ export async function openReportModal(opts = {}) {
     await refreshReportsData();
   } catch (err) {
     console.error("Failed to load reports data:", err);
-    alert("Gagal memuat data report: " + (err.message || String(err)));
+    ui.notifyError("Gagal memuat data report: " + (err.message || String(err)));
   }
 }
