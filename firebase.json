@@ -272,9 +272,42 @@
         "source": "/mailing-list.html",
         "destination": "/mailing-list",
         "type": 301
+      },
+      {
+        "source": "/setting/webinar.html",
+        "destination": "/webinar",
+        "type": 301
+      },
+      {
+        "source": "/setting/webinar",
+        "destination": "/webinar",
+        "type": 301
+      },
+      {
+        "source": "/data/webinar.html",
+        "destination": "/webinar",
+        "type": 301
+      },
+      {
+        "source": "/data/webinar",
+        "destination": "/webinar",
+        "type": 301
+      },
+      {
+        "source": "/webinar.html",
+        "destination": "/webinar",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/webinar",
+        "destination": "/pages/marketing/webinar/index.html"
+      },
+      {
+        "source": "/marketing/webinar",
+        "destination": "/pages/marketing/webinar/index.html"
+      },
       {
         "source": "/mailing-list",
         "destination": "/pages/marketing/mailing-list/index.html"
