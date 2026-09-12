@@ -333,107 +333,39 @@ export function confirmDialog(messageOrOpts, opts = {}) {
     }
 
     document.addEventListener("keydown", onKeyDown);
-
     // Focus cancel button for safe keyboard navigation
     setTimeout(() => {
       cancelBtn?.focus();
     }, 50);
- * Show a custom verification / confirmation modal.
- * Returns a Promise that resolves to true if confirmed, false if canceled.
- * @param {string} message
- * @param {{title?: string, confirmText?: string, cancelText?: string, danger?: boolean, icon?: string}} [opts]
- * @returns {Promise<boolean>}
- */
-export function confirmDialog(message, opts = {}) {
-  return new Promise((resolve) => {
-    const {
-      title = "Konfirmasi Tindakan",
-      confirmText = "Ya, Lanjutkan",
-      cancelText = "Batal",
-      danger = true,
-      icon = danger ? "bi-trash3" : "bi-question-circle"
-    } = opts;
-
-    const existing = document.getElementById("dg-custom-confirm-modal");
-    if (existing) existing.remove();
-
-    const backdrop = document.createElement("div");
-    backdrop.id = "dg-custom-confirm-modal";
-    backdrop.className =
-      "fixed inset-0 w-screen h-screen z-[99999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200 opacity-0";
-
-    const modalBox = document.createElement("div");
-    modalBox.className =
-      "bg-white rounded-[24px] shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center transform scale-95 transition-all duration-200";
-
-    const iconColor = danger ? "bg-rose-50 text-rose-600" : "bg-indigo-50 text-indigo-600";
-    const btnColor = danger
-      ? "bg-rose-600 hover:bg-rose-700 text-white"
-      : "bg-indigo-600 hover:bg-indigo-700 text-white";
-
-    modalBox.innerHTML = `
-      <div class="mb-4 flex justify-center">
-        <div class="w-16 h-16 rounded-2xl ${iconColor} flex items-center justify-center text-2xl shadow-sm">
-          <i class="bi ${icon} text-2xl"></i>
-        </div>
-      </div>
-      <h4 class="font-extrabold text-slate-800 text-lg mb-2">${title}</h4>
-      <p class="text-sm text-slate-500 mb-6 leading-relaxed">${message}</p>
-      <div class="flex gap-3 justify-center">
-        <button type="button" id="dg-confirm-cancel-btn" class="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
-          ${cancelText}
-        </button>
-        <button type="button" id="dg-confirm-submit-btn" class="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs ${btnColor} transition shadow-sm">
-          ${confirmText}
-        </button>
-      </div>
-    `;
-
-    backdrop.appendChild(modalBox);
-    document.body.appendChild(backdrop);
-
-    requestAnimationFrame(() => {
-      backdrop.classList.remove("opacity-0");
-      modalBox.classList.remove("scale-95");
-      modalBox.classList.add("scale-100");
-    });
-
-    const cleanup = (result) => {
-      backdrop.classList.add("opacity-0");
-      modalBox.classList.remove("scale-100");
-      modalBox.classList.add("scale-95");
-      setTimeout(() => {
-        backdrop.remove();
-        resolve(result);
-      }, 200);
-    };
-
-    const cancelBtn = document.getElementById("dg-confirm-cancel-btn");
-    const submitBtn = document.getElementById("dg-confirm-submit-btn");
-
-    if (cancelBtn) cancelBtn.onclick = () => cleanup(false);
-    if (submitBtn) submitBtn.onclick = () => cleanup(true);
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) cleanup(false);
-    };
   });
 }
 
 /**
  * Show a custom alert / notification modal.
  * Returns a Promise that resolves when the user closes the modal.
- * @param {string} message
+ * @param {string|{title?: string, message?: string, text?: string, buttonText?: string, type?: "success"|"danger"|"error"|"warning"|"info"}} messageOrOpts
  * @param {{title?: string, buttonText?: string, type?: "success"|"danger"|"error"|"warning"|"info"}} [opts]
  * @returns {Promise<void>}
  */
-export function alertDialog(message, opts = {}) {
-  return new Promise((resolve) => {
-    const {
-      title = "Pemberitahuan",
-      buttonText = "Mengerti",
-      type = "info"
-    } = opts;
+export function alertDialog(messageOrOpts, opts = {}) {
+  let title = "Pemberitahuan";
+  let message = "";
+  let buttonText = "Mengerti";
+  let type = "info";
 
+  if (typeof messageOrOpts === "string") {
+    message = messageOrOpts;
+    if (opts.title) title = opts.title;
+    if (opts.buttonText) buttonText = opts.buttonText;
+    if (opts.type) type = opts.type;
+  } else if (typeof messageOrOpts === "object" && messageOrOpts !== null) {
+    title = messageOrOpts.title || title;
+    message = messageOrOpts.message || messageOrOpts.text || "";
+    buttonText = messageOrOpts.buttonText || buttonText;
+    type = messageOrOpts.type || type;
+  }
+
+  return new Promise((resolve) => {
     const existing = document.getElementById("dg-custom-alert-modal");
     if (existing) existing.remove();
 
@@ -464,16 +396,20 @@ export function alertDialog(message, opts = {}) {
       btnColor = "bg-amber-600 hover:bg-amber-700 text-white";
     }
 
+    const safeTitle = String(title).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const safeMessage = String(message).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const safeButtonText = String(buttonText).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     modalBox.innerHTML = `
       <div class="mb-4 flex justify-center">
         <div class="w-16 h-16 rounded-2xl ${iconColor} flex items-center justify-center text-2xl shadow-sm">
           ${iconHtml}
         </div>
       </div>
-      <h4 class="font-extrabold text-slate-800 text-lg mb-2">${title}</h4>
-      <p class="text-sm text-slate-500 mb-6 leading-relaxed">${message}</p>
+      <h4 class="font-extrabold text-slate-800 text-lg mb-2">${safeTitle}</h4>
+      <p class="text-sm text-slate-500 mb-6 leading-relaxed">${safeMessage}</p>
       <button type="button" id="dg-alert-submit-btn" class="w-full px-4 py-2.5 rounded-xl font-bold text-xs ${btnColor} transition shadow-sm">
-        ${buttonText}
+        ${safeButtonText}
       </button>
     `;
 
@@ -486,7 +422,11 @@ export function alertDialog(message, opts = {}) {
       modalBox.classList.add("scale-100");
     });
 
+    let isSettled = false;
     const cleanup = () => {
+      if (isSettled) return;
+      isSettled = true;
+      document.removeEventListener("keydown", onKeyDown);
       backdrop.classList.add("opacity-0");
       modalBox.classList.remove("scale-100");
       modalBox.classList.add("scale-95");
@@ -496,11 +436,24 @@ export function alertDialog(message, opts = {}) {
       }, 200);
     };
 
+    function onKeyDown(e) {
+      if (e.key === "Escape" || e.key === "Enter") {
+        e.preventDefault();
+        cleanup();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+
     const submitBtn = document.getElementById("dg-alert-submit-btn");
     if (submitBtn) submitBtn.onclick = () => cleanup();
     backdrop.onclick = (e) => {
       if (e.target === backdrop) cleanup();
     };
+
+    setTimeout(() => {
+      submitBtn?.focus();
+    }, 50);
   });
 }
 
