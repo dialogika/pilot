@@ -247,9 +247,42 @@
         "source": "/data/branding-schedule",
         "destination": "/branding-schedule",
         "type": 301
+      },
+      {
+        "source": "/data/mailing-list.html",
+        "destination": "/mailing-list",
+        "type": 301
+      },
+      {
+        "source": "/data/mailing-list",
+        "destination": "/mailing-list",
+        "type": 301
+      },
+      {
+        "source": "/setting/mailing-list.html",
+        "destination": "/mailing-list",
+        "type": 301
+      },
+      {
+        "source": "/setting/mailing-list",
+        "destination": "/mailing-list",
+        "type": 301
+      },
+      {
+        "source": "/mailing-list.html",
+        "destination": "/mailing-list",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/mailing-list",
+        "destination": "/pages/marketing/mailing-list/index.html"
+      },
+      {
+        "source": "/marketing/mailing-list",
+        "destination": "/pages/marketing/mailing-list/index.html"
+      },
       {
         "source": "/promo-classes",
         "destination": "/pages/marketing/promo-classes/index.html"
