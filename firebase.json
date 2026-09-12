@@ -131,10 +131,32 @@
       {
         "source": "/data/piket-branding.html",
         "destination": "/piket-branding",
+      },
+      {
+        "source": "/setting/invoice-management.html",
+        "destination": "/create-invoice",
+        "type": 301
+      },
+      {
+        "source": "/setting/invoice-management",
+        "destination": "/create-invoice",
+        "type": 301
+      },
+      {
+        "source": "/create-invoice.html",
+        "destination": "/create-invoice",
         "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/create-invoice",
+        "destination": "/pages/marketing/create-invoice/index.html"
+      },
+      {
+        "source": "/marketing/create-invoice",
+        "destination": "/pages/marketing/create-invoice/index.html"
+      },
       {
         "source": "/mentor-management",
         "destination": "/pages/product/mentor-management/index.html"
