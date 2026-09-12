@@ -8,6 +8,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import {
   subscribeToInventory,
@@ -132,19 +133,19 @@ async function handleSaveInventory() {
   const data = getAddFormData();
 
   if (!data.nama_barang) {
-    alert("Nama barang harus diisi.");
+    await alertDialog("Nama barang harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.kategori_kode) {
-    alert("Kategori harus dipilih.");
+    await alertDialog("Kategori harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.lokasi_kode) {
-    alert("Lokasi harus dipilih.");
+    await alertDialog("Lokasi harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.tanggal_beli) {
-    alert("Tanggal beli harus diisi.");
+    await alertDialog("Tanggal beli harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -173,10 +174,10 @@ async function handleSaveInventory() {
     });
 
     closeAddModal();
-    alert("Barang berhasil ditambahkan!");
+    await alertDialog("Barang berhasil ditambahkan!", { type: "success", title: "Berhasil" });
   } catch (e) {
     console.error("Gagal menyimpan inventaris:", e);
-    alert("Gagal menyimpan: " + e.message);
+    await alertDialog("Gagal menyimpan: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "addSave",
@@ -206,19 +207,19 @@ async function handleUpdateInventory() {
   const data = getEditFormData();
 
   if (!data.nama_barang) {
-    alert("Nama barang harus diisi.");
+    await alertDialog("Nama barang harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.kategori_kode) {
-    alert("Kategori harus dipilih.");
+    await alertDialog("Kategori harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.lokasi_kode) {
-    alert("Lokasi harus dipilih.");
+    await alertDialog("Lokasi harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.tanggal_beli) {
-    alert("Tanggal beli harus diisi.");
+    await alertDialog("Tanggal beli harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -233,10 +234,10 @@ async function handleUpdateInventory() {
     await updateInventory(editingId, data);
     closeEditModal();
     editingId = null;
-    alert("Inventaris berhasil diperbarui!");
+    await alertDialog("Inventaris berhasil diperbarui!", { type: "success", title: "Berhasil" });
   } catch (e) {
     console.error("Gagal memperbarui inventaris:", e);
-    alert("Gagal menyimpan: " + e.message);
+    await alertDialog("Gagal menyimpan: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "editSave",
@@ -276,7 +277,7 @@ async function handleConfirmDelete() {
     closeDeleteModal();
   } catch (e) {
     console.error("Gagal menghapus inventaris:", e);
-    alert("Gagal menghapus: " + e.message);
+    await alertDialog("Gagal menghapus: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "deleteConfirm",

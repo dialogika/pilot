@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Dashboard | Dialogika</title>
+
+    <!-- Dependencies & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Feature Scoped Styles -->
+    <link href="/pages/marketing/referral-dashboard/referral-dashboard.css" rel="stylesheet">
+
+    <!-- Shared Theme Manager -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+    <!-- App Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="ref-main-container space-y-8">
+
+            <!-- PAGE HEADER & BREADCRUMB -->
+            <div>
+                <!-- Consistent Standard Breadcrumb -->
+                <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-3">
+                    <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                        <i class="fas fa-home text-xs"></i>
+                    </a>
+                    <span class="text-blue-600">/</span>
+                    <span class="text-blue-600">MARKETING DIVISION</span>
+                    <span class="text-slate-400">/</span>
+                    <span class="text-slate-600">REFERRAL DASHBOARD</span>
+                </nav>
+
+                <!-- HEADER BANNER SECTION -->
+                <div class="header-bg p-8 md:p-12 relative overflow-hidden shadow-xl">
+                    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                        <div class="space-y-4">
+                            <span class="text-blue-400 font-bold text-xs uppercase tracking-[0.2em]">Class Referral Management</span>
+                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white">Referral Management for Class Products</h1>
+                            <div class="flex flex-wrap gap-3">
+                                <div class="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-sm border border-white/5 backdrop-blur-sm">
+                                    <i class="bi bi-person text-blue-400"></i>
+                                    <span>Referral Owner</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-sm border border-white/5 backdrop-blur-sm">
+                                    <i class="bi bi-calendar-event text-blue-400"></i>
+                                    <span>Periode: 2025</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Usage Stats Card -->
+                        <div class="glass-stats p-6 w-full md:w-80 shadow-2xl">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Referral Performance</h4>
+                                    <div class="flex items-baseline gap-1">
+                                        <span id="headerUsedCount" class="text-3xl font-black text-slate-800">0</span>
+                                        <span id="headerMaxCount" class="text-slate-400 font-bold">/ 100</span>
+                                    </div>
+                                </div>
+                                <span id="headerPercentBadge" class="px-2 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-lg">0% Used</span>
+                            </div>
+                            <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-3">
+                                <div id="headerProgressBar" class="h-full progress-gradient transition-all duration-500" style="width: 0%;"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-tight">
+                                Angka di atas menunjukkan penggunaan referral berhasil dibandingkan kuota maksimum untuk semua kelas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <!-- Left Column (Product Overview & Curriculum) -->
+                <div class="lg:col-span-8 space-y-8">
+
+                    <!-- Product & Class Catalog Overview -->
+                    <div class="premium-card p-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i class="bi bi-info-circle text-blue-600"></i> Class Product Overview
+                        </h3>
+
+                        <!-- Product Dropdown -->
+                        <div class="mb-6 relative">
+                            <button type="button" id="productDropdownBtn"
+                                class="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold transition-all border bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-sm w-full justify-between">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span id="productBtnLabel" class="truncate">Pilih Produk</span>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform"
+                                    id="productDropdownChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="productDropdownBackdrop" class="product-dropdown-backdrop"></div>
+                            <div id="productDropdownPanel" class="product-dropdown custom-scrollbar"></div>
+                        </div>
+
+                        <!-- Product Metadata Container -->
+                        <div id="productMetaContainer" class="grid grid-cols-2 gap-y-6 gap-x-12 mb-6"></div>
+
+                        <!-- Product Specifications List -->
+                        <div class="mt-2" id="productSpecificationsSection">
+                            <h4 class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Specifications</h4>
+                            <ul id="productSpecificationsList" class="list-disc pl-5 text-xs text-slate-600 space-y-1"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Curriculum -->
+                    <div class="premium-card p-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i class="bi bi-diagram-3 text-blue-600"></i> Curriculum
+                        </h3>
+                        <div id="productCurriculumContainer" class="space-y-6"></div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column (Sidebar Highlights & Actions) -->
+                <div class="lg:col-span-4 space-y-8">
+
+                    <!-- Highlights -->
+                    <div class="premium-card p-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i class="bi bi-graph-up-arrow text-blue-600"></i> Highlights
+                        </h3>
+                        <div id="highlightsContainer" class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product</p>
+                                    <p id="highlightProductName" class="text-sm font-bold text-slate-800">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="bi bi-list-check"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Features</p>
+                                    <p id="highlightFeatureCount" class="text-sm font-bold text-slate-800">0</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-100">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="bi bi-currency-dollar"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Price</p>
+                                    <p id="highlightBasePrice" class="text-sm font-bold text-slate-800">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-2xl border border-purple-100">
+                                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sessions</p>
+                                    <p id="highlightSessions" class="text-sm font-bold text-slate-800">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Referral Action Box -->
+                    <div class="premium-card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-9 h-9 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                <i class="bi bi-ticket-perforated"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Referral Code</h4>
+                                <p class="text-[10px] text-slate-400">Buat kode referral baru</p>
+                            </div>
+                        </div>
+                        <button type="button" id="btnOpenReferralModal"
+                            class="w-full py-3 bg-gradient-to-b from-emerald-600 to-emerald-800 text-white rounded-2xl font-bold hover:from-emerald-700 hover:to-emerald-900 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                            <i class="bi bi-plus-lg"></i> Create Referral
+                        </button>
+                        <p id="referralStatusText" class="text-[10px] text-slate-400 text-center mt-2 hidden"></p>
+                        <button type="button" id="btnOpenReferralListModal"
+                            class="w-full py-3 mt-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                            <i class="bi bi-list-ul"></i> Lihat Daftar Referral
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FEATURE MANAGEMENT (DRAG & DROP) -->
+            <div class="premium-card p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-slate-800">Feature Management</h3>
+                        <p class="text-sm text-slate-500">Customize your product experience by moving modules.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="btnSetReferralFeatures"
+                            class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-full shadow transition-all duration-200 hover:shadow-indigo-200 hover:shadow-lg active:scale-[0.98]">
+                            <i class="bx bxs-customize text-base"></i>
+                            Set Fitur per Referral
+                        </button>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase tracking-widest border border-slate-200">
+                            Drag &amp; Drop to exclude
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="active-count-badge" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <h4 class="text-sm font-black text-slate-700 uppercase tracking-widest">
+                                Key Features (<span id="active-count">0</span>)
+                            </h4>
+                        </div>
+                        <div id="active-zone" class="drop-zone p-4 bg-emerald-50/50 border-2 border-emerald-100 rounded-[2rem] space-y-3 min-h-[200px]">
+                            <!-- Features dynamically populated -->
+                        </div>
+                        <!-- Active Features Pagination -->
+                        <div id="activeFeaturesPagination" class="ref-pagination"></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <h4 class="text-sm font-black text-slate-700 uppercase tracking-widest">
+                                Excluded Modules (<span id="excluded-count">0</span>)
+                            </h4>
+                        </div>
+                        <div id="excluded-zone" class="drop-zone p-4 bg-rose-50/50 border-2 border-rose-100 border-dashed rounded-[2rem] space-y-3 flex flex-col items-center justify-center text-rose-300 min-h-[200px]">
+                            <div id="placeholder-text" class="text-center py-8">
+                                <i class="bi bi-box-arrow-in-right text-3xl mb-2 block"></i>
+                                <p class="text-xs font-bold uppercase tracking-widest">Drop here to exclude</p>
+                            </div>
+                        </div>
+                        <!-- Excluded Features Pagination -->
+                        <div id="excludedFeaturesPagination" class="ref-pagination hidden"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- END FEATURE MANAGEMENT -->
+
+        </div>
+    </main>
+
+    <!-- ===== DRAWER: SET REFERRAL FEATURES ===== -->
+    <div id="refFeatOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
+
+    <aside id="refFeatDrawer" class="fixed top-0 right-0 h-full w-full max-w-[480px] bg-white shadow-2xl z-50 flex flex-col transform translate-x-full transition-transform duration-300 ease-out">
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-indigo-600 to-blue-600">
+            <div>
+                <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+                    <i class="bx bxs-customize text-lg"></i>
+                    Set Fitur per Kode Referral
+                </h2>
+                <p class="text-xs text-indigo-200 mt-0.5">Pilih referral → centang fitur yang tersedia</p>
+            </div>
+            <button id="btnCloseRefFeat" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors">
+                <i class="bx bx-x text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Body -->
+        <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5 custom-scrollbar">
+            <!-- Pilih Referral -->
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pilih Kode Referral</label>
+                <div class="relative">
+                    <select id="refFeatCodeSelect" class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 pr-10">
+                        <option value="">— Pilih kode referral —</option>
+                    </select>
+                    <i class="bx bx-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                </div>
+                <p id="refFeatCodeHint" class="text-[11px] text-slate-400 mt-1.5 hidden">Konfigurasi disimpan untuk kode ini.</p>
+            </div>
+
+            <!-- Feature Checklist -->
+            <div id="refFeatChecklistWrap" class="hidden">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                    Fitur yang Tersedia <span class="text-emerald-500">(centang = aktif untuk pelanggan referral ini)</span>
+                </label>
+                <div id="refFeatChecklist" class="space-y-2"></div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="refFeatEmpty" class="flex flex-col items-center justify-center py-16 text-slate-300">
+                <i class="bx bx-code-alt text-5xl mb-3"></i>
+                <p class="text-sm font-semibold">Pilih kode referral dulu</p>
+                <p class="text-xs">untuk mengatur fitur yang tersedia</p>
+            </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="px-6 py-4 border-t border-slate-100 flex flex-col gap-3">
+            <button id="refFeatSaveBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold rounded-2xl text-sm transition-all duration-200 flex items-center justify-center gap-2" disabled>
+                <i class="bx bx-save"></i>
+                Simpan Konfigurasi
+            </button>
+            <button id="btnResetRefFeatConfig" class="w-full py-2.5 border border-rose-200 text-rose-500 hover:bg-rose-50 font-bold rounded-2xl text-xs transition-colors">
+                <i class="bx bx-reset mr-1"></i>Reset ke Default (semua aktif)
+            </button>
+
+            <!-- Saved configs summary -->
+            <div id="refFeatSavedList" class="mt-1"></div>
+        </div>
+    </aside>
+
+    <!-- ===== MODAL: CREATE & EDIT REFERRAL ===== -->
+    <div id="referralModal" class="relative z-[9999] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="pointer-events-none fixed inset-0 flex items-center justify-center p-4">
+                <div class="pointer-events-auto w-full max-w-4xl bg-white shadow-2xl flex flex-col max-h-[90vh] rounded-3xl overflow-hidden animate-in-fade">
+
+                    <!-- Header -->
+                    <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white z-10 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                <i class="bi bi-ticket-perforated text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-extrabold text-slate-800 leading-none">Referral Details</h2>
+                                <p class="text-xs text-slate-400 font-medium mt-1">Buat atau perbarui kode referral</p>
+                            </div>
+                        </div>
+                        <button type="button" id="btnCloseReferralModal" class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-500 hover:text-slate-700">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Scrollable Content -->
+                    <div class="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <!-- LEFT COLUMN -->
+                            <div class="space-y-6">
+                                <!-- Pemegang Referral -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Pemegang Referral</label>
+                                    <select id="rdRefHolderType" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 appearance-none transition-all">
+                                        <option value="system">System (Default)</option>
+                                        <option value="user">Specific User / Student</option>
+                                    </select>
+                                </div>
+
+                                <!-- Produk Terkait -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Produk Terkait</label>
+                                    <div id="rdRefProductDropdown" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm flex items-center justify-between cursor-pointer hover:border-emerald-300 transition-colors group">
+                                        <span id="rdRefProductSummary" class="text-slate-500 group-hover:text-slate-700 transition-colors">Pilih minimal 1 product</span>
+                                        <i class="bi bi-chevron-down text-slate-400 text-xs group-hover:text-emerald-500 transition-colors"></i>
+                                    </div>
+                                    <div id="rdRefProductOptions" class="mt-2 bg-white border border-slate-100 rounded-2xl p-2 max-h-60 overflow-y-auto hidden shadow-xl shadow-slate-200/50 z-20 relative animate-in-fade custom-scrollbar">
+                                        <p class="text-[11px] text-slate-400 p-2 text-center">Memuat daftar product...</p>
+                                    </div>
+                                </div>
+
+                                <!-- Nama Pemegang (conditional) -->
+                                <div id="rdRefOwnerNameWrapper" class="hidden animate-in-fade">
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nama Pemegang</label>
+                                    <input id="rdRefOwnerName" type="text" placeholder="Nama user / student"
+                                        class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-slate-700 placeholder:font-medium">
+                                </div>
+
+                                <!-- Kode Referral -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Kode Referral</label>
+                                    <input id="rdRefCode" type="text" placeholder="DLGFRIEND"
+                                        class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-mono tracking-widest uppercase text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-slate-700 placeholder:font-medium placeholder:opacity-40">
+                                </div>
+                            </div>
+
+                            <!-- RIGHT COLUMN -->
+                            <div class="space-y-6">
+                                <!-- Fungsi Referral -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fungsi Referral</label>
+                                    <select id="rdRefFunctionType" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 appearance-none transition-all">
+                                        <option value="">Pilih fungsi referral</option>
+                                        <option value="discount">Discount</option>
+                                        <option value="cashback" disabled>Cashback (Soon)</option>
+                                        <option value="charity" disabled>Charity (Soon)</option>
+                                        <option value="point" disabled>Point (Soon)</option>
+                                        <option value="addon" disabled>Add On (Soon)</option>
+                                        <option value="reward" disabled>Reward (Soon)</option>
+                                        <option value="exclusivity" disabled>Exclusivity (Soon)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Discount Fields (conditional) -->
+                                <div id="rdRefDiscountWrapper" class="grid grid-cols-2 gap-4 hidden animate-in-fade">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Potongan (%)</label>
+                                        <input id="rdRefDiscountPercent" type="number" min="0" max="100" placeholder="10"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nilai Potongan</label>
+                                        <input id="rdRefDiscountAmount" type="text" placeholder="250.000"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                    </div>
+                                </div>
+
+                                <!-- Usage & Validity -->
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Maks Pakai</label>
+                                        <input id="rdRefMaxUsage" type="number" min="1" placeholder="10"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Berlaku (Bln)</label>
+                                        <input id="rdRefMonthsValid" type="number" min="1" placeholder="2"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                        <p class="text-[10px] text-slate-400 mt-1 font-medium">*Def: 2 bln</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Terpakai</label>
+                                        <input id="rdRefUsedCount" type="number" min="0" placeholder="0"
+                                            class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BENEFIT / FEATURE CONFIGURATION -->
+                        <div class="mt-10 pt-8 border-t border-slate-100">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Benefit / Feature Configuration</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1 font-medium italic">Atur fitur yang akan tampil dicoret jika tidak dipilih untuk kode referral ini.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="btnCheckAllCreation" class="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">Check All</button>
+                                    <button type="button" id="btnUncheckAllCreation" class="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg">Uncheck All</button>
+                                </div>
+                            </div>
+
+                            <div id="creationRefFeatChecklist" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="px-6 py-4 bg-white border-t border-slate-100 z-10 shrink-0 space-y-2">
+                        <button type="button" id="btnOpenDiscountCalculator"
+                            class="w-full py-2.5 bg-white border border-slate-200 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm flex items-center justify-center gap-2 text-xs text-slate-700 hidden group">
+                            <i class="fa-solid fa-calculator text-blue-600 group-hover:scale-110 transition-transform"></i>
+                            Kalkulator Discount
+                        </button>
+
+                        <div class="flex gap-3">
+                            <button type="button" id="btnSaveReferralDashboard"
+                                class="flex-1 py-3 bg-[linear-gradient(to_bottom,#006a4e_5%,#003f2e_100%)] text-white rounded-xl font-bold hover:bg-[linear-gradient(to_bottom,#003f2e_10%,#006a4e_95%)] transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-900/30 active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan Referral
+                            </button>
+                            <button type="button" id="btnResetReferralForm"
+                                class="px-4 py-3 bg-slate-50 text-slate-500 rounded-xl font-bold hover:bg-slate-100 hover:text-red-500 transition-all border border-slate-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                                title="Reset Form">
+                                <i class="bi bi-arrow-counterclockwise text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: DAFTAR REFERRAL (LIST & HISTORY) ===== -->
+    <div id="referralListModal" class="relative z-[9999] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl animate-in-fade">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                    <i class="bi bi-list-stars text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-extrabold text-slate-900">Daftar Referral</h3>
+                                    <p class="text-xs text-slate-400 font-medium mt-1">Kelola semua kode referral</p>
+                                </div>
+                            </div>
+                            <button type="button" id="btnCloseReferralListModal" class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors text-slate-500 hover:text-slate-700">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter Bar -->
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+                            <div class="relative w-full md:w-72">
+                                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="refSearchInput" type="text" placeholder="Cari kode atau pemegang..."
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-slate-700">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" data-ref-filter="all" class="ref-filter-btn px-4 py-2.5 text-xs font-bold bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">Semua</button>
+                                <button type="button" data-ref-filter="active" class="ref-filter-btn px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-emerald-600 transition-all">Aktif</button>
+                                <button type="button" data-ref-filter="expired" class="ref-filter-btn px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-red-500 transition-all">Expired</button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-hidden rounded-2xl border border-slate-100 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 bg-slate-50 z-10 shadow-sm">
+                                    <tr class="text-[11px] uppercase tracking-[0.15em] font-extrabold text-slate-400">
+                                        <th class="p-4">Pemegang & Kode</th>
+                                        <th class="p-4">Masa Berlaku</th>
+                                        <th class="p-4">Penggunaan</th>
+                                        <th class="p-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="refTableBody" class="divide-y divide-slate-50 text-sm"></tbody>
+                            </table>
+                            <div class="bg-slate-50/30 p-4 text-center border-t border-slate-50">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="refFooterSummary">Referral List</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== POPUP: DUPLIKAT SYSTEM DEFAULT WARNING ===== -->
+    <div id="sysDefaultPopup" class="relative z-[10000] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in-fade">
+                    <!-- Header -->
+                    <div class="px-6 pt-7 pb-4 text-center">
+                        <div class="mx-auto w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-amber-100">
+                            <i class="bi bi-exclamation-triangle-fill text-amber-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-slate-800">Duplikat System Default Terdeteksi</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Terdapat <span id="sysDefaultCount" class="font-extrabold text-amber-600">0</span> kode referral yang berstatus <span class="font-bold text-amber-600">System Default</span>. Seharusnya hanya boleh ada <span class="font-bold">1 kode</span> system default.
+                        </p>
+                    </div>
+                    <!-- Code list -->
+                    <div class="px-6 pb-4">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kode System Default</p>
+                        <div id="sysDefaultCodeList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                    <!-- Instruction -->
+                    <div class="px-6 pb-4">
+                        <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                            <div class="flex gap-3">
+                                <i class="bi bi-info-circle-fill text-amber-500 flex-shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-amber-800 leading-relaxed font-medium">
+                                    Silakan hapus salah satu atau beberapa kode referral system default sehingga hanya tersisa <strong>1 kode</strong>. Anda bisa menghapus melalui menu <strong>Daftar Referral</strong>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="px-6 pb-6 flex gap-3">
+                        <button type="button" class="btn-open-list-from-popup flex-1 py-3 bg-gradient-to-b from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-amber-200 flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                            <i class="bi bi-list-ul"></i> Buka Daftar Referral
+                        </button>
+                        <button type="button" id="btnCloseSysDefault" class="px-5 py-3 bg-slate-50 text-slate-500 rounded-2xl font-bold hover:bg-slate-100 transition-all border border-slate-200 text-sm active:scale-[0.98]">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Feature Orchestrator Entry Point -->
+    <script type="module" src="/pages/marketing/referral-dashboard/referral-dashboard.js"></script>
+</body>
+
+</html>

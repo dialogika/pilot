@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar Management | Dialogika</title>
+
+    <!-- Dependencies & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Feature Scoped Styles -->
+    <link href="/pages/marketing/webinar/webinar.css" rel="stylesheet">
+
+    <!-- Shared Theme Manager -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+    <!-- App Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="webinar-main-container">
+
+            <!-- PAGE HEADER & BREADCRUMB -->
+            <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-6">
+                <div>
+                    <!-- Consistent Standard Breadcrumb -->
+                    <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-2">
+                        <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                            <i class="fas fa-home text-xs"></i>
+                        </a>
+                        <span class="text-blue-600">/</span>
+                        <span class="text-blue-600">MARKETING DIVISION</span>
+                        <span class="text-slate-400">/</span>
+                        <span class="text-slate-600">WEBINAR MANAGEMENT</span>
+                    </nav>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Webinar Management</h1>
+                    <p class="text-slate-500 text-sm mt-1">Kelola section webinar secara dinamis. Hanya satu webinar yang boleh aktif dalam satu waktu.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="btnOpenMemberModal" type="button" class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center gap-2 font-semibold">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Daftar Member</span>
+                    </button>
+                    <button id="btnOpenAddWebinar" type="button" class="btn btn-dark rounded-pill px-4 d-flex align-items-center gap-2 font-semibold shadow-sm">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Tambah Webinar</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- STATS CARDS -->
+            <section class="row g-3 mb-6">
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-2xl d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: #ede9fe;">
+                            <i class="bi bi-collection-play-fill" style="font-size: 1.4rem; color: #7c3aed;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted font-bold tracking-wider mb-1" style="font-size: 0.72rem;">Total Webinar</div>
+                            <h3 class="font-extrabold text-2xl text-slate-900 mb-0" id="statTotalWebinar">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-2xl d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: #d1fae5;">
+                            <i class="bi bi-broadcast" style="font-size: 1.4rem; color: #059669;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted font-bold tracking-wider mb-1" style="font-size: 0.72rem;">Webinar Aktif</div>
+                            <h3 class="font-extrabold text-2xl text-slate-900 mb-0" id="statActiveWebinar">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="settings-card d-flex align-items-center gap-3">
+                        <div class="rounded-2xl d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: #fef3c7;">
+                            <i class="bi bi-eye-fill" style="font-size: 1.4rem; color: #d97706;"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-uppercase text-muted font-bold tracking-wider mb-1" style="font-size: 0.72rem;">Status Publik</div>
+                            <div class="font-bold text-slate-800 mb-0" id="statPublicStatus" style="font-size: 0.95rem;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WEBINAR GRID -->
+            <section id="webinarGrid" class="row g-4">
+                <!-- Rendered dynamically by webinar.ui.js -->
+            </section>
+
+            <!-- EMPTY STATE -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon"><i class="bi bi-collection-play"></i></div>
+                <h5 class="font-bold text-slate-700 text-lg mb-1">Belum ada webinar</h5>
+                <p class="text-slate-500 text-sm mb-4">Klik tombol "Tambah Webinar" untuk membuat section webinar pertama Anda.</p>
+                <button id="btnOpenAddWebinarEmpty" type="button" class="btn btn-dark rounded-pill px-4 font-semibold">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Webinar Pertama
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: Add / Edit Webinar -->
+    <div class="modal fade" id="webinarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="webinarModalTitle">Tambah Webinar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="webinarForm" onsubmit="return false;">
+                        <input type="hidden" id="webinarId">
+
+                        <!-- Nama Webinar -->
+                        <div class="mb-4">
+                            <label class="form-label" for="webinarName">Nama Webinar <span class="text-danger">*</span></label>
+                            <input type="text" id="webinarName" class="form-control" placeholder="cth: Webinar 1.0, Webinar 2.0" required>
+                            <small class="text-muted">Nama unik untuk mengidentifikasi webinar ini.</small>
+                        </div>
+
+                        <!-- Meta Title -->
+                        <div class="mb-4">
+                            <label class="form-label" for="webinarMetaTitle">Meta Title <span class="text-danger">*</span></label>
+                            <input type="text" id="webinarMetaTitle" class="form-control" placeholder="cth: Dialogika Webinar 1.0 - Membangun Karir di Bidang IT" required>
+                            <small class="text-muted">Judul yang akan tampil pada tag &lt;title&gt; halaman publik.</small>
+                        </div>
+
+                        <!-- Meta Description -->
+                        <div class="mb-4">
+                            <label class="form-label">Meta Description <span class="text-danger">*</span></label>
+                            <div id="webinarMetaDescEditor" style="height: 240px;"></div>
+                            <small class="text-muted mt-2 d-block">Deskripsi webinar dengan format rich text (WYSIWYG). Tampilan di halaman publik akan sama persis dengan yang dibuat di editor ini.</small>
+                        </div>
+
+                        <!-- Poster Upload -->
+                        <div class="mb-4">
+                            <label class="form-label">Poster Webinar</label>
+                            <div class="poster-upload-zone" id="posterUploadZone">
+                                <div id="posterPlaceholder">
+                                    <i class="bi bi-cloud-arrow-up" style="font-size: 2.2rem; color: #94a3b8;"></i>
+                                    <p class="mb-0 mt-2 text-slate-700 font-semibold text-sm">Klik atau drag gambar untuk upload</p>
+                                    <small class="text-muted">Format: JPG, PNG, WebP</small>
+                                </div>
+                                <img id="posterPreview" class="poster-upload-preview" style="display: none;" alt="Poster Preview">
+                            </div>
+                            <input type="file" id="posterFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;">
+                            <input type="hidden" id="posterExistingUrl">
+                            <small class="text-muted d-block mt-1 font-semibold text-xs" id="posterFileName"></small>
+                        </div>
+
+                        <!-- WhatsApp Link -->
+                        <div class="mb-4">
+                            <label class="form-label" for="webinarWhatsapp">Link Grup WhatsApp</label>
+                            <input type="url" id="webinarWhatsapp" class="form-control" placeholder="cth: https://chat.whatsapp.com/xxxxx">
+                            <small class="text-muted">Link grup WhatsApp untuk peserta webinar.</small>
+                        </div>
+
+                        <!-- Status Active -->
+                        <div class="mb-4 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="webinarIsActive">
+                            <label class="form-check-label font-bold text-slate-800" for="webinarIsActive">Aktifkan Webinar Ini</label>
+                            <div id="activateWarning" class="mt-1" style="display: none;">
+                                <small class="text-amber-600 font-semibold">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    Mengaktifkan webinar ini akan menonaktifkan webinar lain yang sedang aktif.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="d-flex gap-2 pt-3 border-top justify-content-end">
+                            <button type="button" class="btn btn-light rounded-pill px-4 border font-semibold" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-dark rounded-pill px-4 font-semibold" id="btnSaveWebinar">
+                                <span id="btnSaveLabel">Simpan</span>
+                                <span id="btnSaveSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Delete Confirmation -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="font-bold text-danger">Hapus Webinar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-2 text-slate-700">Apakah Anda yakin ingin menghapus webinar <strong id="deleteWebinarName" class="text-slate-900"></strong>?</p>
+                    <p class="text-slate-500 text-sm mb-0">Tindakan ini tidak dapat dibatalkan.</p>
+                    <input type="hidden" id="deleteWebinarId">
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 font-semibold" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4 font-semibold" id="btnConfirmDeleteWebinar">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Daftar Member Webinar -->
+    <div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title font-bold text-slate-900">Daftar Member Webinar</h5>
+                        <small class="text-muted">Data pendaftar yang mengisi form join grup WhatsApp.</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search Input -->
+                    <div class="position-relative mb-3">
+                        <i class="bi bi-search position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                        <input
+                            type="text"
+                            id="memberSearchInput"
+                            class="form-control ps-5"
+                            placeholder="Cari nama, domisili, profesi, nomor WhatsApp, sumber tahu, riwayat webinar..."
+                            style="border-radius: 12px; padding-top: 10px; padding-bottom: 10px;"
+                        >
+                    </div>
+
+                    <!-- Header & Page Controls -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div class="text-slate-500 font-medium" style="font-size: 0.78rem;" id="memberInfoText">Memuat data...</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 font-semibold" id="memberPrevBtn" disabled>
+                                <i class="bi bi-chevron-left me-1"></i>Sebelumnya
+                            </button>
+                            <span class="badge bg-light text-dark border px-3 py-1.5" id="memberPageLabel" style="font-size: 0.72rem; font-weight: 700;">Halaman 1</span>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 font-semibold" id="memberNextBtn" disabled>
+                                Berikutnya<i class="bi bi-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Member Table -->
+                    <div id="memberTableWrap" style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 14px;">
+                        <table class="table table-hover align-middle mb-0" style="min-width: 880px; font-size: 0.8rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="padding: 10px 12px;">Nama</th>
+                                    <th>WhatsApp</th>
+                                    <th>Domisili</th>
+                                    <th>Profesi</th>
+                                    <th>Sumber Tahu</th>
+                                    <th>Pernah Ikut</th>
+                                    <th>Webinar</th>
+                                    <th>Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Member Empty State -->
+                    <div id="memberEmpty" class="text-center text-muted py-5" style="display: none;">
+                        <i class="bi bi-inbox display-5 d-block mb-2 text-secondary opacity-50"></i>
+                        <div id="memberEmptyText">Belum ada data member webinar.</div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 font-semibold" id="memberLoadMoreBtn" style="display: none;">
+                        <i class="bi bi-arrow-down-circle me-1"></i>Muat Lebih Banyak
+                    </button>
+                    <span class="text-slate-400 font-medium" style="font-size: 0.72rem;" id="memberLoadHint"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script type="module" src="/pages/marketing/webinar/webinar.js"></script>
+</body>
+
+</html>

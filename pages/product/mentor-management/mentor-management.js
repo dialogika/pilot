@@ -13,6 +13,7 @@
 import { requireAuth } from "/assets/js/auth-guard.js";
 import { renderTopbar } from "/assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "/assets/js/components/sidebar/sidebar.js";
+import { alertDialog } from "/assets/js/ui.js";
 import * as repo from "./mentor-management.repository.js";
 import * as ui from "./mentor-management.ui.js";
 
@@ -294,15 +295,16 @@ function openAssignModal(mentorId) {
   ui.openAssignModal(mentor, availableClasses, async (mId, classId, note) => {
     try {
       const cls = availableClasses.find((c) => c.id === classId);
-      alert(
+      alertDialog(
         `Mentor ${mentor.fullName || mentor.nickName} berhasil di-assign ke ${
           cls ? cls.name : "kelas"
-        }.`
+        }.`,
+        { title: "Berhasil", type: "success" }
       );
       ui.closeAssignModal();
     } catch (e) {
       console.error("[Mentor Management] Assign error:", e);
-      alert("Terjadi kesalahan saat assign mentor.");
+      alertDialog("Terjadi kesalahan saat assign mentor.", { title: "Gagal", type: "danger" });
     }
   });
 }
@@ -580,7 +582,7 @@ function setupEventListeners() {
   if (btnBulkAssign) {
     btnBulkAssign.addEventListener("click", () => {
       if (!selectedMentorIds.size) {
-        alert("Pilih minimal satu mentor terlebih dahulu.");
+        alertDialog("Pilih minimal satu mentor terlebih dahulu.", { title: "Peringatan", type: "warning" });
         return;
       }
       const firstId = Array.from(selectedMentorIds)[0];
@@ -592,7 +594,7 @@ function setupEventListeners() {
   if (btnBulkStatus) {
     btnBulkStatus.addEventListener("click", async () => {
       if (!selectedMentorIds.size) {
-        alert("Pilih minimal satu mentor terlebih dahulu.");
+        alertDialog("Pilih minimal satu mentor terlebih dahulu.", { title: "Peringatan", type: "warning" });
         return;
       }
       const status = prompt(
@@ -601,19 +603,20 @@ function setupEventListeners() {
       if (!status) return;
       const normalized = status.toLowerCase().trim();
       if (!["active", "inactive", "on_leave"].includes(normalized)) {
-        alert("Status tidak valid. Gunakan 'active', 'inactive', atau 'on_leave'.");
+        alertDialog("Status tidak valid. Gunakan 'active', 'inactive', atau 'on_leave'.", { title: "Peringatan", type: "warning" });
         return;
       }
 
       try {
         await repo.bulkUpdateStatus(Array.from(selectedMentorIds), normalized);
         await loadMentorData();
-        alert(
-          `Status berhasil diperbarui menjadi '${normalized}' untuk ${selectedMentorIds.size} mentor.`
+        alertDialog(
+          `Status berhasil diperbarui menjadi '${normalized}' untuk ${selectedMentorIds.size} mentor.`,
+          { title: "Berhasil", type: "success" }
         );
       } catch (e) {
         console.error("[Mentor Management] Bulk status error:", e);
-        alert("Terjadi kesalahan saat memperbarui status.");
+        alertDialog("Terjadi kesalahan saat memperbarui status.", { title: "Gagal", type: "danger" });
       }
     });
   }
