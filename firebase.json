@@ -131,6 +131,7 @@
       {
         "source": "/data/piket-branding.html",
         "destination": "/piket-branding",
+        "type": 301
       },
       {
         "source": "/setting/invoice-management.html",
