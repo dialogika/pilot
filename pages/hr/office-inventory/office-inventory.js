@@ -23,6 +23,7 @@ import {
   renderTable,
   renderLoading,
   renderEmpty,
+  renderPagination,
   openAddModal,
   closeAddModal,
   openEditModal,
@@ -38,6 +39,8 @@ let allItems = [];
 let editingId = null;
 let deletingId = null;
 let unsubscribeInventory = null;
+let currentPage = 1;
+const rowsPerPage = 8;
 
 /**
  * Initialize Office Inventory feature.
@@ -78,7 +81,7 @@ async function initialize() {
 }
 
 /**
- * Filter items according to search query and update table.
+ * Filter items according to search query and update table with pagination.
  */
 function applySearchAndRender() {
   const searchInput = document.getElementById("searchInput");
@@ -95,10 +98,31 @@ function applySearchAndRender() {
     );
   }
 
-  renderTable(filtered, {
+  const totalRows = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedItems = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+  renderTable(pagedItems, {
     onEdit: handleOpenEdit,
     onDelete: handleOpenDelete,
   });
+
+  renderPagination(
+    {
+      currentPage,
+      totalRows,
+      rowsPerPage,
+      totalPages,
+    },
+    (newPage) => {
+      currentPage = newPage;
+      applySearchAndRender();
+    }
+  );
 }
 
 /**
@@ -269,7 +293,10 @@ async function handleConfirmDelete() {
 function setupEventListeners() {
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
-    searchInput.addEventListener("input", applySearchAndRender);
+    searchInput.addEventListener("input", () => {
+      currentPage = 1;
+      applySearchAndRender();
+    });
   }
 
   // Add modal controls
