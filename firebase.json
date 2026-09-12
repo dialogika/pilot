@@ -140,9 +140,134 @@
         "source": "/create-invoice.html",
         "destination": "/create-invoice",
         "type": 301
+      },
+      {
+        "source": "/setting/generate-certificate.html",
+        "destination": "/generate-certificate",
+        "type": 301
+      },
+      {
+        "source": "/setting/generate-certificate",
+        "destination": "/generate-certificate",
+        "type": 301
+      },
+      {
+        "source": "/generate-certificate.html",
+        "destination": "/generate-certificate",
+        "type": 301
+      },
+      {
+        "source": "/data/class-available.html",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/data/class-available",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-availability.html",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-availability",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/class-availability.html",
+        "destination": "/class-availability",
+        "type": 301
+      },
+      {
+        "source": "/setting/referral-dashboard.html",
+        "destination": "/referral-dashboard",
+        "type": 301
+      },
+      {
+        "source": "/setting/referral-dashboard",
+        "destination": "/referral-dashboard",
+        "type": 301
+      },
+      {
+        "source": "/referral-dashboard.html",
+        "destination": "/referral-dashboard",
+        "type": 301
+      },
+      {
+        "source": "/setting/leads-management.html",
+        "destination": "/leads-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/leads-management",
+        "destination": "/leads-management",
+        "type": 301
+      },
+      {
+        "source": "/leads-management.html",
+        "destination": "/leads-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/promo-classes.html",
+        "destination": "/promo-classes",
+        "type": 301
+      },
+      {
+        "source": "/setting/promo-classes",
+        "destination": "/promo-classes",
+        "type": 301
+      },
+      {
+        "source": "/promo-classes.html",
+        "destination": "/promo-classes",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/promo-classes",
+        "destination": "/pages/marketing/promo-classes/index.html"
+      },
+      {
+        "source": "/marketing/promo-classes",
+        "destination": "/pages/marketing/promo-classes/index.html"
+      },
+      {
+        "source": "/leads-management",
+        "destination": "/pages/marketing/leads-management/index.html"
+      },
+      {
+        "source": "/marketing/leads-management",
+        "destination": "/pages/marketing/leads-management/index.html"
+      },
+      {
+        "source": "/referral-dashboard",
+        "destination": "/pages/marketing/referral-dashboard/index.html"
+      },
+      {
+        "source": "/marketing/referral-dashboard",
+        "destination": "/pages/marketing/referral-dashboard/index.html"
+      },
+      {
+        "source": "/class-availability",
+        "destination": "/pages/marketing/class-availability/index.html"
+      },
+      {
+        "source": "/marketing/class-availability",
+        "destination": "/pages/marketing/class-availability/index.html"
+      },
+      {
+        "source": "/generate-certificate",
+        "destination": "/pages/product/generate-certificate/index.html"
+      },
+      {
+        "source": "/product/generate-certificate",
+        "destination": "/pages/product/generate-certificate/index.html"
+      },
       {
         "source": "/create-invoice",
         "destination": "/pages/marketing/create-invoice/index.html"

@@ -8,6 +8,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 import * as repo from "./exit-interview.repository.js";
 import * as ui from "./exit-interview.ui.js";
 
@@ -48,7 +49,7 @@ async function handleSubmitExitInterview() {
         icon: "warning",
       });
     } else {
-      alert("Tulisan tidak boleh kosong.");
+      await alertDialog("Tulisan tidak boleh kosong.", { type: "warning", title: "Peringatan" });
     }
     return;
   }
@@ -78,7 +79,7 @@ async function handleSubmitExitInterview() {
         icon: "error",
       });
     } else {
-      alert("Gagal mengirim exit interview: " + err.message);
+      await alertDialog("Gagal mengirim exit interview: " + err.message, { type: "error", title: "Terjadi Kesalahan" });
     }
   } finally {
     ui.setSubmitButtonLoading(false);
@@ -86,7 +87,7 @@ async function handleSubmitExitInterview() {
 }
 
 // ── Delete Handler ────────────────────────────────────────────────────
-function handleConfirmDelete(id) {
+async function handleConfirmDelete(id) {
   if (window.Swal) {
     window.Swal.fire({
       title: "Hapus Exit Interview?",
@@ -101,8 +102,16 @@ function handleConfirmDelete(id) {
         await executeDelete(id);
       }
     });
-  } else if (confirm("Hapus Exit Interview? Data tidak bisa dikembalikan.")) {
-    executeDelete(id);
+  } else {
+    const ok = await confirmDialog("Hapus Exit Interview? Data tidak bisa dikembalikan.", {
+      title: "Hapus Exit Interview?",
+      confirmText: "Hapus",
+      cancelText: "Batal",
+      danger: true,
+    });
+    if (ok) {
+      await executeDelete(id);
+    }
   }
 }
 
@@ -127,7 +136,7 @@ async function executeDelete(id) {
         icon: "error",
       });
     } else {
-      alert("Gagal menghapus data: " + err.message);
+      await alertDialog("Gagal menghapus data: " + err.message, { type: "error", title: "Terjadi Kesalahan" });
     }
   }
 }
@@ -190,7 +199,10 @@ export async function initialize() {
             window.location.href = "/home";
           });
         } else {
-          alert("Akses Ditolak: Halaman ini hanya bisa diakses oleh Head of Department Happy Team.");
+          await alertDialog("Akses Ditolak: Halaman ini hanya bisa diakses oleh Head of Department Happy Team.", {
+            type: "danger",
+            title: "Akses Ditolak",
+          });
           window.location.href = "/home";
         }
         return;

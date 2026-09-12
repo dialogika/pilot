@@ -2,6 +2,7 @@ import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
 import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as CandidateRepo from "./candidate-management.repository.js";
 import * as CandidateUI from "./candidate-management.ui.js";
@@ -649,11 +650,11 @@ async function savePosition() {
   const active = document.getElementById("positionActiveInput")?.value === "true";
 
   if (!name) {
-    alert("Nama posisi tidak boleh kosong.");
+    await alertDialog("Nama posisi tidak boleh kosong.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!category) {
-    alert("Pilih kategori posisi.");
+    await alertDialog("Pilih kategori posisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -668,7 +669,7 @@ async function savePosition() {
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Save failed:", e);
-    alert("Gagal menyimpan posisi.");
+    await alertDialog("Gagal menyimpan posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -680,20 +681,26 @@ async function handleTogglePositionActive(docId) {
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Toggle failed:", e);
-    alert("Gagal mengubah status posisi.");
+    await alertDialog("Gagal mengubah status posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
 async function handleDeletePosition(docId) {
   const pos = positionsData.find((p) => p.id === docId);
   const name = pos ? pos.name : docId;
-  if (!confirm(`Hapus posisi "${name}"?\nData yang sudah dihapus tidak dapat dikembalikan.`)) return;
+  const ok = await confirmDialog(`Hapus posisi "${name}"?\nData yang sudah dihapus tidak dapat dikembalikan.`, {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await CandidateRepo.deletePosition(docId);
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Delete failed:", e);
-    alert("Gagal menghapus posisi.");
+    await alertDialog("Gagal menghapus posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -721,16 +728,22 @@ async function handleCancelCandidate(cat, talentId) {
     const notes = (result.value || "").toString().trim();
     const ok = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, notes, actorName);
     if (!ok) {
-      alert("Gagal mengupdate status kandidat.");
+      await alertDialog("Gagal mengupdate status kandidat.", { type: "error", title: "Terjadi Kesalahan" });
       return;
     }
     await CandidateRepo.deleteSyncedCandidateData(cfg, talentId);
     updateCandidateStatusUI(cat, talentId, "canceled");
   } else {
-    if (!confirm("Tandai kandidat ini sebagai Canceled / Mengundurkan Diri?")) return;
-    const ok = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, "", actorName);
-    if (!ok) {
-      alert("Gagal mengupdate status kandidat.");
+    const ok = await confirmDialog("Tandai kandidat ini sebagai Canceled / Mengundurkan Diri?", {
+      title: "Konfirmasi Tindakan",
+      confirmText: "Ya, Batalkan",
+      cancelText: "Batal",
+      danger: true,
+    });
+    if (!ok) return;
+    const saveOk = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, "", actorName);
+    if (!saveOk) {
+      await alertDialog("Gagal mengupdate status kandidat.", { type: "error", title: "Terjadi Kesalahan" });
       return;
     }
     await CandidateRepo.deleteSyncedCandidateData(cfg, talentId);
@@ -740,13 +753,19 @@ async function handleCancelCandidate(cat, talentId) {
 
 async function handleMoveToTrash(cat, talentId, payload) {
   const cfg = TAB_CONFIG[cat];
-  if (!confirm("Pindahkan kandidat ke sampah?")) return;
+  const ok = await confirmDialog("Pindahkan kandidat ke sampah?", {
+    title: "Konfirmasi Pindahkan",
+    confirmText: "Ya, Pindahkan",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await CandidateRepo.moveCandidateToTrash(cfg, talentId, payload);
     removeCandidateFromUI(cat, talentId);
   } catch (err) {
     console.error("[Candidate] Move to trash failed:", err);
-    alert("Gagal memindahkan kandidat ke sampah.");
+    await alertDialog("Gagal memindahkan kandidat ke sampah.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 

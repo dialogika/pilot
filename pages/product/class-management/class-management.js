@@ -6,6 +6,7 @@
 import { renderTopBar } from "/element/topbar.js";
 import { renderSidebar } from "/element/sidebar.js";
 import { requireAuth } from "/assets/js/auth-guard.js";
+import { confirmDialog, alertDialog } from "/assets/js/ui.js";
 import {
   fetchClasses,
   fetchMentors,
@@ -221,7 +222,11 @@ function handleOpenDetail(id) {
     },
     async (classId, className) => {
       // Delete class
-      if (!confirm(`Hapus kelas "${className || ""}"?`)) return;
+      const confirmed = await confirmDialog(`Hapus kelas "${className || ""}"?`, {
+        title: "Hapus Kelas",
+        confirmText: "Ya, Hapus"
+      });
+      if (!confirmed) return;
       try {
         if (classItem.docId) {
           await deleteClassDoc(classItem.docId);
