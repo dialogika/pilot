@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Referral Dashboard Feature Styles
+   Scoped specifically for pages/marketing/referral-dashboard/
+   ========================================================================== */
+
+/* Main Container and Page Layout */
+.ref-main-container {
+    max-width: 76rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.5rem 1rem 3rem 1rem;
+}
+
+@media (min-width: 640px) {
+    .ref-main-container {
+        padding: 2rem 1.5rem 4rem 1.5rem;
+    }
+}
+
+/* Premium Card Container */
+.premium-card {
+    background: var(--surface, #ffffff);
+    border-radius: 1.5rem;
+    border: 1px solid var(--border, #e2e8f0);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Header Background Banner */
+.header-bg {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 2rem;
+    color: #ffffff;
+}
+
+/* Glassmorphism Stats Card */
+.glass-stats {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.25rem;
+    color: #1e293b;
+}
+
+.progress-gradient {
+    background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+}
+
+/* Step / Curriculum Order Bubble */
+.step-bubble {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-hover, #f1f5f9);
+    color: var(--text-faint-2, #64748b);
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid var(--border, #e2e8f0);
+    flex-shrink: 0;
+}
+
+/* Feature Management Drag & Drop Zones */
+.drop-zone {
+    min-height: 180px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.drop-zone.over {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+    border-style: dashed !important;
+    border-color: #6366f1 !important;
+}
+
+.draggable-item {
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.draggable-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.draggable-item:active {
+    cursor: grabbing;
+}
+
+.draggable-item.dragging {
+    opacity: 0.45;
+    transform: scale(0.97);
+}
+
+/* Product Selection Dropdown */
+.product-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    max-height: 340px;
+    overflow-y: auto;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 1.25rem;
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    animation: productDropSlide 0.15s ease;
+    display: none;
+}
+
+.product-dropdown.open {
+    display: block;
+}
+
+@keyframes productDropSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.product-dropdown-item:hover {
+    background: var(--surface-hover, #f8fafc);
+}
+
+.product-dropdown-item.active {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.product-dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: none;
+}
+
+.product-dropdown-backdrop.open {
+    display: block;
+}
+
+/* Custom Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Feature Management Pagination Styling */
+.ref-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.ref-pagination-info {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-faint-2, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ref-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ref-pagination-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 0.65rem;
+    border: 1px solid var(--border, #e2e8f0);
+    background: #ffffff;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ref-pagination-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ref-pagination-btn.active {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+.ref-pagination-btn:disabled,
+.ref-pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Fade in Animation */
+.animate-in-fade {
+    animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

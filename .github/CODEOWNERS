@@ -1,0 +1,7 @@
+# All repository changes require Yuan's review
+
+- @yuan
+
+# CODEOWNERS itself requires Yuan's review
+
+/.github/CODEOWNERS @yuan

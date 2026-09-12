@@ -1,0 +1,385 @@
+/* pages/hr/presence-team/presence-team.css */
+/* =====================================================================
+   PRESENCE TEAM FEATURE STYLES
+   Scoped styles for Presence Team page & Gamification.
+   ===================================================================== */
+
+.premium-shadow {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.active-pulse {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+}
+
+.active-pulse::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  opacity: 0.5;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* ── Scrollbar Helper ── */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.scrollbar-x::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-x::-webkit-scrollbar-track {
+  background: var(--surface-hover, #f8fafc);
+  border-radius: 99px;
+}
+
+.scrollbar-x::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+/* ── Badges ── */
+.badge-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.row-warning {
+  background: #fff7f7 !important;
+}
+
+/* ── Unified Table Wrappers ── */
+.tbl-outer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tbl-outer::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tbl-outer::-webkit-scrollbar-track {
+  background: var(--surface-hover, #f8fafc);
+}
+
+.tbl-outer::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+.tbl-scroll-body {
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tbl-scroll-body::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.tbl-scroll-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+
+.tbl-base {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: var(--surface, #ffffff);
+  min-width: max-content;
+}
+
+.tbl-base th {
+  background: var(--surface, #ffffff);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 1px 0 #e2e8f0;
+  white-space: nowrap;
+}
+
+.tbl-base td {
+  background: var(--surface, #ffffff);
+  white-space: nowrap;
+}
+
+.row-warning td {
+  background: #fff7f7 !important;
+}
+
+.tbl-base td.cell-name,
+.tbl-base th.cell-name {
+  white-space: normal;
+  min-width: 180px;
+}
+
+.avatar-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background-size: cover;
+  background-position: center;
+  background-color: #e2e8f0;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
+}
+
+/* ── Gamification ── */
+.gami-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.gami-tab {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #ffffff);
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  transition: all 0.15s ease;
+}
+
+.gami-tab.active {
+  background: #0b2b6a;
+  color: #fff;
+  border-color: #0b2b6a;
+}
+
+.gami-tab:hover:not(.active) {
+  background: var(--surface-hover, #f8fafc);
+}
+
+.intern-gami-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.intern-gami-card:hover {
+  box-shadow: 0 4px 14px rgba(11, 43, 106, 0.05);
+}
+
+.progress-track {
+  height: 10px;
+  background: var(--surface-hover, #f1f5f9);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+  background: #185fa5;
+}
+
+.progress-fill.on-streak {
+  background: #e24b4a;
+}
+
+.progress-markers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-faint-2, #94a3b8);
+  margin-top: 3px;
+}
+
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  margin: 2px;
+}
+
+.badge-chip.early-bgn {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+
+.badge-chip.early-nov {
+  background: #fde68a;
+  color: #78350f;
+  border-color: #d97706;
+}
+
+.badge-chip.early-mas {
+  background: #fbbf24;
+  color: #451a03;
+  border-color: #b45309;
+}
+
+.badge-chip.step-rookie {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.badge-chip.step-strider {
+  background: #bfdbfe;
+  color: #1e3a8a;
+  border-color: #2563eb;
+}
+
+.badge-chip.step-sprint {
+  background: #1e40af;
+  color: #fff;
+  border-color: #1e3a8a;
+}
+
+.badge-chip.locked {
+  background: var(--surface-toolbar, #f8fafc);
+  color: var(--text-faint-2, #94a3b8);
+  border-color: var(--border, #e2e8f0);
+}
+
+.ldr-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft, #f1f5f9);
+}
+
+.ldr-row:last-child {
+  border-bottom: none;
+}
+
+.ldr-rank {
+  font-size: 13px;
+  font-weight: 600;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ── Modern Pagination (Conditional) ── */
+.table-pagination-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+@media (min-width: 640px) {
+  .table-pagination-container {
+    flex-direction: row;
+  }
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #0b2b6a;
+  border-color: #cbd5e1;
+}
+
+.pagination-btn.active {
+  background: #0b2b6a;
+  color: #ffffff;
+  border-color: #0b2b6a;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .gami-tabs {
+    gap: 6px;
+  }
+  .gami-tab {
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+}

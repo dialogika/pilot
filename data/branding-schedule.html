@@ -124,7 +124,34 @@
             margin-bottom: 0;
         }
     
-</style>
+        .cs-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+        .cs-breadcrumb a {
+            color: #2563eb;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.15s ease;
+        }
+        .cs-breadcrumb a:hover {
+            color: #1d4ed8;
+        }
+        .cs-breadcrumb .breadcrumb-separator {
+            color: #2563eb;
+        }
+        .cs-breadcrumb .breadcrumb-current {
+            color: #94a3b8;
+        }
+    </style>
 
     <!-- Centralized Auth Guard -->
     <script type="module" src="../assets/js/auth-guard.js"></script>
@@ -137,6 +164,15 @@
         <div id="sidebarContainer"></div>
 
         <main class="main-content">
+            <!-- Breadcrumb Navigation -->
+            <nav class="cs-breadcrumb" aria-label="Breadcrumb">
+                <a href="/home" title="Home"><i class="bi bi-house-fill"></i></a>
+                <span class="breadcrumb-separator">/</span>
+                <span>BRANDING DIVISION</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">CONTENT SCHEDULE</span>
+            </nav>
+
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="fw-bold text-dark mb-1">Branding Content Schedule</h4>

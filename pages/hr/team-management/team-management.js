@@ -12,7 +12,8 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
-import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js";
+import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as TeamRepo from "./team-management.repository.js";
 import * as TeamUI from "./team-management.ui.js";
@@ -144,7 +145,7 @@ async function handleSaveMember(event) {
   const payload = TeamUI.collectFormData(state.activeDivision);
 
   if (!payload.name) {
-    alert("Nama wajib diisi.");
+    await alertDialog("Nama wajib diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -309,7 +310,7 @@ async function handleSaveMember(event) {
     if (state.modal) state.modal.hide();
   } catch (error) {
     console.error("Failed to save team member:", error);
-    alert("Gagal menyimpan anggota team: " + error.message);
+    await alertDialog("Gagal menyimpan anggota team: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     if (submitBtn) submitBtn.disabled = false;
   }
@@ -323,14 +324,19 @@ async function handleDeleteMember(id) {
   if (!id) return;
   const member = state.members.find((item) => item.id === id);
   const name = member && member.name ? member.name : "anggota ini";
-  const ok = confirm(`Hapus ${name} dari Team Management?`);
+  const ok = await confirmDialog(`Hapus ${name} dari Team Management?`, {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
   if (!ok) return;
 
   try {
     await TeamRepo.deleteTeamMember(id);
   } catch (error) {
     console.error("Failed to delete team member:", error);
-    alert("Gagal menghapus anggota team: " + error.message);
+    await alertDialog("Gagal menghapus anggota team: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 

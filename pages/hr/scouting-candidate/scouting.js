@@ -12,7 +12,8 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
-import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js";
+import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as ScoutingRepo from "./scouting.repository.js";
 import * as ScoutingUI from "./scouting.ui.js";
@@ -31,6 +32,10 @@ const state = {
     search: "",
     status: "all",
     sort: "newest",
+  },
+  pagination: {
+    page: 1,
+    pageSize: 6,
   },
   modalInstance: null,
 };
@@ -55,7 +60,7 @@ function getFilteredTalents() {
   });
 
   // 1. Search filter
-  const term = state.filterState.search.trim().toLowerCase();
+  const term = state.filterState.search.toLowerCase().trim();
   if (term) {
     result = result.filter((t) => {
       const basic = t.basic_info || {};
@@ -96,11 +101,35 @@ function getFilteredTalents() {
 }
 
 /**
- * Apply filters and update the view.
+ * Apply filters and update the view with pagination.
  */
 function applyFiltersAndRender() {
   const filtered = getFilteredTalents();
-  ScoutingUI.renderTalents(filtered, state.assignUsersMap);
+  const totalRows = filtered.length;
+  const pageSize = state.pagination.pageSize || 12;
+  const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+
+  if (state.pagination.page > totalPages) state.pagination.page = totalPages;
+  if (state.pagination.page < 1) state.pagination.page = 1;
+
+  const startIndex = (state.pagination.page - 1) * pageSize;
+  const pageItems = filtered.slice(startIndex, startIndex + pageSize);
+
+  ScoutingUI.renderTalents(pageItems, state.assignUsersMap);
+
+  ScoutingUI.renderPagination(
+    {
+      currentPage: state.pagination.page,
+      totalRows,
+      rowsPerPage: pageSize,
+      totalPages,
+    },
+    (newPage) => {
+      state.pagination.page = newPage;
+      applyFiltersAndRender();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  );
 }
 
 /**
@@ -177,7 +206,7 @@ async function handleOpenEditModal(talentId) {
   try {
     const talent = await ScoutingRepo.getTalentById(talentId);
     if (!talent) {
-      alert("Data kandidat tidak ditemukan.");
+      await alertDialog("Data kandidat tidak ditemukan.", { type: "warning", title: "Data Tidak Ditemukan" });
       return;
     }
 
@@ -257,7 +286,7 @@ async function handleOpenEditModal(talentId) {
     if (state.modalInstance) state.modalInstance.show();
   } catch (error) {
     console.error("Failed to load talent for edit:", error);
-    alert("Gagal memuat data kandidat untuk diedit.");
+    await alertDialog("Gagal memuat data kandidat untuk diedit.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -271,7 +300,7 @@ async function handleSubmitCandidateForm(event) {
 
   const name = document.getElementById("candidateNameInput").value.trim();
   if (!name) {
-    alert("Nama kandidat wajib diisi.");
+    await alertDialog("Nama kandidat wajib diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -327,10 +356,10 @@ async function handleSubmitCandidateForm(event) {
 
     if (state.modalInstance) state.modalInstance.hide();
     await loadTalents();
-    alert(isEdit ? "Data kandidat berhasil diperbarui." : "Data kandidat berhasil disimpan.");
+    await alertDialog(isEdit ? "Data kandidat berhasil diperbarui." : "Data kandidat berhasil disimpan.", { type: "success", title: "Berhasil" });
   } catch (error) {
     console.error("Failed to save candidate:", error);
-    alert("Gagal menyimpan data kandidat: " + error.message);
+    await alertDialog("Gagal menyimpan data kandidat: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
     ScoutingUI.setPhotoState("error", "Gagal menyimpan foto");
   } finally {
     if (submitBtn) submitBtn.disabled = false;
@@ -343,7 +372,12 @@ async function handleSubmitCandidateForm(event) {
  */
 async function handleDeleteCandidate(talentId) {
   if (!talentId) return;
-  const ok = confirm("Hapus kandidat ini dari daftar scouting?");
+  const ok = await confirmDialog("Hapus kandidat ini dari daftar scouting?", {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
   if (!ok) return;
 
   try {
@@ -351,7 +385,7 @@ async function handleDeleteCandidate(talentId) {
     await loadTalents();
   } catch (error) {
     console.error("Failed to delete talent:", error);
-    alert("Gagal menghapus kandidat: " + error.message);
+    await alertDialog("Gagal menghapus kandidat: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -371,7 +405,7 @@ async function handleStatusChange(talentId, newStatus) {
     }
   } catch (error) {
     console.error("Failed to update status:", error);
-    alert("Gagal memperbarui status: " + error.message);
+    await alertDialog("Gagal memperbarui status: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -410,7 +444,7 @@ async function handleExportExcel() {
     await ScoutingRepo.exportScoutingToExcel(filtered, state.assignUsersMap);
   } catch (error) {
     console.error("Excel export error:", error);
-    alert("Gagal mengekspor data: " + error.message);
+    await alertDialog("Gagal mengekspor data: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     btn.disabled = false;
     btn.innerHTML = prevHtml;
@@ -437,6 +471,7 @@ function wireEvents() {
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       state.filterState.search = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
@@ -446,6 +481,7 @@ function wireEvents() {
   if (statusFilter) {
     statusFilter.addEventListener("change", (e) => {
       state.filterState.status = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
@@ -455,6 +491,7 @@ function wireEvents() {
   if (sortSelect) {
     sortSelect.addEventListener("change", (e) => {
       state.filterState.sort = e.target.value;
+      state.pagination.page = 1;
       applyFiltersAndRender();
     });
   }
@@ -481,7 +518,7 @@ function wireEvents() {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
       if (file.size > 5 * 1024 * 1024) {
-        alert("Ukuran file maksimal 5MB.");
+        await alertDialog("Ukuran file maksimal 5MB.", { type: "warning", title: "Ukuran File Terlalu Besar" });
         photoInput.value = "";
         ScoutingUI.setPhotoState("error", "Ukuran melebihi 5MB");
         return;

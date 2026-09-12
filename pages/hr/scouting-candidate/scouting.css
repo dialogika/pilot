@@ -496,3 +496,59 @@
   color: #0f172a;
 }
 
+/* --- Scouting Candidate Pagination --- */
+.candidate-pagination-wrap {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.candidate-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.candidate-page-btn:hover:not(:disabled):not(.active) {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.candidate-page-btn.active {
+  background: linear-gradient(to bottom, #0f61a8 5%, #0b2b6a 100%);
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px -2px rgba(11, 43, 106, 0.4);
+}
+
+.candidate-page-btn:disabled,
+.candidate-page-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.candidate-page-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 2.25rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+

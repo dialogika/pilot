@@ -1,7 +1,8 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
-import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js";
+import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as CandidateRepo from "./candidate-management.repository.js";
 import * as CandidateUI from "./candidate-management.ui.js";
@@ -181,7 +182,9 @@ function getTabState(cat) {
       usersMap: {},
       interviewSchedule: { entries: [], loading: false, page: 1, pageSize: 10, selectedRowKey: "" },
       currentEditingTalentId: null,
-      viewMode: "grid"
+      viewMode: "grid",
+      page: 1,
+      pageSize: 12
     };
   }
   return tabState[cat];
@@ -196,20 +199,18 @@ let templateModalInstance = null;
 let activeTemplateCategory = "team";
 
 // ===== UPDATE PIPELINE SUMMARY =====
-function updatePipelineSummary(cat) {
+function updatePipelineSummary(cat, candidateItems) {
   const cfg = TAB_CONFIG[cat];
   if (!cfg) return;
   const counts = {};
   cfg.statusPipeline.forEach((s) => (counts[s.value] = 0));
 
-  const grid = document.querySelector(`.tab-grid[data-tab="${cat}"]`);
-  if (grid) {
-    grid.querySelectorAll(".candidate-item").forEach((item) => {
-      if (item.style.display === "none") return;
-      const n = cfg.normalizeStatus(item.dataset.status || "");
-      counts[n] = (counts[n] || 0) + 1;
-    });
-  }
+  const items = candidateItems || Array.from(document.querySelectorAll(`.tab-grid[data-tab="${cat}"] .candidate-item`));
+  items.forEach((item) => {
+    const n = cfg.normalizeStatus(item.dataset.status || "");
+    counts[n] = (counts[n] || 0) + 1;
+  });
+
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   CandidateUI.renderPipelineSummary(cat, cfg, counts, total);
 }
@@ -238,70 +239,124 @@ function setViewMode(cat, mode) {
   if (listBtn) listBtn.classList.toggle("active", !isGrid);
 }
 
-// ===== FILTER / SORT =====
+// ===== FILTER / SORT / PAGINATION =====
 function applyFilters(cat) {
   const searchEl = document.querySelector(`.tab-search-input[data-tab="${cat}"]`);
   const statusEl = document.querySelector(`.tab-status-filter[data-tab="${cat}"]`);
   const sortEl = document.querySelector(`.tab-sort-select[data-tab="${cat}"]`);
 
-  const term = (searchEl ? searchEl.value : "").toLowerCase();
-  const statusVal = (statusEl ? statusEl.value : "").toLowerCase();
+  const term = (searchEl ? searchEl.value : "").toLowerCase().trim();
+  const statusVal = (statusEl ? statusEl.value : "").toLowerCase().trim();
   const sortVal = sortEl ? sortEl.value : "none";
 
   const grid = document.querySelector(`.tab-grid[data-tab="${cat}"]`);
   const listWrap = document.querySelector(`.tab-list-wrap[data-tab="${cat}"]`);
   if (!grid) return;
 
-  const gridItems = grid.querySelectorAll(".candidate-item");
-  const listRows = listWrap ? listWrap.querySelectorAll(".candidate-row") : [];
+  const state = getTabState(cat);
+  const gridItems = Array.from(grid.querySelectorAll(".candidate-item"));
+  const listRows = listWrap ? Array.from(listWrap.querySelectorAll(".candidate-row")) : [];
 
+  // 1. Identify all matching items
+  const matchingGridItems = [];
   gridItems.forEach((item) => {
     const t = item.innerText.toLowerCase();
     const s = (item.dataset.status || "").toLowerCase();
-    item.style.display = t.includes(term) && (!statusVal || s === statusVal) ? "" : "none";
+    const match = t.includes(term) && (!statusVal || s === statusVal);
+    if (match) matchingGridItems.push(item);
   });
 
+  const matchingListRows = [];
   listRows.forEach((row) => {
     const t = row.innerText.toLowerCase();
     const s = (row.dataset.status || "").toLowerCase();
-    row.style.display = t.includes(term) && (!statusVal || s === statusVal) ? "" : "none";
+    const match = t.includes(term) && (!statusVal || s === statusVal);
+    if (match) matchingListRows.push(row);
   });
 
-  if (sortVal === "none") {
-    updatePipelineSummary(cat);
-    return;
+  // 2. Sort matching items if requested
+  if (sortVal !== "none") {
+    const compare = (a, b) => {
+      const nA = (a.dataset.name || "").toLowerCase(),
+        nB = (b.dataset.name || "").toLowerCase();
+      const sA = (a.dataset.status || "").toLowerCase(),
+        sB = (b.dataset.status || "").toLowerCase();
+      const cA = Number(a.dataset.created || "0"),
+        cB = Number(b.dataset.created || "0");
+      const dA = a.dataset.dueDate || "",
+        dB = b.dataset.dueDate || "";
+
+      if (sortVal === "status") return sA.localeCompare(sB, "id");
+      if (sortVal === "created_desc") return cB - cA;
+      if (sortVal === "created_asc") return cA - cB;
+      if (sortVal === "interview_asc") return (dA || "9999-12-31").localeCompare(dB || "9999-12-31", "id");
+      if (sortVal === "interview_desc") return (dB || "0000-01-01").localeCompare(dA || "0000-01-01", "id");
+      if (sortVal === "name_asc") return nA.localeCompare(nB, "id");
+      if (sortVal === "name_desc") return nB.localeCompare(nA, "id");
+      return 0;
+    };
+
+    matchingGridItems.sort(compare);
+    matchingListRows.sort(compare);
   }
 
-  const compare = (a, b) => {
-    const nA = (a.dataset.name || "").toLowerCase(),
-      nB = (b.dataset.name || "").toLowerCase();
-    const sA = (a.dataset.status || "").toLowerCase(),
-      sB = (b.dataset.status || "").toLowerCase();
-    const cA = Number(a.dataset.created || "0"),
-      cB = Number(b.dataset.created || "0");
-    const dA = a.dataset.dueDate || "",
-      dB = b.dataset.dueDate || "";
-
-    if (sortVal === "status") return sA.localeCompare(sB, "id");
-    if (sortVal === "created_desc") return cB - cA;
-    if (sortVal === "created_asc") return cA - cB;
-    if (sortVal === "interview_asc") return (dA || "9999-12-31").localeCompare(dB || "9999-12-31", "id");
-    if (sortVal === "interview_desc") return (dB || "0000-01-01").localeCompare(dA || "0000-01-01", "id");
-    if (sortVal === "name_asc") return nA.localeCompare(nB, "id");
-    if (sortVal === "name_desc") return nB.localeCompare(nA, "id");
-    return 0;
-  };
-
-  const visGrid = Array.from(gridItems).filter((i) => i.style.display !== "none");
-  visGrid.sort(compare).forEach((i) => grid.appendChild(i));
-
+  // Keep DOM order in sync with sorting
+  matchingGridItems.forEach((i) => grid.appendChild(i));
   if (listWrap) {
     const tbody = listWrap.querySelector("tbody");
-    const visList = Array.from(listRows).filter((r) => r.style.display !== "none");
-    visList.sort(compare).forEach((r) => tbody.appendChild(r));
+    if (tbody) matchingListRows.forEach((r) => tbody.appendChild(r));
   }
 
-  updatePipelineSummary(cat);
+  // 3. Update pipeline summary across ALL matching candidates (not just sliced page)
+  updatePipelineSummary(cat, matchingGridItems);
+
+  // 4. Pagination calculations
+  const totalRows = matchingGridItems.length;
+  const pageSize = state.pageSize || 12;
+  const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+  if (state.page > totalPages) state.page = totalPages;
+  if (state.page < 1) state.page = 1;
+
+  const startIndex = (state.page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  // 5. Slice display: show only current page items, hide others
+  gridItems.forEach((item) => {
+    const idx = matchingGridItems.indexOf(item);
+    if (idx >= startIndex && idx < endIndex) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
+  });
+
+  listRows.forEach((row) => {
+    const idx = matchingListRows.indexOf(row);
+    if (idx >= startIndex && idx < endIndex) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+
+  // 6. Render pagination footer controls
+  CandidateUI.renderTabPagination(
+    cat,
+    {
+      currentPage: state.page,
+      totalRows,
+      rowsPerPage: pageSize,
+      totalPages
+    },
+    (newPage) => {
+      state.page = newPage;
+      applyFilters(cat);
+      const panel = document.getElementById(`panel-${cat}`);
+      if (panel) {
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  );
 }
 
 // ===== CANDIDATE DATA LOADING =====
@@ -595,11 +650,11 @@ async function savePosition() {
   const active = document.getElementById("positionActiveInput")?.value === "true";
 
   if (!name) {
-    alert("Nama posisi tidak boleh kosong.");
+    await alertDialog("Nama posisi tidak boleh kosong.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!category) {
-    alert("Pilih kategori posisi.");
+    await alertDialog("Pilih kategori posisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -614,7 +669,7 @@ async function savePosition() {
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Save failed:", e);
-    alert("Gagal menyimpan posisi.");
+    await alertDialog("Gagal menyimpan posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -626,20 +681,26 @@ async function handleTogglePositionActive(docId) {
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Toggle failed:", e);
-    alert("Gagal mengubah status posisi.");
+    await alertDialog("Gagal mengubah status posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
 async function handleDeletePosition(docId) {
   const pos = positionsData.find((p) => p.id === docId);
   const name = pos ? pos.name : docId;
-  if (!confirm(`Hapus posisi "${name}"?\nData yang sudah dihapus tidak dapat dikembalikan.`)) return;
+  const ok = await confirmDialog(`Hapus posisi "${name}"?\nData yang sudah dihapus tidak dapat dikembalikan.`, {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await CandidateRepo.deletePosition(docId);
     await loadRecruitmentPositions();
   } catch (e) {
     console.error("[Positions] Delete failed:", e);
-    alert("Gagal menghapus posisi.");
+    await alertDialog("Gagal menghapus posisi.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -667,16 +728,22 @@ async function handleCancelCandidate(cat, talentId) {
     const notes = (result.value || "").toString().trim();
     const ok = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, notes, actorName);
     if (!ok) {
-      alert("Gagal mengupdate status kandidat.");
+      await alertDialog("Gagal mengupdate status kandidat.", { type: "error", title: "Terjadi Kesalahan" });
       return;
     }
     await CandidateRepo.deleteSyncedCandidateData(cfg, talentId);
     updateCandidateStatusUI(cat, talentId, "canceled");
   } else {
-    if (!confirm("Tandai kandidat ini sebagai Canceled / Mengundurkan Diri?")) return;
-    const ok = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, "", actorName);
-    if (!ok) {
-      alert("Gagal mengupdate status kandidat.");
+    const ok = await confirmDialog("Tandai kandidat ini sebagai Canceled / Mengundurkan Diri?", {
+      title: "Konfirmasi Tindakan",
+      confirmText: "Ya, Batalkan",
+      cancelText: "Batal",
+      danger: true,
+    });
+    if (!ok) return;
+    const saveOk = await CandidateRepo.cancelCandidateStatus(cfg.collectionName, talentId, "", actorName);
+    if (!saveOk) {
+      await alertDialog("Gagal mengupdate status kandidat.", { type: "error", title: "Terjadi Kesalahan" });
       return;
     }
     await CandidateRepo.deleteSyncedCandidateData(cfg, talentId);
@@ -686,13 +753,19 @@ async function handleCancelCandidate(cat, talentId) {
 
 async function handleMoveToTrash(cat, talentId, payload) {
   const cfg = TAB_CONFIG[cat];
-  if (!confirm("Pindahkan kandidat ke sampah?")) return;
+  const ok = await confirmDialog("Pindahkan kandidat ke sampah?", {
+    title: "Konfirmasi Pindahkan",
+    confirmText: "Ya, Pindahkan",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await CandidateRepo.moveCandidateToTrash(cfg, talentId, payload);
     removeCandidateFromUI(cat, talentId);
   } catch (err) {
     console.error("[Candidate] Move to trash failed:", err);
-    alert("Gagal memindahkan kandidat ke sampah.");
+    await alertDialog("Gagal memindahkan kandidat ke sampah.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -719,13 +792,25 @@ function bindEvents() {
 
   // Search / filter / sort
   document.querySelectorAll(".tab-search-input").forEach((el) =>
-    el.addEventListener("input", () => applyFilters(el.dataset.tab))
+    el.addEventListener("input", () => {
+      const s = getTabState(el.dataset.tab);
+      s.page = 1;
+      applyFilters(el.dataset.tab);
+    })
   );
   document.querySelectorAll(".tab-status-filter").forEach((el) =>
-    el.addEventListener("change", () => applyFilters(el.dataset.tab))
+    el.addEventListener("change", () => {
+      const s = getTabState(el.dataset.tab);
+      s.page = 1;
+      applyFilters(el.dataset.tab);
+    })
   );
   document.querySelectorAll(".tab-sort-select").forEach((el) =>
-    el.addEventListener("change", () => applyFilters(el.dataset.tab))
+    el.addEventListener("change", () => {
+      const s = getTabState(el.dataset.tab);
+      s.page = 1;
+      applyFilters(el.dataset.tab);
+    })
   );
 
   // Interview schedule modal

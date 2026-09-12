@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intern Satisfaction Survey - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + Fonts (Standard across Pilot) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Architecture foundation styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet" />
+    <link href="/assets/css/layout.css" rel="stylesheet" />
+    <!-- Feature-scoped styles -->
+    <link
+      href="/pages/hr/intern-satisfaction/intern-satisfaction.css"
+      rel="stylesheet"
+    />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+        background-color: var(--surface-hover, #f8fafc);
+        color: var(--text-strong, #0f172a);
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!-- Shared app shell mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <div class="w-full max-w-full px-2 px-md-4 py-4">
+        <!-- Page Header -->
+        <header class="mb-5">
+          <!-- Breadcrumb -->
+          <nav
+            class="d-flex align-items-center gap-2 text-primary fw-bold text-uppercase mb-2"
+            style="letter-spacing: 0.12em; font-size: 11px;"
+          >
+            <a href="/home" class="text-decoration-none text-primary" title="Home">
+              <i class="fas fa-home"></i>
+            </a>
+            <span class="text-slate-400">/</span>
+            <span class="text-primary">HR DIVISION</span>
+            <span class="text-slate-400">/</span>
+            <span class="text-slate-400">INTERN SATISFACTION SURVEY</span>
+          </nav>
+
+          <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
+            <div>
+              <h1 class="h3 fw-extrabold text-slate-900 mb-1">Intern Satisfaction Survey</h1>
+              <p class="text-slate-500 small fw-medium mb-0">
+                Ringkasan &amp; analisis hasil evaluasi internship yang dikirim peserta magang.
+              </p>
+            </div>
+            <div class="text-slate-400 small fw-medium" id="dataInfoText">Menunggu data...</div>
+          </div>
+        </header>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+          <div class="spinner-border text-indigo-600" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-slate-500 small font-medium">Memuat hasil survey dari Firebase...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display:none;">
+          <!-- Overall Summary Card -->
+          <section class="summary-card mb-4">
+            <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+              <div class="summary-icon"><i class="bi bi-stars"></i></div>
+              <div class="text-center text-md-start flex-grow-1">
+                <div class="summary-stars" id="summaryStars">☆☆☆☆☆</div>
+                <div class="mt-2 d-flex align-items-baseline justify-content-center justify-content-md-start gap-2">
+                  <span class="summary-big"><span id="summaryScore">0.0</span> <small>/ 5</small></span>
+                  <span class="text-slate-400 small fw-semibold">(rata-rata dari <span id="summaryRaw">0</span> pertanyaan Likert)</span>
+                </div>
+                <div class="summary-respondents mt-1">
+                  <i class="bi bi-people-fill me-1"></i>Berdasarkan <span id="summaryCount">0</span> responden
+                </div>
+              </div>
+              <div class="text-center text-md-end">
+                <div class="text-slate-400 small fw-bold text-uppercase mb-1" style="font-size:10px; letter-spacing:0.12em;">
+                  Tingkat Kepuasan
+                </div>
+                <div class="fs-4 fw-extrabold text-slate-900" id="summaryPct">0%</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Category Stat Cards -->
+          <div class="row g-3 mb-4" id="categoryCards"></div>
+
+          <!-- Toolbar -->
+          <div class="toolbar-card mb-4">
+            <div class="d-flex flex-column flex-lg-row gap-2 align-items-stretch">
+              <div class="position-relative flex-grow-1">
+                <i class="bi bi-search position-absolute text-slate-400" style="left:12px; top:50%; transform:translateY(-50%);"></i>
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control ps-5"
+                  placeholder="Cari nama, email, divisi, atau alasan mengakhiri..."
+                />
+              </div>
+              <select id="deptFilter" class="form-select" style="max-width:240px;">
+                <option value="">Semua Divisi</option>
+              </select>
+              <select id="sortSelect" class="form-select" style="max-width:200px;">
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="highest">Rating Tertinggi</option>
+                <option value="lowest">Rating Terendah</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="gridEmpty" class="empty-state" style="display:none;">
+            <i class="bi bi-inbox display-5 d-block mb-2"></i>
+            <p class="fw-semibold text-slate-500 mb-1">Belum ada data survey yang sesuai.</p>
+            <p class="small mb-0">Coba ubah kata kunci pencarian atau filter divisi.</p>
+          </div>
+
+          <!-- Respondent Cards Grid -->
+          <div class="row g-3" id="respondentGrid"></div>
+
+          <!-- Pagination Controls -->
+          <div id="pgnContainer" class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-4">
+            <span class="small text-slate-400" id="pgnInfo"></span>
+            <div id="pgnControls" class="d-flex align-items-center gap-1 flex-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Detail Survey Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="detailModalTitle">Detail Survey</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-2" id="detailModalBody"></div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Feature Orchestrator -->
+    <script type="module" src="/pages/hr/intern-satisfaction/intern-satisfaction.js"></script>
+  </body>
+</html>

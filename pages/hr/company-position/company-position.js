@@ -1,7 +1,8 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
-import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js";
+import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as PositionRepo from "./company-position.repository.js";
 import * as PositionUI from "./company-position.ui.js";
@@ -168,7 +169,7 @@ async function handleSubmitAddPosition(e) {
   e.preventDefault();
   const formData = PositionUI.getAddPositionFormData();
   if (!formData.name) {
-    alert("Please enter a position name.");
+    await alertDialog("Please enter a position name.", { type: "warning", title: "Form Validation" });
     return;
   }
 
@@ -178,7 +179,7 @@ async function handleSubmitAddPosition(e) {
     await loadPositions();
   } catch (error) {
     console.error("Failed to save new position:", error);
-    alert("Failed to save new position. Please try again.");
+    await alertDialog("Failed to save new position. Please try again.", { type: "error", title: "Error" });
   }
 }
 
@@ -205,7 +206,7 @@ async function handleSubmitEditPosition(e) {
   e.preventDefault();
   const formData = PositionUI.getEditPositionFormData();
   if (!formData.id || !formData.name) {
-    alert("Position name cannot be empty.");
+    await alertDialog("Position name cannot be empty.", { type: "warning", title: "Form Validation" });
     return;
   }
 
@@ -215,7 +216,7 @@ async function handleSubmitEditPosition(e) {
     await loadPositions();
   } catch (error) {
     console.error("Failed to update position:", error);
-    alert("Failed to update position. Please try again.");
+    await alertDialog("Failed to update position. Please try again.", { type: "error", title: "Error" });
   }
 }
 
@@ -226,8 +227,14 @@ async function handleDeletePosition(positionId) {
   const item = allPositions.find((p) => p.id === positionId);
   const name = item ? item.name : "this position";
 
-  const confirmed = window.confirm(
-    `Are you sure you want to delete "${name}"? This action cannot be undone.`
+  const confirmed = await confirmDialog(
+    `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+    {
+      title: "Delete Position",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      danger: true,
+    }
   );
   if (!confirmed) return;
 
@@ -236,7 +243,7 @@ async function handleDeletePosition(positionId) {
     await loadPositions();
   } catch (error) {
     console.error("Failed to delete position:", error);
-    alert("Failed to delete position. Please try again.");
+    await alertDialog("Failed to delete position. Please try again.", { type: "error", title: "Error" });
   }
 }
 
