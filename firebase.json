@@ -1,11 +1,13 @@
 {
   "hosting": {
     "public": ".",
-
     "cleanUrls": true,
-
     "trailingSlash": false,
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "redirects": [
       {
         "source": "/intern-presence/",
@@ -82,28 +84,28 @@
         "destination": "/operational-expenses",
         "type": 301
       },
-       {
-    "source": "/data/presence-team.html",
-    "destination": "/presence-team",
-    "type": 301
-  },
-  {
-    "source": "/data/exit-interview.html",
-    "destination": "/exit-interview"
-  },
-  {
-    "source": "/data/permit-reimburse-management.html",
-    "destination": "/permit-reimburse",
-    "type": 301
-  },
-  {
-    "source": "/setting/class-management.html",
-    "destination": "/class-management",
-    "type": 301
-  },
-  {
-    "source": "/setting/class-management",
-    "destination": "/class-management",
+      {
+        "source": "/data/presence-team.html",
+        "destination": "/presence-team",
+        "type": 301
+      },
+      {
+        "source": "/data/exit-interview.html",
+        "destination": "/exit-interview"
+      },
+      {
+        "source": "/data/permit-reimburse-management.html",
+        "destination": "/permit-reimburse",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-management.html",
+        "destination": "/class-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-management",
+        "destination": "/class-management",
         "type": 301
       },
       {
@@ -125,6 +127,10 @@
         "source": "/setting/mentor-management",
         "destination": "/mentor-management",
         "type": 301
+      },
+      {
+        "source": "/data/piket-branding.html",
+        "destination": "/piket-branding",
       },
       {
         "source": "/setting/invoice-management.html",
@@ -357,7 +363,6 @@
         "destination": "/pages/hr/office-inventory/index.html"
       },
       {
-
         "source": "/people-development",
         "destination": "/pages/hr/people-development/index.html"
       },
@@ -366,7 +371,6 @@
         "destination": "/data/intern-presence.html"
       },
       {
-
         "source": "/intern-satisfaction",
         "destination": "/pages/hr/intern-satisfaction/index.html"
       },
@@ -391,7 +395,6 @@
         "destination": "/pages/hr/operational-expenses/index.html"
       },
       {
-
         "source": "/presence-team",
         "destination": "/pages/hr/presence-team/index.html"
       },
@@ -414,6 +417,10 @@
       {
         "source": "/hr/permit-reimburse",
         "destination": "/pages/hr/permit-reimburse/index.html"
+      },
+      {
+        "source": "/piket-branding",
+        "destination": "/pages/branding/piket-branding/index.html"
       }
     ],
     "headers": [
