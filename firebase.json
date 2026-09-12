@@ -125,9 +125,27 @@
         "source": "/setting/mentor-management",
         "destination": "/mentor-management",
         "type": 301
+      },
+      {
+        "source": "/data/member-data.html",
+        "destination": "/member-data",
+        "type": 301
+      },
+      {
+        "source": "/data/member-data",
+        "destination": "/member-data",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/member-data",
+        "destination": "/pages/marketing/member-data/index.html"
+      },
+      {
+        "source": "/marketing/member-data",
+        "destination": "/pages/marketing/member-data/index.html"
+      },
       {
 
         "source": "/mentor-management",
