@@ -403,16 +403,17 @@
             class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
           >
             <div>
+              <!-- Standard Breadcrumb -->
               <nav
-                class="flex gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-2"
+                class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-2"
               >
-                <a href="/home"
-                  ><span><i class="bi bi-house-fill"></i></span
-                ></a>
-                <span>/</span>
-                <span>Marketing</span>
-                <span>/</span>
-                <span class="text-slate-400">Member Data</span>
+                <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                  <i class="bi bi-house-fill text-xs"></i>
+                </a>
+                <span class="text-blue-600">/</span>
+                <span class="text-blue-600">MARKETING DIVISION</span>
+                <span class="text-slate-400">/</span>
+                <span class="text-slate-400">MEMBER DATA</span>
               </nav>
               <h1
                 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight"
@@ -832,6 +833,12 @@
                         <option value="public speaking class">
                           public speaking class
                         </option>
+                        <option value="trial class dewasa">
+                          trial class dewasa
+                        </option>
+                        <option value="trial class kids">
+                          trial class kids
+                        </option>
                       </select>
                     </div>
                     <div class="col-md-6">
@@ -843,7 +850,8 @@
                         type="text"
                         id="memberFormHarga"
                         class="form-control"
-                        placeholder="1500000"
+                        placeholder="Contoh: 1.500.000"
+                        inputmode="numeric"
                       />
                     </div>
                     <div class="col-md-6">
@@ -876,6 +884,46 @@
                         class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
                         >Bukti Transfer</label
                       >
+                      <!-- Preview bukti transfer tersimpan / baru dipilih -->
+                      <div
+                        id="memberFormBuktiPreviewWrap"
+                        class="mb-2 p-2.5 border border-slate-200 rounded-3 bg-slate-50 items-center gap-3"
+                        style="display: none;"
+                      >
+                        <div class="flex-shrink-0">
+                          <img
+                            id="memberFormBuktiPreviewImg"
+                            src=""
+                            alt="Bukti Transfer"
+                            class="rounded-2 border border-slate-200 object-cover shadow-sm bg-white"
+                            style="width: 72px; height: 72px; object-fit: cover;"
+                          />
+                        </div>
+                        <div class="d-flex flex-column gap-1 overflow-hidden">
+                          <span
+                            id="memberFormBuktiPreviewBadge"
+                            class="badge bg-success bg-opacity-10 text-success fw-bold"
+                            style="width: fit-content; font-size: 10px;"
+                          >
+                            <i class="bi bi-check-circle-fill me-1"></i>Bukti Tersimpan
+                          </span>
+                          <span
+                            class="text-xs text-slate-600 truncate"
+                            id="memberFormBuktiPreviewNote"
+                          >
+                            Gambar bukti transfer yang saat ini digunakan.
+                          </span>
+                          <a
+                            id="memberFormBuktiPreviewLink"
+                            href="#"
+                            target="_blank"
+                            rel="noopener"
+                            class="text-xs text-indigo-600 fw-semibold text-decoration-none hover:underline d-inline-flex align-items-center gap-1"
+                          >
+                            <i class="bi bi-box-arrow-up-right"></i> Lihat Ukuran Penuh
+                          </a>
+                        </div>
+                      </div>
                       <input
                         type="file"
                         id="memberFormBuktiFile"
@@ -919,6 +967,83 @@
               </div>
             </div>
           </div>
+
+          <!-- Modal Konfirmasi Hapus Member -->
+          <div
+            class="modal fade"
+            id="deleteMemberModal"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+              <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                  <div
+                    class="d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 54px; height: 54px; border-radius: 50%; background-color: #fee2e2; color: #dc2626;"
+                  >
+                    <i class="bi bi-trash3-fill fs-4"></i>
+                  </div>
+                  <h5 class="modal-title fw-bold text-slate-800 mb-2">
+                    Hapus Data Member?
+                  </h5>
+                  <p class="text-xs text-slate-500 mb-4 lh-sm">
+                    Apakah Anda yakin ingin menghapus data member <strong id="deleteMemberName" class="text-slate-700">ini</strong>? Tindakan ini tidak dapat dibatalkan.
+                  </p>
+                  <div class="d-flex gap-2 justify-content-center">
+                    <button
+                      type="button"
+                      class="btn btn-light text-slate-600 px-3 py-2 text-xs fw-semibold rounded-3 flex-fill"
+                      data-bs-dismiss="modal"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      id="confirmDeleteBtn"
+                      class="btn btn-danger px-3 py-2 text-xs fw-semibold rounded-3 flex-fill"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Custom Feedback / Pop-up Notification Modal -->
+          <div
+            class="modal fade"
+            id="feedbackModal"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+              <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                  <div
+                    id="feedbackIconWrap"
+                    class="d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 54px; height: 54px; border-radius: 50%; background-color: #dcfce7; color: #16a34a;"
+                  >
+                    <i id="feedbackIcon" class="bi bi-check-circle-fill fs-4"></i>
+                  </div>
+                  <h5 class="modal-title fw-bold text-slate-800 mb-1" id="feedbackTitle">
+                    Berhasil!
+                  </h5>
+                  <p class="text-xs text-slate-500 mb-4 lh-sm" id="feedbackMessage">
+                    Data member berhasil disimpan.
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-primary px-3 py-2 text-xs fw-semibold rounded-3 w-100"
+                    data-bs-dismiss="modal"
+                  >
+                    Oke
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -947,6 +1072,13 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
 
       
 
+
+      // Ensure address bar URL is always clean canonical /member-data
+      if (window.location.pathname !== "/member-data") {
+        try {
+          window.history.replaceState(null, "", "/member-data" + window.location.search);
+        } catch (_) {}
+      }
 
       const topbarTarget = document.getElementById("topbarContainer");
       if (topbarTarget) {
@@ -998,6 +1130,21 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
       const memberFormBuktiHelp = document.getElementById(
         "memberFormBuktiHelp",
       );
+      const memberFormBuktiPreviewWrap = document.getElementById(
+        "memberFormBuktiPreviewWrap",
+      );
+      const memberFormBuktiPreviewImg = document.getElementById(
+        "memberFormBuktiPreviewImg",
+      );
+      const memberFormBuktiPreviewBadge = document.getElementById(
+        "memberFormBuktiPreviewBadge",
+      );
+      const memberFormBuktiPreviewNote = document.getElementById(
+        "memberFormBuktiPreviewNote",
+      );
+      const memberFormBuktiPreviewLink = document.getElementById(
+        "memberFormBuktiPreviewLink",
+      );
       const memberFormSubmitBtn = document.getElementById(
         "memberFormSubmitBtn",
       );
@@ -1005,6 +1152,14 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         memberFormModalEl && window.bootstrap && window.bootstrap.Modal
           ? window.bootstrap.Modal.getOrCreateInstance(memberFormModalEl)
           : null;
+      const deleteMemberModalEl = document.getElementById("deleteMemberModal");
+      const deleteMemberModal =
+        deleteMemberModalEl && window.bootstrap && window.bootstrap.Modal
+          ? window.bootstrap.Modal.getOrCreateInstance(deleteMemberModalEl)
+          : null;
+      const deleteMemberNameEl = document.getElementById("deleteMemberName");
+      const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+      let pendingDeleteMemberId = null;
       let currentProofUrl = "";
       let currentProofName = "";
 
@@ -1180,6 +1335,13 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
           selectEl.appendChild(opt);
         }
         selectEl.value = normalized;
+      }
+
+      function formatRupiahInput(val) {
+        if (val === undefined || val === null || val === "") return "";
+        const raw = String(val).replace(/[^0-9]/g, "");
+        if (!raw) return "";
+        return parseInt(raw, 10).toLocaleString("id-ID");
       }
 
       function normalizePaymentMethod(value) {
@@ -1563,9 +1725,10 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         ensureSelectValue(memberFormProduk, member?.produk_dibeli || "");
         memberFormHarga.value =
           member?.harga_dibayarkan === undefined ||
-          member?.harga_dibayarkan === null
+          member?.harga_dibayarkan === null ||
+          member?.harga_dibayarkan === ""
             ? ""
-            : String(member.harga_dibayarkan);
+            : formatRupiahInput(member.harga_dibayarkan);
         ensureSelectValue(
           memberFormMetode,
           normalizePaymentMethod(member?.metode_pembayaran || ""),
@@ -1574,6 +1737,24 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         currentProofUrl = member?.bukti_transfer || "";
         currentProofName = currentProofUrl ? "Bukti transfer tersimpan" : "";
         refreshProofHelp();
+
+        if (memberFormBuktiPreviewWrap) {
+          if (currentProofUrl) {
+            if (memberFormBuktiPreviewImg) memberFormBuktiPreviewImg.src = currentProofUrl;
+            if (memberFormBuktiPreviewLink) memberFormBuktiPreviewLink.href = currentProofUrl;
+            if (memberFormBuktiPreviewBadge) {
+              memberFormBuktiPreviewBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Bukti Tersimpan';
+              memberFormBuktiPreviewBadge.className = 'badge bg-success bg-opacity-10 text-success fw-bold';
+            }
+            if (memberFormBuktiPreviewNote) {
+              memberFormBuktiPreviewNote.textContent = "Gambar bukti transfer yang saat ini digunakan.";
+            }
+            memberFormBuktiPreviewWrap.style.display = "flex";
+          } else {
+            memberFormBuktiPreviewWrap.style.display = "none";
+          }
+        }
+
         if (memberFormBuktiFile) {
           memberFormBuktiFile.value = "";
         }
@@ -1589,6 +1770,9 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         currentProofUrl = "";
         currentProofName = "";
         fillForm(null);
+        if (memberFormBuktiPreviewWrap) {
+          memberFormBuktiPreviewWrap.style.display = "none";
+        }
         if (memberFormModal) memberFormModal.show();
       }
 
@@ -1626,7 +1810,8 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
             );
             payload.bukti_transfer = currentProofUrl;
           }
-          if (memberFormMode.value === "edit" && memberEditId.value) {
+          const isEdit = memberFormMode.value === "edit" && memberEditId.value;
+          if (isEdit) {
             await updateDoc(
               doc(db, "data_member", memberEditId.value),
               payload,
@@ -1639,9 +1824,21 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
           }
           if (memberFormModal) memberFormModal.hide();
           await loadMembers();
+
+          showFeedbackModal(
+            isEdit ? "Berhasil Diperbarui!" : "Berhasil Ditambahkan!",
+            isEdit
+              ? "Perubahan data member berhasil disimpan ke database."
+              : "Data member baru berhasil ditambahkan ke database.",
+            "success"
+          );
         } catch (error) {
           console.error("Gagal menyimpan member:", error);
-          alert("Gagal menyimpan data member. Coba lagi.");
+          showFeedbackModal(
+            "Gagal Menyimpan",
+            error.message || "Gagal menyimpan data member. Coba lagi.",
+            "error"
+          );
         } finally {
           memberFormSubmitBtn.disabled = false;
           memberFormSubmitBtn.textContent =
@@ -1651,17 +1848,88 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         }
       }
 
-      async function deleteMemberData(memberId) {
+      function openDeleteModal(memberId) {
         if (!memberId) return;
-        const ok = window.confirm("Yakin ingin menghapus data member ini?");
-        if (!ok) return;
+        const member =
+          filteredList.find((item) => item.id === memberId) ||
+          allMembers.find((item) => item.id === memberId);
+        pendingDeleteMemberId = memberId;
+        if (deleteMemberNameEl) {
+          deleteMemberNameEl.textContent = member?.nama ? `"${member.nama}"` : "ini";
+        }
+        if (deleteMemberModal) {
+          deleteMemberModal.show();
+        }
+      }
+
+      async function executeDeleteMember() {
+        if (!pendingDeleteMemberId) return;
         try {
-          await deleteDoc(doc(db, "data_member", memberId));
+          if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.textContent = "Menghapus...";
+          }
+          await deleteDoc(doc(db, "data_member", pendingDeleteMemberId));
+          if (deleteMemberModal) deleteMemberModal.hide();
           await loadMembers();
+
+          showFeedbackModal(
+            "Berhasil Dihapus!",
+            "Data member telah berhasil dihapus dari database.",
+            "success"
+          );
         } catch (error) {
           console.error("Gagal menghapus member:", error);
-          alert("Gagal menghapus data member. Coba lagi.");
+          showFeedbackModal(
+            "Gagal Menghapus",
+            error.message || "Gagal menghapus data member. Coba lagi.",
+            "error"
+          );
+        } finally {
+          if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = "Hapus";
+          }
+          pendingDeleteMemberId = null;
         }
+      }
+
+      function showFeedbackModal(title, message, type = "success") {
+        const modalEl = document.getElementById("feedbackModal");
+        if (!modalEl || !window.bootstrap?.Modal) return;
+
+        const titleEl = document.getElementById("feedbackTitle");
+        const msgEl = document.getElementById("feedbackMessage");
+        const iconWrap = document.getElementById("feedbackIconWrap");
+        const iconEl = document.getElementById("feedbackIcon");
+
+        if (titleEl) titleEl.textContent = title;
+        if (msgEl) msgEl.textContent = message;
+
+        if (iconWrap && iconEl) {
+          if (type === "success") {
+            iconWrap.style.backgroundColor = "#dcfce7";
+            iconWrap.style.color = "#16a34a";
+            iconEl.className = "bi bi-check-circle-fill fs-4";
+          } else if (type === "error") {
+            iconWrap.style.backgroundColor = "#fee2e2";
+            iconWrap.style.color = "#dc2626";
+            iconEl.className = "bi bi-exclamation-triangle-fill fs-4";
+          } else {
+            iconWrap.style.backgroundColor = "#e0f2fe";
+            iconWrap.style.color = "#0284c7";
+            iconEl.className = "bi bi-info-circle-fill fs-4";
+          }
+        }
+
+        const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+        modalInstance.show();
+
+        setTimeout(() => {
+          try {
+            modalInstance.hide();
+          } catch (_) {}
+        }, 2500);
       }
 
       /* ── filter + sort ── */
@@ -1935,15 +2203,44 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
           alert("Ukuran gambar maksimal 3 MB.");
           memberFormBuktiFile.value = "";
           refreshProofHelp();
+          if (!currentProofUrl && memberFormBuktiPreviewWrap) memberFormBuktiPreviewWrap.style.display = "none";
           return;
         }
         if (file && !file.type.startsWith("image/")) {
           alert("File harus berupa gambar.");
           memberFormBuktiFile.value = "";
           refreshProofHelp();
+          if (!currentProofUrl && memberFormBuktiPreviewWrap) memberFormBuktiPreviewWrap.style.display = "none";
           return;
         }
         refreshProofHelp(file);
+
+        if (file) {
+          const objectUrl = URL.createObjectURL(file);
+          if (memberFormBuktiPreviewImg) memberFormBuktiPreviewImg.src = objectUrl;
+          if (memberFormBuktiPreviewLink) memberFormBuktiPreviewLink.href = objectUrl;
+          if (memberFormBuktiPreviewBadge) {
+            memberFormBuktiPreviewBadge.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>File Baru Dipilih';
+            memberFormBuktiPreviewBadge.className = 'badge bg-primary bg-opacity-10 text-primary fw-bold';
+          }
+          if (memberFormBuktiPreviewNote) {
+            memberFormBuktiPreviewNote.textContent = `File baru: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+          }
+          if (memberFormBuktiPreviewWrap) memberFormBuktiPreviewWrap.style.display = "flex";
+        } else if (!currentProofUrl) {
+          if (memberFormBuktiPreviewWrap) memberFormBuktiPreviewWrap.style.display = "none";
+        } else {
+          if (memberFormBuktiPreviewImg) memberFormBuktiPreviewImg.src = currentProofUrl;
+          if (memberFormBuktiPreviewLink) memberFormBuktiPreviewLink.href = currentProofUrl;
+          if (memberFormBuktiPreviewBadge) {
+            memberFormBuktiPreviewBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Bukti Tersimpan';
+            memberFormBuktiPreviewBadge.className = 'badge bg-success bg-opacity-10 text-success fw-bold';
+          }
+          if (memberFormBuktiPreviewNote) {
+            memberFormBuktiPreviewNote.textContent = "Gambar bukti transfer yang saat ini digunakan.";
+          }
+          if (memberFormBuktiPreviewWrap) memberFormBuktiPreviewWrap.style.display = "flex";
+        }
       });
       tbody?.addEventListener("click", (e) => {
         const editBtn = e.target.closest(".btn-edit-member");
@@ -1958,8 +2255,18 @@ import { app, db, storage } from "../assets/js/firebase-config.js";
         }
         const deleteBtn = e.target.closest(".btn-delete-member");
         if (!deleteBtn) return;
-        deleteMemberData(deleteBtn.dataset.id);
+        openDeleteModal(deleteBtn.dataset.id);
       });
+      memberFormHarga?.addEventListener("input", (e) => {
+        const input = e.target;
+        const raw = input.value.replace(/[^0-9]/g, "");
+        if (!raw) {
+          input.value = "";
+          return;
+        }
+        input.value = parseInt(raw, 10).toLocaleString("id-ID");
+      });
+      confirmDeleteBtn?.addEventListener("click", executeDeleteMember);
       memberFormSubmitBtn?.addEventListener("click", saveMemberForm);
 
       restoreFilters();

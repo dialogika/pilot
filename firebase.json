@@ -129,6 +129,16 @@
         "type": 301
       },
       {
+        "source": "/data/member-data.html",
+        "destination": "/member-data",
+        "type": 301
+      },
+      {
+        "source": "/data/member-data",
+        "destination": "/member-data",
+        "type": 301
+      },
+      {
         "source": "/data/piket-branding.html",
         "destination": "/piket-branding",
         "type": 301
@@ -300,6 +310,14 @@
       }
     ],
     "rewrites": [
+      {
+        "source": "/member-data",
+        "destination": "/pages/marketing/member-data/index.html"
+      },
+      {
+        "source": "/marketing/member-data",
+        "destination": "/pages/marketing/member-data/index.html"
+      },
       {
         "source": "/webinar",
         "destination": "/pages/marketing/webinar/index.html"
