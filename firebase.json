@@ -231,6 +231,21 @@
         "source": "/promo-classes.html",
         "destination": "/promo-classes",
         "type": 301
+      },
+      {
+        "source": "/data/piket-branding",
+        "destination": "/piket-branding",
+        "type": 301
+      },
+      {
+        "source": "/data/branding-schedule.html",
+        "destination": "/branding-schedule",
+        "type": 301
+      },
+      {
+        "source": "/data/branding-schedule",
+        "destination": "/branding-schedule",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -421,6 +436,14 @@
       {
         "source": "/piket-branding",
         "destination": "/pages/branding/piket-branding/index.html"
+      },
+      {
+        "source": "/branding-schedule",
+        "destination": "/pages/branding/content-schedule/index.html"
+      },
+      {
+        "source": "/content-schedule",
+        "destination": "/pages/branding/content-schedule/index.html"
       }
     ],
     "headers": [
