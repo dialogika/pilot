@@ -3,6 +3,8 @@
  * DOM Presentation Layer (Zero Firebase) for Class Management feature.
  */
 
+import { alertDialog } from "/assets/js/ui.js";
+
 export function computeHealthScore(c) {
   const attendance = typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
   const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
@@ -1034,7 +1036,10 @@ export function openAddClassModal(onSaveClass) {
       const doneEl = document.getElementById("inputMeetingDone");
 
       if (!nameEl || !nameEl.value.trim()) {
-        alert("Nama kelas wajib diisi");
+        alertDialog("Nama kelas wajib diisi", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
 

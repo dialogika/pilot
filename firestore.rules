@@ -389,14 +389,10 @@ service cloud.firestore {
     match /promo_batches/{id} { allow read: if isInternalTeam() || isMember(); allow write: if isManagement(); }
     match /webinars/{id} { allow read: if true; allow write: if isManagement(); } // webinar boleh publik
 
-    // data_member: CONTOH sharing lintas departemen (New Update.pdf) — "milik Rebuy,
-    // tapi Marketing boleh lihat/edit". Butuh dokumen collection_access/data_member
-    // dengan shared_read_departments/shared_write_departments berisi department_id
-    // Marketing.
+    // data_member: Diizinkan untuk manajemen dan staff internal
     match /data_member/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''))
-                  || (isStaff() && hasSharedAccess('data_member', 'read'));
-      allow write: if isManagement() || (isStaff() && hasSharedAccess('data_member', 'write'));
+      allow read: if isInternalTeam();
+      allow write: if isManagement() || isStaff();
     }
 
     match /subscription_email/{id} {

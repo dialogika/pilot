@@ -7,6 +7,7 @@
 import { requireAuth } from "/assets/js/auth-guard.js";
 import { renderTopbar } from "/assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "/assets/js/components/sidebar/sidebar.js";
+import { confirmDialog, alertDialog } from "/assets/js/ui.js";
 import {
   buildWhatsappDeepLink,
   normalizeWhatsappMessage,
@@ -486,7 +487,7 @@ function selectClass(opt) {
 }
 
 // --- Form Validation ---
-function validateDrawerForm() {
+async function validateDrawerForm() {
   const title = document.getElementById("formTitle")?.value.trim();
   const requester = document.getElementById("formRequesterName")?.value.trim();
   const beneficiary = document.getElementById("formBeneficiaryName")?.value.trim();
@@ -498,23 +499,23 @@ function validateDrawerForm() {
   const status = document.getElementById("formStatus")?.value;
 
   if (!title) {
-    alert("Judul pengeluaran wajib diisi.");
+    await alertDialog("Judul pengeluaran wajib diisi.", { type: "warning", title: "Validasi Form" });
     return false;
   }
   if (!requester) {
-    alert("Requester / PIC wajib diisi.");
+    await alertDialog("Requester / PIC wajib diisi.", { type: "warning", title: "Validasi Form" });
     return false;
   }
   if (!beneficiary) {
-    alert("Nama penerima rekening wajib diisi.");
+    await alertDialog("Nama penerima rekening wajib diisi.", { type: "warning", title: "Validasi Form" });
     return false;
   }
   if (!bank || !account) {
-    alert("Bank dan nomor rekening tujuan wajib diisi.");
+    await alertDialog("Bank dan nomor rekening tujuan wajib diisi.", { type: "warning", title: "Validasi Form" });
     return false;
   }
   if (amount <= 0) {
-    alert("Nominal pengeluaran wajib lebih dari 0.");
+    await alertDialog("Nominal pengeluaran wajib lebih dari 0.", { type: "warning", title: "Validasi Form" });
     return false;
   }
 
@@ -524,7 +525,7 @@ function validateDrawerForm() {
   const existingReimburseProof = currentEditingExpense?.reimburseProofUrl;
 
   if (category === "reimburse" && !existingReimburseProof && !reimburseFile) {
-    alert("Untuk kategori reimburse, nota/kwitansi wajib dilampirkan.");
+    await alertDialog("Untuk kategori reimburse, nota/kwitansi wajib dilampirkan.", { type: "warning", title: "Validasi Lampiran" });
     return false;
   }
 
@@ -534,21 +535,21 @@ function validateDrawerForm() {
     const mentorName = document.getElementById("formMentorName")?.value.trim();
 
     if (!relatedClass) {
-      alert("Related class wajib diisi untuk mentor salary.");
+      await alertDialog("Related class wajib diisi untuk mentor salary.", { type: "warning", title: "Validasi Form" });
       return false;
     }
     if (!mentorId) {
-      alert("Pilih mentor dari dropdown agar rekening tujuan sinkron dengan data mentor.");
+      await alertDialog("Pilih mentor dari dropdown agar rekening tujuan sinkron dengan data mentor.", { type: "warning", title: "Validasi Form" });
       return false;
     }
     if (!mentorName) {
-      alert("Mentor name wajib diisi untuk mentor salary.");
+      await alertDialog("Mentor name wajib diisi untuk mentor salary.", { type: "warning", title: "Validasi Form" });
       return false;
     }
   }
 
   if ((status === "paid" || status === "complete") && !existingTransferProof && !proofFile) {
-    alert("Untuk status paid, bukti transfer wajib dilampirkan.");
+    await alertDialog("Untuk status paid, bukti transfer wajib dilampirkan.", { type: "warning", title: "Validasi Lampiran" });
     return false;
   }
 
@@ -558,7 +559,7 @@ function validateDrawerForm() {
 // --- Save Expense Handler ---
 async function handleSaveExpense() {
   if (isSaving) return;
-  if (!validateDrawerForm()) return;
+  if (!await validateDrawerForm()) return;
 
   isSaving = true;
   const saveBtn = document.getElementById("btnSaveExpense");
@@ -689,7 +690,7 @@ async function handleSaveExpense() {
     await loadAllData();
   } catch (error) {
     console.error("[OperationalExpenses] Gagal menyimpan expense:", error);
-    alert("Gagal menyimpan expense request. Silakan coba lagi.");
+    await alertDialog("Gagal menyimpan expense request. Silakan coba lagi.", { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     isSaving = false;
     if (saveBtn) {
@@ -702,7 +703,13 @@ async function handleSaveExpense() {
 // --- Delete Expense Handler ---
 async function handleDeleteExpense() {
   if (!isEditMode || !currentEditingExpense?.id) return;
-  if (!confirm("Hapus expense ini? Data yang sudah dihapus tidak bisa dikembalikan.")) return;
+  const ok = await confirmDialog("Hapus expense ini? Data yang sudah dihapus tidak bisa dikembalikan.", {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
 
   isSaving = true;
   const delBtn = document.getElementById("btnDeleteExpense");
@@ -722,7 +729,7 @@ async function handleDeleteExpense() {
     await loadAllData();
   } catch (error) {
     console.error("[OperationalExpenses] Gagal menghapus expense:", error);
-    alert("Gagal menghapus expense.");
+    await alertDialog("Gagal menghapus expense.", { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     isSaving = false;
     if (delBtn) delBtn.disabled = false;
@@ -740,7 +747,7 @@ async function handleMarkReviewing(expenseId) {
     await loadAllData();
   } catch (error) {
     console.error("[OperationalExpenses] Gagal ubah status reviewing:", error);
-    alert("Gagal mengubah status expense.");
+    await alertDialog("Gagal mengubah status expense.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -759,11 +766,11 @@ async function handleSendWhatsapp(expenseId) {
   }
 
   if (!phoneNumber) {
-    alert("Nomor WhatsApp mentor tidak tersedia atau tidak valid di collection mentor.");
+    await alertDialog("Nomor WhatsApp mentor tidak tersedia atau tidak valid di collection mentor.", { type: "warning", title: "Nomor WhatsApp Tidak Ditemukan" });
     return;
   }
   if (!expense.transferProofUrl) {
-    alert("Bukti transfer belum tersedia untuk dikirim ke mentor.");
+    await alertDialog("Bukti transfer belum tersedia untuk dikirim ke mentor.", { type: "warning", title: "Bukti Transfer Belum Ada" });
     return;
   }
 
@@ -775,7 +782,7 @@ async function handleSendWhatsapp(expenseId) {
   });
 
   if (!waPayload.link) {
-    alert("Gagal membuat link WhatsApp mentor.");
+    await alertDialog("Gagal membuat link WhatsApp mentor.", { type: "error", title: "Terjadi Kesalahan" });
     return;
   }
 
@@ -792,7 +799,7 @@ async function handleSendWhatsapp(expenseId) {
     ui.showToast("WhatsApp mentor siap dikirim. Bukti transfer sudah disisipkan dalam pesan.");
   } catch (error) {
     console.error("[OperationalExpenses] Gagal menyiapkan WhatsApp mentor:", error);
-    alert("Gagal menyiapkan WhatsApp mentor.");
+    await alertDialog("Gagal menyiapkan WhatsApp mentor.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
