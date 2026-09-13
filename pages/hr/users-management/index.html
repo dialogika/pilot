@@ -62,17 +62,6 @@
               <span class="text-slate-400">USER MANAGEMENT</span>
             </nav>
             <h1 class="text-2xl font-bold text-slate-800">Users Management</h1>
-
-        <!-- Header Section (legacy visual preserved) -->
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800">Users Management</h1>
-            <nav class="text-sm text-slate-500 flex items-center gap-2 mt-1">
-              <a href="/home"><i class="fas fa-home text-xs"></i></a>
-              <span>/ Settings /</span>
-              <span class="font-medium text-slate-800">Users</span>
-            </nav>
-
           </div>
           <div class="flex gap-3">
             <div class="relative" id="exportDropdownWrapper">
@@ -87,13 +76,8 @@
                 id="exportMenu"
                 class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg text-sm text-slate-700 hidden z-20"
               >
-
                 <button id="exportPdfBtn" type="button" class="w-full text-left px-4 py-2 hover:bg-slate-50">Export to PDF</button>
                 <button id="exportExcelBtn" type="button" class="w-full text-left px-4 py-2 hover:bg-slate-50">Export to Excel</button>
-
-                <button class="w-full text-left px-4 py-2 hover:bg-slate-50">Export to PDF</button>
-                <button class="w-full text-left px-4 py-2 hover:bg-slate-50">Export to Excel</button>
-
               </div>
             </div>
             <button
@@ -180,9 +164,8 @@
             <div class="relative w-full sm:w-auto">
               <input
                 id="um-search"
-                type="text"
-
-                name="usersSearch"
+                type="search"
+                name="users_table_search"
                 autocomplete="off"
                 data-lpignore="true"
                 placeholder="Search"
