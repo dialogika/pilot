@@ -91,7 +91,11 @@
       },
       {
         "source": "/data/exit-interview.html",
+
+        "destination": "/exit-interview",
+        "type": 301
         "destination": "/exit-interview"
+
       },
       {
         "source": "/data/permit-reimburse-management.html",
