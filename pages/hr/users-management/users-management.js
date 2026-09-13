@@ -53,6 +53,10 @@ import {
   showDeleteModal,
   hideDeleteModal,
   wireModalCloseButtons,
+  wireSelectAllCheckbox,
+  setExportHandlers,
+  exportToExcel,
+  exportToPdf,
   notifySuccess,
   notifyError,
 } from "./users-management.ui.js";
@@ -61,6 +65,9 @@ let _users = [];
 let _positionsMap = {};
 let _searchQuery = "";
 let _roleFilter = "";
+let _statusFilter = "";
+let _sortFilter = "recent";
+let _datePreset = "last90";
 let _currentPage = 1;
 let _rowsPerPage = 10;
 let _activeModalType = null; // 'add' | 'edit'
@@ -88,6 +95,24 @@ function filteredUsers() {
     list = list.filter(
       (u) => (u.role || "").toLowerCase() === _roleFilter.toLowerCase()
     );
+  }
+
+  if (_statusFilter) {
+    list = list.filter(
+      (u) => (u.status || "Active").toLowerCase() === _statusFilter.toLowerCase()
+    );
+  }
+
+  if (_sortFilter === "nameAsc") {
+    list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  } else if (_sortFilter === "nameDesc") {
+    list.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+  } else if (_sortFilter === "recent") {
+    list.sort((a, b) => {
+      const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      return tb - ta;
+    });
   }
 
   return list;
@@ -138,11 +163,27 @@ function wireEventHandlers() {
     refreshTable();
   });
 
-  // Role filter
-  setFiltersChangeHandler(({ role }) => {
+  // Role & filters
+  setFiltersChangeHandler(({ role, status, sort, datePreset }) => {
     _roleFilter = role || "";
+    _statusFilter = status || "";
+    _sortFilter = sort || "recent";
+    _datePreset = datePreset || "last90";
     resetPagination();
     refreshTable();
+  });
+
+  // Select all row checkboxes
+  wireSelectAllCheckbox();
+
+  // Export to Excel & PDF
+  setExportHandlers({
+    onExportPdf: () => {
+      exportToPdf(filteredUsers(), _positionsMap);
+    },
+    onExportExcel: () => {
+      exportToExcel(filteredUsers(), _positionsMap);
+    },
   });
 
   // Rows per page
@@ -375,6 +416,7 @@ function startDelete(userId) {
 async function _reload() {
   try {
     _users = await listUsers();
+    renderFilterRoleOptions({}, _users);
   } catch (err) {
     console.error("[UsersManagement] Failed to reload users:", err);
   }
@@ -402,6 +444,12 @@ export async function initialize() {
     console.log(
       `[UsersManagement] Loaded ${_users.length} users, ${Object.keys(_positionsMap).length} positions`
     );
+
+    const searchEl = document.getElementById("um-search");
+    if (searchEl) searchEl.value = "";
+    _searchQuery = "";
+
+    renderFilterRoleOptions({}, _users);
 
     wireModalCloseButtons();
     wireEventHandlers();

@@ -273,28 +273,55 @@ export function renderPositionOptions(positionsMap) {
 /* Public: populate filter role dropdown                                */
 /* ------------------------------------------------------------------ */
 
-export function renderFilterRoleOptions(rolesMap) {
+export function renderFilterRoleOptions(rolesMap = {}, users = []) {
   const select = $("um-filter-role");
   if (!select) return;
   const current = select.value;
   select.innerHTML = '<option value="">All Role</option>';
-  const roles = Object.values(rolesMap);
-  if (roles.length === 0) {
-    VALID_ROLES.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
-    });
-  } else {
-    roles.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
+
+  const roleMap = new Map();
+
+  // Canonical system roles
+  VALID_ROLES.forEach((r) => {
+    roleMap.set(r.toLowerCase(), r.charAt(0).toUpperCase() + r.slice(1));
+  });
+
+  // Roles from rolesMap if available
+  if (rolesMap) {
+    Object.values(rolesMap).forEach((r) => {
+      if (typeof r === "string" && r.trim()) {
+        roleMap.set(r.trim().toLowerCase(), r.trim());
+      }
     });
   }
-  if (current) select.value = current;
+
+  // Any distinct roles present in loaded users
+  if (Array.isArray(users)) {
+    users.forEach((u) => {
+      if (u.role && typeof u.role === "string" && u.role.trim()) {
+        const val = u.role.trim().toLowerCase();
+        if (!roleMap.has(val)) {
+          const formatted = u.role
+            .trim()
+            .split(/\s+/)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+            .join(" ");
+          roleMap.set(val, formatted);
+        }
+      }
+    });
+  }
+
+  roleMap.forEach((label, val) => {
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = label;
+    select.appendChild(opt);
+  });
+
+  if (current && roleMap.has(current.toLowerCase())) {
+    select.value = current.toLowerCase();
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -381,12 +408,39 @@ export function setSearchInputHandler(callback) {
 
 export function setFiltersChangeHandler(callback) {
   const roleFilter = $("um-filter-role");
-  if (roleFilter) {
-    roleFilter.addEventListener("change", () => {
-      callback({ role: roleFilter.value });
+  const statusFilter = $("filterStatus");
+  const sortFilter = $("filterSort");
+  const datePreset = $("filterDatePreset");
+
+  const notifyChange = () => {
+    callback({
+      role: roleFilter ? roleFilter.value : "",
+      status: statusFilter ? statusFilter.value : "",
+      sort: sortFilter ? sortFilter.value : "recent",
+      datePreset: datePreset ? datePreset.value : "last90",
+    });
+  };
+
+  if (roleFilter) roleFilter.addEventListener("change", notifyChange);
+  if (statusFilter) statusFilter.addEventListener("change", notifyChange);
+  if (sortFilter) sortFilter.addEventListener("change", notifyChange);
+  if (datePreset) {
+    datePreset.addEventListener("change", () => {
+      if (datePreset.value === "custom") {
+        showModalOverlay("customRangeOverlay");
+      } else {
+        notifyChange();
+      }
     });
   }
-  // Legacy extras: also wire filterStatus / filterSort / filterDatePreset as role/trigger if needed (no-op for style parity)
+
+  const customApply = $("customRangeApply");
+  if (customApply) {
+    customApply.addEventListener("click", () => {
+      hideModalOverlay("customRangeOverlay");
+      notifyChange();
+    });
+  }
 }
 
 export function setAddUserClickHandler(callback) {
@@ -547,3 +601,154 @@ export function notifySuccess(message) {
 export function notifyError(message) {
   toast(message, "error");
 }
+
+/* ------------------------------------------------------------------ */
+/* Select all checkbox                                                */
+/* ------------------------------------------------------------------ */
+
+export function wireSelectAllCheckbox() {
+  const selectAll = $("selectAllCheckbox");
+  const tbody = $("um-tbody");
+  if (selectAll && tbody) {
+    selectAll.addEventListener("change", () => {
+      const checkboxes = tbody.querySelectorAll(".row-checkbox");
+      checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
+    });
+    tbody.addEventListener("change", (e) => {
+      if (e.target.classList.contains("row-checkbox")) {
+        const checkboxes = tbody.querySelectorAll(".row-checkbox");
+        const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+        selectAll.checked = checkboxes.length > 0 && allChecked;
+      }
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Export handlers & generators                                       */
+/* ------------------------------------------------------------------ */
+
+export function setExportHandlers({ onExportPdf, onExportExcel }) {
+  const btn = $("exportButton");
+  const menu = $("exportMenu");
+  const pdfBtn = $("exportPdfBtn");
+  const excelBtn = $("exportExcelBtn");
+
+  if (btn && menu) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("hidden");
+    });
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add("hidden");
+      }
+    });
+  }
+
+  if (pdfBtn && onExportPdf) {
+    pdfBtn.addEventListener("click", () => {
+      if (menu) menu.classList.add("hidden");
+      onExportPdf();
+    });
+  }
+
+  if (excelBtn && onExportExcel) {
+    excelBtn.addEventListener("click", () => {
+      if (menu) menu.classList.add("hidden");
+      onExportExcel();
+    });
+  }
+}
+
+export function exportToExcel(users, positionsMap) {
+  const headers = ["Name", "Email", "Position", "Role", "Status", "Phone", "Department"];
+  const rows = users.map((u) => {
+    let positionLabel = u.position || "-";
+    if (positionsMap && positionsMap[u.position]) {
+      positionLabel = positionsMap[u.position];
+    }
+    return [
+      `"${(u.name || u.displayName || "").replace(/"/g, '""')}"`,
+      `"${(u.email || "").replace(/"/g, '""')}"`,
+      `"${positionLabel.replace(/"/g, '""')}"`,
+      `"${(u.role || "").replace(/"/g, '""')}"`,
+      `"${(u.status || "Active").replace(/"/g, '""')}"`,
+      `"${(u.phone || u.phoneNumber || "").replace(/"/g, '""')}"`,
+      `"${(u.department || "").replace(/"/g, '""')}"`,
+    ];
+  });
+
+  const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `users-management_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function exportToPdf(users, positionsMap) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    window.print();
+    return;
+  }
+  const rowsHtml = users
+    .map((u) => {
+      let positionLabel = u.position || "-";
+      if (positionsMap && positionsMap[u.position]) {
+        positionLabel = positionsMap[u.position];
+      }
+      return `
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.name || u.displayName || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.email || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(positionLabel)}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.role || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.status || "Active")}</td>
+        </tr>`;
+    })
+    .join("");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Users Management - Export</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+          h2 { margin-bottom: 15px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+          th { background-color: #f3f4f6; padding: 8px; border: 1px solid #ddd; text-align: left; }
+        </style>
+      </head>
+      <body>
+        <h2>Users Management</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Position</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+  }, 300);
+}
+
