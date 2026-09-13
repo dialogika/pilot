@@ -273,7 +273,10 @@ export function renderPositionOptions(positionsMap) {
 /* Public: populate filter role dropdown                                */
 /* ------------------------------------------------------------------ */
 
+
 export function renderFilterRoleOptions(rolesMap = {}, users = []) {
+
+export function renderFilterRoleOptions(rolesMap) {
   const select = $("um-filter-role");
   if (!select) return;
   const current = select.value;
@@ -322,6 +325,25 @@ export function renderFilterRoleOptions(rolesMap = {}, users = []) {
   if (current && roleMap.has(current.toLowerCase())) {
     select.value = current.toLowerCase();
   }
+
+  const roles = Object.values(rolesMap);
+  if (roles.length === 0) {
+    VALID_ROLES.forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+      select.appendChild(opt);
+    });
+  } else {
+    roles.forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+      select.appendChild(opt);
+    });
+  }
+  if (current) select.value = current;
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -408,6 +430,7 @@ export function setSearchInputHandler(callback) {
 
 export function setFiltersChangeHandler(callback) {
   const roleFilter = $("um-filter-role");
+
   const statusFilter = $("filterStatus");
   const sortFilter = $("filterSort");
   const datePreset = $("filterDatePreset");
@@ -441,6 +464,14 @@ export function setFiltersChangeHandler(callback) {
       notifyChange();
     });
   }
+
+  if (roleFilter) {
+    roleFilter.addEventListener("change", () => {
+      callback({ role: roleFilter.value });
+    });
+  }
+  // Legacy extras: also wire filterStatus / filterSort / filterDatePreset as role/trigger if needed (no-op for style parity)
+
 }
 
 export function setAddUserClickHandler(callback) {
@@ -601,7 +632,6 @@ export function notifySuccess(message) {
 export function notifyError(message) {
   toast(message, "error");
 }
-
 /* ------------------------------------------------------------------ */
 /* Select all checkbox                                                */
 /* ------------------------------------------------------------------ */

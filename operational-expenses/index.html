@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operational Expenses - Team Dialogika</title>
+
+  <!-- External Stylesheets -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- New architecture foundation styles -->
+  <link href="/assets/css/theme.css" rel="stylesheet" />
+  <link href="/assets/css/layout.css" rel="stylesheet" />
+  <link href="/assets/css/style.css" rel="stylesheet" />
+  <link href="/pages/hr/operational-expenses/operational-expenses.css" rel="stylesheet" />
+
+  <!-- Shared theme manager -->
+  <script src="/assets/js/theme.js" defer></script>
+</head>
+<body class="antialiased">
+  <!-- Topbar mount point -->
+  <div id="dg-topbar-mount"></div>
+  <div id="dg-sidebar-mount"></div>
+
+  <main class="dg-main">
+    <div class="expense-shell py-4 px-3 px-md-4">
+
+        <!-- Standard HR Breadcrumb Navigation -->
+        <nav class="breadcrumb-nav mb-3">
+          <a href="/home" title="Home">
+            <i class="fas fa-home text-xs"></i>
+          </a>
+          <span class="separator-blue">/</span>
+          <a href="/home" class="crumb-blue">HR DIVISION</a>
+          <span class="separator">/</span>
+          <span class="active-crumb">OPERATIONAL EXPENSES</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="expense-header">
+          <div class="expense-header-text">
+            <h1 class="page-title mb-2">Operational Expenses</h1>
+            <p class="page-subtitle mb-0">
+              Seluruh request pengeluaran perusahaan terdaftar di sini. Treasurer bisa cek tujuan transfer, upload bukti transfer, ubah status ke paid, dan membaca notes penjelasan dari admin kelas atau PIC.
+            </p>
+          </div>
+          <div class="expense-header-actions">
+            <button id="btnRefreshData" type="button" class="btn-refresh-data">
+              Refresh Data
+            </button>
+            <button id="btnNewExpense" type="button" class="btn-new-expense">
+              + New Expense Request
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 Stat Metrics Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl">
+            <div class="stat-card stat-slate">
+              <div class="stat-card-title">Total Request</div>
+              <div class="stat-card-value" id="statTotal">0</div>
+              <div class="stat-card-desc">Semua request terdaftar</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl">
+            <div class="stat-card stat-amber">
+              <div class="stat-card-title">Need Action</div>
+              <div class="stat-card-value" id="statPending">0</div>
+              <div class="stat-card-desc">Status requested / reviewing</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl">
+            <div class="stat-card stat-rose">
+              <div class="stat-card-title">Overdue</div>
+              <div class="stat-card-value" id="statOverdue">0</div>
+              <div class="stat-card-desc">Melewati due date bayar</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl">
+            <div class="stat-card stat-emerald">
+              <div class="stat-card-title">Paid</div>
+              <div class="stat-card-value" id="statPaid">0</div>
+              <div class="stat-card-desc">Lunas & ada bukti transfer</div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-xl">
+            <div class="stat-card stat-indigo">
+              <div class="stat-card-title">Total Amount</div>
+              <div class="stat-card-value" id="statAmount" style="font-size: 1.75rem;">Rp 0</div>
+              <div class="stat-card-desc">Akumulasi nominal seluruh request</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="expense-card p-4 mb-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="field-label" for="searchQuery">Search Request</label>
+              <input
+                id="searchQuery"
+                type="text"
+                class="field-control field-control-compact"
+                placeholder="Cari judul, PIC, mentor, kelas, bank, atau rekening"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="field-label" for="filterStatus">Status Filter</label>
+              <select id="filterStatus" class="field-control field-control-compact">
+                <option value="all">Semua Status</option>
+                <option value="requested">Requested</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="overdue">Overdue</option>
+                <option value="paid">Paid</option>
+                <option value="complete">Complete</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="field-label" for="filterCategory">Category Filter</label>
+              <select id="filterCategory" class="field-control field-control-compact">
+                <option value="all">Semua Kategori</option>
+                <option value="mentor_salary">Mentor Salary</option>
+                <option value="operational">Operational</option>
+                <option value="reimburse">Reimburse</option>
+                <option value="tools">Tools</option>
+                <option value="transport">Transport</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1 align-items-end">
+            <div class="col-12 col-md-6">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label class="field-label mb-0">Filter Tanggal (Quick)</label>
+                <button
+                  id="btnClearDateFilter"
+                  type="button"
+                  class="btn btn-link p-0 text-xs font-bold uppercase text-decoration-none text-muted"
+                >
+                  Clear Date
+                </button>
+              </div>
+              <div class="date-filter">
+                <button id="btnDateNavPrev" type="button" class="date-nav" title="Tanggal Sebelumnya">
+                  <i class="bi bi-caret-left-fill"></i>
+                </button>
+                <div id="datePillGroup" class="date-pill-group">
+                  <!-- Generated by UI -->
+                </div>
+                <button id="btnDateNavNext" type="button" class="date-nav" title="Tanggal Berikutnya">
+                  <i class="bi bi-caret-right-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="field-label text-[10px]" for="filterDateStart">Start Date</label>
+              <input id="filterDateStart" type="date" class="field-control field-control-compact" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="field-label text-[10px]" for="filterDateEnd">End Date</label>
+              <input id="filterDateEnd" type="date" class="field-control field-control-compact" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense Ledger Table Card -->
+        <div class="expense-card">
+          <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 px-4 pt-4 pb-3">
+            <div>
+              <h2 class="text-base font-black text-slate-900 mb-1">Expense Ledger</h2>
+              <p class="text-xs text-muted mb-0">
+                Treasurer dapat memeriksa rekening penerima, mengunggah bukti transfer, dan menandai status lunas.
+              </p>
+            </div>
+            <div id="visibleItemsCount" class="text-xs font-bold uppercase tracking-wider text-muted">
+              0 item terlihat
+            </div>
+          </div>
+
+          <div class="expense-table-wrap">
+            <table class="expense-table">
+              <thead>
+                <tr>
+                  <th>
+                    <button id="sortBtn-request" type="button" class="sort-button">
+                      Request <i id="sortIcon-request" class="bi bi-arrow-down-up sort-icon"></i>
+                    </button>
+                  </th>
+                  <th>
+                    <button id="sortBtn-destination" type="button" class="sort-button">
+                      Transfer Destination <i id="sortIcon-destination" class="bi bi-arrow-down-up sort-icon"></i>
+                    </button>
+                  </th>
+                  <th>
+                    <button id="sortBtn-amount" type="button" class="sort-button">
+                      Amount & Due <i id="sortIcon-amount" class="bi bi-arrow-down-up sort-icon"></i>
+                    </button>
+                  </th>
+                  <th>
+                    <button id="sortBtn-notes" type="button" class="sort-button">
+                      Notes <i id="sortIcon-notes" class="bi bi-arrow-down-up sort-icon"></i>
+                    </button>
+                  </th>
+                  <th>
+                    <button id="sortBtn-status" type="button" class="sort-button">
+                      Status <i id="sortIcon-status" class="bi bi-arrow-down-up sort-icon"></i>
+                    </button>
+                  </th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody">
+                <!-- Populated by UI -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div id="paginationWrap" class="pagination-wrap">
+            <div id="paginationInfo" class="pagination-info">
+              Menampilkan 0 data
+            </div>
+            <div id="paginationControls" class="pagination-controls">
+              <!-- Populated by UI -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  <!-- Drawer Slide-over Modal -->
+  <div id="expenseDrawer" class="drawer-backdrop">
+    <div class="drawer-panel">
+      <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+        <div>
+          <div id="drawerHeaderTitle" class="text-[11px] uppercase tracking-wider font-black text-indigo-600 mb-1">
+            New Expense Request
+          </div>
+          <h3 id="drawerHeaderSub" class="text-xl font-black text-slate-900 mb-1">Create Request</h3>
+          <p class="text-xs text-muted mb-0">
+            Simpan request pengeluaran, nomor rekening tujuan, catatan penjelasan, dan upload dokumen pendukung.
+          </p>
+        </div>
+        <button id="btnCloseDrawer" type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-2" style="width: 36px; height: 36px;">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="drawerExpenseId" value="" />
+
+      <!-- Form Panel 1: Request Information -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Request Information</div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="field-label" for="formTitle">Judul Pengeluaran</label>
+            <input id="formTitle" type="text" class="field-control" placeholder="Contoh: Gaji Mentor FC Batch 12" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formCategory">Kategori</label>
+            <select id="formCategory" class="field-control">
+              <option value="mentor_salary">Mentor Salary</option>
+              <option value="operational">Operational</option>
+              <option value="reimburse">Reimburse</option>
+              <option value="tools">Tools</option>
+              <option value="transport">Transport</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formDepartment">Department</label>
+            <select id="formDepartment" class="field-control">
+              <option value="HR Division">HR Division</option>
+              <option value="Client & Product">Client & Product</option>
+              <option value="Marketing Division">Marketing Division</option>
+              <option value="Branding Division">Branding Division</option>
+              <option value="General">General</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="field-label" for="requesterSearchInput">Requester / PIC</label>
+            <div class="search-select">
+              <input
+                id="requesterSearchInput"
+                type="text"
+                class="field-control"
+                placeholder="Cari nama PIC, nickname, email, atau role"
+              />
+              <div id="requesterSearchResults" class="search-select-list" style="display: none;"></div>
+            </div>
+            <input type="hidden" id="formRequesterId" />
+            <input type="hidden" id="formRequesterName" />
+            <div class="field-help">Terhubung ke collection `users` agar PIC lebih konsisten.</div>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="field-label" for="formDueDate">Due Date</label>
+            <input id="formDueDate" type="date" class="field-control" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="field-label" for="formAmount">Amount (IDR)</label>
+            <input id="formAmount" type="text" inputmode="numeric" class="field-control" placeholder="1.250.000" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="field-label" for="formStatus">Status</label>
+            <select id="formStatus" class="field-control">
+              <option value="requested">Requested</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="paid">Paid</option>
+              <option value="complete">Complete</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Panel 2: Category Detail (Dynamic) -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Category Detail</div>
+
+        <!-- Cat 1: Mentor Salary -->
+        <div id="catMentorSalary" class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="classSearchInput">Related Class</label>
+            <div class="search-select">
+              <input id="classSearchInput" type="text" class="field-control" placeholder="Cari nama kelas" />
+              <div id="classSearchResults" class="search-select-list" style="display: none;"></div>
+            </div>
+            <input type="hidden" id="formClassId" />
+            <input type="hidden" id="formRelatedClass" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="mentorSearchInput">Mentor Name</label>
+            <div class="search-select">
+              <input id="mentorSearchInput" type="text" class="field-control" placeholder="Cari nama mentor" />
+              <div id="mentorSearchResults" class="search-select-list" style="display: none;"></div>
+            </div>
+            <input type="hidden" id="formMentorId" />
+            <input type="hidden" id="formMentorName" />
+            <div class="field-help">Rekening tujuan terisi otomatis dari data mentor.</div>
+          </div>
+          <div class="col-12">
+            <label class="field-label" for="formMentorWhatsapp">Nomor WhatsApp Mentor</label>
+            <input id="formMentorWhatsapp" type="text" class="field-control" readonly placeholder="Diambil otomatis dari master mentor" />
+          </div>
+        </div>
+
+        <!-- Cat 2: Operational -->
+        <div id="catOperational" class="row g-3" style="display: none;">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formVendorName">Operational Item / Vendor</label>
+            <input id="formVendorName" type="text" class="field-control" placeholder="Contoh: Sewa venue / konsumsi" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formExpensePeriod">Periode / Keperluan</label>
+            <input id="formExpensePeriod" type="text" class="field-control" placeholder="Contoh: April 2026" />
+          </div>
+        </div>
+
+        <!-- Cat 3: Reimburse -->
+        <div id="catReimburse" class="row g-3" style="display: none;">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formReimburseType">Reimburse Type</label>
+            <input id="formReimburseType" type="text" class="field-control" placeholder="Contoh: konsumsi, transport, ATK" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formReimburseReason">Reimburse For</label>
+            <input id="formReimburseReason" type="text" class="field-control" placeholder="Contoh: meeting client" />
+          </div>
+        </div>
+
+        <!-- Cat 4: Tools -->
+        <div id="catTools" class="row g-3" style="display: none;">
+          <div class="col-12 col-md-8">
+            <label class="field-label" for="formToolName">Tool / Platform Name</label>
+            <input id="formToolName" type="text" class="field-control" placeholder="Contoh: Zoom Pro / Canva / Notion" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="field-label" for="formBillingPeriod">Billing Period</label>
+            <input id="formBillingPeriod" type="text" class="field-control" placeholder="Bulanan / Tahunan" />
+          </div>
+        </div>
+
+        <!-- Cat 5: Transport -->
+        <div id="catTransport" class="row g-3" style="display: none;">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formTravelerName">Traveler / Penumpang</label>
+            <input id="formTravelerName" type="text" class="field-control" placeholder="Nama penumpang" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formTravelDate">Tanggal Perjalanan</label>
+            <input id="formTravelDate" type="date" class="field-control" />
+          </div>
+          <div class="col-12">
+            <label class="field-label" for="formTravelRoute">Rute / Detail Perjalanan</label>
+            <input id="formTravelRoute" type="text" class="field-control" placeholder="Contoh: Jogja - Sleman PP" />
+          </div>
+        </div>
+
+        <!-- Cat 6: Other -->
+        <div id="catOther" class="row g-3" style="display: none;">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formReferenceLabel">Reference Label</label>
+            <input id="formReferenceLabel" type="text" class="field-control" placeholder="Kode referensi / invoice" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formReferenceDetail">Additional Context</label>
+            <input id="formReferenceDetail" type="text" class="field-control" placeholder="Keterangan singkat" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Panel 3: Transfer Destination -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Transfer Destination</div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="field-label" for="formBeneficiaryName">Nama Penerima Rekening</label>
+            <input id="formBeneficiaryName" type="text" class="field-control" placeholder="Nama pemilik rekening" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formBankName">Bank Tujuan</label>
+            <input id="formBankName" type="text" class="field-control" placeholder="BCA / Mandiri / BNI / dll" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="formAccountNumber">Nomor Rekening</label>
+            <input id="formAccountNumber" type="text" class="field-control mono" placeholder="1234567890" />
+          </div>
+          <div class="col-12">
+            <label class="field-label" for="formPaymentMethod">Metode Pembayaran</label>
+            <input id="formPaymentMethod" type="text" class="field-control" placeholder="Transfer Bank / E-Wallet / Cash" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Panel 4: Context & Notes -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Context & Notes</div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="field-label" for="formNotes">Notes / Penjelasan Request</label>
+            <textarea id="formNotes" rows="4" class="field-control" placeholder="Jelaskan rincian atau alasan nominal request ini diajukan"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="field-label" for="formPaymentNotes">Treasurer Note</label>
+            <textarea id="formPaymentNotes" rows="3" class="field-control" placeholder="Catatan pembayaran dari treasurer"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Panel 5: Supporting Document -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Supporting Document</div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="reimburseProofInput">Upload Nota / Dokumen</label>
+            <input id="reimburseProofInput" type="file" accept="image/*,.pdf" class="field-control py-2 bg-white" />
+            <div class="field-help">Wajib dilampirkan untuk kategori Reimburse.</div>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label">Preview Dokumen</label>
+            <div id="reimburseProofPreview" class="proof-preview">
+              <span class="text-xs font-bold text-slate-300">Belum ada dokumen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Panel 6: Transfer Proof -->
+      <div class="form-panel">
+        <div class="text-sm font-black text-slate-900 mb-3">Transfer Proof</div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="field-label" for="proofFileInput">Upload Bukti Transfer</label>
+            <input id="proofFileInput" type="file" accept="image/*,.pdf" class="field-control py-2 bg-white" />
+            <div class="field-help">Upload bukti saat transfer selesai dilakukan. Status otomatis ke Paid.</div>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="field-label">Preview Bukti Saat Ini</label>
+            <div id="transferProofPreview" class="proof-preview">
+              <span class="text-xs font-bold text-slate-300">Belum ada bukti transfer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Actions Footer -->
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mt-4 pt-3 border-top">
+        <div id="drawerExpenseIdDisplay" class="text-xs text-muted mono"></div>
+        <div class="d-flex gap-2">
+          <button
+            id="btnDeleteExpense"
+            type="button"
+            class="btn btn-outline-danger btn-sm font-bold px-3 py-2 rounded-3"
+            style="display: none;"
+          >
+            Hapus Data
+          </button>
+          <button
+            id="btnCancelDrawer"
+            type="button"
+            class="btn btn-outline-secondary btn-sm font-bold px-3 py-2 rounded-3"
+          >
+            Batal
+          </button>
+          <button
+            id="btnSaveExpense"
+            type="button"
+            class="btn btn-primary btn-sm font-bold px-4 py-2 rounded-3"
+            style="background-color: #0b2b6a; border-color: #0b2b6a;"
+          >
+            Simpan Expense
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div id="toastNotice" class="toast-notice"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/assets/js/theme.js"></script>
+  <script type="module" src="/pages/hr/operational-expenses/operational-expenses.js"></script>
+</body>
+</html>

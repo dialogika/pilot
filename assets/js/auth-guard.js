@@ -19,7 +19,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 
-const LOGIN_PATH = "/index.html";
+const LOGIN_PATH = "/login";
 const VALID_ROLES = ["owner", "admin", "team", "staff", "intern", "mentor", "member"];
 
 /**
@@ -31,6 +31,7 @@ export function requireAuth() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        localStorage.removeItem("userData");
         window.location.href = LOGIN_PATH;
         return;
       }
@@ -93,11 +94,13 @@ function renderNoRoleError() {
       </div>
     </div>`;
   document.getElementById("btn-logout").addEventListener("click", () => {
+    localStorage.removeItem("userData");
     signOut(auth).then(() => (window.location.href = LOGIN_PATH));
   });
 }
 
 /** Helper logout dipakai tombol logout di sidebar/topbar. */
 export function logout() {
+  localStorage.removeItem("userData");
   return signOut(auth).then(() => (window.location.href = LOGIN_PATH));
 }

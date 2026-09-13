@@ -97,6 +97,7 @@ function filteredUsers() {
     );
   }
 
+
   if (_statusFilter) {
     list = list.filter(
       (u) => (u.status || "Active").toLowerCase() === _statusFilter.toLowerCase()
@@ -114,7 +115,6 @@ function filteredUsers() {
       return tb - ta;
     });
   }
-
   return list;
 }
 
@@ -163,15 +163,22 @@ function wireEventHandlers() {
     refreshTable();
   });
 
+
   // Role & filters
   setFiltersChangeHandler(({ role, status, sort, datePreset }) => {
     _roleFilter = role || "";
     _statusFilter = status || "";
     _sortFilter = sort || "recent";
     _datePreset = datePreset || "last90";
+
+  // Role filter
+  setFiltersChangeHandler(({ role }) => {
+    _roleFilter = role || "";
+
     resetPagination();
     refreshTable();
   });
+
 
   // Select all row checkboxes
   wireSelectAllCheckbox();
@@ -416,7 +423,10 @@ function startDelete(userId) {
 async function _reload() {
   try {
     _users = await listUsers();
+
     renderFilterRoleOptions({}, _users);
+
+ main
   } catch (err) {
     console.error("[UsersManagement] Failed to reload users:", err);
   }
@@ -445,12 +455,13 @@ export async function initialize() {
       `[UsersManagement] Loaded ${_users.length} users, ${Object.keys(_positionsMap).length} positions`
     );
 
+
     const searchEl = document.getElementById("um-search");
     if (searchEl) searchEl.value = "";
     _searchQuery = "";
 
     renderFilterRoleOptions({}, _users);
-
+ main
     wireModalCloseButtons();
     wireEventHandlers();
     refreshTable();

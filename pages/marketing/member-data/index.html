@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Member Data - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <!-- Tailwind CSS (for layout utilities) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Dialogika New Architecture Foundation -->
+    <link href="/assets/css/theme.css" rel="stylesheet" />
+    <link href="/assets/css/layout.css" rel="stylesheet" />
+
+    <!-- Local Feature CSS -->
+    <link href="/pages/marketing/member-data/member-data.css" rel="stylesheet" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+  </head>
+  <body class="antialiased">
+    <!-- Shared shell mounts (renderTopbar / renderSidebar) -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <div class="max-w-full px-2 py-2">
+        <!-- Page Header -->
+        <header
+          class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
+        >
+          <div>
+            <!-- Standard Breadcrumb -->
+            <nav
+              class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-2"
+            >
+              <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                <i class="bi bi-house-fill text-xs"></i>
+              </a>
+              <span class="text-blue-600">/</span>
+              <span class="text-blue-600">MARKETING DIVISION</span>
+              <span class="text-slate-400">/</span>
+              <span class="text-slate-400">MEMBER DATA</span>
+            </nav>
+            <h1
+              class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight"
+            >
+              Member Data
+            </h1>
+            <p class="text-slate-500 mt-1 font-medium text-sm md:text-base">
+              Lihat daftar member dengan filter berdasarkan tanggal.
+            </p>
+          </div>
+          <div class="flex flex-col items-stretch gap-3">
+            <div
+              class="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm"
+            >
+              <div class="flex items-center gap-1 px-2">
+                <span
+                  class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em]"
+                  >Dari</span
+                >
+                <input
+                  type="date"
+                  id="filterStartDate"
+                  class="text-xs border border-slate-200 rounded-xl px-3 py-1.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+              <div class="w-[1px] h-6 bg-slate-200"></div>
+              <div class="flex items-center gap-1 px-2">
+                <span
+                  class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em]"
+                  >Sampai</span
+                >
+                <input
+                  type="date"
+                  id="filterEndDate"
+                  class="text-xs border border-slate-200 rounded-xl px-3 py-1.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+              <button
+                id="btnResetDate"
+                class="ml-2 px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100"
+              >
+                Reset
+              </button>
+            </div>
+            <span id="summaryText" class="text-xs text-slate-400 font-medium">
+              Menunggu data member...
+            </span>
+          </div>
+        </header>
+
+        <!-- Stat Cards -->
+        <div class="stat-cards" id="statCards">
+          <div class="stat-card sc-total" data-pay-filter="all">
+            <span class="stat-card-label">Total Member</span>
+            <span class="stat-card-value" id="scTotal">0</span>
+            <span class="stat-card-sub">dari seluruh data</span>
+          </div>
+          <div class="stat-card sc-full" data-pay-filter="full">
+            <span class="stat-card-label">Full Payment</span>
+            <span class="stat-card-value" id="scFull">0</span>
+            <span class="stat-card-sub">Lunas / Full</span>
+          </div>
+          <div class="stat-card sc-dp" data-pay-filter="dp">
+            <span class="stat-card-label">Down Payment (DP)</span>
+            <span class="stat-card-value" id="scDp">0</span>
+            <span class="stat-card-sub">Cicilan / DP</span>
+          </div>
+        </div>
+
+        <!-- Search & Control Bar -->
+        <div
+          class="flex flex-col md:flex-row gap-3 items-stretch md:items-center mb-4"
+        >
+          <div class="relative flex-grow group">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <svg
+                class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <input
+              id="memberSearchInput"
+              type="text"
+              placeholder="Cari nama, WhatsApp, kota, program..."
+              class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none text-sm text-slate-700 shadow-sm"
+            />
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              id="btnAddMember"
+              class="btn btn-primary btn-add-member"
+            >
+              <i class="bi bi-plus-lg me-1"></i>Tambah Data
+            </button>
+            <select
+              id="paymentFilterSelect"
+              class="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            >
+              <option value="all">Semua Pembayaran</option>
+              <option value="full">Full Payment</option>
+              <option value="dp">Down Payment (DP)</option>
+            </select>
+            <select
+              id="pageSizeSelect"
+              class="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            >
+              <option value="10">10 / halaman</option>
+              <option value="25" selected>25 / halaman</option>
+              <option value="50">50 / halaman</option>
+              <option value="100">100 / halaman</option>
+            </select>
+            <span
+              id="dataInfoText"
+              class="text-[11px] text-slate-400 whitespace-nowrap"
+            ></span>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <section class="member-card p-4 md:p-5 shadow-sm">
+          <div id="loadingState" class="text-center py-10">
+            <div class="spinner-border text-indigo-600" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-slate-500 text-sm">
+              Sedang memuat data member dari Firebase...
+            </p>
+          </div>
+
+          <div id="emptyState" class="text-center py-10" style="display: none">
+            <p class="text-slate-500 mb-1">
+              Belum ada data member yang sesuai filter.
+            </p>
+            <p class="text-slate-400 text-xs">
+              Coba ubah rentang tanggal atau kata kunci pencarian.
+            </p>
+          </div>
+
+          <!-- Table Wrapper -->
+          <div id="tableContainer" style="display: none">
+            <div class="table-scroll-wrap">
+              <table class="table mb-0" id="memberTable">
+                <thead class="tbl-head" id="memberTableHead"></thead>
+                <tbody id="memberTableBody"></tbody>
+              </table>
+            </div>
+            <div class="tbl-foot-fixed" id="memberTableFootFixed">
+              <span class="tfoot-label">TOTAL</span>
+              <span class="tfoot-total" id="tfootTotalValue">Rp0</span>
+            </div>
+            <div
+              class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-3 px-1"
+            >
+              <span id="pgnInfo" class="text-[11px] text-slate-400"></span>
+              <div
+                id="pgnControls"
+                class="d-flex align-items-center gap-1 flex-wrap"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Detail Member Modal -->
+        <div
+          class="modal fade"
+          id="memberDetailModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header border-0 pb-0">
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="rounded-circle bg-indigo-100 d-flex align-items-center justify-content-center text-indigo-600 fw-bold"
+                    style="width: 40px; height: 40px"
+                  >
+                    <span id="detailMemberInitial">M</span>
+                  </div>
+                  <div>
+                    <h5 class="modal-title mb-0" id="detailMemberTitle">
+                      Detail Member
+                    </h5>
+                    <div
+                      class="text-xs text-slate-400"
+                      id="detailMemberSubtitle"
+                    >
+                      -
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body pt-3">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Nama
+                    </div>
+                    <div
+                      id="detailMemberName"
+                      class="text-base font-semibold text-slate-900"
+                    >
+                      -
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Program Diambil
+                    </div>
+                    <div
+                      id="detailMemberProgram"
+                      class="text-sm text-slate-800"
+                    >
+                      -
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Tanggal
+                    </div>
+                    <div id="detailMemberDate" class="text-sm text-slate-800">
+                      -
+                    </div>
+                  </div>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Kontak
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                      <div
+                        id="detailMemberPhone"
+                        class="text-sm text-slate-800"
+                      >
+                        -
+                      </div>
+                      <button
+                        type="button"
+                        id="detailWhatsappBtn"
+                        class="btn btn-sm btn-success d-inline-flex align-items-center gap-2"
+                      >
+                        <i class="bi bi-whatsapp"></i>
+                        <span>Chat via WhatsApp</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Email
+                    </div>
+                    <div
+                      id="detailMemberEmail"
+                      class="text-sm text-slate-800"
+                    >
+                      -
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div
+                      class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-1"
+                    >
+                      Domisili
+                    </div>
+                    <div id="detailMemberCity" class="text-sm text-slate-800">
+                      -
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-3" />
+                <div>
+                  <div
+                    class="text-xs text-slate-400 font-bold uppercase tracking-[0.18em] mb-2"
+                  >
+                    Detail Lainnya
+                  </div>
+                  <div
+                    id="detailMemberExtra"
+                    class="text-sm text-slate-700"
+                  ></div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add / Edit Member Form Modal -->
+        <div
+          class="modal fade"
+          id="memberFormModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header border-0 pb-0">
+                <div>
+                  <h5 class="modal-title mb-0" id="memberFormTitle">
+                    Tambah Data Member
+                  </h5>
+                  <div class="text-xs text-slate-400" id="memberFormSubtitle">
+                    Isi data member yang akan disimpan ke Firebase.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body pt-3">
+                <input type="hidden" id="memberFormMode" value="add" />
+                <input type="hidden" id="memberEditId" value="" />
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Nama</label
+                    >
+                    <input
+                      type="text"
+                      id="memberFormNama"
+                      class="form-control"
+                      placeholder="Nama member"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >WhatsApp</label
+                    >
+                    <input
+                      type="text"
+                      id="memberFormWhatsapp"
+                      class="form-control"
+                      placeholder="62812..."
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Kota</label
+                    >
+                    <input
+                      type="text"
+                      id="memberFormKota"
+                      class="form-control"
+                      placeholder="Kota"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Produk Dibeli</label
+                    >
+                    <select id="memberFormProduk" class="form-select">
+                      <option value="">Pilih produk</option>
+                      <option value="first class">first class</option>
+                      <option value="first kids">first kids</option>
+                      <option value="private first class/kids">
+                        private first class/kids
+                      </option>
+                      <option value="master class">master class</option>
+                      <option value="mc class">mc class</option>
+                      <option value="premium class">premium class</option>
+                      <option value="first play">first play</option>
+                      <option value="basic plus">basic plus</option>
+                      <option value="kids plus">kids plus</option>
+                      <option value="private basic plus">
+                        private basic plus
+                      </option>
+                      <option value="private kids plus">
+                        private kids plus
+                      </option>
+                      <option value="basic play">basic play</option>
+                      <option value="private level 02">
+                        private level 02
+                      </option>
+                      <option value="private level 03">private level 03</option>
+                      <option value="public speaking class">
+                        public speaking class
+                      </option>
+                      <option value="trial class dewasa">
+                        trial class dewasa
+                      </option>
+                      <option value="trial class kids">
+                        trial class kids
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Harga Dibayarkan</label
+                    >
+                    <input
+                      type="text"
+                      id="memberFormHarga"
+                      class="form-control"
+                      placeholder="Contoh: 1.500.000"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Metode Pembayaran</label
+                    >
+                    <select id="memberFormMetode" class="form-select">
+                      <option value="">Pilih pembayaran</option>
+                      <option value="Down Payment (DP)">
+                        Down Payment (DP)
+                      </option>
+                      <option value="Full Payment">Full Payment</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Sumber Informasi</label
+                    >
+                    <input
+                      type="text"
+                      id="memberFormSumber"
+                      class="form-control"
+                      placeholder="Instagram / Website / Referral"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <label
+                      class="form-label text-xs font-bold text-slate-500 uppercase tracking-[0.16em]"
+                      >Bukti Transfer</label
+                    >
+                    <!-- Preview bukti transfer tersimpan / baru dipilih -->
+                    <div
+                      id="memberFormBuktiPreviewWrap"
+                      class="mb-2 p-2.5 border border-slate-200 rounded-3 bg-slate-50 items-center gap-3"
+                      style="display: none;"
+                    >
+                      <div class="flex-shrink-0">
+                        <img
+                          id="memberFormBuktiPreviewImg"
+                          src=""
+                          alt="Bukti Transfer"
+                          class="rounded-2 border border-slate-200 object-cover shadow-sm bg-white"
+                          style="width: 72px; height: 72px; object-fit: cover;"
+                        />
+                      </div>
+                      <div class="d-flex flex-column gap-1 overflow-hidden">
+                        <span
+                          id="memberFormBuktiPreviewBadge"
+                          class="badge bg-success bg-opacity-10 text-success fw-bold"
+                          style="width: fit-content; font-size: 10px;"
+                        >
+                          <i class="bi bi-check-circle-fill me-1"></i>Bukti Tersimpan
+                        </span>
+                        <span
+                          class="text-xs text-slate-600 truncate"
+                          id="memberFormBuktiPreviewNote"
+                        >
+                          Gambar bukti transfer yang saat ini digunakan.
+                        </span>
+                        <a
+                          id="memberFormBuktiPreviewLink"
+                          href="#"
+                          target="_blank"
+                          rel="noopener"
+                          class="text-xs text-indigo-600 fw-semibold text-decoration-none hover:underline d-inline-flex align-items-center gap-1"
+                        >
+                          <i class="bi bi-box-arrow-up-right"></i> Lihat Ukuran Penuh
+                        </a>
+                      </div>
+                    </div>
+                    <input
+                      type="file"
+                      id="memberFormBuktiFile"
+                      class="form-control"
+                      accept="image/*"
+                    />
+                    <div
+                      id="memberFormBuktiHelp"
+                      class="text-xs text-slate-400 mt-2"
+                    >
+                      Upload gambar bukti transfer, maksimal 3 MB.
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div
+                      class="alert alert-light border text-xs text-slate-500 mb-0"
+                    >
+                      Tanggal pembuatan akan diisi otomatis saat menambah data.
+                      Saat edit, field lain yang tidak ditampilkan tetap dipertahankan.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  id="memberFormSubmitBtn"
+                  class="btn btn-primary"
+                >
+                  Simpan Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Delete Confirmation Modal -->
+        <div
+          class="modal fade"
+          id="deleteMemberModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+              <div class="modal-body p-4 text-center">
+                <div
+                  class="d-flex align-items-center justify-content-center mx-auto mb-3"
+                  style="width: 54px; height: 54px; border-radius: 50%; background-color: #fee2e2; color: #dc2626;"
+                >
+                  <i class="bi bi-trash3-fill fs-4"></i>
+                </div>
+                <h5 class="modal-title fw-bold text-slate-800 mb-2">
+                  Hapus Data Member?
+                </h5>
+                <p class="text-xs text-slate-500 mb-4 lh-sm">
+                  Apakah Anda yakin ingin menghapus data member <strong id="deleteMemberName" class="text-slate-700">ini</strong>? Tindakan ini tidak dapat dibatalkan.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-light text-slate-600 px-3 py-2 text-xs fw-semibold rounded-3 flex-fill"
+                    data-bs-dismiss="modal"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    id="confirmDeleteBtn"
+                    class="btn btn-danger px-3 py-2 text-xs fw-semibold rounded-3 flex-fill"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Feedback / Pop-up Notification Modal -->
+        <div
+          class="modal fade"
+          id="feedbackModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+              <div class="modal-body p-4 text-center">
+                <div
+                  id="feedbackIconWrap"
+                  class="d-flex align-items-center justify-content-center mx-auto mb-3"
+                  style="width: 54px; height: 54px; border-radius: 50%; background-color: #dcfce7; color: #16a34a;"
+                >
+                  <i id="feedbackIcon" class="bi bi-check-circle-fill fs-4"></i>
+                </div>
+                <h5 class="modal-title fw-bold text-slate-800 mb-1" id="feedbackTitle">
+                  Berhasil!
+                </h5>
+                <p class="text-xs text-slate-500 mb-4 lh-sm" id="feedbackMessage">
+                  Data member berhasil disimpan.
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-primary px-3 py-2 text-xs fw-semibold rounded-3 w-100"
+                  data-bs-dismiss="modal"
+                >
+                  Oke
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Feature Orchestrator JS -->
+    <script type="module" src="/pages/marketing/member-data/member-data.js"></script>
+  </body>
+</html>

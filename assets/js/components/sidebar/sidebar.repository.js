@@ -159,33 +159,49 @@ function isTaskAssignedToUser(data, myAliases, roleLower, userDept) {
     : data.assign_to
       ? [data.assign_to]
       : []
-  ).map((x) => String(x).toLowerCase());
+  ).map((x) => String(x).toLowerCase().trim());
 
   // If explicit assignees exist, the logged-in user MUST be one of the assignees
   if (assignList.length > 0) {
     return assignList.some((uid) => myAliases.includes(uid));
   }
 
-  // If unassigned (department-wide open task)
+  // If unassigned (open to department)
   const depts = Array.isArray(data.departments) ? data.departments : [];
   if (!depts.length) {
-    return true;
+    return false;
   }
 
   if (!userDept) return false;
-  const deptLower = userDept.toLowerCase();
+  const deptLower = String(userDept).toLowerCase().trim();
   return depts.some((d) => {
     if (!d) return false;
     const id = d.id || d.department_id || "";
     const name = d.name || d.department_name || d.department || "";
     return (
-      (id && String(id).toLowerCase() === deptLower) ||
-      (name && String(name).toLowerCase() === deptLower)
+      (id && String(id).toLowerCase().trim() === deptLower) ||
+      (name && String(name).toLowerCase().trim() === deptLower)
     );
   });
 }
 
 function isReportedToday(data, myAliases) {
+  if (!data) return false;
+  const normStatus = String(data.status || data.task_status || "").toLowerCase();
+  if (normStatus === "rejected" || normStatus === "approved" || normStatus.includes("approv") || normStatus.includes("reject")) return false;
+  if (data.user_status && (String(data.user_status).toLowerCase() === "approved" || String(data.user_status).toLowerCase() === "rejected")) return false;
+  const msAppr = toMs(data.last_approved_at || data.approved_at);
+  const msRej = toMs(data.last_rejected_at || data.rejected_at);
+  const msRep = toMs(data.last_reported_at);
+  if (msAppr && msRep && msAppr >= msRep) return false;
+  if (msRej && msRep && msRej >= msRep) return false;
+
+  // Check per-user rejection in rejected_users
+  if (data.rejected_users && myAliases && myAliases.length > 0) {
+    const isUserRejected = Object.keys(data.rejected_users).some((uid) => myAliases.includes(String(uid).toLowerCase().trim()));
+    if (isUserRejected) return false;
+  }
+
   const lrb = data.last_reported_by;
   const lra = data.last_reported_at;
   if (!Array.isArray(lrb) || !lrb.length || !lra) return false;
@@ -200,10 +216,10 @@ function isReportedToday(data, myAliases) {
   if (!isToday) return false;
 
   if (myAliases && myAliases.length > 0) {
-    const reportedByList = lrb.map((x) => String(x).toLowerCase());
+    const reportedByList = lrb.map((x) => String(x).toLowerCase().trim());
     return reportedByList.some((uid) => myAliases.includes(uid));
   }
-  return true;
+  return false;
 }
 
 function extractUserIdentifiers(raw) {
@@ -355,6 +371,55 @@ export async function getSidebarCounts() {
           data.startDate,
       );
 
+      const userStatusLower = String(data.user_status || "").toLowerCase();
+      const assignList = (Array.isArray(data.assign_to)
+        ? data.assign_to
+        : data.assign_to
+          ? [data.assign_to]
+          : []
+      ).map((x) => String(x).toLowerCase().trim());
+      const isSingleAssignee = assignList.length <= 1;
+
+      const userApproval =
+        data.approved_users &&
+        Object.keys(data.approved_users).some((uid) =>
+          myAliases.includes(String(uid).toLowerCase().trim())
+        );
+
+      const isApproved =
+        userApproval ||
+        Boolean(data.isApproved) ||
+        userStatusLower === "approved" ||
+        userStatusLower.includes("approv") ||
+        (isSingleAssignee &&
+          (normStatus === "approved" ||
+            normStatus.includes("approv") ||
+            normTaskStatus === "approved" ||
+            normTaskStatus.includes("approv")));
+
+      const isRejected =
+        !isApproved &&
+        (userStatusLower === "rejected" ||
+          userStatusLower.includes("reject") ||
+          normStatus === "rejected" ||
+          normStatus.includes("reject") ||
+          normTaskStatus === "rejected" ||
+          normTaskStatus.includes("reject"));
+
+      const reportedToday =
+        !isApproved &&
+        !isRejected &&
+        (Boolean(data.isReported) ||
+          userStatusLower === "reported" ||
+          userStatusLower.includes("report") ||
+          userStatusLower.includes("pend") ||
+          isReportedToday(data, myAliases));
+
+      // If task is already approved or reported today by this user, it's done -> do not notify/count
+      if (isApproved || reportedToday) {
+        return;
+      }
+
       if (!isSide) {
         // --- Daily (Main Quest) ---
         let matchedDay = null;
@@ -375,25 +440,17 @@ export async function getSidebarCounts() {
 
         // Only count if due today / overdue
         if (matchedDay === "today") {
-          const reportedToday = isReportedToday(data, myAliases);
-          const isOneTimeReported =
-            !data.recur && (normStatus === "reported" || normTaskStatus === "reported");
-          if (!reportedToday && !isOneTimeReported) {
-            totalMain++;
-          }
+          totalMain++;
         }
       } else {
         // --- Quest (Side Quest) ---
-        const isReported = normStatus === "reported" || normTaskStatus === "reported";
-        if (!isReported) {
-          let isUpcoming = false;
-          if (dueDateMs) {
-            const k = dayKey(new Date(dueDateMs));
-            if (k > todayKey) isUpcoming = true;
-          }
-          if (!isUpcoming) {
-            totalSide++;
-          }
+        let isUpcoming = false;
+        if (dueDateMs) {
+          const k = dayKey(new Date(dueDateMs));
+          if (k > todayKey) isUpcoming = true;
+        }
+        if (!isUpcoming) {
+          totalSide++;
         }
       }
     });
@@ -412,21 +469,11 @@ export async function getSidebarCounts() {
       allReps.forEach((r) => {
         const st = String(r.status || "").toLowerCase();
         if (st === "pending" || st === "pending review") {
-          const authorId = String(r.authorId || "").toLowerCase().trim();
-          const assignees = extractUserIdentifiers(r.assignees);
-          const creators = extractUserIdentifiers(r.createdBy);
           const reportToList = extractUserIdentifiers(r.reportTo);
-
           if (reportToList.length > 0) {
             if (reportToList.some((u) => myAliases.includes(u))) {
               pendingCount++;
             }
-          } else if (authorId && myAliases.includes(authorId)) {
-            pendingCount++;
-          } else if (assignees.some((u) => myAliases.includes(u))) {
-            pendingCount++;
-          } else if (creators.some((u) => myAliases.includes(u))) {
-            pendingCount++;
           }
         }
       });

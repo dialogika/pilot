@@ -60,7 +60,7 @@ Same minimum structure as Home/Quest: one file per concern, no over-splitting.
 |---|---|---|
 | `index.html` | Page markup, shell mounts (`#dg-topbar-mount`, `#dg-sidebar-mount`), stat cards, table shell, filter bar, pagination, Add/Edit/Promote Bootstrap modals, CSS/JS references. | Firestore queries, `initializeApp`, business logic. |
 | `internships.js` | Orchestrator: `requireAuth()`, render shell, load positions/departments/interns, coordinate repository → ui, wire events (search, rows-per-page, stat-card filters, prev/next, add/edit/promote/delete), boot on DOM ready. | Firestore queries, raw data rendering. |
-| `internships.repository.js` | **All** Internships Firestore data access: list interns (`users where role in [Internship, internship]`), add/edit/delete intern, position map (`position` → fallback `positions`), department map (`department` → fallback `departments`), `isPromoted`, `promoteToTeam` (`team_management` addDoc + `users` update). | DOM manipulation, rendering, toasts, modals. |
+| `internships.repository.js` | **All** Internships Firestore data access: list interns (`users` supporting legacy & modern role representations with fallback scan), add/edit/delete intern, position map (`positions` → fallback `position`), department map (`departments` → fallback `department`), `isPromoted`, `promoteToTeam` (`team_management` addDoc + `users` update). | DOM manipulation, rendering, toasts, modals. |
 | `internships.ui.js` | **All** Internships rendering + modal logic: stat cards, table rows (buildRow), status derivation `getInternshipDisplayStatus`, filter/sort/paginate, open/read Add/Edit/Promote forms, loading/notify/confirm helpers. | Firestore queries, data fetching. |
 | `internships.css` | Internships-specific styles (avatars, sticky columns, stat cards, filter bar, pagination, table). Reuses theme/layout tokens. | Duplicated global styles. |
 
@@ -92,12 +92,12 @@ Internships
  ├── Authentication
  │    └── requireAuth() from assets/js/auth-guard.js (custom claim `role`)
  ├── Firestore
- │    ├── users                     getDocs (where role in [Internship, internship])
+ │    ├── users                     getDocs (query with multi-role support + fallback scan)
  │    ├── users/{id}                addDoc / updateDoc / deleteDoc
- │    ├── position (fallback positions)   getDocs (id → label map)
- │    ├── department (fallback departments) getDocs (id → label map)
- │    └── team_management/{id}      addDoc (promote) + query (where userId == )
- │                                  users/{id} updateDoc (role_id staff, promotedToTeam)
+ │    ├── positions (fallback position)   getDocs (id → label map with try/catch fallback)
+ │    ├── departments (fallback department) getDocs (id → label map with try/catch fallback)
+ │    └── team_management/{id}      addDoc (promote) + query (where userId / internshipId == )
+ │                                  users/{id} updateDoc (role/role_id staff, access.role_id staff, promotedToTeam)
  ├── Storage
  │    └── (none — avatar is a URL string, pravatar placeholder when absent)
  └── Functions

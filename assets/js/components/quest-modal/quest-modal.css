@@ -270,6 +270,7 @@
   width: 100%;
 }
 
+/* Table Head */
 .dg-quest-table-head {
   display: grid;
   grid-template-columns: minmax(120px, 1.2fr) 76px 72px 52px 100px 100px 90px 185px;
@@ -287,7 +288,7 @@
   width: 100%;
 }
 
-/* Card Styling - ClickUp 1-Row Grid */
+/* Card Styling - 1-Row Grid with Separated Action Column via Divider Line */
 .dg-quest-card {
   display: grid;
   grid-template-columns: minmax(120px, 1.2fr) 76px 72px 52px 100px 100px 90px 185px;
@@ -409,17 +410,55 @@
 }
 
 .dg-col-actions {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.35rem;
   min-width: 0;
-  padding-left: 1.5rem;
+  padding-left: 0.85rem;
+  height: 100%;
+}
+
+.dg-col-actions::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 24px;
+  background-color: #cbd5e1;
+  border-radius: 1px;
 }
 
 .dg-quest-table-head .dg-col-actions {
-  padding-left: 1.5rem;
-  text-align: right;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.85rem;
+  text-align: center;
+}
+
+.dg-quest-table-head .dg-col-actions::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 16px;
+  background-color: #cbd5e1;
+  border-radius: 1px;
+}
+
+.dg-quest-card:hover .dg-col-actions::before {
+  background-color: #94a3b8;
+}
+
+.dg-quest-card.is-selected .dg-col-actions::before {
+  background-color: #93c5fd;
 }
 
 .dg-quest-col-empty {
@@ -565,12 +604,11 @@
 .dg-quest-card-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 0.35rem;
   flex-shrink: 0;
   white-space: nowrap;
   width: 100%;
-  padding-left: 1.5rem;
 }
 
 /* Link Action Buttons */
@@ -1890,6 +1928,19 @@
   word-break: break-word;
   background: var(--dg-surface-variant, #f8fafc) !important;
   border-color: var(--dg-border, #e2e8f0) !important;
+}
+
+.dg-quest-desc-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+  display: block;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.dg-quest-desc-content p:last-child {
+  margin-bottom: 0;
 }
 
 /* Priority / Urgency Flag Picker */

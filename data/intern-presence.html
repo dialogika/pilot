@@ -2,22 +2,31 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/webp" href="../assets/img/favicon.webp">
-    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.webp">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presensi Internship - Team Dialogika</title>
+
+    <!-- Bootstrap 5 + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="../assets/css/style.css" rel="stylesheet" />
+
+    <!-- Fonts & Chart -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
 
+    <!-- Pilot Core Foundations -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Theme Script -->
+    <script src="/assets/js/theme.js" defer></script>
+
+    <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #fdfeff;
+            background: #f1f7fd;
             color: var(--text-strong);
         }
         .premium-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04); }
@@ -42,22 +51,16 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-    
-</style>
-
-    <!-- Centralized Auth Guard -->
-    <script type="module" src="../assets/js/auth-guard.js"></script>
+    </style>
 </head>
-    <body class="antialiased" style="background-color:#f1f7fd;">
+<body class="antialiased">
 
-    <div id="topbarContainer"></div>
-    
-    <div class="dashboard-container">
-        
-        <div id="sidebarContainer"></div>
+    <!-- Shared Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
 
-        <main class="main-content">
-    <div class="ml-20 p-8 md:p-12 lg:p-16 max-w-[1600px] mx-auto">
+    <main class="dg-main">
+    <div class="p-6 md:p-8 lg:p-10 max-w-[1400px] mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
             <div>
                 <div class="flex items-center gap-2 mb-2">
@@ -87,7 +90,7 @@
                     <p class="text-3xl font-extrabold" id="totalLogsDisplay">0</p>
                 </div>
                 <div class="w-10 h-10 rounded-2xl bg-[#0B2B6A]/10 flex items-center justify-center text-[#0B2B6A]">
-                    <i class="fa-solid fa-clipboard-check text-lg"></i>
+                    <i class="bi bi-clipboard-check-fill text-lg"></i>
                 </div>
             </div>
             <div class="glass p-6 rounded-3xl premium-shadow flex items-center justify-between">
@@ -99,7 +102,7 @@
                     </div>
                 </div>
                 <div class="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
-                    <i class="fa-solid fa-calendar-day text-lg"></i>
+                    <i class="bi bi-calendar-event-fill text-lg"></i>
                 </div>
             </div>
             <div class="glass p-6 rounded-3xl premium-shadow flex items-center justify-between">
@@ -108,7 +111,7 @@
                     <p class="text-3xl font-extrabold" id="absentCountDisplay">0</p>
                 </div>
                 <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                    <i class="fa-solid fa-user-xmark text-lg"></i>
+                    <i class="bi bi-person-x-fill text-lg"></i>
                 </div>
             </div>
             <div class="glass p-6 rounded-3xl premium-shadow hidden lg:flex items-center justify-between">
@@ -117,7 +120,7 @@
                     <p class="text-3xl font-extrabold" id="attendancePercentDisplay">0%</p>
                 </div>
                 <div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center text-white">
-                    <i class="fa-solid fa-circle-info text-lg"></i>
+                    <i class="bi bi-info-circle-fill text-lg"></i>
                 </div>
             </div>
         </div>
@@ -168,30 +171,29 @@
             </div>
         </div>
 
-        
-    </div>
-        </main>
-    </div>
-    
+        </div>
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { app, db } from "../assets/js/firebase-config.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { renderTopBar } from "../element/topbar.js";
-        import { renderSidebar } from "../element/sidebar.js";
+        import { requireAuth } from "/assets/js/auth-guard.js";
+        import { renderTopbar } from "/assets/js/components/topbar/topbar.js";
+        import { renderSidebar } from "/assets/js/components/sidebar/sidebar.js";
+        import { db } from "/assets/js/firebase-config.js";
+        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         
 
 
-        const topbarTarget = document.getElementById("topbarContainer");
-        if (topbarTarget) {
-            renderTopBar(topbarTarget);
+        // Clean URL: ensure URL in address bar is strictly /intern-presence (no trailing slash, no .html)
+        if (window.location.pathname !== "/intern-presence") {
+            window.history.replaceState(null, "", "/intern-presence" + window.location.search);
         }
-        const sidebarTarget = document.getElementById("sidebarContainer");
-        if (sidebarTarget) {
-            renderSidebar(sidebarTarget);
-        }
+
+        // Initialize shared shell with auth
+        const authResult = await requireAuth();
+        renderTopbar({ user: authResult.user, role: authResult.role });
+        renderSidebar({ role: authResult.role, activePage: 'people-development' });
 
         const tbody = document.getElementById('attendanceBody');
         const loadingSpinner = document.getElementById('loadingSpinner');
@@ -353,7 +355,6 @@ import { app, db } from "../assets/js/firebase-config.js";
             const validDateSet = new Set();
             allRecords.forEach(r => {
                 if (!r.date) return;
-                if (!isValidAttendanceDay(r.date)) return;
                 if (r.date <= todayKey) {
                     validDateSet.add(r.date);
                 }
@@ -370,40 +371,63 @@ import { app, db } from "../assets/js/firebase-config.js";
                 return;
             }
             emptyState.classList.add("hidden");
+
+            // Build map of all interns from records
             const usersMap = new Map();
             allRecords.forEach(r => {
-                if (!r.date) return;
-                if (!recentDates.includes(r.date)) return;
                 const key = r.user_id || r.name || r.id;
                 if (!key) return;
-                const timeValue = parseTimeOfDay(r.time);
                 let entry = usersMap.get(key);
                 if (!entry) {
                     entry = {
                         user_id: r.user_id || "",
-                        name: r.name || "Tanpa Nama",
+                        name: r.name || "Intern",
                         photo: r.photo || "",
-                        earliestTimeValue: timeValue != null ? timeValue : null,
+                        totalAttendance: 0,
+                        attendedInRecent: 0,
                         byDate: {}
                     };
                     usersMap.set(key, entry);
                 }
-                if (timeValue != null && (entry.earliestTimeValue == null || timeValue < entry.earliestTimeValue)) {
-                    entry.earliestTimeValue = timeValue;
-                }
-                const dateKey = r.date;
-                const existingForDate = entry.byDate[dateKey];
-                if (!existingForDate || (timeValue != null && timeValue < existingForDate.timeValue)) {
-                    entry.byDate[dateKey] = {
-                        timeValue: timeValue,
-                        time: r.time || ""
-                    };
+                if (!entry.photo && r.photo) entry.photo = r.photo;
+                if ((!entry.name || entry.name === "Intern") && r.name) entry.name = r.name;
+                entry.totalAttendance += 1;
+
+                if (recentDates.includes(r.date)) {
+                    const timeValue = parseTimeOfDay(r.time);
+                    const existingForDate = entry.byDate[r.date];
+                    if (!existingForDate || (timeValue != null && timeValue < existingForDate.timeValue)) {
+                        entry.byDate[r.date] = {
+                            timeValue: timeValue,
+                            time: r.time || ""
+                        };
+                    }
                 }
             });
-            const entries = Array.from(usersMap.values()).filter(e => e.earliestTimeValue != null);
-            entries.sort((a, b) => a.earliestTimeValue - b.earliestTimeValue);
-            const rows = showAllMatrix ? entries : entries.slice(0, 5);
+
+            const entries = Array.from(usersMap.values());
+            entries.forEach(e => {
+                e.attendedInRecent = Object.keys(e.byDate).length;
+            });
+
+            // Filter only interns who attended at least once in the recent dates (attendedInRecent > 0)
+            const activeEntries = entries.filter(e => e.attendedInRecent > 0);
+
+            // Sort: interns who attended the 4 dates first, then by total historical attendance
+            activeEntries.sort((a, b) => {
+                if (b.attendedInRecent !== a.attendedInRecent) {
+                    return b.attendedInRecent - a.attendedInRecent;
+                }
+                return (b.totalAttendance || 0) - (a.totalAttendance || 0);
+            });
+
+            if (btnShowAllMatrix) {
+                btnShowAllMatrix.style.display = activeEntries.length > 5 ? "inline-block" : "none";
+            }
+
+            const rows = showAllMatrix ? activeEntries : activeEntries.slice(0, 5);
             if (!rows.length) {
+                emptyState.textContent = "Belum ada data presensi pada rentang tanggal ini.";
                 emptyState.classList.remove("hidden");
                 return;
             }
@@ -416,9 +440,12 @@ import { app, db } from "../assets/js/firebase-config.js";
                 const wrapper = document.createElement("div");
                 wrapper.className = "flex items-center gap-4";
                 const avatar = document.createElement("div");
-                avatar.className = "w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white bg-cover bg-center";
+                avatar.className = "w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white bg-cover bg-center flex-shrink-0";
                 if (entry.photo) {
                     avatar.style.backgroundImage = "url(" + entry.photo + ")";
+                } else {
+                    const firstName = getFirstName(entry.name || "Intern");
+                    avatar.style.backgroundImage = "url(https://ui-avatars.com/api/?name=" + encodeURIComponent(firstName) + "&background=0B2B6A&color=fff)";
                 }
                 const info = document.createElement("div");
                 const nameP = document.createElement("p");
@@ -429,6 +456,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                 wrapper.appendChild(info);
                 tdUser.appendChild(wrapper);
                 tr.appendChild(tdUser);
+
                 let attendedCount = 0;
                 recentDates.forEach(dateKey => {
                     const td = document.createElement("td");
@@ -439,10 +467,11 @@ import { app, db } from "../assets/js/firebase-config.js";
                     if (infoForDate) {
                         cellWrapper.classList.add("bg-[#0B2B6A]");
                         cellWrapper.style.boxShadow = "0 0 10px rgba(11,43,106,0.5)";
-                        td.title = infoForDate.time || "";
+                        td.title = infoForDate.time || "Hadir";
                         attendedCount += 1;
                     } else {
                         cellWrapper.classList.add("bg-slate-200");
+                        td.title = "Tidak Hadir";
                     }
                     td.appendChild(cellWrapper);
                     tr.appendChild(td);
@@ -534,7 +563,6 @@ import { app, db } from "../assets/js/firebase-config.js";
             const earliestByDate = new Map();
             allRecords.forEach(r => {
                 if (!r.date || !r.user_id) return;
-                if (!isValidAttendanceDay(r.date)) return;
                 const d = new Date(r.date + "T00:00:00");
                 if (d < start || d > baseDate) return;
                 const createdAt = r.createdAt || normalizeCreatedAt(r.created_at);
@@ -558,6 +586,30 @@ import { app, db } from "../assets/js/firebase-config.js";
                 if (!existing.photo && r.photo) existing.photo = r.photo;
                 scoreMap.set(key, existing);
             });
+
+            // If less than 3, supplement with most frequent attendees
+            if (scoreMap.size < 3) {
+                const attendanceCounts = new Map();
+                allRecords.forEach(r => {
+                    if (!r.user_id || scoreMap.has(r.user_id)) return;
+                    const ex = attendanceCounts.get(r.user_id) || { count: 0, name: r.name || "Intern", photo: r.photo || "" };
+                    ex.count += 1;
+                    if (r.photo && !ex.photo) ex.photo = r.photo;
+                    if (r.name && ex.name === "Intern") ex.name = r.name;
+                    attendanceCounts.set(r.user_id, ex);
+                });
+                const sortedFrequent = Array.from(attendanceCounts.entries()).sort((a, b) => b[1].count - a[1].count);
+                for (const [uid, item] of sortedFrequent) {
+                    if (scoreMap.size >= 3) break;
+                    scoreMap.set(uid, {
+                        count: item.count,
+                        name: item.name,
+                        photo: item.photo,
+                        label: `${item.count}x hadir`
+                    });
+                }
+            }
+
             if (!scoreMap.size) {
                 const p = document.createElement("p");
                 p.className = "text-xs text-slate-400";
@@ -588,7 +640,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                 left.appendChild(nameP);
                 const scoreSpan = document.createElement("span");
                 scoreSpan.className = "text-xs font-bold text-emerald-500";
-                scoreSpan.textContent = String(data.count) + "x paling awal";
+                scoreSpan.textContent = data.label || (String(data.count) + "x paling awal");
                 wrapper.appendChild(left);
                 wrapper.appendChild(scoreSpan);
                 topPerformersList.appendChild(wrapper);
