@@ -76,29 +76,28 @@
         "type": 301
       },
       {
-
-       {
-    "source": "/data/presence-team.html",
-    "destination": "/presence-team",
-    "type": 301
-  },
-  {
-    "source": "/data/exit-interview.html",
-    "destination": "/exit-interview"
-  },
-  {
-    "source": "/data/permit-reimburse-management.html",
-    "destination": "/permit-reimburse",
-    "type": 301
-  },
-  {
-    "source": "/setting/class-management.html",
-    "destination": "/class-management",
-    "type": 301
-  },
-  {
-    "source": "/setting/class-management",
-    "destination": "/class-management",
+        "source": "/data/presence-team.html",
+        "destination": "/presence-team",
+        "type": 301
+      },
+      {
+        "source": "/data/exit-interview.html",
+        "destination": "/exit-interview",
+        "type": 301
+      },
+      {
+        "source": "/data/permit-reimburse-management.html",
+        "destination": "/permit-reimburse",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-management.html",
+        "destination": "/class-management",
+        "type": 301
+      },
+      {
+        "source": "/setting/class-management",
+        "destination": "/class-management",
         "type": 301
       }
     ],
@@ -200,7 +199,6 @@
         "destination": "/pages/hr/operational-expenses/index.html"
       },
       {
-
         "source": "/presence-team",
         "destination": "/pages/hr/presence-team/index.html"
       },
