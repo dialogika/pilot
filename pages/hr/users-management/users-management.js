@@ -170,11 +170,6 @@ function wireEventHandlers() {
     _statusFilter = status || "";
     _sortFilter = sort || "recent";
     _datePreset = datePreset || "last90";
-
-  // Role filter
-  setFiltersChangeHandler(({ role }) => {
-    _roleFilter = role || "";
-
     resetPagination();
     refreshTable();
   });
@@ -425,8 +420,6 @@ async function _reload() {
     _users = await listUsers();
 
     renderFilterRoleOptions({}, _users);
-
- main
   } catch (err) {
     console.error("[UsersManagement] Failed to reload users:", err);
   }
@@ -461,7 +454,6 @@ export async function initialize() {
     _searchQuery = "";
 
     renderFilterRoleOptions({}, _users);
- main
     wireModalCloseButtons();
     wireEventHandlers();
     refreshTable();

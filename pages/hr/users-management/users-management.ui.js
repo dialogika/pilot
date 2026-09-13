@@ -275,8 +275,6 @@ export function renderPositionOptions(positionsMap) {
 
 
 export function renderFilterRoleOptions(rolesMap = {}, users = []) {
-
-export function renderFilterRoleOptions(rolesMap) {
   const select = $("um-filter-role");
   if (!select) return;
   const current = select.value;
@@ -325,25 +323,6 @@ export function renderFilterRoleOptions(rolesMap) {
   if (current && roleMap.has(current.toLowerCase())) {
     select.value = current.toLowerCase();
   }
-
-  const roles = Object.values(rolesMap);
-  if (roles.length === 0) {
-    VALID_ROLES.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
-    });
-  } else {
-    roles.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
-    });
-  }
-  if (current) select.value = current;
-
 }
 
 /* ------------------------------------------------------------------ */
@@ -464,14 +443,6 @@ export function setFiltersChangeHandler(callback) {
       notifyChange();
     });
   }
-
-  if (roleFilter) {
-    roleFilter.addEventListener("change", () => {
-      callback({ role: roleFilter.value });
-    });
-  }
-  // Legacy extras: also wire filterStatus / filterSort / filterDatePreset as role/trigger if needed (no-op for style parity)
-
 }
 
 export function setAddUserClickHandler(callback) {
