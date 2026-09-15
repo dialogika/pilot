@@ -551,4 +551,59 @@
   font-weight: 700;
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — scouting.css
+   ===================================================================== */
+[data-theme="dark"] .img-wrapper {
+  background-color: var(--surface-2);
+}
+[data-theme="dark"] .tag-icon {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+[data-theme="dark"] .tag-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .card-action-menu .btn {
+  background: rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .assign-avatar-circle {
+  border-color: var(--surface);
+  background: var(--surface-2);
+}
+[data-theme="dark"] .status-select {
+  border-color: var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+}
+[data-theme="dark"] .candidate-row td {
+  border-color: var(--border-soft);
+}
+[data-theme="dark"] .candidate-row:hover {
+  background-color: var(--surface-hover);
+}
+[data-theme="dark"] .assign-menu {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .assign-display {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .assign-user-item:hover {
+  background-color: var(--surface-hover);
+}
+[data-theme="dark"] .assign-user-name {
+  color: var(--text);
+}
+[data-theme="dark"] .photo-upload-box {
+  background-color: var(--surface-toolbar);
+  border-color: var(--border-sep);
+}
+[data-theme="dark"] .photo-upload-box:hover {
+  background-color: var(--surface-hover);
+}
+
+
 

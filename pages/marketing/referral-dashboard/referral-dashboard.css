@@ -263,3 +263,132 @@
     }
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — referral-dashboard.css
+   ===================================================================== */
+
+/* Premium card */
+[data-theme="dark"] .premium-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+[data-theme="dark"] .premium-card:hover {
+    box-shadow: var(--shadow-pop);
+}
+
+/* Glass stats */
+[data-theme="dark"] .glass-stats {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+/* Step bubble */
+[data-theme="dark"] .step-bubble {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+/* Drop zones */
+[data-theme="dark"] .drop-zone.over {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    border-color: #818cf8 !important;
+}
+
+/* Draggable items */
+[data-theme="dark"] .draggable-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Product dropdown */
+[data-theme="dark"] .product-dropdown {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .product-dropdown-item:hover {
+    background: var(--surface-hover);
+}
+[data-theme="dark"] .product-dropdown-item.active {
+    background: rgba(79, 70, 229, 0.18);
+    border-color: rgba(79, 70, 229, 0.35);
+}
+[data-theme="dark"] .product-dropdown-item .text-slate-800,
+[data-theme="dark"] .product-dropdown-item .text-slate-700 {
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] .product-dropdown-item .text-slate-500,
+[data-theme="dark"] .product-dropdown-item .text-slate-400 {
+    color: var(--text-muted) !important;
+}
+
+/* Custom scrollbar */
+[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+}
+[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-faint);
+}
+
+/* Pagination */
+[data-theme="dark"] .ref-pagination {
+    border-color: var(--border);
+}
+[data-theme="dark"] .ref-pagination-info {
+    color: var(--text-faint-2);
+}
+[data-theme="dark"] .ref-pagination-btn {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+}
+[data-theme="dark"] .ref-pagination-btn:hover:not(:disabled) {
+    background: var(--surface-hover);
+    color: var(--text-strong);
+    border-color: var(--border-strong);
+}
+[data-theme="dark"] .ref-pagination-btn.active {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+}
+
+/* Feature cards / panels inside referral dashboard */
+[data-theme="dark"] .bg-white.rounded-2xl,
+[data-theme="dark"] .bg-white.rounded-xl,
+[data-theme="dark"] .bg-white.rounded-3xl {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+/* Feature list items */
+[data-theme="dark"] .bg-slate-50.rounded-xl,
+[data-theme="dark"] .bg-slate-50.rounded-2xl {
+    background-color: var(--surface-muted) !important;
+}
+
+/* Text in feature lists */
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-900 {
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-600 {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .text-slate-400 {
+    color: var(--text-faint) !important;
+}
+
+/* Borders */
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-200 {
+    border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] .divide-slate-100 > * + *,
+[data-theme="dark"] .divide-slate-200 > * + * {
+    border-color: var(--border-soft) !important;
+}

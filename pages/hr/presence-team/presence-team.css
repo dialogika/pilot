@@ -383,3 +383,94 @@
     padding: 5px 12px;
   }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — presence-team.css
+   ===================================================================== */
+[data-theme="dark"] .glass {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .row-warning,
+[data-theme="dark"] .row-warning td {
+  background: rgba(239, 68, 68, 0.12) !important;
+}
+[data-theme="dark"] .tbl-base th {
+  box-shadow: 0 1px 0 var(--border);
+}
+[data-theme="dark"] .avatar-thumb {
+  border-color: var(--surface);
+  background-color: var(--surface-2);
+}
+[data-theme="dark"] .gami-tab.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+[data-theme="dark"] .table-pagination-container {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pagination-info {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .pagination-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .pagination-btn.active {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+[data-theme="dark"] .badge-chip.early-bgn {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+[data-theme="dark"] .badge-chip.early-nov {
+  background: rgba(217, 119, 6, 0.2);
+  color: #fcd34d;
+  border-color: rgba(217, 119, 6, 0.4);
+}
+[data-theme="dark"] .badge-chip.early-mas {
+  background: rgba(180, 83, 9, 0.25);
+  color: #fde68a;
+  border-color: rgba(180, 83, 9, 0.45);
+}
+[data-theme="dark"] .badge-chip.step-rookie {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+[data-theme="dark"] .badge-chip.step-strider {
+  background: rgba(37, 99, 235, 0.2);
+  color: #bfdbfe;
+  border-color: rgba(37, 99, 235, 0.4);
+}
+[data-theme="dark"] .badge-chip.step-sprint {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .badge-status.bg-emerald-100 {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+}
+[data-theme="dark"] .badge-status.bg-red-100 {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+}
+[data-theme="dark"] .badge-status.bg-slate-100 {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-muted) !important;
+}
+
+

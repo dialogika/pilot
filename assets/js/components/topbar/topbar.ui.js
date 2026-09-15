@@ -29,7 +29,10 @@ export function buildTopbarHTML() {
             </button>
         </div>
         <div class="logo-center">
-            <a href="/home"><img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;"></a>
+            <a href="/home">
+                <img class="logo-light" src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;">
+                <img class="logo-dark" src="/assets/img/white-logo.webp" alt="Dialogika Logo" style="height:35px;">
+            </a>
         </div>
         <div class="d-flex align-items-center gap-3">
             <div class="text-end d-none d-lg-block lh-1">

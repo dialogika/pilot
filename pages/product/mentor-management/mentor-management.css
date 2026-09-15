@@ -168,3 +168,85 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — mentor-management.css
+   ===================================================================== */
+[data-theme="dark"] .badge-status-active {
+  background: rgba(22, 163, 74, 0.15);
+  color: #4ade80;
+}
+[data-theme="dark"] .badge-status-inactive {
+  background: rgba(185, 28, 28, 0.15);
+  color: #f87171;
+}
+[data-theme="dark"] .badge-status-onleave {
+  background: rgba(180, 83, 9, 0.15);
+  color: #fbbf24;
+}
+
+/* table hover — use surface-hover for visible contrast */
+[data-theme="dark"] .table-sticky tbody tr:hover {
+  background-color: var(--surface-hover);
+}
+
+[data-theme="dark"] .modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .tab-pill-active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+[data-theme="dark"] .tab-pill-inactive {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .tab-pill-inactive:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .pagination-btn {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .pagination-btn.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* --- Table Headers, Dividers & Sticky Head in Dark Mode --- */
+[data-theme="dark"] thead.bg-slate-50,
+[data-theme="dark"] tr.bg-slate-50,
+[data-theme="dark"] .table-sticky th {
+  background-color: var(--surface-2) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .table-sticky td {
+  border-bottom-color: var(--border) !important;
+}
+
+/* --- Detail Modal Inner Blocks & Search/Filter Inputs --- */
+[data-theme="dark"] .modal-card .bg-slate-50,
+[data-theme="dark"] #filterPanel.bg-slate-50\/80 {
+  background-color: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #searchMentor.bg-slate-50,
+[data-theme="dark"] .modal-card input,
+[data-theme="dark"] .modal-card select,
+[data-theme="dark"] .modal-card textarea {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+

@@ -245,3 +245,56 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — exit-interview.css
+   ===================================================================== */
+[data-theme="dark"] .exit-card {
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+[data-theme="dark"] .exit-anon-badge {
+  background: var(--surface-2);
+  color: var(--text);
+}
+[data-theme="dark"] .exit-anon-badge i {
+  color: var(--text);
+}
+[data-theme="dark"] .exit-empty-state {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] #exitContentInput {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] #exitContentInput:focus {
+  background: var(--surface);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+[data-theme="dark"] .table-pagination-container {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pagination-info {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .pagination-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .pagination-btn.active {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+

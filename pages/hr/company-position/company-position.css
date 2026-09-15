@@ -388,3 +388,57 @@
   background: #e2e8f0;
   color: #0f172a;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — company-position.css
+   ===================================================================== */
+[data-theme="dark"] .role-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .head-count-tag {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .jobdesk-wrapper {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .info-value {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .card-action-btn {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .card-action-btn:hover {
+  color: var(--text-strong);
+  background-color: var(--surface-hover);
+}
+
+[data-theme="dark"] .filter-panel {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .filter-panel .input-group {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+}
+[data-theme="dark"] .filter-panel .input-group .form-control,
+[data-theme="dark"] .filter-panel .input-group .input-group-text {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .filter-panel .input-group .form-control:focus {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .filter-panel .input-group:focus-within {
+  border-color: var(--icon-blue, #60a5fa) !important;
+}
+[data-theme="dark"] .filter-panel .form-select {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+

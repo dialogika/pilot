@@ -49,7 +49,8 @@
     border: 1px solid var(--border-sep);
     border-radius: 12px;
     font-size: 0.95rem;
-    color: #1e293b;
+    color: var(--text-strong);
+    caret-color: var(--text-strong);
     transition: all 0.2s;
     background-color: var(--surface-toolbar);
 }
@@ -59,6 +60,7 @@
     border-color: #6366f1;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     background-color: var(--surface);
+    color: var(--text-strong);
 }
 
 .nti-row {
@@ -89,6 +91,73 @@
 
 .btn-remove-nti:hover {
     background: rgba(239, 68, 68, 0.2);
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES — performance-appraisal.css
+   ===================================================================== */
+[data-theme="dark"] .form-section {
+    background-color: var(--surface);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .form-input-custom {
+    background-color: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-strong);
+    caret-color: var(--text-strong);
+}
+
+[data-theme="dark"] .form-input-custom:focus {
+    background-color: var(--surface);
+    border-color: #818cf8;
+    color: var(--text-strong);
+}
+
+[data-theme="dark"] .nti-row {
+    background-color: var(--surface-2);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .appraisal-card {
+    background-color: var(--surface);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .appraisal-card:hover {
+    border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .form-label-custom {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+}
+[data-theme="dark"] .text-blue-600 {
+    color: #60a5fa !important;
+}
+
+[data-theme="dark"] .bg-purple-100 {
+    background-color: rgba(168, 85, 247, 0.18) !important;
+}
+[data-theme="dark"] .text-purple-600 {
+    color: #c084fc !important;
+}
+
+[data-theme="dark"] #btnAddNti {
+    background-color: rgba(99, 102, 241, 0.18) !important;
+    color: #a5b4fc !important;
+}
+[data-theme="dark"] #btnAddNti:hover {
+    background-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+[data-theme="dark"] #loadingState,
+[data-theme="dark"] #errorState {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
 }
 
 [x-cloak] { display: none !important; }

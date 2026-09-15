@@ -127,3 +127,223 @@
         align-self: flex-start;
     }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — generate-certificate.css
+   ===================================================================== */
+
+/* Active batch entry item — dark-friendly highlight */
+[data-theme="dark"] .batch-entry-item.active {
+    border-color: #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Batch entry list scrollbar */
+[data-theme="dark"] .batch-entry-list {
+    scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Controls & preview panel shadow softening in dark */
+[data-theme="dark"] .controls-panel,
+[data-theme="dark"] .preview-panel {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+
+/* Headings & borders */
+[data-theme="dark"] .controls-panel h1,
+[data-theme="dark"] .controls-panel h2,
+[data-theme="dark"] .controls-panel h3 {
+    color: var(--text-strong);
+    border-color: var(--border);
+}
+
+/* Form sections */
+[data-theme="dark"] .controls-panel section {
+    background-color: var(--surface-2) !important;
+    border-color: var(--border) !important;
+}
+
+/* Inputs & textareas */
+[data-theme="dark"] .controls-panel input[type="text"],
+[data-theme="dark"] .controls-panel input[type="date"],
+[data-theme="dark"] .controls-panel textarea.batch-textarea {
+    background-color: var(--surface-muted) !important;
+    border-color: var(--border-strong) !important;
+    color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .controls-panel input:focus,
+[data-theme="dark"] .controls-panel textarea:focus {
+    background-color: var(--surface) !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Active Participant Counter Box */
+[data-theme="dark"] .controls-panel .rounded-xl.bg-white {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+/* Navigation buttons (Prev/Next, Log modal trigger) */
+[data-theme="dark"] #prevEntryBtn,
+[data-theme="dark"] #nextEntryBtn,
+[data-theme="dark"] #openLogModalBtn {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] #prevEntryBtn:hover,
+[data-theme="dark"] #nextEntryBtn:hover,
+[data-theme="dark"] #openLogModalBtn:hover {
+    background-color: var(--surface-hover) !important;
+    color: var(--text-strong) !important;
+}
+
+/* Badges */
+[data-theme="dark"] #validCountBadge {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] #invalidCountBadge {
+    background-color: rgba(244, 63, 94, 0.15) !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+    color: #fb7185 !important;
+}
+
+/* --- PANDUAN BATCH INPUT --- */
+[data-theme="dark"] .controls-panel .bg-blue-50 {
+    background-color: var(--surface-muted) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .controls-panel .text-blue-700 {
+    color: #60a5fa !important;
+}
+[data-theme="dark"] .controls-panel .text-blue-800 {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] #toggleGuideBtn {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: #60a5fa !important;
+}
+[data-theme="dark"] #toggleGuideBtn:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* Cards inside Panduan (Langkah Pakai & Aturan Format) */
+[data-theme="dark"] #batchGuideBody .bg-white\/80 {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] #batchGuideBody .text-slate-800 {
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] #batchGuideBody ol,
+[data-theme="dark"] #batchGuideBody ul,
+[data-theme="dark"] #batchGuideBody li {
+    color: var(--text) !important;
+}
+
+/* Contoh Format Valid Code Block */
+[data-theme="dark"] #batchGuideBody .bg-slate-900 {
+    background-color: #0b1220 !important;
+    border: 1px solid var(--border) !important;
+}
+[data-theme="dark"] #batchGuideExample {
+    color: #38bdf8 !important;
+}
+
+/* Buttons inside Guide (Salin Contoh, Isi Ke Textarea) */
+[data-theme="dark"] #copyGuideExampleBtn,
+[data-theme="dark"] #fillGuideExampleBtn {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: #60a5fa !important;
+}
+[data-theme="dark"] #copyGuideExampleBtn:hover,
+[data-theme="dark"] #fillGuideExampleBtn:hover {
+    background-color: var(--surface-hover) !important;
+    color: #93c5fd !important;
+}
+
+/* Textarea Stat counters */
+[data-theme="dark"] .controls-panel .rounded-lg.bg-slate-50 {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .controls-panel .bg-emerald-50 {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="dark"] .controls-panel .bg-rose-50 {
+    background-color: rgba(244, 63, 94, 0.12) !important;
+    border-color: rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Export Batch Radio Box */
+[data-theme="dark"] .controls-panel .bg-indigo-50 {
+    background-color: var(--surface-muted) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .controls-panel .bg-indigo-50 .text-indigo-500 {
+    color: #818cf8 !important;
+}
+[data-theme="dark"] .controls-panel .bg-indigo-50 label {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+/* Valid participant list item */
+[data-theme="dark"] .batch-entry-item {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] .batch-entry-item:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* Log Modal */
+[data-theme="dark"] .log-modal-card {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .log-modal-card .border-b,
+[data-theme="dark"] .log-modal-card .border-t {
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .log-modal-card input[type="text"],
+[data-theme="dark"] .log-modal-card input[type="date"] {
+    background-color: var(--surface-2) !important;
+    border-color: var(--border) !important;
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] #closeLogModalBtn,
+[data-theme="dark"] #closeLogModalFooterBtn,
+[data-theme="dark"] #logPrevPageBtn,
+[data-theme="dark"] #logNextPageBtn {
+    background-color: var(--surface-2) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] .log-modal-card table thead {
+    background-color: var(--surface-2) !important;
+}
+[data-theme="dark"] .log-modal-card table thead th {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .log-modal-card table tbody {
+    background-color: var(--surface) !important;
+}
+[data-theme="dark"] .log-modal-card table tbody tr {
+    border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] .log-modal-card table tbody td {
+    color: var(--text) !important;
+}
+

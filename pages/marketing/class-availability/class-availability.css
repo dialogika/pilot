@@ -110,3 +110,154 @@
     background: #f1f5f9;
     border-color: #e2e8f0;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — class-availability.css
+   ===================================================================== */
+
+/* Body background */
+[data-theme="dark"] body.bg-slate-50 {
+    background-color: var(--bg-body) !important;
+}
+[data-theme="dark"] body.antialiased {
+    background-color: var(--bg-body) !important;
+    color: var(--text) !important;
+}
+
+/* Page header */
+[data-theme="dark"] h1.text-slate-900 {
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] .text-slate-500 {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .text-slate-700 {
+    color: var(--text) !important;
+}
+
+/* Action buttons in header */
+[data-theme="dark"] button.bg-white,
+[data-theme="dark"] a.bg-white {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] button.bg-white:hover,
+[data-theme="dark"] a.bg-white:hover {
+    background-color: var(--surface-hover) !important;
+}
+
+/* Search input */
+[data-theme="dark"] #searchInput {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] #searchInput::placeholder {
+    color: var(--text-faint) !important;
+}
+
+/* Filter bar (bg-white with selects) */
+[data-theme="dark"] .flex.items-center.gap-3.bg-white,
+[data-theme="dark"] .flex.items-center.gap-2.bg-white {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+/* Filter/sort selects */
+[data-theme="dark"] #filterTypeSelect,
+[data-theme="dark"] #filterStatusSelect,
+[data-theme="dark"] #sortBySelect {
+    color: var(--text) !important;
+    background-color: transparent !important;
+}
+
+/* Dividers inside filter bar */
+[data-theme="dark"] .w-\[1px\].bg-slate-200 {
+    background-color: var(--border) !important;
+}
+
+/* Sort direction button */
+[data-theme="dark"] #toggleSortBtn {
+    border-color: var(--border) !important;
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] #toggleSortBtn:hover {
+    background-color: var(--surface-hover) !important;
+    color: var(--text) !important;
+}
+[data-theme="dark"] #toggleSortBtn svg {
+    stroke: var(--text-muted);
+}
+
+/* Help text below filter bar */
+[data-theme="dark"] .text-\[11px\].text-slate-500 {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .font-bold.text-slate-700 {
+    color: var(--text) !important;
+}
+
+/* Loading state */
+[data-theme="dark"] .text-slate-500.font-medium {
+    color: var(--text-muted) !important;
+}
+
+/* Modal */
+[data-theme="dark"] .form-label {
+    color: var(--text-muted);
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--surface);
+    border-color: var(--border);
+    color: var(--text-strong);
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border);
+}
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .modal-title.font-bold {
+    color: var(--text-strong) !important;
+}
+[data-theme="dark"] #deleteBatchMessage {
+    color: var(--text-muted) !important;
+}
+
+/* Plan confirm modal */
+[data-theme="dark"] .max-h-60.overflow-y-auto.border {
+    background-color: var(--surface-muted) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .text-emerald-700 {
+    color: #34d399 !important;
+}
+[data-theme="dark"] .text-rose-700 {
+    color: #f87171 !important;
+}
+[data-theme="dark"] .text-slate-700 {
+    color: var(--text) !important;
+}
+
+/* Pagination */
+[data-theme="dark"] .pagination-btn {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(.disabled):not(.active) {
+    background: var(--surface-hover);
+    color: var(--text-strong);
+    border-color: var(--border-strong);
+}
+[data-theme="dark"] .pagination-btn.disabled {
+    background: var(--surface-muted);
+    border-color: var(--border);
+    color: var(--text-faint);
+}

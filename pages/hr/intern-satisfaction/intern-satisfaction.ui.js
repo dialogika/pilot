@@ -104,10 +104,10 @@ export function circularHTML(pctVal, color, label) {
   const c = 2 * Math.PI * r;
   const off = c - (clamp(pctVal, 0, 100) / 100) * c;
   return `<svg viewBox="0 0 72 72" width="72" height="72" style="flex-shrink:0;">
-    <circle cx="36" cy="36" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="7"/>
+    <circle class="circular-track" cx="36" cy="36" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="7"/>
     <circle cx="36" cy="36" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round"
       stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 36 36)"/>
-    <text x="36" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">${label}</text>
+    <text class="circular-label" x="36" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">${label}</text>
   </svg>`;
 }
 

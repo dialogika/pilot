@@ -236,3 +236,196 @@
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — product-management.css
+   ===================================================================== */
+
+/* Status pill — inactive state text color */
+[data-theme="dark"] .status-pill {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .status-pill:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+/* Table Card Container */
+[data-theme="dark"] .bg-white.rounded-3xl {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-card);
+}
+
+/* Table Header — fix bright light-gray bar on dark background */
+[data-theme="dark"] thead tr,
+[data-theme="dark"] table thead tr.bg-slate-50\/75 {
+  background-color: var(--surface-2) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+[data-theme="dark"] thead th {
+  color: var(--text-muted) !important;
+}
+
+/* Table Body Rows & Dividers */
+[data-theme="dark"] #productTableBody.divide-y > * + *,
+[data-theme="dark"] .product-row {
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .product-row:hover {
+  background-color: var(--surface-hover) !important;
+}
+
+/* Product Identity — Avatar, Title, Code Badge */
+[data-theme="dark"] .product-row .w-11.h-11 {
+  background-color: var(--surface-2) !important;
+  color: var(--text-strong) !important;
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .product-row:hover .w-11.h-11 {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+  color: #818cf8 !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+[data-theme="dark"] .product-row .text-slate-900 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .product-row .mono.bg-slate-100 {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Curriculum Box inside Table Row */
+[data-theme="dark"] .product-row .border-slate-100 {
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .product-row .font-semibold.text-slate-700 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .product-row .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .product-row .text-slate-400 {
+  color: var(--text-faint) !important;
+}
+[data-theme="dark"] .curriculum-scroll-box {
+  scrollbar-color: var(--border-strong) transparent;
+}
+[data-theme="dark"] .curriculum-scroll-box::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+}
+
+/* Badges & Pills (Type, Sessions) */
+[data-theme="dark"] .product-row .bg-slate-100.rounded-full {
+  background-color: var(--surface-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border);
+}
+
+/* Price Strategy Column */
+[data-theme="dark"] .product-row td .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+/* Action Button (Edit) */
+[data-theme="dark"] .btn-edit-product {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .btn-edit-product:hover {
+  background-color: var(--surface-hover) !important;
+  color: #818cf8 !important;
+}
+
+/* Modal Dialog & Inner Sections */
+[data-theme="dark"] .dg-modal-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .dg-modal-header {
+  border-color: var(--border);
+  background: var(--surface);
+}
+[data-theme="dark"] .dg-modal-body {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-modal-footer {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+[data-theme="dark"] .dg-modal-body .bg-white {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .dg-modal-body .border-slate-100,
+[data-theme="dark"] .dg-modal-body .border-slate-200 {
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .dg-modal-body .text-slate-800,
+[data-theme="dark"] .dg-modal-body .text-slate-900 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .dg-modal-body .text-slate-700,
+[data-theme="dark"] .dg-modal-body .text-slate-600 {
+  color: var(--text) !important;
+}
+[data-theme="dark"] .dg-modal-body .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .dg-modal-body input[type="text"],
+[data-theme="dark"] .dg-modal-body input[type="number"],
+[data-theme="dark"] .dg-modal-body select,
+[data-theme="dark"] .dg-modal-body textarea {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .dg-modal-body input:focus {
+  background-color: var(--surface) !important;
+  border-color: #6366f1 !important;
+}
+[data-theme="dark"] .dynamic-row-item {
+  background-color: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .dynamic-row-item input {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .class-type-btn.bg-slate-50 {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Rich Text Editor */
+[data-theme="dark"] .rich-editor-wrapper {
+  border-color: var(--border);
+  background: var(--surface);
+}
+[data-theme="dark"] .rich-editor-toolbar {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+}
+[data-theme="dark"] .rich-tool-btn {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .rich-tool-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .rich-editor-content {
+  color: var(--text);
+}
+
+/* Toast Notifications */
+[data-theme="dark"] .dg-toast {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-strong);
+}
+
+

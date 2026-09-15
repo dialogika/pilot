@@ -48,8 +48,82 @@
     <style>
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
-        background-color: #f1f7fd;
+        background-color: var(--bg-body, #f1f7fd);
         color: var(--text-strong, #0f172a);
+      }
+
+      /* --- Dark Mode Overrides for Presence Team --- */
+      [data-theme="dark"] body {
+        background-color: var(--bg-body, #0b1220) !important;
+        color: var(--text) !important;
+      }
+      [data-theme="dark"] h1 {
+        color: var(--text-strong) !important;
+      }
+      [data-theme="dark"] #subtitleText {
+        color: var(--icon-blue, #60a5fa) !important;
+      }
+      [data-theme="dark"] #summaryText {
+        background-color: var(--surface) !important;
+        border-color: var(--border) !important;
+        color: var(--text-strong) !important;
+      }
+      [data-theme="dark"] .glass {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.35) !important;
+      }
+      [data-theme="dark"] .glass h2,
+      [data-theme="dark"] .glass h3 {
+        color: var(--text-strong) !important;
+      }
+      [data-theme="dark"] .glass h3.text-\[\#0B2B6A\] {
+        color: var(--icon-blue, #60a5fa) !important;
+      }
+      [data-theme="dark"] #filterDate,
+      [data-theme="dark"] #recapMonthFilter {
+        background-color: var(--surface-2) !important;
+        border-color: var(--border) !important;
+        color: var(--text-strong) !important;
+        color-scheme: dark;
+      }
+      [data-theme="dark"] #btnExportXlsx,
+      [data-theme="dark"] #btnExportMonthlyRecapXlsx,
+      [data-theme="dark"] #btnExportInternshipTotalXlsx {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+      }
+      [data-theme="dark"] #btnExportXlsx:hover,
+      [data-theme="dark"] #btnExportMonthlyRecapXlsx:hover,
+      [data-theme="dark"] #btnExportInternshipTotalXlsx:hover {
+        background-color: #1d4ed8 !important;
+      }
+      [data-theme="dark"] .border-slate-100\/80 {
+        border-color: var(--border-soft) !important;
+      }
+      [data-theme="dark"] .tbl-base th {
+        background-color: var(--surface) !important;
+        color: var(--text-muted) !important;
+        box-shadow: 0 1px 0 var(--border) !important;
+      }
+      [data-theme="dark"] .tbl-base td {
+        background-color: var(--surface) !important;
+        color: var(--text) !important;
+      }
+      [data-theme="dark"] .tbl-base tbody tr:hover td {
+        background-color: var(--surface-hover) !important;
+      }
+      [data-theme="dark"] .badge-status.bg-emerald-100 {
+        background-color: rgba(16, 185, 129, 0.18) !important;
+        color: #34d399 !important;
+      }
+      [data-theme="dark"] .badge-status.bg-red-100 {
+        background-color: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+      }
+      [data-theme="dark"] .badge-status.bg-slate-100 {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: var(--text-muted) !important;
       }
     </style>
   </head>
