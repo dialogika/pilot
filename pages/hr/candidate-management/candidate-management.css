@@ -1372,4 +1372,206 @@
   font-weight: 700;
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — candidate-management.css
+   ===================================================================== */
+[data-theme="dark"] .candidate-tab-bar {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .candidate-tab-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+[data-theme="dark"] .hero-panel {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .hero-icon-btn {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .hero-icon-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--icon-blue);
+}
+[data-theme="dark"] .hero-icon-btn.btn-accent-danger:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--icon-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+[data-theme="dark"] .hero-icon-btn.active {
+  background: var(--surface-active);
+  border-color: var(--icon-blue);
+}
+
+[data-theme="dark"] .candidate-toolbar {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .pipeline-stat-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pipeline-stat-card::before {
+  background: var(--border);
+}
+
+[data-theme="dark"] .candidate-card-modern {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .candidate-detail-icon {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme="dark"] .interviewer-avatar {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .candidate-inline-action.action-trash:hover {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: var(--icon-red);
+}
+
+/* Status Badges — dark mode tinted versions */
+[data-theme="dark"] .status-screening {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+[data-theme="dark"] .status-interview {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+[data-theme="dark"] .status-accepted {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+[data-theme="dark"] .status-micro-teaching {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+[data-theme="dark"] .status-onboarding {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+[data-theme="dark"] .status-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .team-member-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .interview-schedule-badge.badge-upcoming {
+  background: rgba(22, 101, 52, 0.2);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.3);
+}
+[data-theme="dark"] .interview-schedule-badge.badge-today {
+  background: rgba(29, 78, 216, 0.2);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+[data-theme="dark"] .interview-schedule-badge.badge-completed {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .candidate-list-shell {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .candidate-list-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .candidate-empty-state {
+  background: var(--surface-muted);
+}
+
+[data-theme="dark"] .position-subtab-btn.active {
+  background: var(--surface-2);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .position-action-btn {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme="dark"] .position-action-btn:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .position-action-btn.action-danger:hover {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .inactive-section-icon {
+  background: var(--surface-2);
+}
+[data-theme="dark"] .inactive-section-count {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .schedule-modal-header {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+}
+[data-theme="dark"] .schedule-modal-table thead th {
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .menu-container {
+  background: var(--surface);
+}
+[data-theme="dark"] .menu-header h2 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .menu-item {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+[data-theme="dark"] .menu-item i,
+[data-theme="dark"] .menu-item svg {
+  color: var(--text);
+}
+[data-theme="dark"] .close-btn {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .close-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .candidate-pagination-wrap {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .candidate-page-btn {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .candidate-page-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .candidate-page-dots {
+  color: var(--text-faint);
+}
+
+
 

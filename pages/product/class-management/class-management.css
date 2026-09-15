@@ -404,3 +404,175 @@
   pointer-events: none;
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — class-management.css
+   ===================================================================== */
+
+/* --- Status pills --- */
+[data-theme="dark"] .status-soon {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+[data-theme="dark"] .status-running {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+[data-theme="dark"] .status-reminder {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+[data-theme="dark"] .status-stall {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+[data-theme="dark"] .status-graduate {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+[data-theme="dark"] .status-complete {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+/* --- Tab pills --- */
+[data-theme="dark"] .tab-pill-active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+[data-theme="dark"] .tab-pill-inactive {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .tab-pill-inactive:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+/* --- Calendar grid --- */
+[data-theme="dark"] .cal-grid {
+  background: var(--border); /* gap between cells */
+  border-color: var(--border);
+}
+[data-theme="dark"] .cal-day-header {
+  background: var(--surface-toolbar);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .cal-cell {
+  background: var(--surface);
+}
+[data-theme="dark"] .cal-cell:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .cal-cell.other-month {
+  background: var(--surface-muted);
+}
+[data-theme="dark"] .cal-cell.today {
+  background: rgba(59, 130, 246, 0.08);
+}
+[data-theme="dark"] .cal-date-num {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .cal-cell.today .cal-date-num {
+  color: #60a5fa;
+}
+
+/* --- Calendar card variants --- */
+[data-theme="dark"] .cal-card-soon {
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border-left-color: #64748b;
+}
+[data-theme="dark"] .cal-card-running {
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+  border-left-color: #10b981;
+}
+[data-theme="dark"] .cal-card-reminder {
+  background: rgba(234, 179, 8, 0.12);
+  color: #fde68a;
+  border-left-color: #eab308;
+}
+[data-theme="dark"] .cal-card-stall {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border-left-color: #ef4444;
+}
+[data-theme="dark"] .cal-card-graduate {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+  border-left-color: #3b82f6;
+}
+[data-theme="dark"] .cal-card-complete {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-left-color: #475569;
+}
+
+/* --- Search dropdown --- */
+[data-theme="dark"] .search-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .search-dropdown-item {
+  color: var(--text);
+}
+[data-theme="dark"] .search-dropdown-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+/* --- Planning toast --- */
+[data-theme="dark"] .planning-toast-success {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+
+/* --- Pagination --- */
+[data-theme="dark"] .pagination-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(.disabled):not(.active) {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .pagination-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* --- Table View & Filter Panel Overrides --- */
+[data-theme="dark"] thead tr,
+[data-theme="dark"] tr.bg-slate-50\/50 {
+  background-color: var(--surface-2) !important;
+  border-bottom-color: var(--border) !important;
+}
+[data-theme="dark"] thead th {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] #filterPanel.bg-slate-50\/70 {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #viewTableBody tr {
+  border-bottom-color: var(--border) !important;
+}
+[data-theme="dark"] #viewTableBody tr:hover {
+  background-color: var(--surface-hover) !important;
+}
+
+
+
+
+

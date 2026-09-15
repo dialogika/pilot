@@ -248,3 +248,73 @@
         width: 100%;
     }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — mailing-list.css
+   ===================================================================== */
+
+/* Card */
+[data-theme="dark"] .mail-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+
+/* Toolbar */
+[data-theme="dark"] .mail-toolbar {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+/* Status chip */
+[data-theme="dark"] .mail-chip {
+    background: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+/* Action buttons */
+[data-theme="dark"] .mail-action-btn {
+    background: rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.3);
+    color: #60a5fa;
+}
+[data-theme="dark"] .mail-action-btn:hover:not(:disabled) {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Summary items */
+[data-theme="dark"] .mail-summary-item {
+    background: var(--surface);
+    border-color: var(--border);
+}
+[data-theme="dark"] .mail-summary-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+[data-theme="dark"] .mail-summary-label {
+    color: var(--text-faint-2);
+}
+[data-theme="dark"] .mail-summary-value {
+    color: var(--text-strong);
+}
+
+/* Table header */
+[data-theme="dark"] .mail-table thead th {
+    background: var(--surface-toolbar);
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+/* Table rows */
+[data-theme="dark"] .mail-table tbody tr:hover {
+    background: var(--surface-hover);
+}
+[data-theme="dark"] .mail-table tbody td {
+    border-color: var(--border-soft);
+    color: var(--text);
+}
+[data-theme="dark"] .mail-email {
+    color: var(--text-strong);
+}

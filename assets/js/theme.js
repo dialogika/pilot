@@ -19,6 +19,7 @@
       }
       try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
       syncIcons();
+      syncLogos();
     },
     toggle() {
       this.apply(this.current === "dark" ? "light" : "dark");
@@ -40,6 +41,9 @@
     },
     syncIcons() {
       syncIcons();
+    },
+    syncLogos() {
+      syncLogos();
     }
   };
 
@@ -57,6 +61,19 @@
       const dark = el.getAttribute("data-icon-dark");
       const light = el.getAttribute("data-icon-light");
       el.className = isDark ? (dark || el.className) : (light || el.className);
+    });
+  }
+
+  function syncLogos() {
+    const isDark = THEME.current === "dark";
+    document.querySelectorAll(".logo-center img").forEach((img) => {
+      if (img.classList.contains("logo-light") || img.classList.contains("logo-dark")) return;
+      if (isDark) {
+        if (!img.dataset.origSrc) img.dataset.origSrc = img.src;
+        img.src = "/assets/img/white-logo.webp";
+      } else if (img.dataset.origSrc) {
+        img.src = img.dataset.origSrc;
+      }
     });
   }
 

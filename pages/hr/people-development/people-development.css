@@ -308,3 +308,221 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — people-development.css
+   ===================================================================== */
+html[data-theme="dark"] body,
+body[data-theme="dark"] {
+  background-color: var(--bg-body) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .pd-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pd-card:hover {
+  border-color: var(--border-strong);
+}
+
+/* --- Metric / Stat Cards in Dark Mode --- */
+[data-theme="dark"] .pd-stat-card .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+[data-theme="dark"] .pd-stat-card .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  color: #fb7185 !important;
+}
+[data-theme="dark"] .pd-card .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+}
+[data-theme="dark"] .pd-card .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  color: #c084fc !important;
+}
+[data-theme="dark"] .pd-card .bg-pink-50 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  color: #fb7185 !important;
+}
+
+[data-theme="dark"] #pdSatisfactionScore,
+[data-theme="dark"] #pdTrainingProgress {
+  color: var(--text-strong) !important;
+}
+
+/* --- KPI Assessment per Division in Dark Mode --- */
+[data-theme="dark"] #pdKpiContainer > div {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #pdKpiContainer > div:hover {
+  background-color: var(--surface-hover) !important;
+}
+[data-theme="dark"] #pdKpiContainer .bg-slate-200 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme="dark"] #pdKpiContainer .text-slate-700 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] #pdKpiContainer .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+/* --- Detail Perencanaan Training in Dark Mode --- */
+[data-theme="dark"] #pdTrainingContainer .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme="dark"] #pdTrainingContainer .text-slate-700 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] #pdTrainingContainer .text-indigo-600 {
+  color: #818cf8 !important;
+}
+
+/* --- Leaderboard Gamification in Dark Mode --- */
+[data-theme="dark"] .pd-tab-btn.active {
+  background-color: var(--surface);
+  color: #818cf8;
+}
+[data-theme="dark"] .pd-tab-btn:not(.active) {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .pd-tab-btn:not(.active):hover {
+  color: var(--text);
+}
+[data-theme="dark"] .bg-slate-100 {
+  background-color: var(--surface-2) !important;
+}
+[data-theme="dark"] .border-slate-100 {
+  border-color: var(--border-soft) !important;
+}
+
+[data-theme="dark"] .pd-rank-1 {
+  background-color: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+[data-theme="dark"] .pd-rank-normal {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pd-rank-normal:hover {
+  background-color: var(--surface-hover);
+}
+[data-theme="dark"] .pd-rank-normal .bg-slate-200 {
+  background-color: var(--surface-hover) !important;
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .pd-rank-normal h4,
+[data-theme="dark"] .pd-rank-1 h4 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .pd-rank-badge.text-slate-300 {
+  color: var(--text-faint) !important;
+}
+
+/* --- Attendance Log Table in Dark Mode --- */
+[data-theme="dark"] thead.bg-slate-50 {
+  background-color: var(--surface-toolbar) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] thead.bg-slate-50 th {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] #pdAttendanceTableBody tr {
+  border-color: var(--border-soft) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] #pdAttendanceTableBody tr:hover {
+  background-color: var(--surface-hover) !important;
+}
+
+/* --- Badges --- */
+[data-theme="dark"] .pd-badge-ontime {
+  background-color: rgba(21, 128, 61, 0.15);
+  color: #4ade80;
+}
+[data-theme="dark"] .pd-badge-late {
+  background-color: rgba(161, 98, 7, 0.15);
+  color: #fbbf24;
+}
+[data-theme="dark"] .pd-badge-absent,
+[data-theme="dark"] .pd-badge-sick {
+  background-color: rgba(190, 18, 60, 0.15);
+  color: #fb7185;
+}
+[data-theme="dark"] .pd-badge-permit {
+  background-color: rgba(3, 105, 161, 0.15);
+  color: #38bdf8;
+}
+
+/* --- Survey & Feedback in Dark Mode --- */
+[data-theme="dark"] .pd-emoji-btn.selected {
+  background-color: rgba(254, 252, 232, 0.1);
+}
+[data-theme="dark"] #pdSurveyFeedback {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] #pdSurveyFeedback:focus {
+  border-color: var(--icon-blue, #60a5fa) !important;
+  background-color: var(--surface-2) !important;
+}
+
+/* --- Menu Modal in Dark Mode --- */
+[data-theme="dark"] .pd-menu-container {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] .pd-menu-header h2 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .pd-menu-item {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] .pd-menu-item:hover {
+  background: #0B2B6A !important;
+  color: #ffffff !important;
+}
+[data-theme="dark"] .pd-menu-icon {
+  stroke: var(--text) !important;
+}
+[data-theme="dark"] .pd-menu-close-btn {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .pd-menu-close-btn:hover {
+  background: var(--surface-hover) !important;
+  color: var(--text-strong) !important;
+}
+
+/* --- General Text & Notification Button in Dark Mode --- */
+[data-theme="dark"] #pdGreetingText,
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] #pdSubGreetingText,
+[data-theme="dark"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] #pdBellBtn {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #pdBellBtn i {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] #pdBellBtn:hover {
+  background-color: var(--surface-hover) !important;
+}
+[data-theme="dark"] .pd-skeleton {
+  background-color: var(--surface-2);
+}
+

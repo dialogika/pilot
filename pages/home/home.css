@@ -176,3 +176,27 @@
 .daily-report-task-detail p:last-child {
   margin-bottom: 0;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — home.css
+   ===================================================================== */
+[data-theme="dark"] .app-box {
+  color: var(--text-strong);
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .app-box:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] .daily-report-task-detail {
+  color: var(--text);
+}
+[data-theme="dark"] .table thead,
+[data-theme="dark"] .table thead.table-light,
+[data-theme="dark"] .table thead th {
+  background-color: var(--surface-toolbar) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+

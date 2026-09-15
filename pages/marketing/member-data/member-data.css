@@ -376,3 +376,143 @@
   border-bottom: 1px solid var(--border-soft);
   white-space: nowrap;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — member-data.css
+   ===================================================================== */
+
+/* Table hover and header */
+[data-theme="dark"] #memberTableBody tr:hover {
+  background-color: var(--surface-hover) !important;
+}
+[data-theme="dark"] #memberTableBody tr:nth-child(even):hover {
+  background-color: var(--surface-hover) !important;
+}
+[data-theme="dark"] .tbl-head {
+  background: var(--surface-hover);
+  border-color: var(--border-sep);
+}
+[data-theme="dark"] .tbl-head th {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .tbl-head th:hover,
+[data-theme="dark"] .tbl-head th:first-child:hover {
+  background: var(--surface-hover-strong);
+}
+[data-theme="dark"] .tbl-head th:first-child {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .tbl-head th.s-asc .sa,
+[data-theme="dark"] .tbl-head th.s-desc .sa {
+  color: #818cf8;
+}
+
+/* Sticky first column */
+[data-theme="dark"] #memberTable th:first-child,
+[data-theme="dark"] #memberTable td:first-child {
+  background: var(--surface);
+}
+[data-theme="dark"] #memberTableBody td:first-child {
+  background: var(--surface);
+}
+[data-theme="dark"] #memberTableBody tr:nth-child(even) td:first-child {
+  background: var(--surface-muted);
+}
+[data-theme="dark"] #memberTableBody tr:hover td:first-child,
+[data-theme="dark"] #memberTableBody tr:nth-child(even):hover td:first-child {
+  background: var(--surface-hover);
+}
+
+/* Table body cells */
+[data-theme="dark"] #memberTableBody td {
+  color: var(--text);
+  border-color: var(--border-soft);
+}
+
+/* Table foot */
+[data-theme="dark"] .tbl-foot td {
+  color: var(--text);
+  border-color: var(--border-sep);
+}
+[data-theme="dark"] .tbl-foot .tfoot-label {
+  background: var(--surface-hover-strong);
+  color: var(--text-strong);
+  box-shadow: 12px 0 18px -18px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .tbl-foot .tfoot-total {
+  color: #818cf8;
+}
+
+/* Status badges */
+[data-theme="dark"] .b-city {
+  background: rgba(3, 105, 161, 0.15);
+  color: #38bdf8;
+}
+[data-theme="dark"] .b-prog {
+  background: rgba(109, 40, 217, 0.15);
+  color: #c084fc;
+}
+[data-theme="dark"] .b-info {
+  background: rgba(21, 128, 61, 0.15);
+  color: #4ade80;
+}
+[data-theme="dark"] .b-pay-full {
+  background: rgba(22, 101, 52, 0.2);
+  color: #4ade80;
+}
+[data-theme="dark"] .b-pay-dp {
+  background: rgba(133, 77, 14, 0.2);
+  color: #fbbf24;
+}
+[data-theme="dark"] .b-info-final {
+  background: rgba(146, 64, 14, 0.2);
+  color: #fbbf24;
+}
+
+/* Copy button */
+[data-theme="dark"] .btn-copy-wa {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .btn-copy-wa:hover {
+  background: var(--surface-hover-strong);
+  color: var(--text);
+}
+[data-theme="dark"] .btn-copy-wa.copied {
+  background: rgba(22, 101, 52, 0.2);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+/* Stat cards */
+[data-theme="dark"] .stat-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .stat-card:hover {
+  border-color: var(--border-sep);
+  box-shadow: var(--shadow-sm);
+}
+[data-theme="dark"] .stat-card.active {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+[data-theme="dark"] .stat-card-label {
+  color: var(--text-faint-2);
+}
+[data-theme="dark"] .stat-card-value {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .stat-card-sub {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .stat-card.sc-full .stat-card-value {
+  color: #4ade80;
+}
+[data-theme="dark"] .stat-card.sc-dp .stat-card-value {
+  color: #fbbf24;
+}
+[data-theme="dark"] .stat-card.sc-total .stat-card-value {
+  color: #818cf8;
+}

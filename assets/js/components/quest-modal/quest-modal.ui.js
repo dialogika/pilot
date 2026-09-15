@@ -833,7 +833,7 @@ function card(task, category, ctx, tab) {
     : "";
   const recurHtml = task.recur ? " <i class='bi bi-arrow-repeat'></i>" : "";
   const deadlineHtml = dueText
-    ? `<span class="dg-quest-deadline" style="background:${deadlineBg(category)};" title="Deadline: ${escapeHtml(dueText)}"><i class="bi bi-clock"></i> ${escapeHtml(dueText)}${recurHtml}</span>`
+    ? `<span class="dg-quest-deadline dg-quest-deadline-${category}" style="background:${deadlineBg(category)};" title="Deadline: ${escapeHtml(dueText)}"><i class="bi bi-clock"></i> ${escapeHtml(dueText)}${recurHtml}</span>`
     : "";
 
   const isSuperAdminOrOwner =
@@ -2645,13 +2645,13 @@ export function openQuestDetail(task, ctx, tab) {
   let rejectionFeedbackHtml = "";
   if (isShowRejected) {
     rejectionFeedbackHtml = `
-      <div style="margin-top:0.85rem;border-radius:0.75rem;border:1.5px solid #fecaca;background:#fff5f5;padding:0.75rem 1rem;box-shadow:0 1px 3px rgba(220,38,38,0.05);">
+      <div style="margin-top:0.85rem;border-radius:0.75rem;border:1.5px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);padding:0.75rem 1rem;box-shadow:0 1px 3px rgba(220,38,38,0.1);">
         <div style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.35rem;">
-          <i class="bi bi-exclamation-octagon-fill" style="color:#dc2626;font-size:1rem;"></i>
-          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#dc2626;">Komentar Penolakan / Catatan Revisi</span>
+          <i class="bi bi-exclamation-octagon-fill" style="color:#ef4444;font-size:1rem;"></i>
+          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#ef4444;">Komentar Penolakan / Catatan Revisi</span>
         </div>
-        <div style="font-size:0.82rem;line-height:1.6;color:#1e293b;word-break:break-word;">
-          ${rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:#64748b">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>'}
+        <div style="font-size:0.82rem;line-height:1.6;color:var(--text, #1e293b);word-break:break-word;">
+          ${rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:var(--text-muted, #64748b)">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>'}
         </div>
       </div>
     `;

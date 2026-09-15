@@ -758,4 +758,186 @@
   transform: translateY(-1px);
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — report-modal.css
+   Applied via [data-theme="dark"] on <html> by theme.js
+   ===================================================================== */
+[data-theme="dark"] .dg-report-modal-dialog {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .dg-report-header {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-header-title h4 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-report-count-badge {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-report-bulk-btn-group {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-btn-tool {
+  background: var(--surface);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-btn-tool:first-child {
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-btn-tool:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .dg-report-btn-tool.active {
+  background: var(--surface-active);
+  color: var(--icon-blue);
+}
+
+[data-theme="dark"] .dg-report-btn-bulk-exit {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-report-btn-bulk-exit:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .dg-report-nav-pills {
+  background: var(--surface-muted);
+}
+[data-theme="dark"] .dg-report-tab-btn {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-report-btn-close {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-btn-close:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-report-body {
+  background: var(--surface-muted);
+}
+
+[data-theme="dark"] .dg-report-stat-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-stat-header h6 {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-stat-item {
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-stat-label {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-report-stat-value {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-report-stat-diff {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-report-breakdown-label {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-progress-track {
+  background: var(--surface-2);
+}
+[data-theme="dark"] .dg-report-breakdown-count {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-report-search-input {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-report-search-wrap i {
+  color: var(--text-faint);
+}
+
+[data-theme="dark"] .dg-report-select {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .dg-report-table-wrapper {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-table thead {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-table th {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-table tbody tr {
+  border-color: var(--border-soft);
+}
+[data-theme="dark"] .dg-report-table tbody tr:hover {
+  background-color: var(--surface-hover);
+}
+[data-theme="dark"] .dg-report-table td {
+  color: var(--text);
+}
+[data-theme="dark"] .dg-report-col-date {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-report-col-task {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-report-rich-preview {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-report-avatar-item {
+  border-color: var(--surface);
+  background: var(--surface-2);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-report-avatar-more {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-report-detail-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-detail-header {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-detail-header h5 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-report-detail-footer {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-report-empty-state {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-detail-file-card:hover {
+  border-color: var(--icon-blue) !important;
+  background: var(--surface-active) !important;
+}
+
+
 

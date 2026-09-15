@@ -237,3 +237,98 @@
     gap: 10px;
   }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — team-management.css
+   ===================================================================== */
+[data-theme="dark"] .page-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .team-section {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .team-section-header {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .team-section-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .team-section-icon {
+  background: rgba(255, 91, 55, 0.12);
+}
+
+[data-theme="dark"] .team-table thead th {
+  background: var(--surface-toolbar);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+[data-theme="dark"] .team-table tbody td {
+  border-color: var(--border-soft);
+  color: var(--text);
+}
+[data-theme="dark"] .team-table tbody tr:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .member-name {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .status-pill {
+  background: rgba(4, 120, 87, 0.15);
+  color: #34d399;
+}
+[data-theme="dark"] .status-pill.status-ghosted {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .status-pill.status-resigned {
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
+}
+[data-theme="dark"] .status-pill.status-inactive,
+[data-theme="dark"] .status-pill.status-on-leave {
+  background: rgba(180, 83, 9, 0.15);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .action-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .action-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .action-btn.danger:hover {
+  color: var(--icon-red);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+[data-theme="dark"] .form-control-custom,
+[data-theme="dark"] .form-select-custom {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .form-control-custom:focus,
+[data-theme="dark"] .form-select-custom:focus {
+  background-color: var(--surface);
+}
+
+[data-theme="dark"] .modal-content {
+  background: var(--surface);
+  color: var(--text);
+}
+[data-theme="dark"] .modal-header {
+  border-color: var(--border);
+}
+[data-theme="dark"] .modal-title {
+  color: var(--text-strong);
+}
+

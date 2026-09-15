@@ -93,15 +93,16 @@ function ensureConfirmStyles() {
       position: relative;
       width: 100%;
       max-width: 420px;
-      background: #ffffff;
+      background: var(--surface, #ffffff);
       border-radius: 1.25rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.6);
+      border: 1px solid var(--border, #e2e8f0);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border, rgba(226, 232, 240, 0.6));
       padding: 1.75rem 1.5rem 1.5rem 1.5rem;
       text-align: center;
       transform: scale(0.92) translateY(10px);
       transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       box-sizing: border-box;
+      color: var(--text, #1e293b);
     }
     .dg-confirm-overlay.dg-confirm-show .dg-confirm-dialog {
       transform: scale(1) translateY(0);
@@ -117,31 +118,31 @@ function ensureConfirmStyles() {
       margin-bottom: 1.15rem;
     }
     .dg-confirm-icon-danger {
-      background: #fee2e2;
-      color: #dc2626;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
       box-shadow: 0 8px 16px -4px rgba(220, 38, 38, 0.2);
     }
     .dg-confirm-icon-warning {
-      background: #fef3c7;
-      color: #d97706;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
       box-shadow: 0 8px 16px -4px rgba(217, 119, 6, 0.2);
     }
     .dg-confirm-icon-info {
-      background: #e0f2fe;
-      color: #0284c7;
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
       box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.2);
     }
     .dg-confirm-title {
       margin: 0 0 0.5rem 0;
       font-size: 1.2rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--text-strong, #0f172a);
       line-height: 1.3;
     }
     .dg-confirm-message {
       margin: 0 0 1.5rem 0;
       font-size: 0.925rem;
-      color: #64748b;
+      color: var(--text-muted, #64748b);
       line-height: 1.55;
       word-break: break-word;
     }
@@ -170,13 +171,13 @@ function ensureConfirmStyles() {
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
     }
     .dg-confirm-btn-cancel {
-      background: #f1f5f9;
-      color: #475569;
-      border: 1px solid #e2e8f0;
+      background: var(--surface-2, #f1f5f9);
+      color: var(--text, #475569);
+      border: 1px solid var(--border, #e2e8f0);
     }
     .dg-confirm-btn-cancel:hover {
-      background: #e2e8f0;
-      color: #1e293b;
+      background: var(--surface-hover, #e2e8f0);
+      color: var(--text-strong, #1e293b);
     }
     .dg-confirm-btn-danger {
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);

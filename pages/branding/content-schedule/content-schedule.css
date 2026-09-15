@@ -267,3 +267,54 @@
         gap: 10px;
     }
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — content-schedule.css
+   ===================================================================== */
+
+/* Breadcrumb */
+[data-theme="dark"] .cs-breadcrumb a,
+[data-theme="dark"] .cs-breadcrumb .breadcrumb-separator {
+    color: #60a5fa;
+}
+[data-theme="dark"] .cs-breadcrumb .breadcrumb-current {
+    color: var(--text-faint);
+}
+
+/* Calendar grid gap between cells */
+[data-theme="dark"] .calendar-grid {
+    background-color: var(--border);
+}
+
+/* Day number text */
+[data-theme="dark"] .day-number {
+    color: var(--text-muted);
+}
+
+/* Milestone badge dark variants */
+[data-theme="dark"] .bg-milestone-script {
+    background-color: rgba(3, 105, 161, 0.18);
+    color: #38bdf8;
+    border-color: rgba(3, 105, 161, 0.35);
+}
+[data-theme="dark"] .bg-milestone-design {
+    background-color: rgba(91, 33, 182, 0.18);
+    color: #a78bfa;
+    border-color: rgba(91, 33, 182, 0.35);
+}
+[data-theme="dark"] .bg-milestone-take {
+    background-color: rgba(180, 83, 9, 0.18);
+    color: #fbbf24;
+    border-color: rgba(180, 83, 9, 0.35);
+}
+[data-theme="dark"] .bg-milestone-edit {
+    background-color: rgba(107, 33, 168, 0.18);
+    color: #c084fc;
+    border-color: rgba(107, 33, 168, 0.35);
+}
+[data-theme="dark"] .bg-milestone-publish {
+    background-color: rgba(21, 128, 61, 0.18);
+    color: #4ade80;
+    border-color: rgba(21, 128, 61, 0.35);
+}
+/* bg-milestone-other already uses var() tokens — no override needed */

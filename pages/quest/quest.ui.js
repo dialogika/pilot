@@ -657,13 +657,13 @@ export function openQuestDetail(task, ctx) {
   let rejectionFeedbackHtml = "";
   if (isShowRejected) {
     rejectionFeedbackHtml =
-      '<div style="margin-top:0.75rem;border-radius:0.75rem;border:1.5px solid #fecaca;background:#fff5f5;padding:0.75rem 1rem;">' +
+      '<div style="margin-top:0.75rem;border-radius:0.75rem;border:1.5px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);padding:0.75rem 1rem;">' +
       '<div style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.35rem;">' +
-      '<i class="bi bi-exclamation-octagon-fill" style="color:#dc2626;font-size:1rem;"></i>' +
-      '<span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#dc2626;">Komentar Penolakan / Catatan Revisi</span>' +
+      '<i class="bi bi-exclamation-octagon-fill" style="color:#ef4444;font-size:1rem;"></i>' +
+      '<span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#ef4444;">Komentar Penolakan / Catatan Revisi</span>' +
       "</div>" +
-      '<div style="font-size:0.82rem;line-height:1.6;color:#1e293b;word-break:break-word;">' +
-      (rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:#64748b">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>') +
+      '<div style="font-size:0.82rem;line-height:1.6;color:var(--text, #1e293b);word-break:break-word;">' +
+      (rejectionReason ? escapeHtml(rejectionReason) : '<em style="color:var(--text-muted, #64748b)">Laporan tugas ini ditolak oleh reviewer dan memerlukan revisi. Silakan perbaiki dan laporkan kembali.</em>') +
       "</div></div>";
   }
 

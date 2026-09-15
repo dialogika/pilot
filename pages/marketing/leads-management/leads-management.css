@@ -144,3 +144,85 @@
   min-width: 120px;
   white-space: nowrap;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — leads-management.css
+   ===================================================================== */
+[data-theme="dark"] .settings-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .settings-card:hover {
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+}
+[data-theme="dark"] .settings-card h5 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .settings-card small {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .card-elite {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .modal-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .modal-header {
+  border-color: var(--border);
+}
+[data-theme="dark"] .modal-body .form-label {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  border-color: var(--icon-blue);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+[data-theme="dark"] .input-focus {
+  border-color: var(--border);
+  background-color: var(--surface);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .input-focus:focus {
+  border-color: var(--icon-blue);
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+}
+
+/* Scrollable table wrappers */
+[data-theme="dark"] .swipe-scroll {
+  scrollbar-color: var(--border-strong) transparent;
+}
+[data-theme="dark"] .swipe-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+[data-theme="dark"] .swipe-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Table cells in dark mode */
+[data-theme="dark"] .next-payment-table th {
+  background-color: var(--surface-toolbar);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+[data-theme="dark"] .next-payment-table td {
+  color: var(--text);
+  border-color: var(--border-soft);
+}
+[data-theme="dark"] .next-payment-table tbody tr:hover td {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+/* Page-level text */
+[data-theme="dark"] .page-title {
+  color: var(--text-strong);
+}

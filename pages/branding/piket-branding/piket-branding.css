@@ -5,7 +5,7 @@
  * ================================================================ */
 
 /* ── Body ────────────────────────────────────────────────────── */
-body { font-family: 'Poppins', sans-serif; background: #f8fbff; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg-body, #f8fbff); color: var(--text); }
 
 /* ── Breadcrumb Navigation ───────────────────────────────────── */
 .piket-breadcrumb {
@@ -270,4 +270,24 @@ body.viewer-mode .admin-only {
     #scheduleModal form {
         max-height: calc(100vh - 1rem);
     }
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES — piket-branding.css
+   ===================================================================== */
+
+/* Breadcrumb links */
+[data-theme="dark"] .piket-breadcrumb a,
+[data-theme="dark"] .piket-breadcrumb .breadcrumb-separator {
+    color: #60a5fa;
+}
+/* breadcrumb-current color in dark mode — matches theme faint text */
+[data-theme="dark"] .piket-breadcrumb .breadcrumb-current {
+    color: var(--text-faint);
+}
+
+/* Member avatar border */
+[data-theme="dark"] .member-avatar {
+    border-color: var(--surface);
+    background: var(--surface-2);
 }

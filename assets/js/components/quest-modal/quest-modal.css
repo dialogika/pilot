@@ -2041,3 +2041,440 @@
 .dg-quest-prio-item i {
   font-size: 0.95rem;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — quest-modal.css
+   Applied via [data-theme="dark"] on <html> by theme.js
+   ===================================================================== */
+[data-theme="dark"] .dg-quest-modal-dialog,
+[data-theme="dark"] .dg-quest-submodal-dialog,
+[data-theme="dark"] .dg-quest-form-dialog {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .dg-quest-modal-header {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dg-quest-modal-icon-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--icon-blue);
+}
+
+[data-theme="dark"] .dg-quest-modal-title-text h2 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-quest-modal-title-text p {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-quest-btn-icon {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-btn-icon:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-quest-btn-close {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-btn-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-quest-tabs-bar {
+  background: #0b1220;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .dg-quest-tab-btn {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-quest-tab-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+}
+
+[data-theme="dark"] .dg-quest-section {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .dg-quest-section-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-quest-section-sub {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-empty-msg {
+  color: var(--text-faint);
+}
+
+[data-theme="dark"] .dg-quest-table-head {
+  color: var(--text-faint);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dg-quest-card {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(255, 255, 255, 0.07);
+  border-left-width: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .dg-quest-card:hover {
+  background: rgba(51, 65, 85, 0.7);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+[data-theme="dark"] .dg-quest-card.dg-quest-done {
+  background: rgba(15, 23, 42, 0.45);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .dg-quest-card.dg-quest-approved {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.16);
+}
+[data-theme="dark"] .dg-quest-card.dg-quest-rejected {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.16);
+}
+[data-theme="dark"] .dg-quest-card.is-selected {
+  background-color: var(--surface-active) !important;
+  border-color: var(--icon-blue) !important;
+}
+
+[data-theme="dark"] .dg-col-actions::before,
+[data-theme="dark"] .dg-quest-table-head .dg-col-actions::before {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .dg-quest-card:hover .dg-col-actions::before {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .dg-quest-col-empty {
+  color: var(--border-sep);
+}
+
+[data-theme="dark"] .dg-quest-card-title {
+  color: var(--text-strong);
+}
+
+/* Points Badge in Dark Mode */
+[data-theme="dark"] .dg-quest-points {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+}
+
+/* Due Date / Deadline Pill in Dark Mode */
+[data-theme="dark"] .dg-quest-deadline {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+[data-theme="dark"] .dg-quest-deadline.dg-quest-deadline-overdue {
+  background: rgba(239, 68, 68, 0.14) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+[data-theme="dark"] .dg-quest-deadline.dg-quest-deadline-upcoming {
+  background: rgba(34, 197, 94, 0.14) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+[data-theme="dark"] .dg-quest-badge-todo {
+  background: rgba(148, 163, 184, 0.1) !important;
+  color: #94a3b8 !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+[data-theme="dark"] .dg-quest-badge-approved {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="dark"] .dg-quest-badge-reported {
+  background: rgba(14, 165, 233, 0.12) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(14, 165, 233, 0.25) !important;
+}
+[data-theme="dark"] .dg-quest-badge-rejected {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+[data-theme="dark"] .dg-quest-tag {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-quest-check-btn {
+  background: var(--surface);
+  border-color: var(--border-sep);
+  color: var(--surface);
+}
+[data-theme="dark"] .dg-quest-check-btn:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+[data-theme="dark"] .dg-quest-check-btn.is-reported {
+  background: var(--surface) !important;
+}
+
+[data-theme="dark"] .dg-quest-checkbox-custom {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+[data-theme="dark"] .dg-quest-select-task-box:hover .dg-quest-checkbox-custom {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #60a5fa;
+}
+
+[data-theme="dark"] .dg-quest-link-btn {
+  color: #60a5fa;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 0.2rem 0.45rem;
+}
+[data-theme="dark"] .dg-quest-link-btn:hover {
+  background: rgba(96, 165, 250, 0.14);
+  color: #93c5fd;
+}
+[data-theme="dark"] .dg-quest-link-btn.dg-warn {
+  color: #fbbf24;
+}
+[data-theme="dark"] .dg-quest-link-btn.dg-warn:hover {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fde68a;
+}
+[data-theme="dark"] .dg-quest-link-btn.dg-danger {
+  color: #f87171;
+}
+[data-theme="dark"] .dg-quest-link-btn.dg-danger:hover {
+  background: rgba(248, 113, 113, 0.14);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .dg-quest-meta-item {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .dg-quest-meta-item.dg-quest-meta-report {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+[data-theme="dark"] .dg-quest-meta-role-icon {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-meta-name {
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-meta-name.dg-quest-meta-name-report {
+  color: #fbbf24;
+}
+[data-theme="dark"] .dg-quest-meta-label {
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .dg-quest-avatar {
+  border-color: var(--surface);
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--icon-blue);
+}
+[data-theme="dark"] .dg-quest-avatar.dg-quest-avatar-report {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-color: var(--surface);
+}
+
+/* Sub-modal (form / detail) */
+[data-theme="dark"] .dg-quest-submodal-head {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-submodal-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-quest-submodal-foot {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Form */
+[data-theme="dark"] .dg-quest-form-head {
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-form-head-text h3 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .dg-quest-form-subtitle {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-quest-btn-close-circle {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-btn-close-circle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .dg-quest-form-label {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-quest-form-input,
+[data-theme="dark"] .dg-quest-form-textarea,
+[data-theme="dark"] .dg-quest-form-select {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-form-input::placeholder,
+[data-theme="dark"] .dg-quest-form-textarea::placeholder {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-quest-form-input:disabled,
+[data-theme="dark"] .dg-quest-form-textarea:disabled,
+[data-theme="dark"] .dg-quest-form-select:disabled,
+[data-theme="dark"] .dg-quest-input-disabled,
+[data-theme="dark"] .dg-quest-control-disabled {
+  background-color: var(--surface-muted) !important;
+  color: var(--text-faint) !important;
+  border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] .dg-quest-recur-card.dg-quest-card-disabled {
+  background: var(--surface-muted);
+}
+
+[data-theme="dark"] .dg-quest-tag-selector-control {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-placeholder {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-quest-assign-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-assign-search {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-assign-option {
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-assign-option:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .dg-quest-assign-option.selected {
+  background: var(--surface-active);
+  color: var(--icon-blue);
+}
+[data-theme="dark"] .dg-quest-assign-avatar {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--icon-blue);
+}
+
+[data-theme="dark"] .dg-quest-duepicker-btn {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-duepicker-text.placeholder {
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-quest-duepicker-clock-icon {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .dg-quest-recur-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-recur-title {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-recur-num {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-recur-everyday-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-recur-everyday-btn:hover {
+  background: var(--surface-hover);
+}
+[data-theme="dark"] .dg-quest-recur-day {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .dg-quest-recur-day:hover {
+  background: var(--surface-hover);
+}
+
+[data-theme="dark"] .dg-quest-form-foot {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-form-btn-cancel {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-form-btn-cancel:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .dg-quest-report-item {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-report-item-title {
+  color: var(--text);
+}
+
+[data-theme="dark"] .dg-quest-desc-content {
+  color: var(--text);
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .dg-quest-prio-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-quest-prio-btn:disabled,
+[data-theme="dark"] .dg-quest-prio-btn.dg-quest-control-disabled {
+  background-color: var(--surface-muted) !important;
+  color: var(--text-faint) !important;
+  border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] .dg-quest-prio-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-quest-prio-item:hover {
+  background: var(--surface-hover);
+}

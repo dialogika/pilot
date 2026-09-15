@@ -188,4 +188,44 @@
   font-weight: 700;
 }
 
+/* =====================================================================
+   DARK MODE OVERRIDES — office-inventory.css
+   ===================================================================== */
+[data-theme="dark"] .status-available {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+[data-theme="dark"] .status-in-use {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+[data-theme="dark"] .status-repair {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+[data-theme="dark"] .id-monospace {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .overlay-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .inv-page-btn {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .inv-page-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .inv-page-btn.active {
+  background: #3b82f6;
+  color: #ffffff !important;
+  border-color: #3b82f6;
+}
+[data-theme="dark"] .inv-page-dots {
+  color: var(--text-faint);
+}
+
+
 

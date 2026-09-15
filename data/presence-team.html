@@ -31,8 +31,12 @@
 
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
-        background: #fdfeff;
+        background: var(--bg-body, #fdfeff);
         color: var(--text-strong);
+      }
+      [data-theme="dark"] body {
+        background-color: var(--bg-body, #0b1220) !important;
+        color: var(--text) !important;
       }
       .premium-shadow {
         box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);

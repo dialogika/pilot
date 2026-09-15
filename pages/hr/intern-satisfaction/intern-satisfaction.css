@@ -426,3 +426,98 @@
   color: #991b1b;
   background: #fee2e2;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — intern-satisfaction.css
+   ===================================================================== */
+[data-theme="dark"] .summary-card {
+  background: linear-gradient(135deg, var(--surface) 0%, #1e1b4b 100%);
+  border-color: var(--border);
+  box-shadow: 0 18px 44px -22px rgba(0, 0, 0, 0.5);
+}
+[data-theme="dark"] .summary-icon {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .cat-stat-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .pgn-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .pgn-btn:hover:not(.disabled):not(.active) {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .pgn-btn.disabled {
+  background: var(--surface-muted);
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+[data-theme="dark"] .badge-pct-green,
+[data-theme="dark"] .rec-ya {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+[data-theme="dark"] .badge-pct-yellow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+[data-theme="dark"] .badge-pct-red,
+[data-theme="dark"] .rec-tidak {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* --- Circular Progress SVG in Dark Mode --- */
+.circular-track {
+  stroke: #e2e8f0;
+}
+.circular-label {
+  fill: #0f172a;
+}
+[data-theme="dark"] .circular-track {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+[data-theme="dark"] .circular-label {
+  fill: var(--text-strong, #f8fafc) !important;
+}
+
+/* --- Toolbar & Filter in Dark Mode --- */
+[data-theme="dark"] .toolbar-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .toolbar-card input,
+[data-theme="dark"] .toolbar-card select {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+/* --- Cards & Empty State in Dark Mode --- */
+[data-theme="dark"] .empty-state {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .resp-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .resp-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .summary-stars {
+  color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .star {
+  color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] .star.filled {
+  color: #f59e0b;
+}
+
+

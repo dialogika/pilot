@@ -342,3 +342,57 @@
   transform: translate(-50%, -100%);
   margin-top: -8px;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — rich-editor.css
+   ===================================================================== */
+[data-theme="dark"] .dg-editor-container {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-editor-container.dg-editor-disabled {
+  background: var(--surface-muted);
+}
+[data-theme="dark"] .dg-editor-toolbar {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dg-editor-divider {
+  background: var(--border);
+}
+[data-theme="dark"] .dg-editor-select {
+  color: var(--text);
+  background: transparent;
+}
+[data-theme="dark"] .dg-editor-select:focus {
+  background: var(--surface);
+  border-color: var(--icon-blue);
+}
+[data-theme="dark"] .dg-editor-content {
+  color: var(--text);
+}
+[data-theme="dark"] .dg-editor-content pre,
+[data-theme="dark"] .dg-quest-desc-content pre {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .dg-editor-content code,
+[data-theme="dark"] .dg-quest-desc-content code {
+  background: var(--surface-2);
+}
+[data-theme="dark"] .dg-editor-img-wrap {
+  border-color: var(--border);
+  background: var(--surface-2);
+}
+[data-theme="dark"] .dg-editor-footer {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+[data-theme="dark"] .dg-editor-bubble-menu {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}

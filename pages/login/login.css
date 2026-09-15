@@ -17,7 +17,7 @@ body {
   font-family: "Poppins", sans-serif;
   /* Legacy login background (#f8fafc). Kept literal on purpose — do not
      switch to var(--bg-body) without a visual regression check. */
-  background-color: #f8fafc;
+  background-color: var(--bg-body, #f8fafc);
   color: var(--text);
   /* Membuat body menjadi Flex container vertikal */
   display: flex;
@@ -252,4 +252,46 @@ footer {
     text-align: center !important;
     margin-bottom: 10px;
   }
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES — login.css
+   ===================================================================== */
+[data-theme="dark"] .login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .login-header h1 {
+  color: #60a5fa;
+}
+[data-theme="dark"] .login-header p {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .form-group label {
+  color: var(--text);
+}
+[data-theme="dark"] .form-group input {
+  background: var(--surface-toolbar);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .form-group input:focus {
+  background: var(--surface);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+[data-theme="dark"] .auth-links {
+  border-color: var(--border);
+}
+[data-theme="dark"] .auth-links a {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .auth-links a:hover {
+  color: #60a5fa;
+}
+[data-theme="dark"] .error-message {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
 }

@@ -408,3 +408,210 @@
 #webinarMetaDescEditor .ql-editor:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — webinar.css
+   ===================================================================== */
+
+/* Modal */
+[data-theme="dark"] .modal-content {
+    background: var(--surface);
+    border-color: var(--border);
+}
+[data-theme="dark"] .modal-header {
+    border-color: var(--border);
+}
+[data-theme="dark"] .modal-title {
+    color: var(--text-strong);
+}
+[data-theme="dark"] .form-label {
+    color: var(--text-muted);
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--surface);
+    border-color: var(--border);
+    color: var(--text-strong);
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    border-color: var(--icon-blue);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+/* Stats cards */
+[data-theme="dark"] .settings-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+[data-theme="dark"] .settings-card:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Webinar card */
+[data-theme="dark"] .webinar-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+[data-theme="dark"] .webinar-card:hover {
+    border-color: rgba(96, 165, 250, 0.4);
+    box-shadow: var(--shadow-pop);
+}
+[data-theme="dark"] .webinar-card-active {
+    border-color: #34d399 !important;
+    box-shadow: 0 8px 24px rgba(52, 211, 153, 0.2) !important;
+}
+[data-theme="dark"] .webinar-card-active:hover {
+    border-color: #10b981 !important;
+}
+
+/* Card poster placeholder */
+[data-theme="dark"] .webinar-card-poster {
+    background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-muted) 100%);
+}
+[data-theme="dark"] .webinar-poster-placeholder {
+    background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-muted) 100%);
+    color: var(--text-faint);
+}
+
+/* Status badges */
+[data-theme="dark"] .webinar-status-badge.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+}
+[data-theme="dark"] .webinar-status-badge.inactive {
+    background: rgba(30, 41, 59, 0.9);
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+/* Card body text */
+[data-theme="dark"] .webinar-card-title {
+    color: var(--text-strong);
+}
+[data-theme="dark"] .webinar-card-desc {
+    color: var(--text-muted);
+}
+[data-theme="dark"] .webinar-card-meta-item {
+    color: var(--text-muted);
+}
+[data-theme="dark"] .webinar-card-meta-item i {
+    color: var(--text-faint);
+}
+
+/* Card meta border */
+[data-theme="dark"] .webinar-card-meta {
+    border-color: var(--border-soft);
+}
+
+/* Card footer */
+[data-theme="dark"] .webinar-card-footer {
+    background: var(--surface-muted);
+    border-color: var(--border-soft);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action:hover {
+    background: var(--surface-hover);
+    color: var(--text-strong);
+    border-color: var(--border-strong);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action.action-edit:hover {
+    border-color: rgba(129, 140, 248, 0.5);
+    color: #818cf8;
+    background: rgba(99, 102, 241, 0.12);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action.action-activate:hover {
+    border-color: rgba(52, 211, 153, 0.5);
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.1);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action.action-deactivate:hover {
+    border-color: rgba(251, 191, 36, 0.5);
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.1);
+}
+[data-theme="dark"] .webinar-card-footer .btn-card-action.action-delete:hover {
+    border-color: rgba(248, 113, 113, 0.5);
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Order badge */
+[data-theme="dark"] .webinar-order-badge {
+    background: var(--surface-hover);
+    color: var(--text-faint-2);
+}
+
+/* Poster upload zone */
+[data-theme="dark"] .poster-upload-zone {
+    background: var(--surface-muted);
+    border-color: var(--border);
+}
+[data-theme="dark"] .poster-upload-zone:hover {
+    border-color: var(--icon-blue);
+    background: rgba(37, 99, 235, 0.06);
+}
+[data-theme="dark"] .poster-upload-zone.has-image {
+    border-color: #34d399;
+}
+
+/* Empty state */
+[data-theme="dark"] .empty-state {
+    background: var(--surface);
+    border-color: var(--border);
+}
+[data-theme="dark"] .empty-state-icon {
+    color: var(--text-faint);
+}
+
+/* Quill editor */
+[data-theme="dark"] #webinarMetaDescEditor {
+    background: var(--surface);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-toolbar {
+    background: var(--surface-toolbar);
+    border-color: var(--border);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-container {
+    border-color: var(--border);
+    color: var(--text);
+    background: var(--surface);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-editor {
+    color: var(--text-strong);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-editor.ql-blank::before {
+    color: var(--text-faint) !important;
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-stroke {
+    stroke: var(--text-muted);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-fill {
+    fill: var(--text-muted);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-picker {
+    color: var(--text);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-picker-options {
+    background-color: var(--surface);
+    border-color: var(--border);
+}
+[data-theme="dark"] #webinarMetaDescEditor .ql-picker-label:hover,
+[data-theme="dark"] #webinarMetaDescEditor .ql-picker-item:hover {
+    color: var(--icon-blue);
+}
+[data-theme="dark"] #webinarMetaDescEditor button:hover .ql-stroke,
+[data-theme="dark"] #webinarMetaDescEditor button.ql-active .ql-stroke {
+    stroke: var(--icon-blue);
+}
+[data-theme="dark"] #webinarMetaDescEditor button:hover .ql-fill,
+[data-theme="dark"] #webinarMetaDescEditor button.ql-active .ql-fill {
+    fill: var(--icon-blue);
+}

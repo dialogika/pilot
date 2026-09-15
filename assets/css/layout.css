@@ -51,6 +51,19 @@
   left: 50%;
   transform: translateX(-50%);
 }
+.logo-center .logo-dark {
+  display: none !important;
+}
+.logo-center .logo-light {
+  display: inline-block !important;
+}
+[data-theme="dark"] .logo-center .logo-dark {
+  display: inline-block !important;
+}
+[data-theme="dark"] .logo-center .logo-light {
+  display: none !important;
+}
+
 
 .mobile-toggle {
   display: inline-flex;

@@ -52,8 +52,29 @@
     <style>
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
-        background-color: #f1f7fd;
+        background-color: var(--bg-body, #f1f7fd);
         color: var(--text-strong, #0f172a);
+      }
+
+      /* --- Dark Mode Overrides for Exit Interview --- */
+      [data-theme="dark"] body {
+        background-color: var(--bg-body, #0b1220) !important;
+        color: var(--text) !important;
+      }
+      [data-theme="dark"] h1 {
+        color: var(--text-strong) !important;
+      }
+      [data-theme="dark"] .exit-add-btn {
+        background: #2563eb !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+      }
+      [data-theme="dark"] .exit-add-btn:hover {
+        background: #1d4ed8 !important;
+      }
+      [data-theme="dark"] .exit-empty-state {
+        background: var(--surface) !important;
+        border-color: var(--border) !important;
+        color: var(--text-muted) !important;
       }
     </style>
   </head>
