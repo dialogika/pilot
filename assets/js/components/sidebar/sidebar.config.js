@@ -82,7 +82,7 @@ export const MENU = [
   {
     id: "announcement",
     label: "Announcement!",
-    href: "/setting/announcement.html",
+    href: "/announcement",
     icon: "bi-bell",
     badge: "hey",
   },

@@ -308,9 +308,27 @@
         "source": "/webinar.html",
         "destination": "/webinar",
         "type": 301
+      },
+      {
+        "source": "/setting/announcement.html",
+        "destination": "/announcement",
+        "type": 301
+      },
+      {
+        "source": "/announcement.html",
+        "destination": "/announcement",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/announcement",
+        "destination": "/pages/announcement/index.html"
+      },
+      {
+        "source": "/setting/announcement",
+        "destination": "/pages/announcement/index.html"
+      },
       {
         "source": "/member-data",
         "destination": "/pages/marketing/member-data/index.html"
@@ -578,5 +596,8 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }
