@@ -417,6 +417,14 @@ service cloud.firestore {
     }
 
     // -------------------------------------------------------------------
+    // ANNOUNCEMENTS
+    // -------------------------------------------------------------------
+    match /announcements/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    // -------------------------------------------------------------------
     // CMS untuk dialogika.co (MASTER-PLAN §6) — PUBLIK boleh baca
     // -------------------------------------------------------------------
     match /site_content/{id} {
