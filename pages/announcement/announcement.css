@@ -1,6 +1,6 @@
 /* =====================================================================
    pages/announcement/announcement.css — Announcement feature styles ONLY.
-   Reuses theme/layout tokens; zero global leakage.
+   Reuses theme/layout tokens; zero global leakage; full Dark Mode support.
    ===================================================================== */
 
 .announcement-wrap {
@@ -8,6 +8,33 @@
   margin: 0 auto;
 }
 
+/* Page Header */
+.announcement-header-title {
+  color: var(--text-strong);
+}
+
+.announcement-header-desc {
+  color: var(--text-muted);
+}
+
+/* Filter Controls */
+.announcement-filter-select {
+  background-color: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.announcement-filter-select:focus {
+  border-color: var(--icon-blue, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background-color: var(--surface);
+  color: var(--text-strong);
+}
+
+/* Announcement Card */
 .announcement-card {
   border: 1px solid var(--border-strong);
   border-radius: 16px;
@@ -15,7 +42,7 @@
   background: var(--surface);
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -23,7 +50,7 @@
 
 .announcement-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .announcement-card .type-strip {
@@ -50,6 +77,7 @@
   background: #e7181b;
 }
 
+/* Type Badge */
 .type-badge {
   font-size: 11px;
   font-weight: 700;
@@ -80,7 +108,7 @@
   color: #e7181b;
 }
 
-/* Actions in Card */
+/* Card Actions */
 .announcement-actions i {
   cursor: pointer;
   font-size: 14px;
@@ -93,6 +121,13 @@
   background-color: var(--surface-2);
 }
 
+.announcement-title {
+  color: var(--text-strong);
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+}
+
 .announcement-content-preview {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -101,15 +136,33 @@
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-muted);
-}
-
-.announcement-card h6,
-.announcement-content-preview,
-.modal-editor-content,
-#deleteAnnouncementTitle {
   overflow-wrap: break-word;
   word-break: break-word;
   white-space: normal;
+}
+
+.announcement-footer {
+  border-top: 1px solid var(--border-strong);
+}
+
+.announcement-target-label {
+  color: var(--text-muted);
+}
+
+.announcement-time-label {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+/* Status Badges */
+.badge-status-active {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.badge-status-inactive {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
 }
 
 /* Modal Form Editor */
@@ -126,6 +179,21 @@
   padding: 6px 10px;
   display: flex;
   gap: 8px;
+}
+
+.modal-editor-toolbar .btn-editor-tool {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.modal-editor-toolbar .btn-editor-tool:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
 }
 
 .modal-editor-content {
@@ -202,10 +270,58 @@
   box-shadow: 0 6px 16px rgba(11, 43, 106, 0.25);
 }
 
-/* Dark Mode Overrides */
+/* =====================================================================
+   DARK MODE OVERRIDES — announcement.css
+   ===================================================================== */
+[data-theme="dark"] .announcement-header-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .announcement-header-desc {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .announcement-filter-select {
+  background-color: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+[data-theme="dark"] .announcement-filter-select:focus {
+  background-color: var(--surface);
+  border-color: var(--icon-blue, #60a5fa);
+  color: var(--text-strong);
+}
+
 [data-theme="dark"] .announcement-card {
   border-color: var(--border-strong);
   background: var(--surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .announcement-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--border-sep);
+}
+
+[data-theme="dark"] .announcement-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .announcement-content-preview {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .announcement-footer {
+  border-top-color: var(--border-strong);
+}
+
+[data-theme="dark"] .announcement-target-label {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .announcement-time-label {
+  color: var(--text-faint);
 }
 
 [data-theme="dark"] .type-info .type-badge {
@@ -228,10 +344,55 @@
   color: #f87171;
 }
 
+[data-theme="dark"] .badge-status-active {
+  background-color: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+[data-theme="dark"] .badge-status-inactive {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+}
+
+/* Modals in Dark Mode */
 [data-theme="dark"] .modal-content {
   background-color: var(--surface);
   color: var(--text);
   border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-pop);
+}
+
+[data-theme="dark"] .modal-title {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .modal-body .form-label {
+  color: var(--text);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: var(--surface);
+  color: var(--text-strong);
+  border-color: var(--icon-blue, #60a5fa);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+[data-theme="dark"] .form-check-label {
+  color: var(--text);
+}
+
+[data-theme="dark"] .type-pill {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 [data-theme="dark"] .modal-editor-box {
@@ -243,21 +404,41 @@
   border-bottom-color: var(--border-strong);
 }
 
+[data-theme="dark"] .modal-editor-toolbar .btn-editor-tool {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+[data-theme="dark"] .modal-editor-toolbar .btn-editor-tool:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
 [data-theme="dark"] .modal-editor-content {
   background: var(--surface);
   color: var(--text);
 }
 
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .form-select {
-  background-color: var(--surface);
+[data-theme="dark"] .btn-modal-cancel {
+  background-color: var(--surface-2);
   border-color: var(--border-strong);
   color: var(--text);
 }
 
-[data-theme="dark"] .form-control:focus,
-[data-theme="dark"] .form-select:focus {
-  background-color: var(--surface);
+[data-theme="dark"] .btn-modal-cancel:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .delete-modal-text {
   color: var(--text);
-  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .delete-modal-target {
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }

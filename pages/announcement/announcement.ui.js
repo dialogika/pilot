@@ -115,15 +115,15 @@ export function renderAnnouncementList(allAnnouncements = [], { onEdit, onDelete
               <i class="bi bi-trash3 text-danger" data-action="delete" data-id="${a.id}" title="Delete"></i>
             </div>
           </div>
-          <h6 class="fw-bold mb-1 text-dark">${escapeHtml(a.title || "Untitled")}</h6>
-          <p class="text-muted small announcement-content-preview mb-3 flex-grow-1">${escapeHtml(plainText || "No content.")}</p>
-          <div class="d-flex justify-content-between align-items-center small text-muted pt-2 border-top border-opacity-50">
-            <span><i class="bi bi-people me-1"></i>${escapeHtml(targetLabel)}</span>
-            <span class="badge ${isActive ? "bg-success" : "bg-secondary"} bg-opacity-10 ${isActive ? "text-success" : "text-secondary"}">
+          <h6 class="fw-bold mb-1 announcement-title">${escapeHtml(a.title || "Untitled")}</h6>
+          <p class="announcement-content-preview mb-3 flex-grow-1">${escapeHtml(plainText || "No content.")}</p>
+          <div class="d-flex justify-content-between align-items-center small announcement-footer pt-2">
+            <span class="announcement-target-label"><i class="bi bi-people me-1"></i>${escapeHtml(targetLabel)}</span>
+            <span class="badge ${isActive ? "badge-status-active" : "badge-status-inactive"}">
               ${isActive ? "Active" : "Inactive"}
             </span>
           </div>
-          <div class="text-muted mt-2" style="font-size:11px;">
+          <div class="announcement-time-label mt-2">
             <i class="bi bi-clock me-1"></i>${createdAt}
           </div>
         </div>
