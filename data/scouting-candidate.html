@@ -1472,13 +1472,6 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             const history = Array.isArray(recruitment.history)
               ? recruitment.history
               : [];
-            const hasRadarHistory = history.some((item) => {
-              const status =
-                item && item.status ? item.status.toString().toLowerCase() : "";
-              return status === "radar";
-            });
-            if (!hasRadarHistory) {
-              return;
             }
             const basic = data.basic_info || {};
             const scouting = data.scouting_info || {};
