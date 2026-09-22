@@ -221,7 +221,7 @@ function applyFiltersAndRender() {
     const matchCategory =
       filterState.filterCategory === "all" || expense.category === filterState.filterCategory;
 
-    const dueDate = getIsoDueDate(expense.dueDate);
+    const dueDate = getIsoDueDate(expense.dueDate || expense.createdAtMs);
     const hasRange = !!(filterState.filterDateStart || filterState.filterDateEnd);
     const matchRange =
       !hasRange ||

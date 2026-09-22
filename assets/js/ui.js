@@ -132,6 +132,11 @@ function ensureConfirmStyles() {
       color: #3b82f6;
       box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.2);
     }
+    .dg-confirm-icon-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      box-shadow: 0 8px 16px -4px rgba(22, 163, 74, 0.2);
+    }
     .dg-confirm-title {
       margin: 0 0 0.5rem 0;
       font-size: 1.2rem;
@@ -197,6 +202,16 @@ function ensureConfirmStyles() {
     .dg-confirm-btn-primary:hover {
       background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
       box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+      transform: translateY(-1px);
+    }
+    .dg-confirm-btn-success {
+      background: linear-gradient(135deg, #009d74 0%, #008763 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 157, 116, 0.3);
+    }
+    .dg-confirm-btn-success:hover {
+      background: linear-gradient(135deg, #008763 0%, #007052 100%);
+      box-shadow: 0 6px 18px rgba(0, 157, 116, 0.4);
       transform: translateY(-1px);
     }
   `;
@@ -366,61 +381,57 @@ export function alertDialog(messageOrOpts, opts = {}) {
     type = messageOrOpts.type || type;
   }
 
+  ensureConfirmStyles();
+
   return new Promise((resolve) => {
     const existing = document.getElementById("dg-custom-alert-modal");
     if (existing) existing.remove();
 
-    const backdrop = document.createElement("div");
-    backdrop.id = "dg-custom-alert-modal";
-    backdrop.className =
-      "fixed inset-0 w-screen h-screen z-[99999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200 opacity-0";
+    const overlay = document.createElement("div");
+    overlay.id = "dg-custom-alert-modal";
+    overlay.className = "dg-confirm-overlay";
 
-    const modalBox = document.createElement("div");
-    modalBox.className =
-      "bg-white rounded-[24px] shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center transform scale-95 transition-all duration-200";
-
-    let iconHtml = '<i class="bi bi-info-circle text-2xl"></i>';
-    let iconColor = "bg-sky-50 text-sky-600";
-    let btnColor = "bg-indigo-600 hover:bg-indigo-700 text-white";
+    let iconHtml = '<i class="bi bi-info-circle"></i>';
+    let iconClass = "dg-confirm-icon-info";
+    let btnClass = "dg-confirm-btn-primary";
 
     if (type === "success") {
-      iconHtml = '<i class="bi bi-check-circle text-2xl"></i>';
-      iconColor = "bg-emerald-50 text-emerald-600";
-      btnColor = "bg-emerald-600 hover:bg-emerald-700 text-white";
+      iconHtml = '<i class="bi bi-check-circle"></i>';
+      iconClass = "dg-confirm-icon-success";
+      btnClass = "dg-confirm-btn-success";
     } else if (type === "danger" || type === "error") {
-      iconHtml = '<i class="bi bi-exclamation-triangle text-2xl"></i>';
-      iconColor = "bg-rose-50 text-rose-600";
-      btnColor = "bg-rose-600 hover:bg-rose-700 text-white";
+      iconHtml = '<i class="bi bi-exclamation-triangle"></i>';
+      iconClass = "dg-confirm-icon-danger";
+      btnClass = "dg-confirm-btn-danger";
     } else if (type === "warning") {
-      iconHtml = '<i class="bi bi-exclamation-circle text-2xl"></i>';
-      iconColor = "bg-amber-50 text-amber-600";
-      btnColor = "bg-amber-600 hover:bg-amber-700 text-white";
+      iconHtml = '<i class="bi bi-exclamation-circle"></i>';
+      iconClass = "dg-confirm-icon-warning";
+      btnClass = "dg-confirm-btn-primary";
     }
 
     const safeTitle = String(title).replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const safeMessage = String(message).replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const safeButtonText = String(buttonText).replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-    modalBox.innerHTML = `
-      <div class="mb-4 flex justify-center">
-        <div class="w-16 h-16 rounded-2xl ${iconColor} flex items-center justify-center text-2xl shadow-sm">
+    overlay.innerHTML = `
+      <div class="dg-confirm-dialog">
+        <div class="dg-confirm-icon-wrap ${iconClass}">
           ${iconHtml}
         </div>
+        <h4 class="dg-confirm-title">${safeTitle}</h4>
+        <p class="dg-confirm-message">${safeMessage}</p>
+        <div class="dg-confirm-actions" style="justify-content: center;">
+          <button type="button" class="dg-confirm-btn ${btnClass}" id="dg-alert-submit-btn" style="min-width: 140px;">
+            ${safeButtonText}
+          </button>
+        </div>
       </div>
-      <h4 class="font-extrabold text-slate-800 text-lg mb-2">${safeTitle}</h4>
-      <p class="text-sm text-slate-500 mb-6 leading-relaxed">${safeMessage}</p>
-      <button type="button" id="dg-alert-submit-btn" class="w-full px-4 py-2.5 rounded-xl font-bold text-xs ${btnColor} transition shadow-sm">
-        ${safeButtonText}
-      </button>
     `;
 
-    backdrop.appendChild(modalBox);
-    document.body.appendChild(backdrop);
+    document.body.appendChild(overlay);
 
     requestAnimationFrame(() => {
-      backdrop.classList.remove("opacity-0");
-      modalBox.classList.remove("scale-95");
-      modalBox.classList.add("scale-100");
+      overlay.classList.add("dg-confirm-show");
     });
 
     let isSettled = false;
@@ -428,11 +439,11 @@ export function alertDialog(messageOrOpts, opts = {}) {
       if (isSettled) return;
       isSettled = true;
       document.removeEventListener("keydown", onKeyDown);
-      backdrop.classList.add("opacity-0");
-      modalBox.classList.remove("scale-100");
-      modalBox.classList.add("scale-95");
+      overlay.classList.remove("dg-confirm-show");
       setTimeout(() => {
-        backdrop.remove();
+        if (overlay && overlay.parentNode) {
+          overlay.remove();
+        }
         resolve();
       }, 200);
     };
@@ -446,10 +457,10 @@ export function alertDialog(messageOrOpts, opts = {}) {
 
     document.addEventListener("keydown", onKeyDown);
 
-    const submitBtn = document.getElementById("dg-alert-submit-btn");
+    const submitBtn = overlay.querySelector("#dg-alert-submit-btn");
     if (submitBtn) submitBtn.onclick = () => cleanup();
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) cleanup();
+    overlay.onclick = (e) => {
+      if (e.target === overlay) cleanup();
     };
 
     setTimeout(() => {

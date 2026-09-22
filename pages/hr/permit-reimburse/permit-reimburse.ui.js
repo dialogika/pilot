@@ -469,3 +469,156 @@ function createToastContainer() {
   document.body.appendChild(div);
   return div;
 }
+
+// --- Excel Export UI Helpers ---
+function padZero(num) {
+  return String(num).padStart(2, "0");
+}
+
+export function formatDateToYMD(d) {
+  if (!d || Number.isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}-${padZero(d.getMonth() + 1)}-${padZero(d.getDate())}`;
+}
+
+export function getMondayOfWeek(d) {
+  const date = new Date(d);
+  const day = date.getDay(); // 0 is Sunday
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+}
+
+export function getSundayOfWeek(d) {
+  const monday = getMondayOfWeek(d);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return sunday;
+}
+
+export function getCurrentMonthStr() {
+  const now = new Date();
+  return `${now.getFullYear()}-${padZero(now.getMonth() + 1)}`;
+}
+
+export function setExportFileFormat(format) {
+  const xlsxBtn = document.getElementById("exportFormatXlsxBtn");
+  const csvBtn = document.getElementById("exportFormatCsvBtn");
+  const submitText = document.getElementById("exportSubmitBtnText");
+  const helperText = document.getElementById("exportHelperText");
+
+  if (format === "csv") {
+    if (csvBtn) csvBtn.classList.add("active");
+    if (xlsxBtn) xlsxBtn.classList.remove("active");
+    if (submitText) submitText.textContent = "Download CSV (.csv)";
+    if (helperText) helperText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file CSV.";
+  } else {
+    if (xlsxBtn) xlsxBtn.classList.add("active");
+    if (csvBtn) csvBtn.classList.remove("active");
+    if (submitText) submitText.textContent = "Download Excel (.xlsx)";
+    if (helperText) helperText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.";
+  }
+}
+
+export function setExportPeriodMode(mode) {
+  const monthBtn = document.getElementById("exportTypeMonthBtn");
+  const weekBtn = document.getElementById("exportTypeWeekBtn");
+  const monthBox = document.getElementById("exportMonthBox");
+  const weekBox = document.getElementById("exportWeekBox");
+
+  if (mode === "month") {
+    if (monthBtn) monthBtn.classList.add("active");
+    if (weekBtn) weekBtn.classList.remove("active");
+    if (monthBox) monthBox.classList.remove("hidden");
+    if (weekBox) weekBox.classList.add("hidden");
+  } else {
+    if (weekBtn) weekBtn.classList.add("active");
+    if (monthBtn) monthBtn.classList.remove("active");
+    if (weekBox) weekBox.classList.remove("hidden");
+    if (monthBox) monthBox.classList.add("hidden");
+  }
+}
+
+export function updateExportStatusBoxVisibility(scope) {
+  const statusBox = document.getElementById("exportStatusBox");
+  if (!statusBox) return;
+  if (scope === "reimburse") {
+    statusBox.classList.add("hidden");
+  } else {
+    statusBox.classList.remove("hidden");
+  }
+}
+
+export function initExportModalUI(onScopeChange, onPeriodModeChange, onFormatChange) {
+  const scopeSelect = document.getElementById("exportDataScope");
+  const monthInput = document.getElementById("exportMonthInput");
+  const weekStartInput = document.getElementById("exportWeekStart");
+  const weekEndInput = document.getElementById("exportWeekEnd");
+  const monthBtn = document.getElementById("exportTypeMonthBtn");
+  const weekBtn = document.getElementById("exportTypeWeekBtn");
+  const xlsxBtn = document.getElementById("exportFormatXlsxBtn");
+  const csvBtn = document.getElementById("exportFormatCsvBtn");
+
+  if (monthInput && !monthInput.value) {
+    monthInput.value = getCurrentMonthStr();
+  }
+
+  const now = new Date();
+  if (weekStartInput && !weekStartInput.value) {
+    weekStartInput.value = formatDateToYMD(getMondayOfWeek(now));
+  }
+  if (weekEndInput && !weekEndInput.value) {
+    weekEndInput.value = formatDateToYMD(getSundayOfWeek(now));
+  }
+
+  setExportFileFormat("xlsx");
+  setExportPeriodMode("month");
+
+  if (xlsxBtn) {
+    xlsxBtn.addEventListener("click", () => {
+      setExportFileFormat("xlsx");
+      if (typeof onFormatChange === "function") onFormatChange("xlsx");
+    });
+  }
+
+  if (csvBtn) {
+    csvBtn.addEventListener("click", () => {
+      setExportFileFormat("csv");
+      if (typeof onFormatChange === "function") onFormatChange("csv");
+    });
+  }
+
+  if (monthBtn) {
+    monthBtn.addEventListener("click", () => {
+      setExportPeriodMode("month");
+      if (typeof onPeriodModeChange === "function") onPeriodModeChange("month");
+    });
+  }
+
+  if (weekBtn) {
+    weekBtn.addEventListener("click", () => {
+      setExportPeriodMode("week");
+      if (typeof onPeriodModeChange === "function") onPeriodModeChange("week");
+    });
+  }
+
+  if (scopeSelect) {
+    scopeSelect.addEventListener("change", (e) => {
+      updateExportStatusBoxVisibility(e.target.value);
+      if (typeof onScopeChange === "function") onScopeChange(e.target.value);
+    });
+  }
+
+  if (weekStartInput) {
+    weekStartInput.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (val) {
+        const startD = new Date(val);
+        if (!Number.isNaN(startD.getTime())) {
+          const endD = new Date(startD);
+          endD.setDate(startD.getDate() + 6);
+          if (weekEndInput) weekEndInput.value = formatDateToYMD(endD);
+        }
+      }
+    });
+  }
+}
+

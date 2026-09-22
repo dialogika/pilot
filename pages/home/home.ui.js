@@ -93,30 +93,22 @@ export function adjustFeatureGridByDivision(role, position) {
   const container = document.getElementById("appsOverviewContainer");
   if (!container) return;
 
-  const roleLower = String(role || "").trim().toLowerCase();
-  const posLower = String(position || "").trim().toLowerCase();
-  
-  // Leadership & Management see all divisions
-  if (
-    roleLower === "owner" ||
-    roleLower === "admin" ||
-    roleLower === "team" ||
-    posLower === "chief executive officer" ||
-    posLower === "ceo" ||
-    posLower === "super administrator" ||
-    posLower === "co-founder"
-  ) {
-    const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
-    allSections.forEach((id) => {
-      const sect = document.getElementById(id);
-      if (sect) {
-        sect.style.display = "block";
-        sect.style.opacity = "1";
-      }
-    });
-    return;
-  }
+  const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
 
+  // Pastikan semua divisi selalu tampil dan dapat diakses oleh semua anggota tim
+  allSections.forEach((id) => {
+    const sect = document.getElementById(id);
+    if (sect) {
+      sect.style.display = "block";
+      sect.style.opacity = "1";
+    }
+  });
+
+  // Bersihkan badge lama jika ada
+  container.querySelectorAll(".my-division-badge").forEach((el) => el.remove());
+
+  // Jika user memiliki divisi primer berdasarkan posisinya,
+  // letakkan divisi tersebut di paling atas dengan penanda "Divisi Anda"
   const primarySectId = resolveDivisionGroup(position);
   if (!primarySectId) {
     return;
@@ -124,7 +116,6 @@ export function adjustFeatureGridByDivision(role, position) {
 
   const primarySect = document.getElementById(primarySectId);
   if (primarySect) {
-    primarySect.style.display = "block";
     container.insertBefore(primarySect, container.firstChild);
 
     const header = primarySect.querySelector("h5");
@@ -139,16 +130,6 @@ export function adjustFeatureGridByDivision(role, position) {
       header.appendChild(badge);
     }
   }
-
-  const allSections = ["sect-hr", "sect-marketing", "sect-product", "sect-branding"];
-  allSections.forEach((id) => {
-    if (id !== primarySectId) {
-      const sect = document.getElementById(id);
-      if (sect) {
-        sect.style.display = "none";
-      }
-    }
-  });
 }
 
 /** Greeting based on current hour. */

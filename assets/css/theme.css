@@ -893,5 +893,121 @@ textarea::-webkit-resizer {
   color: var(--text-muted) !important;
 }
 
+/* --- Flatpickr Calendar in Dark Mode --- */
+[data-theme="dark"] .flatpickr-calendar {
+  background: var(--surface, #1e293b) !important;
+  border: 1px solid var(--border, #334155) !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45) !important;
+  color: var(--text-strong, #f8fafc) !important;
+}
 
-
+[data-theme="dark"] .flatpickr-calendar.arrowTop:before,
+[data-theme="dark"] .flatpickr-calendar.arrowTop:after {
+  border-bottom-color: var(--surface, #1e293b) !important;
+}
+
+[data-theme="dark"] .flatpickr-calendar.arrowBottom:before,
+[data-theme="dark"] .flatpickr-calendar.arrowBottom:after {
+  border-top-color: var(--surface, #1e293b) !important;
+}
+
+[data-theme="dark"] .flatpickr-months {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border, #334155) !important;
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-month,
+[data-theme="dark"] .flatpickr-current-month,
+[data-theme="dark"] .flatpickr-current-month .cur-month,
+[data-theme="dark"] .flatpickr-current-month select.cur-month,
+[data-theme="dark"] .flatpickr-current-month .cur-year,
+[data-theme="dark"] .flatpickr-current-month input.cur-year {
+  color: var(--text-strong, #f8fafc) !important;
+  fill: var(--text-strong, #f8fafc) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .flatpickr-current-month .numInputWrapper span.arrowUp:after {
+  border-bottom-color: var(--text-muted, #94a3b8) !important;
+}
+
+[data-theme="dark"] .flatpickr-current-month .numInputWrapper span.arrowDown:after {
+  border-top-color: var(--text-muted, #94a3b8) !important;
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-prev-month,
+[data-theme="dark"] .flatpickr-months .flatpickr-next-month {
+  color: var(--text-muted, #94a3b8) !important;
+  fill: var(--text-muted, #94a3b8) !important;
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-prev-month:hover svg,
+[data-theme="dark"] .flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--text-strong, #ffffff) !important;
+}
+
+[data-theme="dark"] span.flatpickr-weekday {
+  background: transparent !important;
+  color: var(--text-muted, #94a3b8) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .flatpickr-day {
+  color: var(--text, #e2e8f0) !important;
+  border-radius: 8px !important;
+  border-color: transparent !important;
+}
+
+[data-theme="dark"] .flatpickr-day:hover,
+[data-theme="dark"] .flatpickr-day:focus {
+  background: var(--surface-hover, #334155) !important;
+  border-color: var(--border, #475569) !important;
+  color: var(--text-strong, #f8fafc) !important;
+}
+
+[data-theme="dark"] .flatpickr-day.prevMonthDay,
+[data-theme="dark"] .flatpickr-day.nextMonthDay {
+  color: var(--text-faint, #64748b) !important;
+}
+
+[data-theme="dark"] .flatpickr-day.today {
+  border-color: var(--dlg-blue, #60a5fa) !important;
+}
+
+[data-theme="dark"] .flatpickr-day.selected,
+[data-theme="dark"] .flatpickr-day.startRange,
+[data-theme="dark"] .flatpickr-day.endRange {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .flatpickr-day.inRange {
+  background: rgba(59, 130, 246, 0.25) !important;
+  border-color: transparent !important;
+  color: var(--text-strong, #f8fafc) !important;
+  box-shadow: -5px 0 0 rgba(59, 130, 246, 0.25), 5px 0 0 rgba(59, 130, 246, 0.25) !important;
+}
+
+[data-theme="dark"] .flatpickr-day.flatpickr-disabled,
+[data-theme="dark"] .flatpickr-day.flatpickr-disabled:hover {
+  color: rgba(148, 163, 184, 0.25) !important;
+}
+
+[data-theme="dark"] .flatpickr-time {
+  background: var(--surface, #1e293b) !important;
+  border-top: 1px solid var(--border, #334155) !important;
+}
+
+[data-theme="dark"] .flatpickr-time input,
+[data-theme="dark"] .flatpickr-time .flatpickr-am-pm {
+  color: var(--text-strong, #f8fafc) !important;
+}
+
+[data-theme="dark"] .flatpickr-time input:hover,
+[data-theme="dark"] .flatpickr-time .flatpickr-am-pm:hover,
+[data-theme="dark"] .flatpickr-time input:focus,
+[data-theme="dark"] .flatpickr-time .flatpickr-am-pm:focus {
+  background: var(--surface-hover, #334155) !important;
+}

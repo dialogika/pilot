@@ -6,6 +6,7 @@
 //   or call window.DLGTheme.toggle() from your own handler.
 
 (function () {
+  if (window.DLGTheme) return;
   const STORAGE_KEY = "dlg-theme";
   const THEME = {
     get current() {

@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/theme.css" rel="stylesheet" />
     <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="../assets/js/theme.js" defer></script>
 
     <style>
 
@@ -137,6 +139,66 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
+        }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .profile-card {
+            background-color: var(--surface);
+            box-shadow: var(--shadow-card);
+        }
+
+        [data-theme="dark"] .section-title {
+            color: var(--text-strong);
+            border-bottom-color: var(--border);
+        }
+
+        [data-theme="dark"] .form-label {
+            color: var(--text-muted);
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: var(--surface-toolbar);
+            color: var(--text-strong);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .form-control:focus,
+        [data-theme="dark"] .form-select:focus {
+            background-color: var(--surface);
+            color: var(--text-strong);
+            border-color: var(--dlg-blue);
+        }
+
+        [data-theme="dark"] .photo-upload-section {
+            background-color: var(--surface-toolbar);
+        }
+
+        [data-theme="dark"] .profile-preview {
+            background-color: var(--surface-2);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .input-group-text {
+            background-color: var(--surface-toolbar);
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .btn-cancel {
+            background-color: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .btn-cancel:hover {
+            background-color: var(--surface-hover);
+            color: var(--text-strong);
+        }
+
+        [data-theme="dark"] select option {
+            background-color: var(--surface);
+            color: var(--text-strong);
         }
 
         .profile-summary-card {

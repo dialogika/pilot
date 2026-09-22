@@ -19,6 +19,9 @@
   <link href="/assets/css/style.css" rel="stylesheet" />
   <link href="/pages/hr/permit-reimburse/permit-reimburse.css" rel="stylesheet" />
 
+  <!-- SheetJS for Excel Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <!-- Shared theme manager -->
   <script src="/assets/js/theme.js" defer></script>
 </head>
@@ -83,6 +86,15 @@
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
               </select>
+              <button
+                id="btnExportExcelPermit"
+                type="button"
+                class="btn-export-excel"
+                title="Export Data"
+              >
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>Export</span>
+              </button>
             </div>
           </div>
 
@@ -135,6 +147,15 @@
                   placeholder="Cari nama karyawan..."
                 />
               </div>
+              <button
+                id="btnExportExcelReimburse"
+                type="button"
+                class="btn-export-excel"
+                title="Export Data"
+              >
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>Export</span>
+              </button>
             </div>
           </div>
 
@@ -311,6 +332,105 @@
       <div class="d-flex justify-content-end mt-4">
         <button type="button" class="btn-modal-dark modal-close-btn">
           Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Data (Excel / CSV) Modal -->
+  <div id="exportExcelModal" class="modal-backdrop hidden">
+    <div class="modal-panel export-modal-panel">
+      <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+        <div class="d-flex align-items-center gap-2.5">
+          <div class="export-icon-box">
+            <i class="bi bi-file-earmark-spreadsheet"></i>
+          </div>
+          <div>
+            <h3 class="export-modal-title m-0">Export Data (Excel / CSV)</h3>
+            <p class="export-modal-subtitle m-0">Pilih format file, periode, dan jenis data laporan</p>
+          </div>
+        </div>
+        <button type="button" id="exportExcelModalClose" class="btn-close modal-close-btn"></button>
+      </div>
+
+      <div class="export-modal-body d-flex flex-column gap-3">
+        <!-- Format File -->
+        <div>
+          <label class="export-field-label">FORMAT FILE</label>
+          <div class="export-period-switcher" id="exportFormatSwitcher">
+            <button type="button" id="exportFormatXlsxBtn" class="period-switch-btn active">
+              <i class="bi bi-file-earmark-spreadsheet text-emerald-600"></i> Excel (.xlsx)
+            </button>
+            <button type="button" id="exportFormatCsvBtn" class="period-switch-btn">
+              <i class="bi bi-file-earmark-text text-indigo-600"></i> CSV (.csv)
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Scope -->
+        <div>
+          <label for="exportDataScope" class="export-field-label">DATA YANG DIEXPORT</label>
+          <select id="exportDataScope" class="form-select form-select-sm export-form-control">
+            <option value="permit">Data Izin (Permit Management)</option>
+            <option value="reimburse">Data Reimburse</option>
+            <option value="all">Semua Data (Izin & Reimburse)</option>
+          </select>
+        </div>
+
+        <!-- Period Mode Switcher -->
+        <div>
+          <label class="export-field-label">PILIHAN RENTANG WAKTU</label>
+          <div class="export-period-switcher">
+            <button type="button" id="exportTypeMonthBtn" class="period-switch-btn active">
+              <i class="bi bi-calendar3"></i> Per Bulan
+            </button>
+            <button type="button" id="exportTypeWeekBtn" class="period-switch-btn">
+              <i class="bi bi-calendar-range"></i> Per Minggu
+            </button>
+          </div>
+        </div>
+
+        <!-- Month Box -->
+        <div id="exportMonthBox" class="export-period-box">
+          <label for="exportMonthInput" class="export-subfield-label">Pilih Bulan & Tahun</label>
+          <input id="exportMonthInput" type="month" class="form-control form-control-sm export-form-control" />
+          <p id="exportHelperText" class="export-help-text">Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.</p>
+        </div>
+
+        <!-- Week Box -->
+        <div id="exportWeekBox" class="export-period-box hidden">
+          <label class="export-subfield-label">Pilih Rentang Minggu</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <span class="export-mini-label">Dari Tanggal</span>
+              <input id="exportWeekStart" type="date" class="form-control form-control-sm export-form-control" />
+            </div>
+            <div class="col-6">
+              <span class="export-mini-label">Sampai Tanggal</span>
+              <input id="exportWeekEnd" type="date" class="form-control form-control-sm export-form-control" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Filter Box -->
+        <div id="exportStatusBox">
+          <label for="exportStatusFilter" class="export-field-label">FILTER STATUS IZIN</label>
+          <select id="exportStatusFilter" class="form-select form-select-sm export-form-control">
+            <option value="all">Semua Status (Pending, Approved, Rejected)</option>
+            <option value="approved">Hanya Approved</option>
+            <option value="pending">Hanya Pending</option>
+            <option value="rejected">Hanya Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
+        <button type="button" id="exportExcelModalCancel" class="btn-export-cancel">
+          Batalkan
+        </button>
+        <button type="button" id="exportExcelModalSubmit" class="btn-export-submit">
+          <i class="bi bi-download"></i>
+          <span id="exportSubmitBtnText">Download Excel (.xlsx)</span>
         </button>
       </div>
     </div>
