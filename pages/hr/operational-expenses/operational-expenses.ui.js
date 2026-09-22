@@ -96,7 +96,15 @@ export function renderStats(stats) {
  */
 export function renderTable(
   items,
-  { sortKey = "", sortDirection = "asc", onOpenDetail, onMarkReviewing, onSendWhatsapp }
+  {
+    sortKey = "",
+    sortDirection = "asc",
+    activeDate = "",
+    onClearDate = null,
+    onOpenDetail = null,
+    onMarkReviewing = null,
+    onSendWhatsapp = null
+  } = {}
 ) {
   const tbody = document.getElementById("expenseTableBody");
   const counterEl = document.getElementById("visibleItemsCount");
@@ -121,7 +129,7 @@ export function renderTable(
   });
 
   if (!items.length) {
-    const hasDateFilter = !!options.activeDate;
+    const hasDateFilter = !!activeDate;
     tbody.innerHTML = `
       <tr>
         <td colspan="6">
@@ -145,8 +153,8 @@ export function renderTable(
       </tr>
     `;
     const resetBtn = document.getElementById("btnEmptyResetDate");
-    if (resetBtn && typeof options.onClearDate === "function") {
-      resetBtn.addEventListener("click", options.onClearDate);
+    if (resetBtn && typeof onClearDate === "function") {
+      resetBtn.addEventListener("click", onClearDate);
     }
     return;
   }

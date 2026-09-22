@@ -40,7 +40,7 @@ export function buildTopbarHTML() {
                 <small id="user-role-display" class="text-muted" style="font-size:0.7rem">User</small>
             </div>
             <button class="btn btn-outline-secondary btn-sm theme-toggle" type="button" title="Toggle dark/light mode" aria-label="Toggle theme">
-                <i class="bi bi-moon-stars" data-icon-dark="bi bi-moon-stars" data-icon-light="bi bi-sun"></i>
+                <i class="bi bi-moon-stars" data-icon-dark="bi bi-sun" data-icon-light="bi bi-moon-stars"></i>
             </button>
             <div class="profile-dropdown-wrapper">
                 <div class="profile-img-container" id="profileDropdownToggle">
