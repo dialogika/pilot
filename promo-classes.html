@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promo Classes | Dialogika</title>
+
+  <!-- Dependencies & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+  <!-- Shared Foundation Styles -->
+  <link href="/assets/css/theme.css" rel="stylesheet" />
+  <link href="/assets/css/layout.css" rel="stylesheet" />
+
+  <!-- Feature Scoped Styles -->
+  <link href="/pages/marketing/promo-classes/promo-classes.css" rel="stylesheet" />
+
+  <!-- Shared Theme Manager -->
+  <script src="/assets/js/theme.js" defer></script>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+  <!-- App Shell Mounts -->
+  <div id="dg-topbar-mount"></div>
+  <div id="dg-sidebar-mount"></div>
+
+  <main class="dg-main">
+    <div class="promo-classes-container space-y-6">
+
+      <!-- PAGE HEADER & BREADCRUMB -->
+      <div>
+        <!-- Consistent Standard Breadcrumb -->
+        <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+            <i class="fas fa-home text-xs"></i>
+          </a>
+          <span class="text-blue-600">/</span>
+          <span class="text-blue-600">MARKETING DIVISION</span>
+          <span class="text-slate-400">/</span>
+          <span class="text-slate-600">PROMO CLASSES</span>
+        </nav>
+
+        <!-- HERO SECTION CARD -->
+        <section class="hero-card">
+          <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+            <div>
+              <div class="text-uppercase fw-bold small text-primary mb-2" style="letter-spacing: 0.12em">
+                Marketing Division
+              </div>
+              <h1 class="fw-bold mb-2 text-2xl md:text-3xl text-slate-900">Promo Classes</h1>
+              <p class="text-muted mb-0 text-sm">
+                Data dikelompokkan per batch berdasarkan rentang tanggal promo. Tanggal batch tidak bisa diubah per data, cukup tambah atau hapus data di dalam batch yang sesuai.
+              </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-outline-secondary rounded-pill px-4" id="btnRefreshAll">
+                <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-dlg-blue rounded-pill px-4" id="btnNewBatch">
+                <i class="bi bi-calendar-plus me-2"></i>Buat Batch Baru
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- BATCH SELECTOR SCROLLER -->
+      <section class="content-card">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold mb-0 text-slate-800">Pilih Batch</h6>
+          <span class="text-muted small" id="batchCountLabel">0 batch</span>
+        </div>
+        <div class="batch-scroller" id="batchScroller">
+          <div class="text-muted small py-2">Memuat batch...</div>
+        </div>
+      </section>
+
+      <!-- METRIC COUNTERS -->
+      <section class="row g-4">
+        <div class="col-md-4">
+          <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="metric-label mb-2">Total di Batch Ini</div>
+                <div class="metric-value" id="metricTotal">0</div>
+              </div>
+              <div class="metric-icon blue">
+                <i class="bi bi-grid-1x2-fill"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="metric-label mb-2">Online Class</div>
+                <div class="metric-value" id="metricOnline">0</div>
+              </div>
+              <div class="metric-icon green">
+                <i class="bi bi-broadcast-pin"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="metric-label mb-2">Dengan Maps Link</div>
+                <div class="metric-value" id="metricMaps">0</div>
+              </div>
+              <div class="metric-icon purple">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT & DATA TABLE SECTION -->
+      <section class="content-card">
+        <div class="batch-info-bar" id="batchInfoBar" style="display: none">
+          <div>
+            <div class="batch-info-title">
+              <i class="bi bi-calendar-range"></i>
+              <span id="batchInfoLabel">-</span>
+            </div>
+            <div class="batch-info-sub" id="batchInfoSub">
+              0 data dalam batch ini
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-dlg-blue rounded-pill px-4" id="addToBatchBtn">
+              <i class="bi bi-plus-circle me-2"></i>Tambah ke Batch Ini
+            </button>
+            <button type="button" class="btn btn-outline-danger rounded-pill px-4" id="deleteBatchBtn" style="display: none">
+              <i class="bi bi-trash3 me-2"></i>Hapus Batch
+            </button>
+          </div>
+        </div>
+
+        <div id="batchContentArea">
+          <div class="batch-empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <h6 class="fw-bold mt-3 mb-2">Belum ada batch dipilih</h6>
+            <p class="mb-3">
+              Buat batch baru untuk mulai mengelompokkan promo class berdasarkan rentang tanggal.
+            </p>
+            <button type="button" class="btn btn-dlg-blue rounded-pill px-4" id="btnEmptyNewBatch">
+              <i class="bi bi-calendar-plus me-2"></i>Buat Batch Baru
+            </button>
+          </div>
+        </div>
+
+        <div id="batchTableWrap" style="display: none">
+          <div class="toolbar mb-4">
+            <div class="d-flex flex-wrap gap-2 flex-grow-1">
+              <div style="min-width: 260px; flex: 1 1 320px">
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0 rounded-start-4">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input id="searchInput" type="text" class="form-control border-start-0 rounded-end-4" placeholder="Cari product, location, atau harga..." />
+                </div>
+              </div>
+              <div style="min-width: 180px">
+                <select id="locationFilter" class="form-select rounded-4">
+                  <option value="all">Semua Lokasi</option>
+                </select>
+              </div>
+            </div>
+            <div class="text-muted small" id="resultSummary">0 data</div>
+          </div>
+
+          <div class="bulk-action-bar" id="bulkActionBar">
+            <div class="bulk-count">
+              <i class="bi bi-check2-square"></i>
+              <span id="bulkSelectedCount">0</span> data dipilih
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-light btn-sm rounded-pill px-3 fw-semibold text-danger" id="btnBulkDelete">
+                <i class="bi bi-trash3 me-1"></i>Hapus Terpilih
+              </button>
+              <button type="button" class="btn btn-bulk-clear btn-sm rounded-pill px-3" id="btnBulkClear">
+                Batal Pilih
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table table-modern align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 44px">
+                    <input type="checkbox" id="selectAllCheckbox" title="Pilih semua di halaman ini" />
+                  </th>
+                  <th>Product</th>
+                  <th>Location</th>
+                  <th>Location Name</th>
+                  <th>Normal Price</th>
+                  <th>Promo Price</th>
+                  <th>Maps</th>
+                  <th>Updated</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="promoClassTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination-toolbar">
+            <div class="pagination-info" id="paginationInfo">
+              Menampilkan 0-0 dari 0 data
+            </div>
+            <nav aria-label="Promo Classes Pagination">
+              <ul class="pagination pagination-modern" id="paginationContainer"></ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Add / Edit Promo Class Modal -->
+  <div class="modal fade" id="promoClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title fw-bold mb-1" id="promoClassModalTitle">
+              Tambah Promo Class
+            </h5>
+            <div class="text-muted small">
+              Isi data promo class untuk collection `promo_classes`.
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="promoClassForm">
+            <input type="hidden" id="promoClassId" />
+            <input type="hidden" id="promoDurationInput" />
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Batch</label>
+                <div class="batch-static-field">
+                  <i class="bi bi-calendar-range"></i>
+                  <span id="formBatchLabel">-</span>
+                </div>
+                <small class="text-muted">Tanggal promo mengikuti batch yang sedang dipilih dan tidak bisa diubah per data.</small>
+              </div>
+              <div class="col-md-6">
+                <label for="productInput" class="form-label fw-semibold">Product</label>
+                <input id="productInput" type="text" class="form-control rounded-4" placeholder="Contoh: Private Basic Plus" required />
+              </div>
+              <div class="col-md-6">
+                <label for="locationInput" class="form-label fw-semibold">Location</label>
+                <select id="locationInput" class="form-select rounded-4">
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="locationNameInput" class="form-label fw-semibold">Location Name</label>
+                <input id="locationNameInput" type="text" class="form-control rounded-4" placeholder="Contoh: Zoom / Jakarta Selatan" />
+              </div>
+              <div class="col-md-6">
+                <label for="mapsLinkInput" class="form-label fw-semibold">Maps Link</label>
+                <input id="mapsLinkInput" type="url" class="form-control rounded-4" placeholder="https://maps.google.com/..." />
+              </div>
+              <div class="col-md-6">
+                <label for="normalPriceInput" class="form-label fw-semibold">Normal Price</label>
+                <input id="normalPriceInput" type="text" class="form-control rounded-4" placeholder="Contoh: Rp 2.000.000" required />
+              </div>
+              <div class="col-md-6">
+                <label for="promoPriceInput" class="form-label fw-semibold">Promo Price</label>
+                <input id="promoPriceInput" type="text" class="form-control rounded-4" placeholder="Contoh: Rp 987.000" required />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border rounded-pill px-4" data-bs-dismiss="modal">
+            Batal
+          </button>
+          <button type="button" class="btn btn-dlg-blue rounded-pill px-4" id="savePromoClassBtn">
+            <span id="savePromoClassLabel">Simpan</span>
+            <span id="savePromoClassSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Batch Modal -->
+  <div class="modal fade" id="newBatchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title fw-bold mb-1">Buat Batch Baru</h5>
+            <div class="text-muted small">
+              Batch adalah kumpulan promo class dalam rentang tanggal tertentu.
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label fw-semibold">Rentang Tanggal Batch</label>
+          <div class="input-group">
+            <div class="input-group-text bg-white border-end-0 rounded-start-4">
+              <i class="bi bi-calendar-range"></i>
+            </div>
+            <input id="newBatchStartDate" type="date" class="form-control border-start-0 rounded-end-0" />
+            <input id="newBatchEndDate" type="date" class="form-control border-start-0 rounded-start-0" />
+            <div class="input-group-text bg-white border-start-0 rounded-start-4">
+              -
+            </div>
+          </div>
+          <small class="text-muted d-block mt-2">Preview: <strong id="newBatchPreview">-</strong></small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border rounded-pill px-4" data-bs-dismiss="modal">
+            Batal
+          </button>
+          <button type="button" class="btn btn-dlg-blue rounded-pill px-4" id="saveNewBatchBtn">
+            <span id="saveNewBatchLabel">Buat Batch</span>
+            <span id="saveNewBatchSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="/pages/marketing/promo-classes/promo-classes.js"></script>
+</body>
+
+</html>

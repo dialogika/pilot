@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads Management | Dialogika</title>
+
+    <!-- Dependencies & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Feature Scoped Styles -->
+    <link href="/pages/marketing/leads-management/leads-management.css" rel="stylesheet">
+
+    <!-- Shared Theme Manager -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+    <!-- App Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="leads-main-container space-y-6">
+
+            <!-- PAGE HEADER & BREADCRUMB -->
+            <div>
+                <!-- Consistent Standard Breadcrumb -->
+                <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-3">
+                    <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                        <i class="fas fa-home text-xs"></i>
+                    </a>
+                    <span class="text-blue-600">/</span>
+                    <span class="text-blue-600">MARKETING DIVISION</span>
+                    <span class="text-slate-400">/</span>
+                    <span class="text-slate-600">LEADS MANAGEMENT</span>
+                </nav>
+
+                <div class="mb-4">
+                    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Leads Management - Marketing</h1>
+                    <p class="text-sm text-slate-500 mt-1">Pantau performa leads harian, pipeline pembayaran, dan konfigurasi form.</p>
+                </div>
+            </div>
+
+            <!-- DATE RANGE FILTER TOOLBAR -->
+            <div class="flex flex-wrap items-center gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                    <span class="text-sm font-bold text-slate-700">Range Tanggal:</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input
+                        id="globalStartDateFilter"
+                        type="date"
+                        class="input-focus text-sm rounded-xl px-4 py-2 border border-slate-200 bg-white font-semibold"
+                    />
+                    <span class="text-slate-400 text-xs">s/d</span>
+                    <input
+                        id="globalEndDateFilter"
+                        type="date"
+                        class="input-focus text-sm rounded-xl px-4 py-2 border border-slate-200 bg-white font-semibold"
+                    />
+                </div>
+                <button
+                    id="btnDate1Month"
+                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-sm transition"
+                >
+                    1 Bulan Terakhir
+                </button>
+                <span id="globalDateLabel" class="text-xs text-slate-500 ml-2"></span>
+            </div>
+
+            <!-- 6 KPI STAT CARDS -->
+            <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-indigo-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Total Leads Tanggal Ini</small>
+                    </div>
+                    <h2 id="statLeadsToday" class="text-3xl font-extrabold tracking-tight text-slate-900">0</h2>
+                    <small class="text-slate-500">Semua leads baru pada range tanggal terpilih.</small>
+                </div>
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="calendar-range" class="w-4 h-4 text-indigo-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Total Leads Minggu Ini</small>
+                    </div>
+                    <h2 id="statLeadsThisWeek" class="text-3xl font-extrabold tracking-tight text-slate-900">0</h2>
+                    <small class="text-slate-500">Akumulasi leads dalam 7 hari terakhir.</small>
+                </div>
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="ticket" class="w-4 h-4 text-indigo-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Total Penggunaan Kode Referral</small>
+                    </div>
+                    <h2 id="statReferralUsed" class="text-3xl font-extrabold tracking-tight text-slate-900">0</h2>
+                    <small class="text-slate-500">Invoice yang menggunakan kode referral.</small>
+                </div>
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Total Upload Bukti Transfer</small>
+                    </div>
+                    <h2 id="statProofUploaded" class="text-3xl font-extrabold tracking-tight text-slate-900">0</h2>
+                    <small class="text-slate-500">Invoice dengan bukti transfer yang sudah diupload.</small>
+                </div>
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="badge-check" class="w-4 h-4 text-emerald-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Total Verified Payment</small>
+                    </div>
+                    <h2 id="statVerifiedPayment" class="text-3xl font-extrabold tracking-tight text-slate-900">0</h2>
+                    <small class="text-slate-500">Pembayaran yang sudah diverifikasi finance.</small>
+                </div>
+                <div class="settings-card flex flex-col gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
+                        <small class="text-uppercase text-xs text-slate-400 fw-bold">Conversion Rate Next → Verified</small>
+                    </div>
+                    <h2 id="statNextToVerifiedRate" class="text-3xl font-extrabold tracking-tight text-slate-900">0%</h2>
+                    <small class="text-slate-500">Perbandingan klik Next Payment vs pembayaran terverifikasi.</small>
+                </div>
+            </section>
+
+            <!-- NEXT PAYMENT PIPELINE TABLE SECTION -->
+            <section class="card-elite rounded-[2rem] p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-5 h-5 text-amber-600"></i>
+                            Next Payment Pipeline
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Semua leads dan invoice pada range tanggal terpilih.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input
+                            id="filterSearchDaily"
+                            type="text"
+                            placeholder="Cari nama / program"
+                            class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[180px]"
+                        />
+                        <select
+                            id="filterProgramNext"
+                            class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[160px]"
+                        >
+                            <option value="">Semua Program</option>
+                        </select>
+                        <button
+                            id="btnOpenManualAdd"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                        >
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive swipe-scroll next-payment-scroll">
+                    <table class="table table-sm align-middle next-payment-table">
+                        <thead class="text-[11px] text-slate-500">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Program</th>
+                                <th>Stage</th>
+                                <th>Kode Referral</th>
+                                <th>WA</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableNextPaymentBody" class="text-xs">
+                            <tr>
+                                <td colspan="6" class="text-center text-slate-400 py-3">
+                                    Memuat data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- UPLOAD BUKTI TRANSFER TABLE SECTION -->
+            <section class="card-elite rounded-[2rem] p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="upload-cloud" class="w-5 h-5 text-emerald-600"></i>
+                            Upload Bukti Transfer
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Invoice yang sudah upload bukti transfer pada range tanggal terpilih.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input
+                            id="filterSearchUpload"
+                            type="text"
+                            placeholder="Cari nama / program"
+                            class="input-focus text-xs rounded-xl px-3 py-2 border border-slate-200 bg-white min-w-[180px]"
+                        />
+                    </div>
+                </div>
+                <div class="table-responsive swipe-scroll upload-proof-scroll">
+                    <table class="table table-sm align-middle">
+                        <thead class="text-[11px] text-slate-500">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Program</th>
+                                <th>Batch Program</th>
+                                <th>Jadwal</th>
+                                <th>Nominal</th>
+                                <th>Harga Asli</th>
+                                <th>Metode</th>
+                                <th>WA</th>
+                                <th>Detail</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableUploadProofBody" class="text-xs">
+                            <tr>
+                                <td colspan="10" class="text-center text-slate-400 py-3">
+                                    Memuat data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- AUTOMATION TRIGGER (READ ONLY) -->
+            <section class="card-elite rounded-[2rem] p-6">
+                <div class="flex flex-col gap-2">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-sky-600"></i>
+                        Automation Trigger (Read Only)
+                    </h2>
+                    <p class="text-sm text-slate-500">
+                        Perpindahan data antar tabel di atas mengikuti status di Firestore: Leads → Next Payment → Upload Bukti → Verified Payment. Dashboard ini hanya membaca data secara real-time.
+                    </p>
+                </div>
+            </section>
+
+            <!-- FORM LEADS CONFIGURATION SECTION -->
+            <section class="card-elite rounded-[2rem] p-8">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i>
+                            Konfigurasi Form Leads
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Atur pilihan Ads Channel dan Interest yang muncul di form Leads.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- Ads Channel Column -->
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                            Ads Channel
+                            <span class="text-[10px] text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Dropdown Options</span>
+                        </label>
+                        <div class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                            <div id="adsChannelList" class="space-y-2"></div>
+                            <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-2">Tambah / Edit Ads Channel</label>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <input
+                                        type="text"
+                                        id="adsChannelInput"
+                                        class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                                        placeholder="Mis. Meta Ads, Google Ads"
+                                    />
+                                    <button
+                                        id="btnAddAdsChannel"
+                                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="save" class="w-4 h-4"></i>
+                                        <span>Simpan</span>
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-[11px] text-slate-400">
+                                    Klik kartu di atas untuk mengedit, atau ikon hapus untuk menghapus.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interest Program Column -->
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-slate-700 flex justify-between items-center">
+                            Interest Program
+                            <span class="text-[10px] text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Program Options</span>
+                        </label>
+                        <div class="space-y-3 border border-slate-100 p-3 rounded-2xl bg-slate-50/50">
+                            <div id="interestList" class="space-y-2"></div>
+                            <div class="mt-3 pt-3 border-t border-dashed border-slate-200">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-2">Tambah / Edit Interest</label>
+                                <div class="flex flex-col lg:flex-row gap-2">
+                                    <input
+                                        type="text"
+                                        id="interestNameInput"
+                                        class="flex-1 input-focus text-sm rounded-xl px-3 py-2 border border-slate-200 bg-white"
+                                        placeholder="Nama program, mis. Public Speaking Bootcamp"
+                                    />
+                                    <button
+                                        id="btnAddInterest"
+                                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="save" class="w-4 h-4"></i>
+                                        <span>Simpan</span>
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-[11px] text-slate-400">
+                                    Interest bisa dikaitkan ke Ads Channel tertentu, atau dibiarkan umum.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Detail Invoice Modal -->
+    <div
+        class="modal fade"
+        id="invoiceDetailModal"
+        tabindex="-1"
+        aria-labelledby="invoiceDetailModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden">
+                <div
+                    class="modal-header"
+                    style="
+                        background: linear-gradient(135deg, #0b2b6a 0%, #1e40af 100%);
+                        padding: 24px 30px;
+                        border: none;
+                    "
+                >
+                    <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2" id="invoiceDetailModalLabel">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                        Detail Invoice
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body" style="padding: 30px">
+                    <div id="invoiceDetailContent">
+                        <p class="text-center text-slate-400">Memuat data...</p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 30px">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-secondary rounded-xl px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form Add Manual Next Payment Pipeline -->
+    <div
+        id="manualAddModal"
+        class="fixed inset-0 w-screen h-screen z-[9999] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4"
+    >
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all m-auto">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
+                    Add Manual Pipeline
+                </h3>
+                <button
+                    type="button"
+                    id="btnCloseManualAdd"
+                    class="text-slate-400 hover:text-slate-600 transition"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <form id="formManualAdd" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Nama Leads <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="manualAddName"
+                            required
+                            placeholder="Masukkan nama"
+                            class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Program <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            id="manualAddProgram"
+                            required
+                            class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        >
+                            <option value="">Memuat program...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Batch Program / Jadwal <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            id="manualAddBatch"
+                            required
+                            class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Stage <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            id="manualAddStage"
+                            required
+                            class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        >
+                            <option value="NEXT PAYMENT">Next Payment</option>
+                            <option value="PAID">Paid</option>
+                            <option value="VERIFIED">Verified</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Nominal (Rp)
+                        </label>
+                        <input
+                            type="number"
+                            id="manualAddNominal"
+                            placeholder="0"
+                            class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                        <button
+                            type="button"
+                            id="btnCancelManualAdd"
+                            class="px-4 py-2 font-bold text-xs rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            id="btnSaveManualAdd"
+                            class="px-5 py-2 font-bold text-xs rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition"
+                        >
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Verification / Action Confirmation -->
+    <div
+        class="modal fade"
+        id="actionConfirmModal"
+        tabindex="-1"
+        aria-labelledby="actionConfirmModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 420px;">
+            <div class="modal-content text-center p-6" style="border-radius: 24px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
+                <div class="mb-3 d-flex justify-content-center">
+                    <div id="confirmModalIconWrapper" class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i id="confirmModalIcon" data-lucide="trash-2" class="w-8 h-8"></i>
+                    </div>
+                </div>
+                <h4 id="confirmModalTitle" class="font-extrabold text-slate-800 text-lg mb-2">Konfirmasi Tindakan</h4>
+                <p id="confirmModalMessage" class="text-sm text-slate-500 mb-6 leading-relaxed">
+                    Apakah Anda yakin ingin melanjutkan tindakan ini?
+                </p>
+                <div class="flex gap-3 justify-center">
+                    <button
+                        type="button"
+                        class="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                        data-bs-dismiss="modal"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        id="confirmModalSubmitBtn"
+                        class="flex-1 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm"
+                    >
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Notification / Feedback Alert -->
+    <div
+        class="modal fade"
+        id="notificationModal"
+        tabindex="-1"
+        aria-labelledby="notificationModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 400px;">
+            <div class="modal-content text-center p-6" style="border-radius: 24px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
+                <div class="mb-3 d-flex justify-content-center">
+                    <div id="notifModalIconWrapper" class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i id="notifModalIcon" data-lucide="check-circle" class="w-8 h-8"></i>
+                    </div>
+                </div>
+                <h4 id="notificationModalTitle" class="font-extrabold text-slate-800 text-lg mb-2">Berhasil</h4>
+                <p id="notificationModalMessage" class="text-sm text-slate-500 mb-6 leading-relaxed">
+                    Operasi berhasil dilakukan.
+                </p>
+                <button
+                    type="button"
+                    class="w-full px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+                    data-bs-dismiss="modal"
+                >
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Lead -->
+    <div
+        class="modal fade"
+        id="editLeadModal"
+        tabindex="-1"
+        aria-labelledby="editLeadModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 24px; overflow: hidden; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.12);">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i>
+                        Edit Data Lead
+                    </h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-6">
+                    <form id="formEditLead" class="space-y-4">
+                        <input type="hidden" id="editLeadId" />
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                Nama Lead <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="editLeadName"
+                                required
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kota</label>
+                            <input
+                                type="text"
+                                id="editLeadCity"
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Program</label>
+                            <input
+                                type="text"
+                                id="editLeadProgram"
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Stage</label>
+                            <select
+                                id="editLeadStage"
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            >
+                                <option value="LEADS">LEADS</option>
+                                <option value="NEXT PAYMENT">NEXT PAYMENT</option>
+                                <option value="PAID">PAID</option>
+                                <option value="VERIFIED">VERIFIED</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                            <input
+                                type="text"
+                                id="editLeadWhatsapp"
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                            <button
+                                type="button"
+                                class="px-4 py-2 font-bold text-xs rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                                data-bs-dismiss="modal"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                id="btnSaveEditLead"
+                                class="px-5 py-2 font-bold text-xs rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+                            >
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Invoice -->
+    <div
+        class="modal fade"
+        id="editInvoiceModal"
+        tabindex="-1"
+        aria-labelledby="editInvoiceModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 24px; overflow: hidden; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.12);">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i>
+                        Edit Data Invoice
+                    </h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="p-6">
+                    <form id="formEditInvoice" class="space-y-4">
+                        <input type="hidden" id="editInvoiceId" />
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                Nama Lead <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="editInvoiceLeadName"
+                                required
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Program / Produk</label>
+                            <input
+                                type="text"
+                                id="editInvoiceProductName"
+                                class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Dibayar (Rp)</label>
+                                <input
+                                    type="number"
+                                    id="editInvoicePaidAmount"
+                                    class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Harga Deal (Rp)</label>
+                                <input
+                                    type="number"
+                                    id="editInvoiceFinalBasePrice"
+                                    class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
+                                <input
+                                    type="text"
+                                    id="editInvoicePaymentMethod"
+                                    placeholder="Transfer, QRIS, dsb."
+                                    class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank</label>
+                                <input
+                                    type="text"
+                                    id="editInvoiceBankName"
+                                    placeholder="BCA, Mandiri, dsb."
+                                    class="w-full text-sm rounded-xl px-3 py-2 border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
+                        <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                            <button
+                                type="button"
+                                class="px-4 py-2 font-bold text-xs rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                                data-bs-dismiss="modal"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                id="btnSaveEditInvoice"
+                                class="px-5 py-2 font-bold text-xs rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+                            >
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+            window.lucide.createIcons();
+        }
+    </script>
+    <script type="module" src="/pages/marketing/leads-management/leads-management.js"></script>
+</body>
+
+</html>

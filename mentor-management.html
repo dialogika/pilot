@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Management - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + Tailwind CDN + Lucide -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Pilot Core Foundations -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Feature-specific styles -->
+    <link href="/pages/product/mentor-management/mentor-management.css" rel="stylesheet">
+
+    <!-- Theme Script -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+<body class="antialiased bg-slate-50/50">
+
+    <!-- Shared Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="mm-page-wrapper">
+
+            <!-- Breadcrumb Navigation -->
+            <nav class="flex gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">
+                <a href="/home" class="hover:text-blue-800 transition"><i class="bi bi-house-fill"></i></a>
+                <span>/</span>
+                <span>Product Division</span>
+                <span>/</span>
+                <span class="text-slate-400">Mentor Management</span>
+            </nav>
+
+            <!-- Page Header & Action Buttons -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="users" class="w-6 h-6 text-emerald-600"></i>
+                        Mentor Management
+                    </h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Pantau kinerja, ketersediaan, dan status mentor untuk mendukung keputusan operasional dengan cepat.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button id="btnAddMentor" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition">
+                        <i data-lucide="plus" class="w-4 h-4 text-emerald-600"></i>
+                        Add New Mentor
+                    </button>
+                    <button id="btnBulkAssign" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        Assign Massal
+                    </button>
+                    <button id="btnBulkStatus" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition">
+                        <i data-lucide="shuffle" class="w-4 h-4"></i>
+                        Ubah Status Massal
+                    </button>
+                    <div class="relative">
+                        <button id="btnExportMenu" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Export
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <div id="exportDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-slate-100 text-xs text-slate-700 hidden z-30 py-1">
+                            <button id="btnExportCsv" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2">
+                                <i class="bi bi-file-earmark-text text-emerald-600"></i>
+                                Export CSV
+                            </button>
+                            <button id="btnExportExcel" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2">
+                                <i class="bi bi-file-earmark-spreadsheet text-emerald-600"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Summary KPI Cards -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 flex flex-col gap-2 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Mentor</span>
+                        <span class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statTotalMentor" class="text-2xl font-extrabold text-slate-900">0</span>
+                        <span class="text-xs text-slate-400">mentor</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 flex flex-col gap-2 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Mentor</span>
+                        <span class="w-8 h-8 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statActiveMentor" class="text-2xl font-extrabold text-slate-900">0</span>
+                        <span class="text-xs text-emerald-600 font-semibold" id="statActiveRatio"></span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 flex flex-col gap-2 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Avg Rating</span>
+                        <span class="w-8 h-8 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                            <i data-lucide="star" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="statAvgRating" class="text-2xl font-extrabold text-slate-900">0.0</span>
+                        <span class="text-xs text-slate-400">/ 5.0</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 flex flex-col gap-2 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Online vs Offline</span>
+                        <span class="w-8 h-8 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center">
+                            <i data-lucide="globe-2" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span id="statOnlineMentor" class="text-sm font-semibold text-slate-700">0 Online</span>
+                            <span id="statOfflineMentor" class="text-sm font-semibold text-slate-700">0 Offline</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                            <span class="text-[10px] text-slate-400">Online</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Content Layout (Table & Right Side Widgets) -->
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Left 2 Cols: Main Table -->
+                <div class="bg-white rounded-3xl border border-slate-100 p-5 lg:col-span-2 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Daftar Mentor</h2>
+                            <p class="text-xs text-slate-400">Filter, sortir, dan pilih mentor untuk keputusan cepat.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <input id="searchMentor" type="text" placeholder="Cari mentor..." class="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-52 sm:w-56 bg-slate-50">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            </div>
+                            <button id="btnToggleFilter" type="button" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition">
+                                <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Options Panel -->
+                    <div id="filterPanel" class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 p-3 bg-slate-50/80 rounded-2xl border border-slate-100 hidden">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Rating Minimum</label>
+                            <select id="filterRating" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="4.5">≥ 4.5</option>
+                                <option value="4">≥ 4.0</option>
+                                <option value="3.5">≥ 3.5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Location</label>
+                            <select id="filterLocation" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Teaching</label>
+                            <select id="filterTeaching" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="Dewasa">Dewasa</option>
+                                <option value="Anak">Anak</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+                            <select id="filterStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="on_leave">On Leave</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Availability</label>
+                            <select id="filterAvailability" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="available">Available</option>
+                                <option value="busy">Sedikit Slot</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Contract</label>
+                            <select id="filterContract" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua</option>
+                                <option value="lt30">Habis &lt; 30 hari</option>
+                                <option value="expired">Sudah habis</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table Wrap -->
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs table-sticky">
+                                <thead class="text-slate-500 uppercase tracking-widest text-[10px] border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-3 w-8">
+                                            <input id="checkAllMentor" type="checkbox" class="rounded border-slate-300">
+                                        </th>
+                                        <th data-sort="name" class="px-4 py-3 cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1">Nama Mentor<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="nick" class="px-4 py-3 cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1">Nick<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3 text-center">WhatsApp</th>
+                                        <th data-sort="rating" class="px-4 py-3 cursor-pointer select-none text-center">
+                                            <span class="inline-flex items-center gap-1 justify-center">Rating<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="teaching" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Teaching<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="type" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Type<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="activeClasses" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Active Class<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="totalClasses" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Total Class<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="location" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Location<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="status" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Status<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="contract" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Contract End<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th data-sort="score" class="px-4 py-3 text-center cursor-pointer select-none">
+                                            <span class="inline-flex items-center gap-1 justify-center">Score<i data-lucide="chevrons-up-down" class="w-3 h-3"></i></span>
+                                        </th>
+                                        <th class="px-4 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mentorTableBody" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Footer & Pagination Bar -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-100 text-[11px] text-slate-500 bg-slate-50/50">
+                            <div class="flex items-center gap-4">
+                                <span id="mentorCountText" class="font-medium">0 mentor ditampilkan</span>
+                                <div class="flex items-center gap-1.5 text-slate-400">
+                                    <span>Sort:</span>
+                                    <span id="sortLabel" class="font-semibold text-slate-700">Name ↑</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-xs text-slate-400">Tampilkan:</span>
+                                    <select id="pgnSizeSelect" class="rounded-lg border border-slate-200 text-xs py-1 px-2 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                </div>
+                                <div id="pgnControls" class="flex items-center gap-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 1 Col: Performance Ranking & Reminder -->
+                <div class="space-y-5">
+                    <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Performance Ranking</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">Auto Scoring 0–10</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Top 5 Mentor</span>
+                                </div>
+                                <div id="topMentorList" class="space-y-2.5 text-xs"></div>
+                            </div>
+                            <div class="border-t border-slate-100 pt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Risk Mentor</span>
+                                </div>
+                                <div id="riskMentorList" class="space-y-2 text-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Reminder</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">Kontrak & Aktivitas</span>
+                        </div>
+                        <div id="reminderList" class="space-y-2 text-xs text-slate-600"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Detail Mentor Modal -->
+    <div id="mentorDetailModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm font-bold" id="detailAvatar">
+                        M
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-900" id="detailFullName">Mentor Name</h2>
+                            <span id="detailBadges" class="flex items-center gap-1"></span>
+                        </div>
+                        <p class="text-[11px] text-slate-500" id="detailSubtitle">Nick • Location</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnDetailAssign" type="button" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        Assign ke Kelas
+                    </button>
+                    <button id="btnCloseDetail" type="button" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 pt-3 pb-1 border-b border-slate-100">
+                <div class="flex flex-wrap gap-2 text-[11px]" id="detailTabList">
+                    <button data-tab="overview" class="tab-pill tab-pill-active">Overview</button>
+                    <button data-tab="performance" class="tab-pill tab-pill-inactive">Performance</button>
+                    <button data-tab="classes" class="tab-pill tab-pill-inactive">Classes History</button>
+                    <button data-tab="finance" class="tab-pill tab-pill-inactive">Finance</button>
+                    <button data-tab="contract" class="tab-pill tab-pill-inactive">Contract</button>
+                </div>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <div data-tab-panel="overview" class="detail-panel">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Profile</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Lengkap</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailFullNameValue">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Panggilan</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailNickName">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">WhatsApp</dt>
+                                    <dd class="font-semibold text-emerald-600" id="detailWhatsapp">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Location</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailLocation">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Status</dt>
+                                    <dd id="detailStatus">-</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Informasi Bank</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Nama Bank</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailBankName">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">No. Rekening</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailAccountNumber">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Atas Nama</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailAccountHolderName">-</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4 md:col-span-2">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Availability</h3>
+                            <div id="detailAvailability" class="text-xs text-slate-600 space-y-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="performance" class="detail-panel hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div class="bg-white rounded-2xl border border-emerald-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Rating</p>
+                            <p class="text-lg font-extrabold text-slate-900 flex items-center gap-1" id="detailRating">
+                                -
+                            </p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-sky-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Completion Rate</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailCompletion">-</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-indigo-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attendance</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailAttendance">-</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-rose-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Complaint</p>
+                            <p class="text-lg font-extrabold text-rose-600" id="detailComplaints">-</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Insight</h3>
+                        <ul id="detailPerformanceInsight" class="list-disc list-inside text-xs text-slate-600 space-y-1"></ul>
+                    </div>
+                </div>
+
+                <div data-tab-panel="classes" class="detail-panel hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Riwayat Kelas</h3>
+                        <span id="detailTotalClasses" class="text-[11px] text-slate-400"></span>
+                    </div>
+                    <div class="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+                        <div class="max-h-64 overflow-y-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Kelas</th>
+                                        <th class="px-3 py-2 text-left">Tanggal</th>
+                                        <th class="px-3 py-2 text-center">Murid</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailClassesBody" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="finance" class="detail-panel hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div class="bg-white rounded-2xl border border-emerald-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Earning</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailTotalEarning">-</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-amber-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pending Payment</p>
+                            <p class="text-lg font-extrabold text-amber-600" id="detailPendingPayment">-</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-sky-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Fee Online</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailFeeOnline">-</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-indigo-100 p-3">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Fee Offline</p>
+                            <p class="text-lg font-extrabold text-slate-900" id="detailFeeOffline">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tab-panel="contract" class="detail-panel hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Kontrak</h3>
+                            <dl class="space-y-1 text-xs text-slate-600">
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">End Date</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailContractEnd">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Duration</dt>
+                                    <dd class="font-semibold text-slate-800" id="detailContractDuration">-</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-slate-500">Status</dt>
+                                    <dd id="detailContractStatus">-</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Notes</h3>
+                            <p class="text-xs text-slate-600" id="detailContractNotes">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Modal -->
+    <div id="assignModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-emerald-600"></i>
+                    Assign Mentor ke Kelas
+                </h3>
+                <button id="btnCloseAssign" type="button" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <p class="text-xs text-slate-500 mb-3" id="assignMentorName"></p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Kelas *</label>
+                        <select id="assignClassSelect" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Catatan</label>
+                        <textarea id="assignNote" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" rows="3" placeholder="Tambahkan konteks assignment, misal fokus materi, batch, dsb."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button id="btnAssignCancel" type="button" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
+                    Batal
+                </button>
+                <button id="btnAssignConfirm" type="button" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition">
+                    Assign
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Mentor Modal -->
+    <div id="addMentorModal" class="modal-backdrop-custom">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl modal-card">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i>
+                    <span id="addMentorModalTitle">Add New Mentor</span>
+                </h3>
+                <button id="btnCloseAddMentor" type="button" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="px-6 py-4 modal-body-scroll">
+                <div id="addMentorError" class="hidden mb-3 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Lengkap *</label>
+                        <input id="addMentorFullName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Annisa Pradana">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Panggilan</label>
+                        <input id="addMentorNickName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Nisa">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">WhatsApp</label>
+                        <input id="addMentorWhatsapp" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="16" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="62812xxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Location</label>
+                        <input id="addMentorLocation" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Jakarta">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Rating</label>
+                        <input id="addMentorRating" type="number" min="0" max="5" step="0.1" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="4.8">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Teaching</label>
+                        <select id="addMentorTeaching" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Dewasa">Dewasa</option>
+                            <option value="Anak">Anak</option>
+                            <option value="Both" selected>Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Type</label>
+                        <select id="addMentorType" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Online" selected>Online</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                        <select id="addMentorStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="active" selected>Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="on_leave">On Leave</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contract End</label>
+                        <input id="addMentorContractEnd" type="date" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Fee Online</label>
+                        <input id="addMentorFeeOnline" type="number" min="0" step="1000" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="50000">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Fee Offline</label>
+                        <input id="addMentorFeeOffline" type="number" min="0" step="1000" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="75000">
+                    </div>
+                    <div class="md:col-span-2 border-t border-slate-200 pt-3 mt-1">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">🏦 Informasi Bank</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Bank</label>
+                        <input id="addMentorBankName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="BCA, BNI, Mandiri, dll.">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">No. Rekening</label>
+                        <input id="addMentorAccountNumber" type="text" inputmode="numeric" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="1234567890">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pemilik Rekening</label>
+                        <input id="addMentorAccountHolderName" type="text" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Nama sesuai buku rekening">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contract Notes</label>
+                        <textarea id="addMentorContractNotes" rows="3" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Opsional, misal klausul kontrak atau catatan onboarding."></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Availability</label>
+                            <button id="btnAddAvailabilitySlot" type="button" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-2.5 py-1 transition">
+                                + Tambah Slot
+                            </button>
+                        </div>
+                        <div id="addMentorAvailabilitySlots" class="space-y-2"></div>
+                        <p class="mt-2 text-[11px] text-slate-400">Opsional. Anda bisa menambahkan beberapa slot di hari yang sama.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+                <button id="btnAddMentorCancel" type="button" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
+                    Batal
+                </button>
+                <button id="btnAddMentorSave" type="button" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition">
+                    Simpan Mentor
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Orchestrator Entry Point -->
+    <script type="module" src="/pages/product/mentor-management/mentor-management.js"></script>
+</body>
+</html>

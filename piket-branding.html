@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <title>Piket Branding - Team Dialogika</title>
+    <meta name="description" content="Kelola jadwal Webinar, Live Report, Boost Community Discord, dan jenis piket lainnya di Branding Division." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <!-- Shared Foundation Styles -->
+    <link rel="stylesheet" href="/assets/css/theme.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+
+    <!-- Feature-scoped Styles -->
+    <link rel="stylesheet" href="/pages/branding/piket-branding/piket-branding.css" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="/assets/js/auth-guard.js"></script>
+  </head>
+
+  <body>
+    <!-- Shared Shell Mount Points -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+
+      <!-- ── Breadcrumb Navigation ─────────────────────────────────── -->
+      <nav class="piket-breadcrumb" aria-label="Breadcrumb">
+        <a href="/home" title="Home"><i class="bi bi-house-fill"></i></a>
+        <span class="breadcrumb-separator">/</span>
+        <span>BRANDING DIVISION</span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">PIKET BRANDING</span>
+      </nav>
+
+      <!-- ── Hero Banner ───────────────────────────────────────────── -->
+      <section class="piket-hero mb-4">
+        <div class="position-relative" style="z-index: 1;">
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+            <div>
+              <span class="badge rounded-pill bg-white text-primary fw-bold piket-hero-badge mb-2">Branding Duty Board</span>
+              <h1 class="piket-hero-title mb-1">Piket Branding</h1>
+              <p class="piket-hero-subtitle text-white-50 mb-0" id="heroSubtitle">
+                Lihat jadwal piket, anggota yang bertugas, dan deskripsi tugas masing-masing.
+              </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2 admin-only">
+              <button class="btn btn-light rounded-pill fw-semibold px-4" id="addScheduleBtn">
+                <i class="bi bi-plus-lg me-2"></i>Tambah Jadwal
+              </button>
+              <button class="btn btn-outline-light rounded-pill fw-semibold px-4" id="manageTypesBtn">
+                <i class="bi bi-tags me-2"></i>Jenis Piket
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Stats ─────────────────────────────────────────────────── -->
+      <section class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+          <div class="piket-stat-card h-100">
+            <div class="text-muted small fw-semibold">Piket Hari Ini</div>
+            <div class="h3 fw-bold mb-0" id="statToday">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="piket-stat-card h-100">
+            <div class="text-muted small fw-semibold">Jadwal Aktif</div>
+            <div class="h3 fw-bold mb-0" id="statActive">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="piket-stat-card h-100">
+            <div class="text-muted small fw-semibold">Anggota Bertugas</div>
+            <div class="h3 fw-bold mb-0" id="statMembers">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="piket-stat-card h-100">
+            <div class="text-muted small fw-semibold">Jenis Piket</div>
+            <div class="h3 fw-bold mb-0" id="statTypes">0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Filter Panel ───────────────────────────────────────────── -->
+      <section class="piket-panel p-3 p-lg-4 mb-4">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4 col-xl-3">
+            <label class="field-label" for="searchInput">Cari Jadwal</label>
+            <input type="text" class="form-control rounded-3" id="searchInput"
+                   placeholder="Cari judul, anggota, tugas..." />
+          </div>
+          <div class="col-md-4 col-xl-3">
+            <label class="field-label" for="typeFilter">Jenis Piket</label>
+            <select class="form-select rounded-3" id="typeFilter">
+              <option value="">Semua Jenis</option>
+            </select>
+          </div>
+          <div class="col-md-4 col-xl-3">
+            <label class="field-label" for="periodFilter">Periode</label>
+            <select class="form-select rounded-3" id="periodFilter">
+              <option value="all">Semua Periode</option>
+              <option value="today">Hari Ini</option>
+              <option value="week" selected>Minggu Ini</option>
+              <option value="month">Bulan Ini</option>
+            </select>
+          </div>
+          <div class="col-md-4 col-xl-3">
+            <label class="field-label" for="statusFilter">Status</label>
+            <select class="form-select rounded-3" id="statusFilter">
+              <option value="">Semua Status</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Schedule List ──────────────────────────────────────────── -->
+      <section class="d-flex flex-column gap-3" id="scheduleList">
+        <div class="empty-state">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <div class="fw-semibold">Memuat jadwal piket...</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ── MODAL: Tambah / Edit Jadwal ───────────────────────────────── -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+          <form id="scheduleForm">
+            <div class="modal-header border-0 p-4 pb-2">
+              <div>
+                <h5 class="modal-title fw-bold" id="scheduleModalTitle">Tambah Jadwal Piket</h5>
+                <p class="text-muted small mb-0">Tambahkan anggota bertugas dan satu atau lebih tugas untuk setiap anggota.</p>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+              <input type="hidden" id="scheduleId" />
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <label class="field-label" for="scheduleType">Jenis Piket</label>
+                  <select class="form-select rounded-3" id="scheduleType" required></select>
+                </div>
+                <div class="col-md-8">
+                  <label class="field-label" for="scheduleTitle">Judul Jadwal</label>
+                  <input type="text" class="form-control rounded-3" id="scheduleTitle"
+                         placeholder="Contoh: Webinar 25.1" required />
+                </div>
+                <div class="col-md-12">
+                  <label class="field-label" for="scheduleDescription">Deskripsi</label>
+                  <textarea class="form-control rounded-3" id="scheduleDescription" rows="2"
+                            placeholder="Contoh: Mini Dis Sabtu, 11 Juli 2026, Pagi"></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label class="field-label" for="startDate">Tanggal Mulai</label>
+                  <input type="date" class="form-control rounded-3" id="startDate" required />
+                </div>
+                <div class="col-md-4">
+                  <label class="field-label" for="endDate">Tanggal Selesai</label>
+                  <input type="date" class="form-control rounded-3" id="endDate" required />
+                </div>
+                <div class="col-md-4">
+                  <label class="field-label" for="scheduleStatus">Status</label>
+                  <select class="form-select rounded-3" id="scheduleStatus">
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Anggota dan Tugas</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addAssignmentBtn">
+                  <i class="bi bi-person-plus me-1"></i>Tambah Anggota
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-3" id="assignmentsContainer"></div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-dlg-purple rounded-pill px-4" id="saveScheduleBtn">
+                <i class="bi bi-save me-2"></i>Simpan Jadwal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Kelola Jenis Piket ──────────────────────────────────── -->
+    <div class="modal fade" id="typesModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+          <div class="modal-header border-0 p-4 pb-2">
+            <div>
+              <h5 class="modal-title fw-bold">Jenis Piket</h5>
+              <p class="text-muted small mb-0">Jenis baru bisa ditambahkan tanpa mengubah database.</p>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="typeForm" class="form-shell mb-4">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <label class="field-label" for="typeName">Nama Jenis</label>
+                  <input type="text" class="form-control rounded-3" id="typeName"
+                         placeholder="Contoh: Dokumentasi" required />
+                </div>
+                <div class="col-md-3">
+                  <label class="field-label" for="typeColor">Warna</label>
+                  <input type="color" class="form-control form-control-color rounded-3 w-100"
+                         id="typeColor" value="#0B2B6A" />
+                </div>
+                <div class="col-md-3">
+                  <label class="field-label" for="typeIcon">Icon Bootstrap</label>
+                  <input type="text" class="form-control rounded-3" id="typeIcon"
+                         placeholder="bi-calendar-check" value="bi-calendar-check" />
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-dlg-green rounded-pill w-100">Tambah</button>
+                </div>
+              </div>
+            </form>
+            <div class="d-flex flex-column gap-2" id="typesList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 + Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Piket Branding Orchestrator -->
+    <script type="module" src="/pages/branding/piket-branding/piket-branding.js"></script>
+  </body>
+</html>

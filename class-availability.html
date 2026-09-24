@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp">
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Availability - Team Dialogika</title>
+
+    <!-- External CSS & Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet">
+    <link href="/assets/css/layout.css" rel="stylesheet">
+
+    <!-- Feature-scoped styles -->
+    <link href="/pages/marketing/class-availability/class-availability.css" rel="stylesheet">
+
+    <!-- Shared Theme Manager -->
+    <script src="/assets/js/theme.js" defer></script>
+</head>
+<body class="antialiased bg-slate-50 text-slate-800">
+    <!-- App Shell Mounts -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6">
+            <!-- Header & Action Toolbar -->
+            <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+                <div>
+                    <!-- Consistent Standard Breadcrumb -->
+                    <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider mb-2">
+                        <a href="/home" class="text-blue-600 hover:text-blue-700 transition" title="Home">
+                            <i class="fas fa-home text-xs"></i>
+                        </a>
+                        <span class="text-blue-600">/</span>
+                        <span class="text-blue-600">MARKETING DIVISION</span>
+                        <span class="text-slate-400">/</span>
+                        <span class="text-slate-600">CLASS AVAILABILITY</span>
+                    </nav>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Class Availability</h1>
+                    <p class="text-slate-500 mt-1 font-medium text-base sm:text-lg">Cek ketersediaan kursi real-time untuk penutupan penjualan.</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <button 
+                        type="button"
+                        class="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition font-bold text-sm text-slate-700 cursor-pointer"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addBatchModal"
+                    >
+                        <i class="bi bi-plus-circle text-indigo-600 text-base"></i>
+                        <span>Add Batch</span>
+                    </button>
+                    <button 
+                        type="button"
+                        id="openPlanModalBtn"
+                        disabled
+                        class="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition font-bold text-sm opacity-50 cursor-not-allowed"
+                    >
+                        <i class="bi bi-calendar-check text-base"></i>
+                        <span>Tambah ke Perencanaan</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Search, Filters, and Sorter Bar -->
+            <div class="flex flex-col md:flex-row gap-4 mb-2">
+                <div class="relative flex-grow group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input id="searchInput" type="text" placeholder="Cari nama kelas, mentor, atau product..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-500 transition-all outline-none font-medium text-slate-600 shadow-sm">
+                </div>
+                
+                <div class="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <select id="filterTypeSelect" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none cursor-pointer">
+                        <option value="All">All Types</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Online">Online</option>
+                        <option value="Private">Private</option>
+                    </select>
+                    <div class="w-[1px] h-6 bg-slate-200"></div>
+                    <select id="filterStatusSelect" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none cursor-pointer">
+                        <option value="All">All Status</option>
+                        <option value="Open">Available</option>
+                        <option value="Almost Full">Almost Full</option>
+                        <option value="Full">Sold Out</option>
+                        <option value="Closed">Kelas Ditutup</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <select id="sortBySelect" class="bg-transparent pl-3 pr-8 py-2 text-sm font-bold text-slate-600 outline-none border-none cursor-pointer">
+                        <option value="priority_sales">Sort: Prioritas Penjualan</option>
+                        <option value="name">Sort: Nama Kelas</option>
+                        <option value="schedule">Sort: Jadwal</option>
+                        <option value="seats_left">Sort: Kursi Tersisa</option>
+                        <option value="mentor">Sort: Mentor</option>
+                        <option value="product">Sort: Product</option>
+                    </select>
+                    <button
+                        type="button"
+                        id="toggleSortBtn"
+                        class="w-10 h-10 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition flex items-center justify-center cursor-pointer"
+                        title="Ubah arah pengurutan"
+                    >
+                        <svg class="icon-sort-asc w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 17V7m0 0l-3 3m3-3l3 3M17 7v10m0 0l3-3m-3 3l-3-3"/></svg>
+                        <svg class="icon-sort-desc w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7v10m0 0l-3-3m3 3l3-3M17 17V7m0 0l3 3m-3-3l-3 3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 mb-6">
+                Default sorting menggunakan <span class="font-bold text-slate-700">Prioritas Penjualan</span>:
+                kursi tersisa paling sedikit ditampilkan lebih dulu, sedangkan kelas sold out/closed dipindah ke bawah agar tim cepat fokus ke batch yang hampir penuh.
+            </p>
+
+            <!-- Loading State -->
+            <div id="classLoadingState" class="text-center py-16">
+                <div class="spinner-border text-indigo-600" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-slate-500 font-medium">Sedang memuat data ketersediaan kelas...</p>
+            </div>
+
+            <!-- List Container -->
+            <div id="classListContainer" class="flex flex-col gap-2" style="display: none;"></div>
+
+            <!-- Dynamic Pagination Mount -->
+            <div id="classAvailabilityPagination" class="mt-4"></div>
+        </div>
+    </main>
+
+    <!-- Modal: Add New Batch -->
+    <div class="modal fade" id="addBatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-slate-800">Add New Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBatchForm" onsubmit="return false;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchName">Nama Class</label>
+                                <input type="text" id="newBatchName" class="form-control" placeholder="Contoh: First Class Offline - Jakarta">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchProductId">Product</label>
+                                <select id="newBatchProductId" class="form-select">
+                                    <option value="">Pilih product</option>
+                                </select>
+                                <input
+                                    id="newBatchCustomProduct"
+                                    type="text"
+                                    class="form-control mt-2 hidden"
+                                    placeholder="Masukkan nama / kode product custom"
+                                >
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="newBatchType">Type</label>
+                                <select id="newBatchType" class="form-select">
+                                    <option value="Offline">Offline</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Private">Private</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="newBatchMaxSeat">Max Seat</label>
+                                <input type="number" id="newBatchMaxSeat" class="form-control" min="1" value="1" placeholder="Kapasitas">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchLocation">Kota</label>
+                                <select id="newBatchLocation" class="form-select">
+                                    <option value="">Pilih Kota</option>
+                                    <option value="Yogyakarta">Yogyakarta</option>
+                                    <option value="Jakarta">Jakarta</option>
+                                    <option value="Surabaya">Surabaya</option>
+                                    <option value="Tangsel">Tangsel</option>
+                                    <option value="Pontianak">Pontianak</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchMentor">Mentor</label>
+                                <select id="newBatchMentor" class="form-select">
+                                    <option value="Unknown">Unknown (Pilih Nanti)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchStartDate">Start Date</label>
+                                <input type="datetime-local" id="newBatchStartDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="newBatchDp">Down Payment (IDR)</label>
+                                <input type="text" id="newBatchDp" class="form-control text-primary font-bold" placeholder="e.g. 500.000">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-xl font-bold text-slate-600 px-4 py-2" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="submitAddBatchBtn" class="btn btn-primary rounded-xl font-bold bg-indigo-600 border-indigo-600 px-5 py-2">Add Batch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Batch -->
+    <div class="modal fade" id="editCapacityModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-slate-800">Edit Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editBatchForm" onsubmit="return false;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchName">Nama Class</label>
+                                <input type="text" id="editBatchName" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchProductId">Product</label>
+                                <select id="editBatchProductId" class="form-select">
+                                    <option value="">Pilih product</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="editBatchType">Type</label>
+                                <select id="editBatchType" class="form-select">
+                                    <option value="Offline">Offline</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Private">Private</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="editBatchMaxSeat">Max Seat</label>
+                                <input type="number" id="editBatchMaxSeat" class="form-control" min="1" value="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchLocation">Kota</label>
+                                <select id="editBatchLocation" class="form-select">
+                                    <option value="">Pilih Kota</option>
+                                    <option value="Yogyakarta">Yogyakarta</option>
+                                    <option value="Jakarta">Jakarta</option>
+                                    <option value="Surabaya">Surabaya</option>
+                                    <option value="Tangsel">Tangsel</option>
+                                    <option value="Pontianak">Pontianak</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchMentor">Mentor</label>
+                                <select id="editBatchMentor" class="form-select">
+                                    <option value="Unknown">Unknown (Pilih Nanti)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchStartDate">Start Date</label>
+                                <input type="datetime-local" id="editBatchStartDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="editBatchDp">Down Payment (IDR)</label>
+                                <input type="text" id="editBatchDp" class="form-control text-primary font-bold" placeholder="e.g. 500.000">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-xl font-bold text-slate-600 px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="submitEditBatchBtn" class="btn btn-primary rounded-xl font-bold bg-indigo-600 border-indigo-600 px-5 py-2">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Delete Confirmation -->
+    <div class="modal fade" id="deleteBatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-slate-800">Konfirmasi Hapus Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteBatchMessage" class="text-slate-600 font-medium">Apakah Anda yakin ingin menghapus batch ini?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-xl font-bold text-slate-600 px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="confirmDeleteBatchBtn" class="btn btn-danger rounded-xl font-bold bg-rose-600 border-rose-600 px-5 py-2">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Plan Confirmation -->
+    <div class="modal fade" id="planConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-bold text-slate-800">Konfirmasi Perencanaan Kelas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="planAlertInfo" class="alert alert-info mb-4 rounded-xl" style="display: none;">
+                        <strong><span id="planValidCount">0</span> Kelas Valid</strong> siap untuk dipindahkan ke Perencanaan Kelas.
+                    </div>
+                    <div id="planAlertDanger" class="alert alert-danger mb-4 rounded-xl" style="display: none;">
+                        <strong><span id="planInvalidCount">0</span> Kelas Tidak Valid</strong> dan tidak dapat dipindahkan. Pastikan Data Mentor, Tanggal Mulai (bukan Flexible), dan Kapasitas (Max Seat) sudah terisi dengan benar.
+                    </div>
+                    <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl p-3 bg-slate-50">
+                        <div id="planValidSection" style="display: none;">
+                            <h6 class="font-bold text-sm mb-2 text-emerald-700">Valid:</h6>
+                            <ul id="planValidList" class="list-disc pl-5 text-sm mb-3 text-slate-700"></ul>
+                        </div>
+                        <div id="planInvalidSection" style="display: none;">
+                            <h6 class="font-bold text-sm mb-2 text-rose-700">Invalid:</h6>
+                            <ul id="planInvalidList" class="list-disc pl-5 text-sm"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-xl font-bold text-slate-600 px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="confirmPlanMoveBtn" class="btn btn-primary rounded-xl font-bold bg-indigo-600 border-indigo-600 px-5 py-2">Pindahkan Kelas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/pages/marketing/class-availability/class-availability.js"></script>
+</body>
+</html>

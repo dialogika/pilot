@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <title>Branding Content Schedule - Team Dialogika</title>
+    <meta name="description" content="Atur timeline pembuatan konten, penulisan script, take video, editing, dan publikasi di Branding Division." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <!-- Shared Foundation Styles -->
+    <link rel="stylesheet" href="/assets/css/theme.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+
+    <!-- Feature-scoped Styles -->
+    <link rel="stylesheet" href="/pages/branding/content-schedule/content-schedule.css" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="/assets/js/auth-guard.js"></script>
+  </head>
+
+  <body>
+    <!-- Shared Shell Mount Points -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+
+      <!-- ── Breadcrumb Navigation ─────────────────────────────────── -->
+      <nav class="cs-breadcrumb" aria-label="Breadcrumb">
+        <a href="/home" title="Home"><i class="bi bi-house-fill"></i></a>
+        <span class="breadcrumb-separator">/</span>
+        <span>BRANDING DIVISION</span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">CONTENT SCHEDULE</span>
+      </nav>
+
+      <!-- ── Page Header ───────────────────────────────────────────── -->
+      <div class="cs-page-header">
+        <div>
+          <h1 class="cs-page-title">Branding Content Schedule</h1>
+          <p class="cs-page-subtitle">Atur timeline pembuatan konten, penulisan script, take video, editing, dan publikasi.</p>
+        </div>
+        <button class="btn btn-dlg-purple rounded-pill px-4" id="addContentBtn">
+          <i class="bi bi-plus-lg me-2"></i>Tambah Konten
+        </button>
+      </div>
+
+      <!-- ── Upcoming Deadlines Panel ──────────────────────────────── -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3 text-dark">
+            <i class="bi bi-bell-fill text-warning me-2"></i>Upcoming Deadlines
+          </h6>
+          <div class="row g-3" id="notificationPanelContainer">
+            <div class="col-12 text-center text-muted py-3">
+              <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+              Memuat deadline...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Calendar Card ─────────────────────────────────────────── -->
+      <div class="calendar-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold text-dark mb-0" id="currentMonthYear">Month Year</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calPrevBtn">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calTodayBtn">
+              Hari Ini
+            </button>
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calNextBtn">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar Header Row -->
+        <div class="calendar-grid mb-3">
+          <div class="calendar-header-cell">Minggu</div>
+          <div class="calendar-header-cell">Senin</div>
+          <div class="calendar-header-cell">Selasa</div>
+          <div class="calendar-header-cell">Rabu</div>
+          <div class="calendar-header-cell">Kamis</div>
+          <div class="calendar-header-cell">Jumat</div>
+          <div class="calendar-header-cell">Sabtu</div>
+        </div>
+
+        <!-- Calendar Days Grid (rendered by JS) -->
+        <div class="calendar-grid" id="calendarDaysGrid"></div>
+      </div>
+
+      <!-- ── Selected Day Card ──────────────────────────────────────── -->
+      <div class="card border-0 shadow-sm rounded-4 d-none" id="selectedDayCard">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-dark mb-0" id="selectedDateTitle">Jadwal pada tanggal</h6>
+            <button class="btn-close" id="closeSelectedDayBtn" aria-label="Tutup"></button>
+          </div>
+          <div id="selectedDayList" class="d-flex flex-column gap-3"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── MODAL: Date Click Options ─────────────────────────────────── -->
+    <div class="modal fade" id="dateClickModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+          <div class="modal-header border-0 p-4 pb-2">
+            <h5 class="modal-title fw-bold text-dark" id="dateClickModalTitle">Pilih Aksi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <div id="dateClickDeadlinesSection" class="mb-4 d-none">
+              <h6 class="fw-bold text-dark mb-3">Daftar Deadline Hari Ini:</h6>
+              <div id="dateClickDeadlinesList" class="d-flex flex-column gap-2"></div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <button type="button" class="btn btn-dlg-purple rounded-pill py-2 w-100" id="addContentFromDateBtn">
+                <i class="bi bi-plus-lg me-2"></i>Tambah Rencana Konten Baru
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Add / Edit Content ─────────────────────────────────── -->
+    <div class="modal fade" id="contentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0">
+          <div class="modal-header border-0 p-4 pb-2">
+            <h5 class="modal-title fw-bold text-dark" id="modalTitle">Tambah Rencana Konten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <form id="contentForm" novalidate>
+              <input type="hidden" id="contentId" />
+
+              <!-- Judul Konten -->
+              <div class="mb-3">
+                <label class="form-label" for="contentTitle">Judul Konten</label>
+                <input
+                  type="text"
+                  id="contentTitle"
+                  class="form-control rounded-3"
+                  placeholder="Pilih atau ketik judul konten..."
+                  list="contentTitleList"
+                  required />
+                <datalist id="contentTitleList"></datalist>
+              </div>
+
+              <!-- Deskripsi -->
+              <div class="mb-4">
+                <label class="form-label" for="contentDesc">Deskripsi / Catatan Konten</label>
+                <textarea
+                  id="contentDesc"
+                  class="form-control rounded-3"
+                  rows="2"
+                  placeholder="Catatan opsional tentang konten..."></textarea>
+              </div>
+
+              <!-- Prioritas -->
+              <div class="mb-4">
+                <label class="form-label" for="contentPriority">Prioritas</label>
+                <select id="contentPriority" class="form-select rounded-3">
+                  <option value="normal">Normal</option>
+                  <option value="medium">Menengah</option>
+                  <option value="high">Tinggi</option>
+                </select>
+              </div>
+
+              <!-- Daftar Milestone / Deadline -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0 text-dark">Daftar Deadline</h6>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                  id="addMilestoneBtn">
+                  <i class="bi bi-plus-lg me-1"></i>Tambah Deadline
+                </button>
+              </div>
+
+              <div id="milestonesContainer" class="d-flex flex-column gap-2 mb-4">
+                <!-- Milestone rows rendered dynamically by JS -->
+              </div>
+
+              <!-- Form Actions -->
+              <div class="d-flex gap-3 justify-content-end pt-3 border-top">
+                <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+                  Batal
+                </button>
+                <button type="submit" class="btn btn-dlg-purple rounded-pill px-4">
+                  Simpan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 + Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Content Schedule Orchestrator -->
+    <script type="module" src="/pages/branding/content-schedule/content-schedule.js"></script>
+  </body>
+</html>
