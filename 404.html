@@ -4,7 +4,79 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
-    <title>404 - Halaman Tidak Ditemukan | Dialogika</title>
+    <title>Dialogika</title>
+
+    <script>
+      // Single-Page / Clean URL Routing for GitHub Pages
+      (function() {
+        var routeMap = {
+          "/login": "/login.html",
+          "/home": "/home.html",
+          "/quest": "/pages/quest/index.html",
+          "/internships": "/pages/internships/index.html",
+          "/internship-management": "/pages/internships/index.html",
+          "/announcement": "/pages/announcement/index.html",
+          "/recruitment-dashboard": "/pages/hr/recruitment-dashboard/index.html",
+          "/dashboard-recruitment": "/pages/hr/recruitment-dashboard/index.html",
+          "/operational-expenses": "/pages/hr/operational-expenses/index.html",
+          "/hr/operational-expenses": "/pages/hr/operational-expenses/index.html",
+          "/presence-team": "/pages/hr/presence-team/index.html",
+          "/hr/presence-team": "/pages/hr/presence-team/index.html",
+          "/exit-interview": "/pages/hr/exit-interview/index.html",
+          "/hr/exit-interview": "/pages/hr/exit-interview/index.html",
+          "/permit-reimburse": "/pages/hr/permit-reimburse/index.html",
+          "/hr/permit-reimburse": "/pages/hr/permit-reimburse/index.html",
+          "/scouting-candidate": "/pages/hr/scouting-candidate/index.html",
+          "/team-management": "/pages/hr/team-management/index.html",
+          "/candidate-management": "/pages/hr/candidate-management/index.html",
+          "/users-management": "/pages/hr/users-management/index.html",
+          "/performance-appraisal": "/pages/hr/performance-appraisal/index.html",
+          "/performance-appraisal/form": "/pages/hr/performance-appraisal/form.html",
+          "/office-inventory": "/pages/hr/office-inventory/index.html",
+          "/people-development": "/pages/hr/people-development/index.html",
+          "/company-position": "/pages/hr/company-position/index.html",
+          "/member-data": "/pages/marketing/member-data/index.html",
+          "/marketing/member-data": "/pages/marketing/member-data/index.html",
+          "/webinar": "/pages/marketing/webinar/index.html",
+          "/marketing/webinar": "/pages/marketing/webinar/index.html",
+          "/mailing-list": "/pages/marketing/mailing-list/index.html",
+          "/marketing/mailing-list": "/pages/marketing/mailing-list/index.html",
+          "/promo-classes": "/pages/marketing/promo-classes/index.html",
+          "/marketing/promo-classes": "/pages/marketing/promo-classes/index.html",
+          "/leads-management": "/pages/marketing/leads-management/index.html",
+          "/marketing/leads-management": "/pages/marketing/leads-management/index.html",
+          "/referral-dashboard": "/pages/marketing/referral-dashboard/index.html",
+          "/marketing/referral-dashboard": "/pages/marketing/referral-dashboard/index.html",
+          "/class-availability": "/pages/marketing/class-availability/index.html",
+          "/marketing/class-availability": "/pages/marketing/class-availability/index.html",
+          "/create-invoice": "/pages/marketing/create-invoice/index.html",
+          "/marketing/create-invoice": "/pages/marketing/create-invoice/index.html",
+          "/generate-certificate": "/pages/product/generate-certificate/index.html",
+          "/product/generate-certificate": "/pages/product/generate-certificate/index.html",
+          "/mentor-management": "/pages/product/mentor-management/index.html",
+          "/class-management": "/pages/product/class-management/index.html",
+          "/product-management": "/pages/product/product-management/index.html",
+          "/piket-branding": "/pages/branding/piket-branding/index.html",
+          "/branding-schedule": "/pages/branding/content-schedule/index.html",
+          "/content-schedule": "/pages/branding/content-schedule/index.html",
+          "/intern-presence": "/data/intern-presence.html",
+          "/intern-satisfaction": "/pages/hr/intern-satisfaction/index.html",
+          "/internship-candidate-detail": "/data/internship-candidate-detail.html",
+          "/mentor-candidate-detail": "/data/mentor-candidate-detail.html",
+          "/team-candidate-detail": "/data/team-candidate-detail.html"
+        };
+
+        var path = window.location.pathname.replace(/\/$/, "");
+        var target = routeMap[path];
+
+        if (target) {
+          try {
+            sessionStorage.setItem("dlg_clean_path", path);
+          } catch (e) {}
+          window.location.replace(target + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
 
     <!-- Google Fonts: Poppins -->
     <link
@@ -112,17 +184,6 @@
         color: var(--text-muted);
       }
     </style>
-
-    <script>
-      // Smart router fallback: handle trailing slashes or subpaths
-      (function() {
-        var path = window.location.pathname;
-        if (path.length > 1 && path.endsWith('/')) {
-          var clean = path.slice(0, -1);
-          window.location.replace(clean + window.location.search + window.location.hash);
-        }
-      })();
-    </script>
   </head>
   <body>
     <div class="logo-container">
@@ -147,7 +208,6 @@
     </div>
 
     <script>
-      // If user has a session, redirect to /home instead of /login
       try {
         if (localStorage.getItem("userData")) {
           var btn = document.getElementById("btnAction");
