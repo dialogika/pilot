@@ -78,6 +78,15 @@
     });
   }
 
+  // Restore clean URL if redirected via 404 router
+  try {
+    const cleanPath = sessionStorage.getItem("dlg_clean_path");
+    if (cleanPath) {
+      sessionStorage.removeItem("dlg_clean_path");
+      window.history.replaceState(null, "", cleanPath);
+    }
+  } catch (e) {}
+
   window.DLGTheme = THEME;
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => THEME.init());
@@ -85,3 +94,4 @@
     THEME.init();
   }
 })();
+
