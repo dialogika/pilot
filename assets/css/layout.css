@@ -75,6 +75,32 @@
   color: var(--dlg-blue);
 }
 
+.topbar-search-wrapper {
+  background: var(--surface-hover, #f1f5f9);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 9999px;
+  padding: 6px 16px;
+  width: 240px;
+  height: 38px;
+  transition: all 0.2s ease;
+}
+.topbar-search-wrapper:focus-within {
+  border-color: #3b82f6;
+  background: var(--surface, #ffffff);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.topbar-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  color: var(--text-strong, #0f172a);
+  width: 100%;
+}
+.topbar-search-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
 /* --- 2. SIDEBAR (Light Version & Pinned Footer) --- */
 .sidebar {
   width: var(--sidebar-width);

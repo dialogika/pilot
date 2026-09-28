@@ -23,10 +23,14 @@ const DEFAULT_PHOTO = "https://i.pravatar.cc/300";
 export function buildTopbarHTML() {
   return `
     <nav class="top-bar">
-        <div class="d-flex align-items-center">
-            <button class="mobile-toggle me-3" type="button" onclick="window.toggleSidebar && window.toggleSidebar()" aria-label="Toggle sidebar">
+        <div class="d-flex align-items-center gap-2">
+            <button class="mobile-toggle me-2" type="button" onclick="window.toggleSidebar && window.toggleSidebar()" aria-label="Toggle sidebar">
                 <i class="bi bi-list"></i>
             </button>
+            <div class="topbar-search-wrapper d-none d-md-flex align-items-center">
+                <i class="bi bi-search text-muted me-2" style="font-size: 0.85rem;"></i>
+                <input type="text" class="topbar-search-input" placeholder="Search..." aria-label="Search">
+            </div>
         </div>
         <div class="logo-center">
             <a href="/home">

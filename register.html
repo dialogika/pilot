@@ -737,17 +737,29 @@ import { app, auth, db, storage } from "./assets/js/firebase-config.js";
         async function loadPositions() {
             const selectPos = document.getElementById('inputPos');
             try {
-                const querySnapshot = await getDocs(collection(db, "positions"));
+                let querySnapshot = await getDocs(collection(db, "positions"));
+                if (querySnapshot.empty) {
+                    querySnapshot = await getDocs(collection(db, "position"));
+                }
                 selectPos.innerHTML = '<option value="" disabled selected>Pilih Posisi</option>';
+                const loaded = [];
                 querySnapshot.forEach((d) => {
-                    const opt = document.createElement('option');
-                    opt.value = d.data().name;
-                    opt.text = d.data().name;
-                    selectPos.appendChild(opt);
+                    const data = d.data() || {};
+                    const name = data.name || data.label || data.title || data.position || "";
+                    if (name && !loaded.includes(name)) {
+                        loaded.push(name);
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.text = name;
+                        selectPos.appendChild(opt);
+                    }
                 });
+                if (loaded.length === 0) {
+                    selectPos.innerHTML = '<option value="" disabled selected>Belum ada posisi tersedia</option>';
+                }
             } catch (e) {
                 console.error("Gagal load posisi:", e);
-                selectPos.innerHTML = '<option>Gagal memuat data</option>';
+                selectPos.innerHTML = '<option value="" disabled selected>Gagal memuat data</option>';
             }
         }
         loadPositions();

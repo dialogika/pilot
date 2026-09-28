@@ -19,6 +19,7 @@ const DEFAULT_AVATAR =
 export const STATUS_OPTIONS = [
   { value: "radar", label: "Radar" },
   { value: "contacted", label: "Contacted" },
+  { value: "followup", label: "Follow Up" },
   { value: "replied", label: "Respond" },
   { value: "interview", label: "Interview" },
   { value: "ojt", label: "On Job Test" },
@@ -49,8 +50,11 @@ export function escapeHtml(str) {
  */
 export function mapToFilterStatus(status) {
   const normalized = (status || "").toString().trim().toLowerCase();
+  if (normalized === "follow up" || normalized === "follow_up" || normalized === "followup") return "followup";
   if (normalized === "respond" || normalized === "replied") return "respond";
   if (normalized === "on job test" || normalized === "ojt") return "ojt";
+  if (normalized === "accept" || normalized === "accepted") return "accepted";
+  if (normalized === "reject" || normalized === "rejected") return "rejected";
   return normalized || "radar";
 }
 
@@ -61,6 +65,7 @@ export function mapToFilterStatus(status) {
  */
 export function mapToSelectStatus(status) {
   const normalized = (status || "").toString().trim().toLowerCase();
+  if (normalized === "follow up" || normalized === "follow_up" || normalized === "followup") return "followup";
   if (normalized === "respond" || normalized === "replied") return "replied";
   if (normalized === "on job test" || normalized === "ojt") return "ojt";
   return normalized || "radar";
@@ -623,4 +628,145 @@ export function renderPagination(info, onPageChange) {
     }
   };
 }
+
+// =====================================================================
+// EXPORT MODAL UI HELPERS
+// =====================================================================
+
+let currentExportFormat = "xlsx";
+let currentExportRange = "all";
+
+export function getMonthNameIndo(monthNum) {
+  const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  return months[monthNum] || "Bulan";
+}
+
+export function setExportFileFormat(format) {
+  currentExportFormat = format === "csv" ? "csv" : "xlsx";
+  const btnXlsx = document.getElementById("btnFormatXlsx");
+  const btnCsv = document.getElementById("btnFormatCsv");
+  const downloadBtnText = document.getElementById("downloadBtnText");
+  const exportAllHelpText = document.getElementById("exportAllHelpText");
+  const exportMonthHelpText = document.getElementById("exportMonthHelpText");
+  const exportWeekHelpText = document.getElementById("exportWeekHelpText");
+
+  if (currentExportFormat === "xlsx") {
+    if (btnXlsx) btnXlsx.classList.add("active");
+    if (btnCsv) btnCsv.classList.remove("active");
+    if (downloadBtnText) downloadBtnText.textContent = "Download Excel (.xlsx)";
+    if (exportAllHelpText) exportAllHelpText.textContent = "Semua data kandidat dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.";
+    if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file Excel.";
+    if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file Excel.";
+  } else {
+    if (btnCsv) btnCsv.classList.add("active");
+    if (btnXlsx) btnXlsx.classList.remove("active");
+    if (downloadBtnText) downloadBtnText.textContent = "Download CSV (.csv)";
+    if (exportAllHelpText) exportAllHelpText.textContent = "Semua data kandidat dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.";
+    if (exportMonthHelpText) exportMonthHelpText.textContent = "Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file CSV.";
+    if (exportWeekHelpText) exportWeekHelpText.textContent = "Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file CSV.";
+  }
+}
+
+export function setExportRangeType(rangeType) {
+  currentExportRange = ["all", "month", "week"].includes(rangeType) ? rangeType : "all";
+  const rangeBtnAll = document.getElementById("btnRangeAll");
+  const rangeBtnMonth = document.getElementById("btnRangeMonth");
+  const rangeBtnWeek = document.getElementById("btnRangeWeek");
+  const sectionAll = document.getElementById("sectionAllPicker");
+  const sectionMonth = document.getElementById("sectionMonthPicker");
+  const sectionWeek = document.getElementById("sectionWeekPicker");
+
+  if (rangeBtnAll) rangeBtnAll.classList.toggle("active", currentExportRange === "all");
+  if (rangeBtnMonth) rangeBtnMonth.classList.toggle("active", currentExportRange === "month");
+  if (rangeBtnWeek) rangeBtnWeek.classList.toggle("active", currentExportRange === "week");
+
+  if (sectionAll) sectionAll.style.display = currentExportRange === "all" ? "block" : "none";
+  if (sectionMonth) sectionMonth.style.display = currentExportRange === "month" ? "block" : "none";
+  if (sectionWeek) sectionWeek.style.display = currentExportRange === "week" ? "block" : "none";
+}
+
+export function initExportModalUI(onFormatChange, onRangeChange) {
+  const currentYearMonth = new Date().toISOString().substring(0, 7);
+  const exportMonthInput = document.getElementById("exportMonthInput");
+  const exportWeekMonthInput = document.getElementById("exportWeekMonthInput");
+
+  if (exportMonthInput && !exportMonthInput.value) exportMonthInput.value = currentYearMonth;
+  if (exportWeekMonthInput && !exportWeekMonthInput.value) exportWeekMonthInput.value = currentYearMonth;
+
+  const btnXlsx = document.getElementById("btnFormatXlsx");
+  const btnCsv = document.getElementById("btnFormatCsv");
+  const rangeBtnAll = document.getElementById("btnRangeAll");
+  const rangeBtnMonth = document.getElementById("btnRangeMonth");
+  const rangeBtnWeek = document.getElementById("btnRangeWeek");
+
+  if (btnXlsx) {
+    btnXlsx.onclick = () => {
+      setExportFileFormat("xlsx");
+      if (typeof onFormatChange === "function") onFormatChange("xlsx");
+    };
+  }
+  if (btnCsv) {
+    btnCsv.onclick = () => {
+      setExportFileFormat("csv");
+      if (typeof onFormatChange === "function") onFormatChange("csv");
+    };
+  }
+
+  if (rangeBtnAll) {
+    rangeBtnAll.onclick = () => {
+      setExportRangeType("all");
+      if (typeof onRangeChange === "function") onRangeChange("all");
+    };
+  }
+  if (rangeBtnMonth) {
+    rangeBtnMonth.onclick = () => {
+      setExportRangeType("month");
+      if (typeof onRangeChange === "function") onRangeChange("month");
+    };
+  }
+  if (rangeBtnWeek) {
+    rangeBtnWeek.onclick = () => {
+      setExportRangeType("week");
+      if (typeof onRangeChange === "function") onRangeChange("week");
+    };
+  }
+
+  setExportFileFormat("xlsx");
+  setExportRangeType("all");
+}
+
+export function getExportFormData() {
+  const monthInput = document.getElementById("exportMonthInput");
+  const weekMonthInput = document.getElementById("exportWeekMonthInput");
+  const weekSelect = document.getElementById("exportWeekSelect");
+  const statusFilter = document.getElementById("exportStatusFilter");
+
+  return {
+    format: currentExportFormat,
+    rangeType: currentExportRange,
+    month: monthInput?.value || new Date().toISOString().substring(0, 7),
+    weekMonth: weekMonthInput?.value || new Date().toISOString().substring(0, 7),
+    week: parseInt(weekSelect?.value || "1", 10),
+    status: (statusFilter?.value || "").toLowerCase().trim(),
+  };
+}
+
+export function setExportButtonLoading(loading) {
+  const submitBtn = document.getElementById("btnDownloadExport");
+  if (!submitBtn) return;
+  if (loading) {
+    submitBtn.disabled = true;
+    submitBtn.dataset.originalHtml = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
+  } else {
+    submitBtn.disabled = false;
+    if (submitBtn.dataset.originalHtml) {
+      submitBtn.innerHTML = submitBtn.dataset.originalHtml;
+    }
+  }
+}
+
 

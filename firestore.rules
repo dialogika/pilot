@@ -186,7 +186,12 @@ service cloud.firestore {
     }
 
     match /positions/{id} {
-      allow read: if isInternalTeam();
+      allow read: if true; // Diizinkan publik agar form registrasi (register) dapat memuat daftar pilihan posisi
+      allow write: if isManagement();
+    }
+
+    match /position/{id} {
+      allow read: if true; // Diizinkan publik (fallback koleksi nama tunggal)
       allow write: if isManagement();
     }
 
