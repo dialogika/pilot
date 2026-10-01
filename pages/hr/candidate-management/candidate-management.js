@@ -24,6 +24,8 @@ export const TAB_CONFIG = {
     statusPipeline: [
       { value: "screening", label: "Screening", badgeClass: "status-screening", caption: "Seleksi awal" },
       { value: "interview", label: "Interview", badgeClass: "status-interview", caption: "Proses wawancara" },
+      { value: "follow_up", label: "Follow Up", badgeClass: "status-follow-up", caption: "Tahap tindak lanjut" },
+      { value: "on_job_test", label: "On Job Test", badgeClass: "status-on-job-test", caption: "Tahap uji coba kerja" },
       { value: "accepted", label: "Accepted", badgeClass: "status-accepted", caption: "Lolos seleksi" },
       { value: "onboarding", label: "On Boarding", badgeClass: "status-onboarding", caption: "Siap bergabung" },
       { value: "rejected", label: "Rejected", badgeClass: "status-rejected", caption: "Tidak diterima" },
@@ -40,6 +42,8 @@ export const TAB_CONFIG = {
     },
     normalizeStatus(raw) {
       if (raw === "interview") return "interview";
+      if (["follow_up", "followup", "follow up"].includes(raw)) return "follow_up";
+      if (["on_job_test", "on_job_training", "ojt"].includes(raw)) return "on_job_test";
       if (["accept", "accepted", "decision"].includes(raw)) return "accepted";
       if (raw === "onboarding") return "onboarding";
       if (["rejected", "reject"].includes(raw)) return "rejected";
@@ -453,8 +457,8 @@ async function loadCandidates(cat, snapshotOverride) {
       const rejectionReason = recruitment.rejection_reason || "";
       const rejectionNotes = recruitment.rejection_notes || "";
       const withdrawnNotes = recruitment.withdrawn_notes || "";
-      const ojtStart = recruitment.on_job_training_start_date || null;
-      const ojtEnd = recruitment.on_job_training_end_date || null;
+      const ojtStart = recruitment.on_job_test_start_date || recruitment.on_job_training_start_date || null;
+      const ojtEnd = recruitment.on_job_test_end_date || recruitment.on_job_training_end_date || null;
       const isTeamMember = !!(
         data.isTeamMember ||
         data.is_team_member ||
@@ -465,6 +469,8 @@ async function loadCandidates(cat, snapshotOverride) {
       const onboardingDate = recruitment.onboarding_date || null;
       const onboardingTime = recruitment.onboarding_time || "";
       const onboardingLocation = recruitment.onboarding_location || "";
+      const onboardingPicIds = recruitment.onboarding_pic_ids || recruitment.onboarding_pds || [];
+      const onboardingPicNames = recruitment.onboarding_pic_names || [];
 
       const itemPayload = {
         name,
@@ -489,7 +495,9 @@ async function loadCandidates(cat, snapshotOverride) {
         isTeamMember,
         onboardingDate,
         onboardingTime,
-        onboardingLocation
+        onboardingLocation,
+        onboardingPicIds,
+        onboardingPicNames
       };
 
       gridHtmlBuffer += CandidateUI.buildCandidateCardHtml(cat, cfg, itemPayload, state.usersMap);

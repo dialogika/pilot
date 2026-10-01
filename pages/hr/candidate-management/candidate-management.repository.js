@@ -637,6 +637,8 @@ export async function exportCandidateMgmtData({
       const cur = (rec.current || item.status || "screening").toString().toLowerCase().trim();
       const fd = (rec.final_decision || rec.finalDecision || "").toString().toLowerCase().trim();
       if (cur === sTerm || fd === sTerm) return true;
+      if (sTerm === "on_job_test" && ["on_job_training", "ojt", "on_job_test"].includes(cur)) return true;
+      if (sTerm === "follow_up" && ["followup", "follow up", "follow_up"].includes(cur)) return true;
       if (sTerm === "accepted" && (cur === "accept" || fd === "accept")) return true;
       if (sTerm === "rejected" && (cur === "reject" || fd === "reject")) return true;
       if (sTerm === "canceled" && ["withdrawn", "mengundurkan_diri", "mengundurkan diri"].includes(fd || cur)) return true;

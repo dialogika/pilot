@@ -433,8 +433,8 @@ export function buildCandidateCardHtml(category, config, item, usersMap = {}) {
     ojtSectionHtml = `
       <div class="candidate-selection-meta mt-2">
         <div class="candidate-interview-meta">
-          <div class="candidate-extra-item candidate-extra-item-schedule" style="border-left:3px solid #10b981">
-            <div class="schedule-compact-header"><i class="fa-solid fa-graduation-cap"></i><span>Jadwal OJT</span></div>
+          <div class="candidate-extra-item candidate-extra-item-schedule" style="border-left:3px solid #8b5cf6">
+            <div class="schedule-compact-header"><i class="fa-solid fa-graduation-cap"></i><span>Jadwal On Job Test</span></div>
             <div class="schedule-compact-date">${escapeHtml(ojtDate)}</div>
           </div>
         </div>
@@ -448,6 +448,9 @@ export function buildCandidateCardHtml(category, config, item, usersMap = {}) {
     const onbDateDisplay = onbDateObj ? formatInterviewDateOnly(onbDateObj) : escapeHtml(onboardingDate);
     const onbTimeDisplay = onboardingTime ? escapeHtml(onboardingTime.replace(":", ".") + " WIB") : "-";
     const onbLocationDisplay = onboardingLocation ? escapeHtml(onboardingLocation) : "-";
+    const onbPicDisplay = (item.onboardingPicNames && item.onboardingPicNames.length)
+      ? item.onboardingPicNames.map(p => escapeHtml(p)).join(", ")
+      : "";
     onboardingSectionHtml = `
       <div class="candidate-selection-meta mt-2">
         <div class="candidate-interview-meta">
@@ -457,6 +460,7 @@ export function buildCandidateCardHtml(category, config, item, usersMap = {}) {
               <div class="schedule-compact-row"><span>Tanggal</span><strong>${onbDateDisplay}</strong></div>
               <div class="schedule-compact-row"><span>Jam</span><strong>${onbTimeDisplay}</strong></div>
               <div class="schedule-compact-row"><span>Lokasi</span><strong>${onbLocationDisplay}</strong></div>
+              ${onbPicDisplay ? `<div class="schedule-compact-row"><span>Petugas/PD</span><strong>${onbPicDisplay}</strong></div>` : ""}
             </div>
           </div>
         </div>
