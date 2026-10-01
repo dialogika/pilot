@@ -199,7 +199,7 @@ service cloud.firestore {
     }
 
     match /user_presence/{uid} {
-      allow read: if isInternalTeam();
+      allow read: if isSignedIn(); // semua user login boleh lihat siapa online
       allow write: if isSelf(uid); // user update presence miliknya sendiri (online/offline heartbeat)
     }
 
@@ -288,6 +288,13 @@ service cloud.firestore {
     match /talents/{id} { allow read, write: if isManagement(); }
     match /interns_screening/{id} { allow read, write: if isManagement(); }
 
+    // Tambahkan untuk kandidat Team & Trash rekrutmen:
+    match /teams_screening/{id} { allow read, write: if isManagement(); }
+    match /team_screening/{id} { allow read, write: if isManagement(); }
+    match /teams_screening_trash/{id} { allow read, write: if isManagement(); }
+    match /mentors_screening_trash/{id} { allow read, write: if isManagement(); }
+    match /interns_screening_trash/{id} { allow read, write: if isManagement(); }
+
     // mentors_screening: CONTOH sharing lintas departemen (New Update.pdf) —
     // "data pendaftaran mentor milik Happy, tapi Rebuy boleh baca untuk cek riwayat
     // mentor". Butuh dokumen collection_access/mentors_screening dengan
@@ -309,21 +316,21 @@ service cloud.firestore {
     match /recruitment_dashboard_notes/{id} { allow read, write: if isManagement(); }
     match /team_management/{id} { allow read, write: if isManagement(); }
 
-    // Attendance & HR — user lihat/isi milik sendiri, manajemen lihat semua.
+    // Attendance & HR — semua user login bisa akses; hapus/ubah status tetap management + pemilik data.
     match /user_attendance/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam(); // presensi diri sendiri
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // presensi diri sendiri
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /permits/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam();
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn(); // semua user login boleh lihat data permit
+      allow create: if isSignedIn(); // semua user login boleh buat permit
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /reimburse/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam();
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /operational_expenses/{id} { allow read, write: if isManagement(); }
     match /duty_schedules/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
