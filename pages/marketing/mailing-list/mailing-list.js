@@ -9,7 +9,8 @@ import { renderTopBar } from "../../../element/topbar.js";
 import { renderSidebar } from "../../../element/sidebar.js";
 import {
     subscribeToMailingList,
-    resolveMailingErrorMessage
+    resolveMailingErrorMessage,
+    exportMailingListData
 } from "./mailing-list.repository.js";
 import {
     setVisibleState,
@@ -17,7 +18,8 @@ import {
     updateSummaryMetrics,
     renderTableRows,
     copyText,
-    showToast
+    showToast,
+    initMailingExportModal
 } from "./mailing-list.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -180,6 +182,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (elements.btnRetry) {
         elements.btnRetry.addEventListener("click", () => {
             startRealtimeSubscription();
+        });
+    }
+
+    // 5b. Export Data Controls
+    const exportControls = initMailingExportModal();
+    const exportForm = document.getElementById("exportMailingForm");
+    if (exportForm && exportControls) {
+        exportForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            exportControls.setLoading(true);
+            try {
+                const formData = exportControls.getFormData();
+                await exportMailingListData(formData);
+                const modalEl = document.getElementById("exportMailingModal");
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error("Export mailing list error:", err);
+                showToast(elements.toastEl, "Gagal mengekspor data: " + err.message, "danger");
+            } finally {
+                exportControls.setLoading(false);
+            }
         });
     }
 

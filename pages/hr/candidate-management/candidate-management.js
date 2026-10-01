@@ -968,6 +968,45 @@ function bindEvents() {
   document.getElementById("positionsCardGrid")?.addEventListener("click", positionActionHandler);
   document.getElementById("inactivePositionsGrid")?.addEventListener("click", positionActionHandler);
 
+  // Export Candidate Management Form
+  const exportControls = CandidateUI.initCandidateMgmtExportModal();
+  const exportForm = document.getElementById("exportCandidateMgmtForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        const catSelect = document.getElementById("exportCandidateCategorySelect");
+        const category = catSelect ? catSelect.value : "all";
+
+        await CandidateRepo.exportCandidateMgmtData({
+          category,
+          status: formData.status,
+          rangeType: formData.rangeType,
+          month: formData.month,
+          weekMonth: formData.weekMonth,
+          week: formData.week,
+          format: formData.format,
+        });
+
+        const modalEl = document.getElementById("exportCandidateMgmtModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("Export Candidate error:", err);
+        await alertDialog(err.message || "Gagal mengekspor data kandidat.", {
+          type: "error",
+          title: "Ekspor Gagal",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
+
   // Delegated clicks on candidates
   document.addEventListener("click", async (e) => {
     const deleteBtn = e.target.closest(".candidate-delete-btn");

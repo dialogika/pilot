@@ -20,6 +20,12 @@ import {
     onSnapshot,
     serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from '../../../assets/js/utils/export-helper.js';
 
 // ── Collections ───────────────────────────────────────────────────────
 const COLL_TYPES     = 'duty_types';
@@ -201,3 +207,111 @@ export async function cleanupDuplicateTypes(types) {
         console.error('[piket-branding.repo] cleanupDuplicateTypes failed:', e);
     }
 }
+
+/**
+ * Exports Piket Branding schedule data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter schedule status (active, completed, cancelled)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportPiketData({
+    format = "xlsx",
+    rangeType = "all",
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+    status = "",
+}) {
+    const { start, end, label: periodLabel } = calcDateRange({
+        rangeType,
+        startDate,
+        endDate,
+        monthValue,
+        weekValue,
+    });
+
+    const [schedSnap, typeSnap] = await Promise.all([
+        getDocs(collection(db, COLL_SCHEDULES)),
+        getDocs(collection(db, COLL_TYPES)),
+    ]);
+
+    const typeMap = new Map();
+    typeSnap.forEach((s) => {
+        const d = s.data() || {};
+        typeMap.set(s.id, d.name || s.id);
+    });
+
+    const schedules = [];
+    schedSnap.forEach((s) => schedules.push({ id: s.id, ...s.data() }));
+
+    const filtered = schedules.filter((item) => {
+        if (status && status !== "") {
+            const itemStatus = String(item.status || "scheduled").toLowerCase();
+            const filterStatus = status.toLowerCase();
+            if (filterStatus === "active" || filterStatus === "scheduled") {
+                if (itemStatus !== "scheduled" && itemStatus !== "active") return false;
+            } else if (itemStatus !== filterStatus) {
+                return false;
+            }
+        }
+        if (start && end) {
+            let ts = extractTimestamp(item.start_date || item.created_at);
+            if (ts) {
+                const itemDate = new Date(ts);
+                if (itemDate < start || itemDate > end) return false;
+            }
+        }
+        return true;
+    });
+
+    const columns = [
+        { header: "No", key: "no", width: 8 },
+        { header: "Judul Piket", key: "title", width: 28 },
+        { header: "Jenis Piket", key: "typeName", width: 22 },
+        { header: "Tanggal Mulai", key: "startDate", width: 18 },
+        { header: "Tanggal Selesai", key: "endDate", width: 18 },
+        { header: "Status", key: "status", width: 16 },
+        { header: "Deskripsi", key: "description", width: 35 },
+        { header: "Anggota Bertugas & Peran", key: "assignments", width: 45 },
+        { header: "Tanggal Dibuat", key: "createdAt", width: 18 },
+    ];
+
+    const rows = filtered.map((item, idx) => {
+        const typeName = item.type_name || typeMap.get(item.type_id) || "-";
+        const assignments = Array.isArray(item.assignments) ? item.assignments : [];
+        const assignStr = assignments
+            .map((a) => `${a.role_name || "Petugas"}: ${a.user_name || "-"}`)
+            .join(" | ");
+
+        return {
+            no: idx + 1,
+            title: item.title || "-",
+            typeName,
+            startDate: item.start_date ? formatDateIndo(item.start_date) : "-",
+            endDate: item.end_date ? formatDateIndo(item.end_date) : "-",
+            status: (item.status || "scheduled").toUpperCase(),
+            description: item.description || "-",
+            assignments: assignStr || "-",
+            createdAt: item.created_at ? formatDateIndo(item.created_at) : "-",
+        };
+    });
+
+    const filename = `Data_Piket_Branding_${periodLabel}`;
+    await downloadExportFile({
+        filename,
+        sheetName: "Piket Branding",
+        columns,
+        rows,
+        format,
+    });
+
+    return { count: rows.length, filename };
+}
+

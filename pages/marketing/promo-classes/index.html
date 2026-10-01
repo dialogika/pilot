@@ -15,6 +15,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
 
+  <!-- ExcelJS & SheetJS for Export -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <!-- Shared Foundation Styles -->
   <link href="/assets/css/theme.css" rel="stylesheet" />
   <link href="/assets/css/layout.css" rel="stylesheet" />
@@ -61,6 +65,15 @@
               </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn-export-green"
+                id="btnOpenExportPromoModal"
+                data-bs-toggle="modal"
+                data-bs-target="#exportPromoModal"
+              >
+                <i class="fas fa-file-export me-1"></i> Export Data
+              </button>
               <button type="button" class="btn btn-outline-secondary rounded-pill px-4" id="btnRefreshAll">
                 <i class="bi bi-arrow-clockwise me-2"></i>Refresh
               </button>
@@ -339,6 +352,71 @@
             <span id="saveNewBatchSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none"></span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Promo Classes Modal -->
+  <div class="modal fade" id="exportPromoModal" tabindex="-1" aria-labelledby="exportPromoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+      <div class="modal-content export-modal-content">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title font-bold text-slate-800" id="exportPromoModalLabel">
+            <i class="fas fa-file-export text-emerald-600 me-2"></i>Export Data Promo Classes
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="exportPromoForm">
+          <div class="modal-body pt-3">
+            <p class="text-xs text-slate-500 mb-4">Pilih format file dan rentang tanggal data promo kelas yang ingin Anda unduh.</p>
+
+            <!-- Format Selection -->
+            <div class="mb-4">
+              <label class="form-label text-xs font-semibold text-slate-700 mb-2">FORMAT FILE</label>
+              <div class="export-segmented-control">
+                <button type="button" class="export-segmented-btn active" data-format="xlsx">
+                  <i class="fas fa-file-excel me-1 text-emerald-600"></i> Excel (.xlsx)
+                </button>
+                <button type="button" class="export-segmented-btn" data-format="csv">
+                  <i class="fas fa-file-csv me-1 text-blue-600"></i> CSV (.csv)
+                </button>
+              </div>
+              <input type="hidden" name="exportFormat" id="exportPromoFormat" value="xlsx" />
+            </div>
+
+            <!-- Date Range Selection -->
+            <div class="mb-3">
+              <label class="form-label text-xs font-semibold text-slate-700 mb-2">RENTANG WAKTU (TANGGAL DIBUAT)</label>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="7">7 Hari</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="30">30 Hari</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="month">Bulan Ini</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn active" data-range="all">Semua Data</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="custom">Custom</button>
+              </div>
+              <input type="hidden" name="exportRange" id="exportPromoRange" value="all" />
+
+              <!-- Custom Date Inputs (collapsible) -->
+              <div id="exportPromoCustomDateContainer" class="row g-2" style="display: none;">
+                <div class="col-6">
+                  <label class="form-label text-xs text-slate-600">Tanggal Mulai</label>
+                  <input type="date" class="form-control form-control-sm text-xs" id="exportPromoStartDate" />
+                </div>
+                <div class="col-6">
+                  <label class="form-label text-xs text-slate-600">Tanggal Selesai</label>
+                  <input type="date" class="form-control form-control-sm text-xs" id="exportPromoEndDate" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-sm btn-cancel-export" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-sm btn-download-export" id="btnSubmitExportPromo">
+              <span class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+              <i class="fas fa-download me-1"></i> Unduh File
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

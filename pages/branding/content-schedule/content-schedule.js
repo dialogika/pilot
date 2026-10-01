@@ -255,6 +255,29 @@ function wireEventListeners() {
             }
         });
     }
+
+    // Standard Export Modal Controls
+    const contentScheduleExportControls = ui.initContentScheduleExportModal();
+    const contentScheduleExportForm = document.getElementById('exportContentScheduleForm');
+    if (contentScheduleExportForm && contentScheduleExportControls) {
+        contentScheduleExportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            contentScheduleExportControls.setLoading(true);
+            try {
+                const formData = contentScheduleExportControls.getFormData();
+                await repo.exportContentScheduleData(formData);
+                const modalEl = document.getElementById('exportContentScheduleModal');
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error('Export content schedule error:', err);
+                Swal.fire({ title: 'Gagal!', text: 'Gagal mengekspor data jadwal konten: ' + err.message, icon: 'error' });
+            } finally {
+                contentScheduleExportControls.setLoading(false);
+            }
+        });
+    }
 }
 
 // ── Initialize ────────────────────────────────────────────────────

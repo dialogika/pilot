@@ -15,6 +15,7 @@ import {
   saveNewClass,
   updateClassDoc,
   deleteClassDoc,
+  exportClassManagementData,
   FALLBACK_CLASSES,
 } from "./class-management.repository.js";
 import {
@@ -33,6 +34,7 @@ import {
   closeAddClassModal,
   openPlanningModal,
   closePlanningModal,
+  initClassExportModal,
   showToast,
 } from "./class-management.ui.js";
 
@@ -737,33 +739,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // 7. Export Dropdown & CSV
-  const btnExportMenu = document.getElementById("btnExportMenu");
-  const exportDropdown = document.getElementById("exportDropdown");
-  const btnExportCsv = document.getElementById("btnExportCsv");
-  const btnExportExcel = document.getElementById("btnExportExcel");
-
-  if (btnExportMenu && exportDropdown) {
-    btnExportMenu.addEventListener("click", () => {
-      exportDropdown.classList.toggle("hidden");
-    });
-    document.addEventListener("click", (e) => {
-      if (!exportDropdown.contains(e.target) && !btnExportMenu.contains(e.target)) {
-        exportDropdown.classList.add("hidden");
+  // 7. Standard Export Modal Controls
+  const exportControls = initClassExportModal();
+  const exportForm = document.getElementById("exportClassForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportClassManagementData(formData);
+        const modalEl = document.getElementById("exportClassModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export class management error:", err);
+        showToast("Gagal mengekspor data kelas: " + err.message, "error");
+      } finally {
+        exportControls.setLoading(false);
       }
-    });
-  }
-
-  if (btnExportCsv) {
-    btnExportCsv.addEventListener("click", () => {
-      exportToCsv(applyFilters());
-      if (exportDropdown) exportDropdown.classList.add("hidden");
-    });
-  }
-  if (btnExportExcel) {
-    btnExportExcel.addEventListener("click", () => {
-      exportToCsv(applyFilters());
-      if (exportDropdown) exportDropdown.classList.add("hidden");
     });
   }
 

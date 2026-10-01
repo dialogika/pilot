@@ -12,9 +12,16 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  getDocs,
   serverTimestamp,
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const PROMO_CLASSES_COLLECTION = "promo_classes";
 const PROMO_BATCHES_COLLECTION = "promo_batches";
@@ -174,3 +181,58 @@ export async function deletePromoBatch(id) {
   if (!id) throw new Error("ID batch required");
   await deleteDoc(doc(db, PROMO_BATCHES_COLLECTION, id));
 }
+
+/**
+ * Export promo classes data to Excel or CSV
+ */
+export async function exportPromoClassesData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+  const snap = await getDocs(collection(db, PROMO_CLASSES_COLLECTION));
+  const items = [];
+  snap.forEach((docSnap) => {
+    items.push({ id: docSnap.id, ...docSnap.data() });
+  });
+
+  const { start, end } = calcDateRange(dateRange, startDate, endDate);
+  const filtered = items.filter((item) => {
+    if (!start && !end) return true;
+    const time = extractTimestamp(item.created_at_ms || item.created_at);
+    if (!time) return true;
+    if (start && time < start) return false;
+    if (end && time > end) return false;
+    return true;
+  });
+
+  const columns = [
+    { key: "no", header: "No", width: 6 },
+    { key: "product", header: "Nama Produk / Kelas", width: 25 },
+    { key: "location", header: "Tipe Lokasi", width: 14 },
+    { key: "locationName", header: "Nama Tempat / Lokasi", width: 22 },
+    { key: "normalPrice", header: "Harga Normal", width: 18 },
+    { key: "promoPrice", header: "Harga Promo", width: 18 },
+    { key: "promoDuration", header: "Batch / Durasi Promo", width: 22 },
+    { key: "date", header: "Tanggal Dibuat", width: 20 },
+  ];
+
+  const rows = filtered.map((item, index) => ({
+    no: index + 1,
+    product: item.product || "-",
+    location: item.location || "Online",
+    locationName: item.locationName || "-",
+    normalPrice: item.normalPrice || "-",
+    promoPrice: item.promoPrice || "-",
+    promoDuration: item.promoDuration || "-",
+    date: formatDateIndo(item.created_at_ms || item.created_at),
+  }));
+
+  const filename = `Data_Promo_Classes_${new Date().toISOString().slice(0, 10)}`;
+  await downloadExportFile({
+    format,
+    filename,
+    sheetName: "Promo Classes",
+    columns,
+    rows,
+  });
+
+  return { total: rows.length };
+}
+

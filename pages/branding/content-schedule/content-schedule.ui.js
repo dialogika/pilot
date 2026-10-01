@@ -4,6 +4,8 @@
 // Seluruh manipulasi DOM diisolasi di sini. Tidak ada akses Firestore.
 // ===================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 // ── Utilities ────────────────────────────────────────────────────
 
 /**
@@ -664,3 +666,17 @@ function _bindCardActions(el, actions) {
         });
     }
 }
+
+/**
+ * Initializes Standard Export Modal for Content Schedule.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initContentScheduleExportModal(onFormatChange, onRangeChange) {
+    return setupExportModalControls({
+        modalId: "exportContentScheduleModal",
+        onFormatChange,
+        onRangeChange,
+    });
+}
+

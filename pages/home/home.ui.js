@@ -17,6 +17,7 @@ import {
 } from "../../assets/js/ui.js";
 import { formatDateID, stripHtml, escapeHtml } from "../../assets/js/utils.js";
 import { ANNOUNCEMENT_COLORS } from "./home.repository.js";
+import { setupExportModalControls } from "../../assets/js/utils/export-helper.js";
 
 /* ------------------------------------------------------------------ */
 /* Welcome header                                                      */
@@ -553,3 +554,33 @@ export function getOpenReportTasks() {
     return [];
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Export Modal Controls                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Initializes Standard Export Modal for Daily Report.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initDailyReportExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportDailyReportModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+
+/**
+ * Initializes Standard Export Modal for Pending Users.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initPendingUsersExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportPendingUsersModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}

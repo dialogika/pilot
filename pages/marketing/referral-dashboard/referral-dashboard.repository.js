@@ -12,6 +12,12 @@ import {
     getDoc,
     setDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 // LocalStorage Keys
 export const STORAGE_KEY_REFERRALS = "dlg_invoice_referrals";
@@ -275,3 +281,74 @@ export function removeReferralFeatConfigFromStorage(code) {
         console.warn("[ReferralRepository] removeReferralFeatConfigFromStorage error:", e);
     }
 }
+
+/**
+ * Export referral data to Excel or CSV
+ */
+export async function exportReferralData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+    const [referrals, invoices] = await Promise.all([
+        fetchReferrals(),
+        fetchInvoices()
+    ]);
+
+    // Build usage map from invoices
+    const usageMap = {};
+    invoices.forEach((inv) => {
+        const code = String(inv.referralCode || "").trim().toUpperCase();
+        if (code) {
+            usageMap[code] = (usageMap[code] || 0) + 1;
+        }
+    });
+
+    const { start, end } = calcDateRange(dateRange, startDate, endDate);
+    const filtered = referrals.filter((item) => {
+        if (!start && !end) return true;
+        const time = extractTimestamp(item.createdAt || item.created_at || item.createdAtMs);
+        if (!time) return true;
+        if (start && time < start) return false;
+        if (end && time > end) return false;
+        return true;
+    });
+
+    const columns = [
+        { key: "no", header: "No", width: 6 },
+        { key: "code", header: "Kode Referral", width: 18 },
+        { key: "owner", header: "Pemilik / Owner", width: 22 },
+        { key: "discount", header: "Diskon", width: 16 },
+        { key: "usedCount", header: "Total Penggunaan", width: 18 },
+        { key: "maxUsage", header: "Batas Kuota", width: 14 },
+        { key: "products", header: "Produk Terkait", width: 28 },
+        { key: "date", header: "Tanggal Dibuat", width: 20 },
+    ];
+
+    const rows = filtered.map((item, index) => {
+        const codeUpper = String(item.code || "").toUpperCase();
+        const liveUsed = usageMap[codeUpper] !== undefined ? usageMap[codeUpper] : (item.usedCount || 0);
+        const ownerName = item.holderName || item.ownerName || item.owner || "-";
+        const discVal = item.discount ? (typeof item.discount === "number" ? `Rp ${item.discount.toLocaleString("id-ID")}` : item.discount) : "-";
+        const prodList = Array.isArray(item.productNames) ? item.productNames.join(", ") : (item.productNames || "Semua Produk");
+
+        return {
+            no: index + 1,
+            code: item.code || "-",
+            owner: ownerName,
+            discount: discVal,
+            usedCount: liveUsed,
+            maxUsage: item.maxUsage || "Unlimited",
+            products: prodList,
+            date: formatDateIndo(item.createdAt || item.created_at || item.createdAtMs),
+        };
+    });
+
+    const filename = `Data_Referral_${new Date().toISOString().slice(0, 10)}`;
+    await downloadExportFile({
+        format,
+        filename,
+        sheetName: "Data Referral",
+        columns,
+        rows,
+    });
+
+    return { total: rows.length };
+}
+

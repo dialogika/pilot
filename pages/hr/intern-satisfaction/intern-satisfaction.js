@@ -17,6 +17,7 @@ import {
   getSurveys,
   getUserPhotos,
   SURVEY_CATEGORIES,
+  exportSurveyData,
 } from "/pages/hr/intern-satisfaction/intern-satisfaction.repository.js";
 
 import {
@@ -31,6 +32,7 @@ import {
   overallScore,
   toDate,
   respondentInfo,
+  initSurveyExportModal,
 } from "/pages/hr/intern-satisfaction/intern-satisfaction.ui.js";
 
 const PAGE_SIZE = 12;
@@ -130,6 +132,35 @@ function setupEventListeners() {
       if (!btn || btn.disabled) return;
       currentPage = parseInt(btn.dataset.page, 10) || 1;
       renderGrid(filteredSurveys, userPhotoCache, SURVEY_CATEGORIES, currentPage, PAGE_SIZE);
+    });
+  }
+
+  // Standard Export Modal Controls
+  const exportControls = initSurveyExportModal();
+  const exportForm = document.getElementById("exportSurveyForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportSurveyData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+        });
+
+        const modalEl = document.getElementById("exportSurveyModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("Export Survey error:", err);
+      } finally {
+        exportControls.setLoading(false);
+      }
     });
   }
 }

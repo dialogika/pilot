@@ -4,6 +4,8 @@
 // Handles DOM rendering, Quill WYSIWYG editor, modal views, and toast feedback.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 let quillInstance = null;
 
 /**
@@ -438,3 +440,16 @@ export function renderMemberModal(memberState, { memberMatchesQuery, MEMBER_PAGE
             : (totalLoaded ? `Semua data telah dimuat (${totalLoaded})` : "");
     }
 }
+
+export function initWebinarExportModal() {
+    return setupExportModalControls({
+        modalId: "exportWebinarModal",
+        formatInputId: "exportWebinarFormat",
+        rangeInputId: "exportWebinarRange",
+        customDateContainerId: "exportWebinarCustomDateContainer",
+        startDateInputId: "exportWebinarStartDate",
+        endDateInputId: "exportWebinarEndDate",
+        submitBtnId: "btnSubmitExportWebinar",
+    });
+}
+

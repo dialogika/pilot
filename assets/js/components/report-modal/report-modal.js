@@ -492,6 +492,66 @@ async function handleApproveAll() {
 }
 
 /**
+ * Handle exporting current filtered reports to Excel (.xlsx).
+ */
+async function handleExportCurrentReports() {
+  if (!currentReports || currentReports.length === 0) {
+    ui.notifyError("Tidak ada data laporan untuk diexport pada filter saat ini.");
+    return;
+  }
+
+  const btnExport = document.getElementById("dgReportBtnExport");
+  if (btnExport) {
+    btnExport.disabled = true;
+    btnExport.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" style="width:0.8rem;height:0.8rem;border-width:2px;display:inline-block;vertical-align:middle;"></span> Exporting...';
+  }
+
+  try {
+    const periodSelect = document.getElementById("dgReportPeriodSelect");
+    const statusSelect = document.getElementById("dgReportStatusSelect");
+    const periodLabel = periodSelect?.options[periodSelect.selectedIndex]?.text || "All Period";
+    const statusLabel = statusSelect?.options[statusSelect.selectedIndex]?.text || "All Status";
+
+    const res = await repo.exportReportModalData({
+      reports: currentReports,
+      usersMap,
+      questTab: currentQuestTab,
+      periodLabel,
+      statusLabel,
+      format: "xlsx",
+    });
+
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: "success",
+        title: "Export Berhasil!",
+        text: `Berhasil mengunduh ${res.count} data laporan (${currentQuestTab.toUpperCase()}).`,
+        confirmButtonColor: "#0B2B6A",
+      });
+    } else {
+      ui.notifySuccess(`Berhasil mengunduh ${res.count} data laporan.`);
+    }
+  } catch (err) {
+    console.error("Export report failed:", err);
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: "error",
+        title: "Export Gagal",
+        text: err.message || "Terjadi kesalahan saat memproses ekspor data.",
+        confirmButtonColor: "#0B2B6A",
+      });
+    } else {
+      ui.notifyError("Export gagal: " + err.message);
+    }
+  } finally {
+    if (btnExport) {
+      btnExport.disabled = false;
+      btnExport.innerHTML = '<i class="bi bi-file-earmark-spreadsheet"></i> <span>Export</span>';
+    }
+  }
+}
+
+/**
  * Sync sidebar counts live.
  */
 async function syncSidebarCounts() {
@@ -584,6 +644,9 @@ function wireEvents() {
 
   // Approve All button
   document.getElementById("dgReportApproveAllBtn")?.addEventListener("click", handleApproveAll);
+
+  // Export button
+  document.getElementById("dgReportBtnExport")?.addEventListener("click", handleExportCurrentReports);
 
   // Sub-modal detail controls
   document.getElementById("dgReportDetailCloseBtn")?.addEventListener("click", ui.closeDetailModal);

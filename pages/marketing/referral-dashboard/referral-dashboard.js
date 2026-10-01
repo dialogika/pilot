@@ -16,11 +16,13 @@ import {
     getSavedExcludedFeatures,
     saveExcludedFeatures,
     saveReferralFeatConfigToStorage,
-    removeReferralFeatConfigFromStorage
+    removeReferralFeatConfigFromStorage,
+    exportReferralData
 } from "./referral-dashboard.repository.js";
 import {
     formatCurrency,
     formatNumber,
+    initReferralExportModal,
     renderHeaderStats,
     renderProductDropdown,
     toggleProductDropdown,
@@ -617,6 +619,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnCloseSysDefault = document.getElementById("btnCloseSysDefault");
     if (btnCloseSysDefault) {
         btnCloseSysDefault.addEventListener("click", closeSysDefaultPopup);
+    }
+
+    // 10b. Export Referral Controls
+    const exportControls = initReferralExportModal();
+    const exportForm = document.getElementById("exportReferralForm");
+    if (exportForm && exportControls) {
+        exportForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            exportControls.setLoading(true);
+            try {
+                const formData = exportControls.getFormData();
+                await exportReferralData(formData);
+                const modalEl = document.getElementById("exportReferralModal");
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error("Export referral error:", err);
+                alertDialog("Gagal mengekspor data referral: " + err.message, { title: "Export Gagal" });
+            } finally {
+                exportControls.setLoading(false);
+            }
+        });
     }
 
     // Start feature init

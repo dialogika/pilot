@@ -19,7 +19,8 @@
   <link href="/assets/css/style.css" rel="stylesheet" />
   <link href="/pages/hr/permit-reimburse/permit-reimburse.css" rel="stylesheet" />
 
-  <!-- SheetJS for Excel Export -->
+  <!-- ExcelJS and SheetJS for Spreadsheet Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Shared theme manager -->
@@ -89,7 +90,7 @@
               <button
                 id="btnExportExcelPermit"
                 type="button"
-                class="btn-export-excel"
+                class="btn-export-green"
                 title="Export Data"
               >
                 <i class="bi bi-file-earmark-spreadsheet"></i>
@@ -150,7 +151,7 @@
               <button
                 id="btnExportExcelReimburse"
                 type="button"
-                class="btn-export-excel"
+                class="btn-export-green"
                 title="Export Data"
               >
                 <i class="bi bi-file-earmark-spreadsheet"></i>
@@ -381,6 +382,9 @@
         <div>
           <label class="export-field-label">PILIHAN RENTANG WAKTU</label>
           <div class="export-period-switcher">
+            <button type="button" id="exportTypeAllBtn" class="period-switch-btn">
+              <i class="bi bi-collection"></i> Semua Data
+            </button>
             <button type="button" id="exportTypeMonthBtn" class="period-switch-btn active">
               <i class="bi bi-calendar3"></i> Per Bulan
             </button>

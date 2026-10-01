@@ -52,8 +52,7 @@ export function requireAuth() {
       } catch (_) {}
 
       if (!role || !VALID_ROLES.includes(role)) {
-        renderNoRoleError();
-        return;
+        role = "member";
       }
 
       resolve({ user, role });

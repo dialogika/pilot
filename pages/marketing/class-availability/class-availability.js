@@ -15,6 +15,7 @@ import {
     updateJoinedSeats,
     deleteClassBatch,
     moveToClassPlanning,
+    exportClassData,
     FALLBACK_CLASSES
 } from "./class-availability.repository.js";
 import {
@@ -31,7 +32,8 @@ import {
     isBatchClosed,
     getSeatsLeft,
     getBatchStatus,
-    showToast
+    showToast,
+    initClassExportModal
 } from "./class-availability.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -602,6 +604,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             currentPage = 1;
             renderView();
+        });
+    }
+
+    // 14b. Export Data Controls
+    const exportControls = initClassExportModal();
+    const exportForm = document.getElementById("exportClassForm");
+    if (exportForm && exportControls) {
+        exportForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            exportControls.setLoading(true);
+            try {
+                const formData = exportControls.getFormData();
+                await exportClassData(formData);
+                const modalEl = document.getElementById("exportClassModal");
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error("Export class availability error:", err);
+                showToast("Gagal mengekspor data ketersediaan kelas: " + err.message, "danger");
+            } finally {
+                exportControls.setLoading(false);
+            }
         });
     }
 

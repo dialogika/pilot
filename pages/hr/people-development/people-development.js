@@ -44,6 +44,7 @@ async function initializePeopleDevelopment() {
     // 5. Setup event listeners
     setupTabSwitching();
     setupSurveyHandler();
+    setupExportHandler();
   } catch (error) {
     console.error("[People Development] Initialization error:", error);
   }
@@ -134,6 +135,45 @@ function setupSurveyHandler() {
       trainingProgress: trainingData.overallPercent,
     });
   });
+}
+
+/**
+ * Wire export People Development modal controls and submit handler.
+ */
+function setupExportHandler() {
+  const exportControls = ui.initPeopleDevExportModal();
+  const exportForm = document.getElementById("exportPeopleDevForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        const dataType = document.getElementById("exportPeopleDevDataType")?.value || "attendance";
+
+        await repo.exportPeopleDevData({
+          dataType,
+          status: formData.status,
+          rangeType: formData.rangeType,
+          month: formData.month,
+          weekMonth: formData.weekMonth,
+          week: formData.week,
+          format: formData.format,
+        });
+
+        const modalEl = document.getElementById("exportPeopleDevModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("[People Development] Export error:", err);
+        alert("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 // Auto-run upon DOM ready

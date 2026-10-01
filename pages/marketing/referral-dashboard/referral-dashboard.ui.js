@@ -4,6 +4,8 @@
  * Zero direct Firebase SDK imports.
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 // Format currency as IDR
 export function formatCurrency(val) {
     const n = Number(val) || 0;
@@ -1166,3 +1168,16 @@ export function closeSysDefaultPopup() {
     const popup = document.getElementById("sysDefaultPopup");
     if (popup) popup.classList.add("hidden");
 }
+
+export function initReferralExportModal() {
+    return setupExportModalControls({
+        modalId: "exportReferralModal",
+        formatInputId: "exportReferralFormat",
+        rangeInputId: "exportReferralRange",
+        customDateContainerId: "exportReferralCustomDateContainer",
+        startDateInputId: "exportReferralStartDate",
+        endDateInputId: "exportReferralEndDate",
+        submitBtnId: "btnSubmitExportReferral",
+    });
+}
+

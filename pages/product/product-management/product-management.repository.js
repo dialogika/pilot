@@ -16,6 +16,12 @@ import {
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 export const PRODUCTS_COLLECTION = "products";
 
@@ -290,3 +296,96 @@ export async function deleteProduct(productId) {
   const docRef = doc(db, PRODUCTS_COLLECTION, cleanId);
   await deleteDoc(docRef);
 }
+
+/**
+ * Exports Product Management data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter product status (active, inactive)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportProductData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  let products = [];
+  try {
+    products = await fetchProducts();
+  } catch (e) {
+    products = FALLBACK_PRODUCTS;
+  }
+
+  const filtered = products.filter((p) => {
+    if (status && status !== "" && String(p.status || "").toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    if (start && end) {
+      const ts = extractTimestamp(p.createdAt || p.updatedAt);
+      if (ts) {
+        const pDate = new Date(ts);
+        if (pDate < start || pDate > end) return false;
+      }
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Product ID", key: "productId", width: 18 },
+    { header: "Nama Produk", key: "name", width: 30 },
+    { header: "Tipe", key: "type", width: 16 },
+    { header: "Harga Dasar (Rp)", key: "basePrice", width: 18 },
+    { header: "Total Sesi", key: "totalSessions", width: 14 },
+    { header: "Status", key: "status", width: 14 },
+    { header: "Badge", key: "badge", width: 14 },
+    { header: "Deskripsi", key: "description", width: 40 },
+    { header: "Jumlah Fitur", key: "featuresCount", width: 16 },
+    { header: "Jumlah Kurikulum", key: "curriculumCount", width: 18 },
+    { header: "Tanggal Dibuat", key: "createdAt", width: 18 },
+  ];
+
+  const rows = filtered.map((p, idx) => ({
+    no: idx + 1,
+    productId: p.product_id || p.id || "-",
+    name: p.name || "-",
+    type: p.type || "-",
+    basePrice: p.base_price ? `Rp ${Number(p.base_price).toLocaleString("id-ID")}` : "Rp 0",
+    totalSessions: p.total_sessions || 0,
+    status: (p.status || "active").toUpperCase(),
+    badge: (p.visual && p.visual.badge_text) || "-",
+    description: p.description || "-",
+    featuresCount: Array.isArray(p.features) ? p.features.length : 0,
+    curriculumCount: Array.isArray(p.curriculum) ? p.curriculum.length : 0,
+    createdAt: p.createdAt ? formatDateIndo(p.createdAt) : "-",
+  }));
+
+  const filename = `Data_Produk_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Data Produk",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

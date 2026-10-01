@@ -32,6 +32,10 @@
     <!-- Rich Text Editor styles -->
     <link href="/assets/js/components/rich-editor/rich-editor.css" rel="stylesheet" />
 
+    <!-- Spreadsheet export libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Shared theme manager -->
     <script src="/assets/js/theme.js" defer></script>
   </head>
@@ -94,11 +98,25 @@
                   <i class="bi bi-exclamation-circle text-warning me-2"></i
                   >Daily Report Approval
                 </h6>
-                <span
-                  id="dailyReportBadge"
-                  class="badge bg-warning text-dark rounded-pill"
-                  >0</span
-                >
+                <div class="d-flex align-items-center gap-2">
+                  <button
+                    type="button"
+                    id="btnOpenExportDailyReportModal"
+                    class="btn-export-green py-1 px-3"
+                    style="height: 30px; font-size: 11px;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exportDailyReportModal"
+                    title="Export Data Laporan Harian"
+                  >
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                    <span>Export</span>
+                  </button>
+                  <span
+                    id="dailyReportBadge"
+                    class="badge bg-warning text-dark rounded-pill"
+                    >0</span
+                  >
+                </div>
               </div>
               <div
                 id="dailyReportList"
@@ -119,6 +137,18 @@
                   <h6 class="fw-bold mb-0 text-dark">
                     <i class="bi bi-person-plus me-2"></i>Pending Registrations
                   </h6>
+                  <button
+                    type="button"
+                    id="btnOpenExportPendingUsersModal"
+                    class="btn-export-green py-1 px-3"
+                    style="height: 30px; font-size: 11px;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exportPendingUsersModal"
+                    title="Export Data Pendaftar"
+                  >
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                    <span>Export</span>
+                  </button>
                 </div>
                 <div class="table-responsive scrollable-frame">
                   <table class="table table-hover align-middle mb-0">
@@ -696,6 +726,250 @@
               class="border-top pt-3"
               style="line-height: 1.7"
             ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: EXPORT DAILY REPORT -->
+    <div class="modal fade" id="exportDailyReportModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content shadow-lg">
+          <div class="modal-body p-4">
+            <!-- Header -->
+            <div class="d-flex align-items-start justify-content-between mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="export-icon-box">
+                  <i class="bi bi-file-earmark-excel"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data (Excel / CSV)</h5>
+                  <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file, periode, dan status data Laporan Harian (Daily Report)</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Form Export -->
+            <form id="exportDailyReportForm" class="export-data-form d-flex flex-column gap-3">
+              <!-- FORMAT FILE -->
+              <div>
+                <label class="export-section-label">FORMAT FILE</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx">
+                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv">
+                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                  </button>
+                </div>
+              </div>
+
+              <!-- DATA YANG DIEXPORT -->
+              <div>
+                <label class="export-section-label">DATA YANG DIEXPORT</label>
+                <select class="form-select export-select export-data-type shadow-none">
+                  <option value="all">Data Laporan Harian (Daily Report)</option>
+                </select>
+              </div>
+
+              <!-- PILIHAN RENTANG WAKTU -->
+              <div>
+                <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-range="all">
+                    <i class="bi bi-globe"></i> Semua Data
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="month">
+                    <i class="bi bi-calendar3"></i> Per Bulan
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="week">
+                    <i class="bi bi-calendar-week"></i> Per Minggu
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECTION: SEMUA DATA -->
+              <div class="section-all-picker" style="display: block;">
+                <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                  <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ekspor Semua Data Laporan Harian</span>
+                  </div>
+                  <small class="text-muted d-block mt-1 export-help-all" style="font-size: 0.75rem;">
+                    Semua data laporan harian dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.
+                  </small>
+                </div>
+              </div>
+
+              <!-- SECTION: PILIH BULAN -->
+              <div class="section-month-picker" style="display: none;">
+                <label class="export-section-label">PILIH BULAN &amp; TAHUN</label>
+                <input type="month" class="form-control export-input export-month-input shadow-none w-100">
+                <small class="text-muted d-block mt-1 export-help-month" style="font-size: 0.75rem;">
+                  Semua laporan harian pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- SECTION: PILIH MINGGU -->
+              <div class="section-week-picker" style="display: none;">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="export-section-label">BULAN &amp; TAHUN</label>
+                    <input type="month" class="form-control export-input export-week-month-input shadow-none w-100">
+                  </div>
+                  <div class="col-6">
+                    <label class="export-section-label">PILIH MINGGU</label>
+                    <select class="form-select export-select export-week-select shadow-none">
+                      <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                      <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                      <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                      <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                      <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                    </select>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1 export-help-week" style="font-size: 0.75rem;">
+                  Semua laporan harian pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- FILTER STATUS -->
+              <div>
+                <label class="export-section-label">FILTER STATUS LAPORAN</label>
+                <select class="form-select export-select export-status-filter shadow-none">
+                  <option value="">Semua status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="partially_approved">Partially Approved</option>
+                </select>
+              </div>
+
+              <!-- FOOTER BUTTONS -->
+              <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2">
+                <button type="button" class="btn btn-cancel-export flex-fill" data-bs-dismiss="modal">Batalkan</button>
+                <button type="submit" class="btn btn-download-export flex-fill">
+                  <i class="bi bi-download"></i> <span class="download-btn-text">Download Excel (.xlsx)</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: EXPORT PENDING USERS -->
+    <div class="modal fade" id="exportPendingUsersModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content shadow-lg">
+          <div class="modal-body p-4">
+            <!-- Header -->
+            <div class="d-flex align-items-start justify-content-between mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="export-icon-box">
+                  <i class="bi bi-file-earmark-excel"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data (Excel / CSV)</h5>
+                  <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file dan periode data Pendaftar Baru (Pending Registrations)</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Form Export -->
+            <form id="exportPendingUsersForm" class="export-data-form d-flex flex-column gap-3">
+              <!-- FORMAT FILE -->
+              <div>
+                <label class="export-section-label">FORMAT FILE</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx">
+                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv">
+                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                  </button>
+                </div>
+              </div>
+
+              <!-- DATA YANG DIEXPORT -->
+              <div>
+                <label class="export-section-label">DATA YANG DIEXPORT</label>
+                <select class="form-select export-select export-data-type shadow-none">
+                  <option value="all">Data Pendaftar Baru (Pending Registrations)</option>
+                </select>
+              </div>
+
+              <!-- PILIHAN RENTANG WAKTU -->
+              <div>
+                <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-range="all">
+                    <i class="bi bi-globe"></i> Semua Data
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="month">
+                    <i class="bi bi-calendar3"></i> Per Bulan
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="week">
+                    <i class="bi bi-calendar-week"></i> Per Minggu
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECTION: SEMUA DATA -->
+              <div class="section-all-picker" style="display: block;">
+                <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                  <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ekspor Semua Data Pendaftar Baru</span>
+                  </div>
+                  <small class="text-muted d-block mt-1 export-help-all" style="font-size: 0.75rem;">
+                    Semua data pendaftar baru dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.
+                  </small>
+                </div>
+              </div>
+
+              <!-- SECTION: PILIH BULAN -->
+              <div class="section-month-picker" style="display: none;">
+                <label class="export-section-label">PILIH BULAN &amp; TAHUN</label>
+                <input type="month" class="form-control export-input export-month-input shadow-none w-100">
+                <small class="text-muted d-block mt-1 export-help-month" style="font-size: 0.75rem;">
+                  Semua pendaftar pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- SECTION: PILIH MINGGU -->
+              <div class="section-week-picker" style="display: none;">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="export-section-label">BULAN &amp; TAHUN</label>
+                    <input type="month" class="form-control export-input export-week-month-input shadow-none w-100">
+                  </div>
+                  <div class="col-6">
+                    <label class="export-section-label">PILIH MINGGU</label>
+                    <select class="form-select export-select export-week-select shadow-none">
+                      <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                      <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                      <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                      <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                      <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                    </select>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1 export-help-week" style="font-size: 0.75rem;">
+                  Semua pendaftar pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- FOOTER BUTTONS -->
+              <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2">
+                <button type="button" class="btn btn-cancel-export flex-fill" data-bs-dismiss="modal">Batalkan</button>
+                <button type="submit" class="btn btn-download-export flex-fill">
+                  <i class="bi bi-download"></i> <span class="download-btn-text">Download Excel (.xlsx)</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

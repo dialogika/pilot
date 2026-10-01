@@ -4,6 +4,8 @@
 // Handles DOM manipulation, view states, table rendering, toast alerts, and formatting.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 let toastTimer = null;
 
 /**
@@ -220,3 +222,16 @@ export function renderTableRows(elements, { items, selectedEmails, onToggleSelec
         tableBody.appendChild(tr);
     });
 }
+
+export function initMailingExportModal() {
+    return setupExportModalControls({
+        modalId: "exportMailingModal",
+        formatInputId: "exportMailingFormat",
+        rangeInputId: "exportMailingRange",
+        customDateContainerId: "exportMailingCustomDateContainer",
+        startDateInputId: "exportMailingStartDate",
+        endDateInputId: "exportMailingEndDate",
+        submitBtnId: "btnSubmitExportMailing",
+    });
+}
+

@@ -98,3 +98,52 @@ export async function saveAppraisal(id, appraisalData) {
     { merge: true }
   );
 }
+
+/**
+ * Export Performance Appraisal interns list to Excel or CSV.
+ * @param {Object} options
+ * @param {Array<Object>} options.interns
+ * @param {string} options.format
+ * @param {string} options.periodLabel
+ * @param {Object} options.positionMap
+ */
+export async function exportPerformanceData({
+  interns = [],
+  format = "xlsx",
+  periodLabel = "Semua_Data",
+  positionMap = {},
+}) {
+  const { downloadExportFile, formatDateIndo } = await import(
+    "../../../assets/js/utils/export-helper.js"
+  );
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID Intern", key: "id", width: 22 },
+    { header: "Nama Intern", key: "name", width: 24 },
+    { header: "Divisi", key: "division", width: 20 },
+    { header: "Posisi", key: "position", width: 22 },
+    { header: "Status Appraisal", key: "appraisalStatus", width: 18 },
+    { header: "Nilai Akhir", key: "score", width: 14 },
+    { header: "Tanggal Terdaftar", key: "createdAt", width: 18 },
+  ];
+
+  const rowsData = interns.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id || "-",
+    name: item.name || "-",
+    division: item.division || "-",
+    position: positionMap[item.position] || item.position || "-",
+    appraisalStatus: item.isAppraised ? "Sudah Dinilai" : "Belum Dinilai",
+    score: item.finalScore ?? "-",
+    createdAt: formatDateIndo(item.createdAt || item.raw?.created_at || item.raw?.registered_at),
+  }));
+
+  await downloadExportFile({
+    filename: `Performance_Appraisal_${periodLabel}`,
+    sheetName: "Appraisal",
+    columns,
+    rowsData,
+    format,
+  });
+}

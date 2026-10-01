@@ -29,6 +29,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { downloadExportFile, formatDateIndo } from "../../utils/export-helper.js";
 
 function normalizeTimeValue(v) {
   if (!v) return "";
@@ -996,3 +997,112 @@ export async function bulkDeleteTasks(reports) {
     }
   }
 }
+
+/**
+ * Export reports dataset from Quest/Daily report board.
+ * @param {Object} options
+ * @param {Array} options.reports - Filtered reports array
+ * @param {Object} options.usersMap - Users map { id: { name, email, ... } }
+ * @param {string} [options.questTab="daily"] - 'daily' | 'quest' | 'project'
+ * @param {string} [options.periodLabel="All Period"]
+ * @param {string} [options.statusLabel="All Status"]
+ * @param {string} [options.format="xlsx"]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportReportModalData({
+  reports = [],
+  usersMap = {},
+  questTab = "daily",
+  periodLabel = "All_Period",
+  statusLabel = "All_Status",
+  format = "xlsx",
+}) {
+  const normTab = questTab === "main" ? "Daily" : questTab === "side" ? "Quest" : (questTab.charAt(0).toUpperCase() + questTab.slice(1));
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "Tipe Quest", key: "questType", width: 14 },
+    { header: "Tanggal", key: "date", width: 16 },
+    { header: "Nama Tim / Anggota", key: "teamName", width: 28 },
+    { header: "Divisi / Departemen", key: "department", width: 22 },
+    { header: "Judul Tugas (Task)", key: "task", width: 35 },
+    { header: "Rincian Laporan (Report)", key: "reportDetail", width: 50 },
+    { header: "Bukti / Lampiran (Files)", key: "files", width: 35 },
+    { header: "Status Approval", key: "status", width: 18 },
+    { header: "Poin", key: "points", width: 10 },
+    { header: "Target Supervisor (Report To)", key: "reportTo", width: 28 },
+    { header: "Catatan / Feedback", key: "feedback", width: 35 },
+  ];
+
+  const rows = reports.map((r, idx) => {
+    // Resolve user names
+    const assignees = Array.isArray(r.assignees) ? r.assignees : r.assignees ? [r.assignees] : [];
+    const memberNames = assignees
+      .map((uid) => {
+        if (!uid) return "";
+        const u = usersMap[uid] || usersMap[String(uid).toLowerCase()];
+        return u?.name || uid;
+      })
+      .filter(Boolean)
+      .join(", ") || "-";
+
+    // Clean report detail text
+    const rawReport = r.reportPreviewFull || r.reportPreview || r.reportFull || "";
+    const cleanReport = rawReport.replace(/<[^>]*>/g, "").trim();
+
+    // Attachments
+    const filesList = Array.isArray(r.files) && r.files.length > 0
+      ? r.files.map((f) => f.name || f.url || "Attachment").join(", ")
+      : (r.fileName || "-");
+
+    // Report To names
+    const reportToList = Array.isArray(r.reportTo) ? r.reportTo : r.reportTo ? [r.reportTo] : [];
+    const supervisorNames = reportToList
+      .map((uid) => {
+        if (!uid) return "";
+        const u = usersMap[uid] || usersMap[String(uid).toLowerCase()];
+        return u?.name || uid;
+      })
+      .filter(Boolean)
+      .join(", ") || "-";
+
+    const dept = Array.isArray(r.departments) && r.departments.length > 0
+      ? r.departments.join(", ")
+      : "-";
+
+    const statusCap = r.status
+      ? r.status.charAt(0).toUpperCase() + r.status.slice(1)
+      : "Pending";
+
+    return {
+      no: idx + 1,
+      questType: r.questType || normTab,
+      date: r.date || "-",
+      teamName: memberNames,
+      department: dept,
+      task: r.task || "-",
+      reportDetail: cleanReport || "-",
+      files: filesList,
+      status: statusCap,
+      points: Number(r.points) || 0,
+      reportTo: supervisorNames,
+      feedback: r.feedback || r.rejection_reason || "-",
+    };
+  });
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const cleanPeriod = String(periodLabel || "All_Period").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const cleanStatus = String(statusLabel || "All_Status").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const filename = `Rekap_Laporan_${normTab}_${cleanStatus}_${cleanPeriod}_${todayStr}`;
+
+  await downloadExportFile({
+    filename,
+    sheetName: `Laporan ${normTab}`,
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

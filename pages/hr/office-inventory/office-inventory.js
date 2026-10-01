@@ -18,6 +18,7 @@ import {
   addInventory,
   updateInventory,
   deleteInventory,
+  exportInventoryData,
 } from "./office-inventory.repository.js";
 
 import {
@@ -34,6 +35,7 @@ import {
   getAddFormData,
   getEditFormData,
   setButtonLoading,
+  initInventoryExportModal,
 } from "./office-inventory.ui.js";
 
 let allItems = [];
@@ -334,6 +336,40 @@ function setupEventListeners() {
 
   const deleteConfirm = document.getElementById("deleteConfirm");
   if (deleteConfirm) deleteConfirm.addEventListener("click", handleConfirmDelete);
+
+  // Standard Export Modal Controls
+  const exportControls = initInventoryExportModal();
+  const exportForm = document.getElementById("exportInventoryForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportInventoryData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+          status: formData.status,
+        });
+
+        const modalEl = document.getElementById("exportInventoryModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("Export Inventory error:", err);
+        await alertDialog("Gagal mengekspor data inventaris: " + (err.message || err), {
+          type: "error",
+          title: "Ekspor Gagal",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 // Boot module on DOM ready

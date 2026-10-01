@@ -234,3 +234,52 @@ export async function updateCurrentUserPassword(newPassword) {
   if (!auth.currentUser) throw new Error("No authenticated user");
   await updatePassword(auth.currentUser, newPassword);
 }
+
+/**
+ * Export Users list to Excel or CSV.
+ * @param {Object} options
+ * @param {Array<Object>} options.users
+ * @param {string} options.format
+ * @param {string} options.periodLabel
+ */
+export async function exportUsersData({
+  users = [],
+  format = "xlsx",
+  periodLabel = "Semua_Data",
+}) {
+  const { downloadExportFile, formatDateIndo } = await import(
+    "../../../assets/js/utils/export-helper.js"
+  );
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID User", key: "id", width: 22 },
+    { header: "Nama Lengkap", key: "name", width: 24 },
+    { header: "Email", key: "email", width: 26 },
+    { header: "Role", key: "role", width: 16 },
+    { header: "Posisi / Jabatan", key: "position", width: 22 },
+    { header: "Departemen", key: "department", width: 20 },
+    { header: "Status", key: "status", width: 14 },
+    { header: "Tanggal Terdaftar", key: "createdAt", width: 20 },
+  ];
+
+  const rowsData = users.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id || "-",
+    name: item.name || item.displayName || "-",
+    email: item.email || "-",
+    role: item.role ? item.role.toUpperCase() : "-",
+    position: item.position || "-",
+    department: item.department || "-",
+    status: item.status || "Active",
+    createdAt: formatDateIndo(item.createdAt || item.registered_at),
+  }));
+
+  await downloadExportFile({
+    filename: `User_Management_${periodLabel}`,
+    sheetName: "Users",
+    columns,
+    rowsData,
+    format,
+  });
+}

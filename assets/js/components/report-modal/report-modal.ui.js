@@ -171,10 +171,15 @@ export function ensureReportModalDOM() {
                 <option value="60">60 / page</option>
               </select>
             </div>
-            <div id="dgReportActionBtnWrap">
-              <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn">
-                <i class="bi bi-check-all"></i> Approve all
+            <div class="dg-report-actions-wrap">
+              <button type="button" class="dg-report-btn-export" id="dgReportBtnExport" title="Export data laporan saat ini (Excel .xlsx)">
+                <i class="bi bi-file-earmark-spreadsheet"></i> <span>Export</span>
               </button>
+              <div id="dgReportActionBtnWrap">
+                <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn">
+                  <i class="bi bi-check-all"></i> Approve all
+                </button>
+              </div>
             </div>
           </div>
 

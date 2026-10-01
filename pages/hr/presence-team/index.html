@@ -39,6 +39,9 @@
     <!-- Scoped Feature Styles -->
     <link rel="stylesheet" href="/pages/hr/presence-team/presence-team.css" />
 
+    <!-- ExcelJS & SheetJS for Standardized Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
     <!-- Shared theme manager -->
     <script src="/assets/js/theme.js" defer></script>
 
@@ -186,10 +189,11 @@
         </header>
 
         <!-- KPI Cards -->
-        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
           <div class="glass p-5 rounded-3xl premium-shadow">
             <p
               class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+              id="totalLabelDisplay"
             >
               Total Team
             </p>
@@ -202,10 +206,35 @@
               Present
             </p>
             <p
-              class="text-3xl font-extrabold text-emerald-600"
+              class="text-3xl font-extrabold text-emerald-600 mb-0"
               id="presentCountDisplay"
             >
               0
+            </p>
+            <p
+              class="text-xs font-bold text-emerald-600/90 mt-1 mb-0"
+              id="presentTotalHoursDisplay"
+            >
+              Total: 0 Jam 0 Menit
+            </p>
+          </div>
+          <div class="glass p-5 rounded-3xl premium-shadow">
+            <p
+              class="text-slate-500 text-xs font-semibold tracking-wide uppercase mb-1"
+            >
+              Terlambat
+            </p>
+            <p
+              class="text-3xl font-extrabold text-amber-600 mb-0"
+              id="lateCountDisplay"
+            >
+              0
+            </p>
+            <p
+              class="text-xs font-bold text-amber-600/90 mt-1 mb-0"
+              id="lateTotalHoursDisplay"
+            >
+              Total: 0 Menit
             </p>
           </div>
           <div class="glass p-5 rounded-3xl premium-shadow">
@@ -239,20 +268,31 @@
             <div
               class="px-6 py-5 flex flex-col sm:flex-row gap-3 justify-between sm:items-center border-b border-slate-100/80"
             >
-              <h2 class="text-lg font-bold text-slate-900">
-                Tabel Presensi Team
+              <h2 class="text-lg font-bold text-slate-900" id="tableTitleDisplay">
+                Tabel Presensi Harian
               </h2>
               <div class="flex items-center gap-2 sm:ml-auto flex-wrap">
+                <!-- Segmented Filter Kategori: Team / Intern / Semua -->
+                <div class="inline-flex p-1 bg-slate-100/80 rounded-xl text-xs font-semibold category-segmented-group" id="categoryFilterContainer">
+                  <button type="button" class="category-btn active px-3 py-1.5 rounded-lg transition-all" data-category="team">Team</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="intern">Intern</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="all">Semua</button>
+                </div>
                 <input
                   type="date"
                   id="filterDate"
                   class="min-w-[160px] px-3 py-2 rounded-xl text-xs border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B2B6A]"
                 />
                 <button
-                  id="btnExportXlsx"
-                  class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition whitespace-nowrap"
+                  type="button"
+                  id="btnOpenExportPresenceModal"
+                  class="btn-export-green"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exportPresenceModal"
+                  title="Export Data"
                 >
-                  <i class="bi bi-download me-1"></i>Export XLSX
+                  <i class="bi bi-file-earmark-spreadsheet"></i>
+                  <span>Export</span>
                 </button>
                 <div
                   id="loadingSpinner"
@@ -268,14 +308,14 @@
                     <tr
                       class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
                     >
-                      <th class="px-4 py-3 cell-name">Nama Team</th>
+                      <th class="px-4 py-3 cell-name">Nama</th>
                       <th class="px-4 py-3" style="min-width: 100px">
                         Clock In
                       </th>
                       <th class="px-4 py-3" style="min-width: 100px">
                         Clock Out
                       </th>
-                      <th class="px-4 py-3" style="min-width: 150px">
+                      <th class="px-4 py-3" style="min-width: 180px">
                         Total Jam Kerja
                       </th>
                       <th class="px-4 py-3" style="min-width: 140px">
@@ -287,6 +327,15 @@
                     id="attendanceBody"
                     class="text-slate-700 text-sm"
                   ></tbody>
+                  <tfoot id="attendanceFoot" class="tbl-foot hidden">
+                    <tr class="border-t-2 border-slate-200/90 bg-slate-50/70 font-semibold text-slate-800">
+                      <td class="px-4 py-3 cell-name font-bold text-slate-900" id="dailyTotalLabelCell">Total Jam Kerja</td>
+                      <td class="px-4 py-3 text-slate-400 font-medium">-</td>
+                      <td class="px-4 py-3 text-slate-400 font-medium">-</td>
+                      <td class="px-4 py-3 font-extrabold text-[#0B2B6A]" id="dailyTotalHoursCell">0 Jam 0 Menit</td>
+                      <td class="px-4 py-3 font-medium text-slate-700 text-xs" id="dailyTotalStatusCell">-</td>
+                    </tr>
+                  </tfoot>
                 </table>
                 <p
                   id="emptyState"
@@ -307,10 +356,16 @@
             <div
               class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
             >
-              <h3 class="text-lg font-bold text-[#0B2B6A]">
-                Tabel Rekap Bulanan Team
+              <h3 class="text-lg font-bold text-[#0B2B6A]" id="monthlyTitleDisplay">
+                Tabel Rekap Bulanan
               </h3>
               <div class="flex flex-wrap items-center gap-2">
+                <!-- Segmented Filter Kategori Table 2 -->
+                <div class="inline-flex p-1 bg-slate-100/80 rounded-xl text-xs font-semibold category-segmented-group" id="monthlyCategoryFilterContainer">
+                  <button type="button" class="category-btn active px-3 py-1.5 rounded-lg transition-all" data-category="team">Team</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="intern">Intern</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="all">Semua</button>
+                </div>
                 <input
                   type="month"
                   id="recapMonthFilter"
@@ -331,11 +386,14 @@
                     <tr
                       class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
                     >
-                      <th class="px-4 py-3 cell-name">Nama Team</th>
+                      <th class="px-4 py-3 cell-name">Nama</th>
                       <th class="px-4 py-3" style="min-width: 120px">
                         Hari Hadir
                       </th>
-                      <th class="px-4 py-3" style="min-width: 160px">
+                      <th class="px-4 py-3" style="min-width: 140px">
+                        Keterlambatan
+                      </th>
+                      <th class="px-4 py-3" style="min-width: 180px">
                         Total Jam Kerja
                       </th>
                     </tr>
@@ -344,6 +402,14 @@
                     id="internRecapBody"
                     class="text-slate-700 text-sm"
                   ></tbody>
+                  <tfoot id="internRecapFoot" class="tbl-foot hidden">
+                    <tr class="border-t-2 border-slate-200/90 bg-slate-50/70 font-semibold text-slate-800">
+                      <td class="px-4 py-3 cell-name font-bold text-slate-900">Total Akumulasi</td>
+                      <td class="px-4 py-3 font-bold text-slate-700" id="monthlyTotalDaysCell">0 hari</td>
+                      <td class="px-4 py-3 font-bold text-amber-700 text-xs" id="monthlyTotalLateCell">0 Menit</td>
+                      <td class="px-4 py-3 font-extrabold text-[#0B2B6A]" id="monthlyTotalHoursCell">0 Jam 0 Menit</td>
+                    </tr>
+                  </tfoot>
                 </table>
                 <p
                   id="internRecapEmpty"
@@ -364,10 +430,16 @@
             <div
               class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
             >
-              <h3 class="text-lg font-bold text-[#0B2B6A]">
-                Tabel Total Jam Team
+              <h3 class="text-lg font-bold text-[#0B2B6A]" id="totalHoursTitleDisplay">
+                Tabel Total Jam
               </h3>
               <div class="flex flex-wrap items-center gap-2">
+                <!-- Segmented Filter Kategori Table 3 -->
+                <div class="inline-flex p-1 bg-slate-100/80 rounded-xl text-xs font-semibold category-segmented-group" id="totalCategoryFilterContainer">
+                  <button type="button" class="category-btn active px-3 py-1.5 rounded-lg transition-all" data-category="team">Team</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="intern">Intern</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="all">Semua</button>
+                </div>
                 <button
                   id="btnExportInternshipTotalXlsx"
                   class="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#0B2B6A] hover:bg-[#113981] transition whitespace-nowrap"
@@ -383,9 +455,9 @@
                     <tr
                       class="text-slate-400 text-[11px] font-extrabold uppercase tracking-[0.2em]"
                     >
-                      <th class="px-4 py-3 cell-name">Nama Team</th>
+                      <th class="px-4 py-3 cell-name">Nama</th>
                       <th class="px-4 py-3" style="min-width: 160px">
-                        Total Jam Team
+                        Total Jam
                       </th>
                       <th class="px-4 py-3" style="min-width: 150px">
                         Jumlah Hari Hadir
@@ -399,12 +471,20 @@
                     id="internshipTotalBody"
                     class="text-slate-700 text-sm"
                   ></tbody>
+                  <tfoot id="internshipTotalFoot" class="tbl-foot hidden">
+                    <tr class="border-t-2 border-slate-200/90 bg-slate-50/70 font-semibold text-slate-800">
+                      <td class="px-4 py-3 cell-name font-bold text-slate-900">Total Keseluruhan</td>
+                      <td class="px-4 py-3 font-extrabold text-[#0B2B6A]" id="totalJamAllHoursCell">0 Jam 0 Menit</td>
+                      <td class="px-4 py-3 font-bold text-slate-700" id="totalJamAllDaysCell">0 hari</td>
+                      <td class="px-4 py-3 font-bold text-slate-600" id="totalJamAllAvgCell">-</td>
+                    </tr>
+                  </tfoot>
                 </table>
                 <p
                   id="internshipTotalEmpty"
                   class="text-xs text-slate-400 hidden px-6 py-6"
                 >
-                  Belum ada data total jam team.
+                  Belum ada data total jam.
                 </p>
               </div>
             </div>
@@ -420,14 +500,20 @@
               class="px-6 py-5 border-b border-slate-100/80 flex flex-col md:flex-row gap-3 md:items-center md:justify-between"
             >
               <div>
-                <h3 class="text-lg font-bold text-[#0B2B6A]">
-                  Gamifikasi Kehadiran Team
+                <h3 class="text-lg font-bold text-[#0B2B6A]" id="gamiTitleDisplay">
+                  Gamifikasi Kehadiran
                 </h3>
                 <p class="text-xs text-slate-400 mt-0.5">
                   Streak, progress bulanan &amp; achievement
                 </p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
+                <!-- Segmented Filter Kategori Gamifikasi -->
+                <div class="inline-flex p-1 bg-slate-100/80 rounded-xl text-xs font-semibold category-segmented-group" id="gamiCategoryFilterContainer">
+                  <button type="button" class="category-btn active px-3 py-1.5 rounded-lg transition-all" data-category="team">Team</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="intern">Intern</button>
+                  <button type="button" class="category-btn px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800" data-category="all">Semua</button>
+                </div>
                 <input
                   type="month"
                   id="gamiMonthFilter"
@@ -544,7 +630,126 @@
           </section>
         </div>
       </div>
-    </main>
+    <!-- Standard Export Modal for Presence Team -->
+    <div class="modal fade" id="exportPresenceModal" tabindex="-1" aria-labelledby="exportPresenceModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content">
+          <div class="modal-header export-modal-header border-0 pb-0">
+            <div class="d-flex align-items-center gap-3">
+              <div class="export-modal-icon-badge">
+                <i class="bi bi-file-earmark-spreadsheet-fill text-success fs-4"></i>
+              </div>
+              <div>
+                <h5 class="modal-title export-modal-title" id="exportPresenceModalLabel">Export Data Presensi Team</h5>
+                <p class="export-modal-subtitle mb-0">Pilih format file dan rentang data yang akan diekspor</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body export-modal-body pt-3">
+            <form id="exportPresenceForm" class="d-flex flex-column gap-3">
+              <!-- PILIH FORMAT FILE -->
+              <div>
+                <label class="export-section-label">PILIH FORMAT FILE</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx">
+                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv">
+                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                  </button>
+                </div>
+              </div>
+
+              <!-- PILIHAN KATEGORI -->
+              <div>
+                <label class="export-section-label">PILIHAN KATEGORI</label>
+                <div class="export-segmented-control" id="exportCategorySegmented">
+                  <button type="button" class="export-segmented-btn active" data-category="all">
+                    <i class="bi bi-people-fill"></i> Semua
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-category="team">
+                    <i class="bi bi-person-badge-fill"></i> Team (Staff)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-category="intern">
+                    <i class="bi bi-mortarboard-fill"></i> Intern (Magang)
+                  </button>
+                </div>
+              </div>
+
+              <!-- PILIHAN RENTANG WAKTU -->
+              <div>
+                <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-range="all">
+                    <i class="bi bi-globe"></i> Semua Data
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="month">
+                    <i class="bi bi-calendar3"></i> Per Bulan
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="week">
+                    <i class="bi bi-calendar-week"></i> Per Minggu
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECTION: SEMUA DATA -->
+              <div class="section-all-picker" style="display: block;">
+                <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                  <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ekspor Semua Data Presensi</span>
+                  </div>
+                  <small class="text-muted d-block mt-1 export-help-all" style="font-size: 0.75rem;">
+                    Seluruh catatan presensi team dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.
+                  </small>
+                </div>
+              </div>
+
+              <!-- SECTION: PILIH BULAN -->
+              <div class="section-month-picker" style="display: none;">
+                <label class="export-section-label">PILIH BULAN &amp; TAHUN</label>
+                <input type="month" class="form-control export-input export-month-input shadow-none w-100">
+                <small class="text-muted d-block mt-1 export-help-month" style="font-size: 0.75rem;">
+                  Semua presensi pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- SECTION: PILIH MINGGU -->
+              <div class="section-week-picker" style="display: none;">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="export-section-label">BULAN &amp; TAHUN</label>
+                    <input type="month" class="form-control export-input export-week-month-input shadow-none w-100">
+                  </div>
+                  <div class="col-6">
+                    <label class="export-section-label">PILIH MINGGU</label>
+                    <select class="form-select export-select export-week-select shadow-none">
+                      <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                      <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                      <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                      <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                      <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                    </select>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1 export-help-week" style="font-size: 0.75rem;">
+                  Semua presensi pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- FOOTER BUTTONS -->
+              <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2">
+                <button type="button" class="btn btn-cancel-export flex-fill" data-bs-dismiss="modal">Batalkan</button>
+                <button type="submit" class="btn btn-download-export flex-fill">
+                  <i class="bi bi-download"></i> <span class="download-btn-text">Download Excel (.xlsx)</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Dependencies: Bootstrap JS & SheetJS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -553,7 +758,7 @@
     <!-- Presence Team Orchestrator -->
     <script
       type="module"
-      src="/pages/hr/presence-team/presence-team.js"
+      src="/pages/hr/presence-team/presence-team.js?v=20260929_1830"
     ></script>
   </body>
 </html>

@@ -3,6 +3,8 @@
  * Pure DOM presentation logic (Zero direct Firebase queries).
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 export function formatDate(dateStr) {
     if (!dateStr || dateStr === 'Flexible') return dateStr || 'Flexible';
     try {
@@ -587,3 +589,17 @@ export function showToast(message, type = "info") {
         setTimeout(() => toast.remove(), 300);
     }, 3500);
 }
+
+/**
+ * Initializes Standard Export Modal for Class Availability.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initClassExportModal(onFormatChange, onRangeChange) {
+    return setupExportModalControls({
+        modalId: "exportClassModal",
+        onFormatChange,
+        onRangeChange,
+    });
+}
+

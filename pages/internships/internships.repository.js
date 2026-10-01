@@ -476,3 +476,52 @@ function formatISODate(value) {
   if (!(value instanceof Date) || Number.isNaN(value.getTime())) return "";
   return value.toISOString().split("T")[0];
 }
+
+/**
+ * Export Internships list to Excel or CSV.
+ * @param {Object} options
+ * @param {Array<Object>} options.internships
+ * @param {string} options.format
+ * @param {string} options.periodLabel
+ */
+export async function exportInternshipsData({
+  internships = [],
+  format = "xlsx",
+  periodLabel = "Semua_Data",
+}) {
+  const { downloadExportFile, formatDateIndo } = await import(
+    "../../assets/js/utils/export-helper.js"
+  );
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID User", key: "id", width: 22 },
+    { header: "Nama Intern", key: "name", width: 24 },
+    { header: "Email", key: "email", width: 26 },
+    { header: "Divisi", key: "department", width: 20 },
+    { header: "Posisi", key: "position", width: 22 },
+    { header: "Status", key: "status", width: 16 },
+    { header: "Tanggal Mulai", key: "startDate", width: 18 },
+    { header: "Tanggal Selesai", key: "endDate", width: 18 },
+  ];
+
+  const rowsData = internships.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id || "-",
+    name: item.name || "-",
+    email: item.email || "-",
+    department: item.department || "-",
+    position: item.position || "-",
+    status: item.status ? item.status.toUpperCase() : "ACTIVE",
+    startDate: formatDateIndo(item.startDate || item.startDateObj || item.created_at),
+    endDate: formatDateIndo(item.endDate || item.endDateObj),
+  }));
+
+  await downloadExportFile({
+    filename: `Internship_Management_${periodLabel}`,
+    sheetName: "Internships",
+    columns,
+    rowsData,
+    format,
+  });
+}

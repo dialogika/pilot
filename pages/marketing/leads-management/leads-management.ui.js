@@ -6,6 +6,8 @@
  * ZERO direct Firebase imports or network calls.
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 /* =========================================================================
    FORMATTERS & UTILITIES
    ========================================================================= */
@@ -1113,4 +1115,17 @@ export function closeEditInvoiceModal() {
       : null;
   if (modalInstance) modalInstance.hide();
 }
+
+export function initLeadsExportModal() {
+  return setupExportModalControls({
+    modalId: "exportLeadsModal",
+    formatInputId: "exportLeadsFormat",
+    rangeInputId: "exportLeadsRange",
+    customDateContainerId: "exportLeadsCustomDateContainer",
+    startDateInputId: "exportLeadsStartDate",
+    endDateInputId: "exportLeadsEndDate",
+    submitBtnId: "btnSubmitExportLeads",
+  });
+}
+
 

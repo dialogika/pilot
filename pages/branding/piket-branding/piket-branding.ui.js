@@ -8,6 +8,7 @@
 import {
     Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { setupExportModalControls } from '../../../assets/js/utils/export-helper.js';
 
 // ── DOM Element Cache ─────────────────────────────────────────────────
 const els = () => ({
@@ -586,3 +587,17 @@ function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
 }
+
+/**
+ * Initializes Standard Export Modal for Piket Branding.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initPiketExportModal(onFormatChange, onRangeChange) {
+    return setupExportModalControls({
+        modalId: "exportPiketModal",
+        onFormatChange,
+        onRangeChange,
+    });
+}
+

@@ -425,6 +425,40 @@
   background: #15803d;
 }
 
+.dg-report-actions-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dg-report-btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #10b981;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.dg-report-btn-export:hover {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.dg-report-btn-export:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 /* Table Area */
 .dg-report-table-wrapper {
   background: #ffffff;
@@ -805,6 +839,17 @@
 }
 [data-theme="dark"] .dg-report-btn-bulk-exit:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .dg-report-btn-export {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+[data-theme="dark"] .dg-report-btn-export:hover {
+  background: #10b981;
+  color: #ffffff;
 }
 
 [data-theme="dark"] .dg-report-nav-pills {

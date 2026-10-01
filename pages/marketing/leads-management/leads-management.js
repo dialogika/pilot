@@ -24,7 +24,8 @@ import {
   fetchInvoices,
   fetchInvoiceById,
   saveInvoiceDoc,
-  deleteInvoicesBatch
+  deleteInvoicesBatch,
+  exportLeadsData
 } from "./leads-management.repository.js";
 
 import {
@@ -44,7 +45,8 @@ import {
   openEditLeadModal,
   closeEditLeadModal,
   openEditInvoiceModal,
-  closeEditInvoiceModal
+  closeEditInvoiceModal,
+  initLeadsExportModal
 } from "./leads-management.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -789,6 +791,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (e.key === "Enter") {
         e.preventDefault();
         handleSaveInterest();
+      }
+    });
+  }
+
+  // 11b. Export Leads Controls
+  const exportControls = initLeadsExportModal();
+  const exportForm = document.getElementById("exportLeadsForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportLeadsData(formData);
+        const modalEl = document.getElementById("exportLeadsModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export leads error:", err);
+        showNotificationModal("Gagal mengekspor data leads: " + err.message, "danger");
+      } finally {
+        exportControls.setLoading(false);
       }
     });
   }

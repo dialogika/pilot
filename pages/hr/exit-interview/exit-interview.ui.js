@@ -6,6 +6,8 @@
 // NO direct Firestore access here.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 /**
  * Safely escapes HTML special characters to prevent XSS.
  * @param {string} value
@@ -231,3 +233,17 @@ export function setSubmitButtonLoading(isLoading) {
     saveBtn.innerText = "Submit";
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Exit Interview.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initExitExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportExitModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

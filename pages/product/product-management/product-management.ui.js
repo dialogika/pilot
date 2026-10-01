@@ -5,6 +5,7 @@
 // =====================================================================
 
 import { PUBLIC_URL_MAP } from "./product-management.repository.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 function escapeHtml(str) {
   if (!str) return "";
@@ -804,3 +805,17 @@ export function setButtonLoading(button, isLoading, defaultHtml = "") {
     if (prev) button.innerHTML = prev;
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Product Management.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initProductExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportProductModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

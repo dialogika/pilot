@@ -15,6 +15,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- ExcelJS and SheetJS for Spreadsheet Export -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Pilot Core Foundations -->
     <link href="/assets/css/theme.css" rel="stylesheet">
     <link href="/assets/css/layout.css" rel="stylesheet">
@@ -67,23 +71,15 @@
                         <i data-lucide="shuffle" class="w-4 h-4"></i>
                         Ubah Status Massal
                     </button>
-                    <div class="relative">
-                        <button id="btnExportMenu" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                            Export
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <div id="exportDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-slate-100 text-xs text-slate-700 hidden z-30 py-1">
-                            <button id="btnExportCsv" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2">
-                                <i class="bi bi-file-earmark-text text-emerald-600"></i>
-                                Export CSV
-                            </button>
-                            <button id="btnExportExcel" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2">
-                                <i class="bi bi-file-earmark-spreadsheet text-emerald-600"></i>
-                                Export Excel
-                            </button>
-                        </div>
-                    </div>
+                    <button
+                        type="button"
+                        id="btnOpenExportModal"
+                        class="btn-export-green"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exportMentorModal"
+                    >
+                        <i class="bi bi-file-earmark-arrow-down"></i> Export
+                    </button>
                 </div>
             </div>
 
@@ -662,6 +658,141 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Modal Export Data -->
+    <div
+      class="modal fade"
+      id="exportMentorModal"
+      tabindex="-1"
+      aria-labelledby="exportMentorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content">
+          <div class="modal-body export-modal-body">
+            <!-- Header Modal -->
+            <div class="export-modal-header d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="export-header-icon bg-emerald-50 text-emerald-600">
+                  <i class="fa-solid fa-file-excel"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data Mentor (Excel / CSV)</h5>
+                  <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file, periode, dan filter status mentor</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Form Export -->
+            <form id="exportMentorForm" class="d-flex flex-column gap-3">
+              <!-- FORMAT FILE -->
+              <div>
+                <label class="export-section-label">FORMAT FILE</label>
+                <div class="export-segmented-control" id="formatFileSegmented">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx" id="btnFormatXlsx">
+                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv" id="btnFormatCsv">
+                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                  </button>
+                </div>
+              </div>
+
+              <!-- DATA YANG DIEXPORT -->
+              <div>
+                <label class="export-section-label">DATA YANG DIEXPORT</label>
+                <select class="form-select export-select shadow-none" id="exportDataType">
+                  <option value="all">Data Mentor Management</option>
+                </select>
+              </div>
+
+              <!-- PILIHAN RENTANG WAKTU -->
+              <div>
+                <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                <div class="export-segmented-control" id="rangeTypeSegmented">
+                  <button type="button" class="export-segmented-btn active" data-range="all" id="btnRangeAll">
+                    <i class="bi bi-globe"></i> Semua Data
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="month" id="btnRangeMonth">
+                    <i class="bi bi-calendar3"></i> Per Bulan
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="week" id="btnRangeWeek">
+                    <i class="bi bi-calendar-week"></i> Per Minggu
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECTION: SEMUA DATA -->
+              <div id="sectionAllPicker" style="display: block;">
+                <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                  <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ekspor Semua Data Mentor</span>
+                  </div>
+                  <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportAllHelpText">
+                    Semua data profil dan kinerja mentor dari awal hingga saat ini akan dimasukkan ke dalam file export tanpa batasan tanggal.
+                  </small>
+                </div>
+              </div>
+
+              <!-- SECTION: PILIH BULAN -->
+              <div id="sectionMonthPicker" style="display: none;">
+                <label class="export-section-label" id="monthPickerLabel">PILIH BULAN &amp; TAHUN</label>
+                <input type="month" class="form-control export-input shadow-none w-100" id="exportMonthInput">
+                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportMonthHelpText">
+                  Semua data mentor pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- SECTION: PILIH MINGGU -->
+              <div id="sectionWeekPicker" style="display: none;">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="export-section-label">BULAN &amp; TAHUN</label>
+                    <input type="month" class="form-control export-input shadow-none w-100" id="exportWeekMonthInput">
+                  </div>
+                  <div class="col-6">
+                    <label class="export-section-label">PILIH MINGGU</label>
+                    <select class="form-select export-select shadow-none" id="exportWeekSelect">
+                      <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                      <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                      <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                      <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                      <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                    </select>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportWeekHelpText">
+                  Semua data mentor pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- FILTER STATUS MENTOR -->
+              <div>
+                <label class="export-section-label">FILTER STATUS MENTOR</label>
+                <select class="form-select export-select shadow-none" id="exportStatusFilter">
+                  <option value="">Semua status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="on_leave">On Leave</option>
+                </select>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex align-items-center justify-content-end gap-2 mt-2 pt-2 border-top">
+                <button type="button" class="btn btn-light rounded-xl px-4 py-2 text-xs font-semibold" data-bs-dismiss="modal">
+                  Batal
+                </button>
+                <button type="submit" class="btn-download-export" id="btnSubmitExportMentor">
+                  <i class="bi bi-download"></i> Download Data
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->

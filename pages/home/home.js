@@ -113,6 +113,7 @@ async function initializeHome() {
 
     // 8. Wire interactions.
     wireEventHandlers();
+    wireExportHandlers();
 
     window.setRole = async (userIdOrEmail, newRole = "admin") => {
       try {
@@ -127,6 +128,112 @@ async function initializeHome() {
     console.log("Home initialized");
   } catch (error) {
     console.error("Failed to initialize Home:", error);
+  }
+}
+
+/**
+ * Wire standard export modal handlers for Daily Report and Pending Registrations.
+ */
+function wireExportHandlers() {
+  // 1. Daily Report Export Modal
+  const dailyReportExportControls = ui.initDailyReportExportModal();
+  const dailyReportExportForm = document.getElementById("exportDailyReportForm");
+  if (dailyReportExportForm && dailyReportExportControls) {
+    dailyReportExportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      dailyReportExportControls.setLoading(true);
+      try {
+        const formData = dailyReportExportControls.getFormData();
+        const res = await repo.exportDailyReportsData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+          status: formData.status,
+        });
+
+        const modalEl = document.getElementById("exportDailyReportModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+
+        if (window.Swal) {
+          window.Swal.fire({
+            icon: "success",
+            title: "Export Berhasil!",
+            text: `Berhasil mengunduh ${res.count} data laporan harian.`,
+            confirmButtonColor: "#0B2B6A",
+          });
+        } else {
+          ui.notifySuccess(`Berhasil mengunduh ${res.count} data laporan harian.`);
+        }
+      } catch (err) {
+        console.error("Daily report export failed:", err);
+        if (window.Swal) {
+          window.Swal.fire({
+            icon: "error",
+            title: "Export Gagal",
+            text: err.message || "Terjadi kesalahan saat memproses ekspor data.",
+            confirmButtonColor: "#0B2B6A",
+          });
+        } else {
+          ui.notifyError("Export gagal: " + err.message);
+        }
+      } finally {
+        dailyReportExportControls.setLoading(false);
+      }
+    });
+  }
+
+  // 2. Pending Users Export Modal
+  const pendingUsersExportControls = ui.initPendingUsersExportModal();
+  const pendingUsersExportForm = document.getElementById("exportPendingUsersForm");
+  if (pendingUsersExportForm && pendingUsersExportControls) {
+    pendingUsersExportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      pendingUsersExportControls.setLoading(true);
+      try {
+        const formData = pendingUsersExportControls.getFormData();
+        const res = await repo.exportPendingRegistrationsData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+        });
+
+        const modalEl = document.getElementById("exportPendingUsersModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+
+        if (window.Swal) {
+          window.Swal.fire({
+            icon: "success",
+            title: "Export Berhasil!",
+            text: `Berhasil mengunduh ${res.count} data pendaftar baru.`,
+            confirmButtonColor: "#0B2B6A",
+          });
+        } else {
+          ui.notifySuccess(`Berhasil mengunduh ${res.count} data pendaftar baru.`);
+        }
+      } catch (err) {
+        console.error("Pending users export failed:", err);
+        if (window.Swal) {
+          window.Swal.fire({
+            icon: "error",
+            title: "Export Gagal",
+            text: err.message || "Terjadi kesalahan saat memproses ekspor data.",
+            confirmButtonColor: "#0B2B6A",
+          });
+        } else {
+          ui.notifyError("Export gagal: " + err.message);
+        }
+      } finally {
+        pendingUsersExportControls.setLoading(false);
+      }
+    });
   }
 }
 
