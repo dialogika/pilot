@@ -6,6 +6,7 @@
 // =====================================================================
 
 import { KATEGORI_MAP, LOKASI_MAP, STATUS_MAP } from "./office-inventory.repository.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 /**
  * Format timestamp or date string to Indonesian formatted date (e.g. 08 Agu 2025).
@@ -357,4 +358,18 @@ export function renderPagination(info, onPageChange) {
     }
   };
 }
+
+/**
+ * Initializes Standard Export Modal for Office Inventory.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initInventoryExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportInventoryModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+
 

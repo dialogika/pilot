@@ -21,10 +21,12 @@ import {
   saveReferrals,
   loadSettingsLocal,
   saveSettingsLocal,
+  exportInvoiceData,
 } from "./create-invoice.repository.js";
 import {
   switchTab,
   updateStats,
+  initInvoiceExportModal,
   populateClassDropdown,
   populateProductDropdown,
   populateReferralProductOptions,
@@ -959,6 +961,29 @@ function bindEventListeners() {
   if (invoiceViewModal) {
     invoiceViewModal.addEventListener("click", (e) => {
       if (e.target === invoiceViewModal) closeInvoiceViewModal();
+    });
+  }
+
+  // 13. Export Data Modal Controls
+  const exportControls = initInvoiceExportModal();
+  const exportForm = document.getElementById("exportInvoiceForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportInvoiceData(formData);
+        const modalEl = document.getElementById("exportInvoiceModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export invoice error:", err);
+        alertDialog("Gagal mengekspor data invoice: " + err.message, { title: "Export Gagal" });
+      } finally {
+        exportControls.setLoading(false);
+      }
     });
   }
   const discountCalculatorModal = document.getElementById("discountCalculatorModal");

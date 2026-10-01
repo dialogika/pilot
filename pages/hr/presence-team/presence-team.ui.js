@@ -6,6 +6,8 @@
 // NO direct Firestore access here.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 /**
  * Generates an avatar circle HTML (photo or initials).
  * @param {string} photo - Photo URL
@@ -32,19 +34,30 @@ export function avatarHtml(photo, name, size = 36) {
 }
 
 /**
- * Returns badge markup based on attendance status.
+ * Returns badge markup based on attendance status and lateness.
  * @param {string} status
+ * @param {boolean} [isLate=false]
  * @returns {string} HTML
  */
-export function statusBadge(status) {
-  if (status === "Present") {
+export function statusBadge(status, isLate = false) {
+  if (status === "Present" || String(status).startsWith("Present")) {
+    if (isLate) {
+      return '<span class="badge-status bg-amber-100 text-amber-800 border border-amber-200">Present (Terlambat)</span>';
+    }
     return '<span class="badge-status bg-emerald-100 text-emerald-700">Present</span>';
+  }
+  if (status === "Tidak Valid (Hanya Clock Out)") {
+    return '<span class="badge-status bg-amber-100 text-amber-800 border border-amber-200">Belum Clock In</span>';
   }
   if (
     status === "Tidak Valid" ||
     status === "Tidak Valid (Belum Clock Out)" ||
-    String(status).startsWith("Tidak Valid")
+    String(status).startsWith("Tidak Valid") ||
+    String(status).startsWith("Belum Clock Out")
   ) {
+    if (isLate) {
+      return '<span class="badge-status bg-rose-100 text-rose-700 border border-rose-200">Belum Clock Out (Terlambat)</span>';
+    }
     return '<span class="badge-status bg-red-100 text-red-700">Belum Clock Out</span>';
   }
   return '<span class="badge-status bg-slate-100 text-slate-600">Tidak Hadir</span>';
@@ -53,21 +66,57 @@ export function statusBadge(status) {
 /**
  * Updates KPI Summary Cards and headers.
  */
-export function updateKpis({ total, present, pending, absent, dateKey }) {
+export function updateKpis({
+  total,
+  present,
+  totalWorkHoursFormatted = "0 Jam 0 Menit",
+  lateCount = 0,
+  totalLateHoursFormatted = "0 Menit",
+  pending,
+  absent,
+  dateKey,
+  category = "team",
+}) {
   const totalEl = document.getElementById("totalInternDisplay");
+  const totalLabelEl = document.getElementById("totalLabelDisplay");
   const presentEl = document.getElementById("presentCountDisplay");
+  const presentHoursEl = document.getElementById("presentTotalHoursDisplay");
+  const lateEl = document.getElementById("lateCountDisplay");
+  const lateHoursEl = document.getElementById("lateTotalHoursDisplay");
   const pendingEl = document.getElementById("pendingLogoutDisplay");
   const absentEl = document.getElementById("absentCountDisplay");
   const subtitleEl = document.getElementById("subtitleText");
   const summaryEl = document.getElementById("summaryText");
 
   if (totalEl) totalEl.textContent = String(total);
+  if (totalLabelEl) {
+    totalLabelEl.textContent =
+      category === "intern"
+        ? "Total Intern"
+        : category === "all"
+          ? "Total Personil"
+          : "Total Team";
+  }
   if (presentEl) presentEl.textContent = String(present);
+  if (presentHoursEl) {
+    presentHoursEl.textContent =
+      present > 0 ? `Total: ${totalWorkHoursFormatted}` : "Total: 0 Jam 0 Menit";
+  }
+  if (lateEl) lateEl.textContent = String(lateCount);
+  if (lateHoursEl) {
+    lateHoursEl.textContent =
+      lateCount > 0 ? `Total: ${totalLateHoursFormatted}` : "Total: 0 Menit";
+  }
   if (pendingEl) pendingEl.textContent = String(pending);
   if (absentEl) absentEl.textContent = String(absent);
   if (subtitleEl) subtitleEl.textContent = `Rekap ${dateKey}`;
   if (summaryEl) {
-    summaryEl.textContent = `${present} present, ${pending} belum clock out, ${absent} tidak hadir.`;
+    const workText = present > 0 ? ` (Total ${totalWorkHoursFormatted})` : "";
+    const lateText =
+      lateCount > 0
+        ? ` | ${lateCount} terlambat (${totalLateHoursFormatted})`
+        : "";
+    summaryEl.textContent = `${present} present${workText}${lateText}, ${pending} belum clock out, ${absent} tidak hadir.`;
   }
 }
 
@@ -158,6 +207,7 @@ export function renderDailyAttendanceTable(rows, paginationState) {
   const tbody = document.getElementById("attendanceBody");
   const emptyEl = document.getElementById("emptyState");
   const paginationEl = document.getElementById("attendancePagination");
+  const footEl = document.getElementById("attendanceFoot");
   if (!tbody) return;
 
   tbody.innerHTML = "";
@@ -168,90 +218,270 @@ export function renderDailyAttendanceTable(rows, paginationState) {
       paginationEl.innerHTML = "";
       paginationEl.classList.add("hidden");
     }
+    if (footEl) footEl.classList.add("hidden");
     return;
   }
 
   if (emptyEl) emptyEl.classList.add("hidden");
 
-  const { page, rowsPerPage, onPageChange } = paginationState;
-  const startIdx = (page - 1) * rowsPerPage;
-  const endIdx = startIdx + rowsPerPage;
-  const displayedRows = rows.length > rowsPerPage ? rows.slice(startIdx, endIdx) : rows;
+    // Render Daily Table Footer
+    if (footEl) {
+      footEl.classList.remove("hidden");
+      const totalSecs = rows.reduce((acc, r) => acc + (r.totalSeconds || 0), 0);
+      const presentRows = rows.filter((r) => r.status === "Present");
+      const lateRows = rows.filter((r) => r.isLate);
+      const totalLateSecs = lateRows.reduce((acc, r) => acc + (r.lateSeconds || 0), 0);
+      const lateH = Math.floor(totalLateSecs / 3600);
+      const lateM = Math.floor((totalLateSecs % 3600) / 60);
+      const lateTxt =
+        lateRows.length > 0
+          ? `${lateRows.length} Terlambat (${lateH > 0 ? `${lateH}j ${lateM}m` : `${lateM}m`})`
+          : "Tepat Waktu";
 
-  const frag = document.createDocumentFragment();
-  displayedRows.forEach((r) => {
-    const tr = document.createElement("tr");
-    tr.className = `border-b border-slate-100 ${
-      r.status && r.status.startsWith("Tidak Valid") ? "row-warning" : ""
-    }`;
-    tr.innerHTML = `
-      <td class="px-4 py-3 cell-name">
-        <div class="flex items-center gap-3">
-          ${avatarHtml(r.photo, r.name)}
-          <span class="font-semibold text-slate-800">${r.name}</span>
-        </div>
-      </td>
-      <td class="px-4 py-3 font-medium text-slate-600">${r.loginTime}</td>
-      <td class="px-4 py-3 font-medium text-slate-600">${r.logoutTime}</td>
-      <td class="px-4 py-3 text-slate-600">${r.totalLabel}</td>
-      <td class="px-4 py-3">${statusBadge(r.status)}</td>
-    `;
-    frag.appendChild(tr);
-  });
-  tbody.appendChild(frag);
-
-  renderPaginationComponent(paginationEl, {
-    currentPage: page,
-    totalRows: rows.length,
-    rowsPerPage,
-    onPageChange,
-  });
-}
-
-/**
- * Renders Monthly Recap Table with conditional pagination.
- */
-export function renderMonthlyRecapTable(rows, paginationState) {
-  const tbody = document.getElementById("internRecapBody");
-  const emptyEl = document.getElementById("internRecapEmpty");
-  const paginationEl = document.getElementById("monthlyRecapPagination");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  if (!rows || !rows.length) {
-    if (emptyEl) emptyEl.classList.remove("hidden");
-    if (paginationEl) {
-      paginationEl.innerHTML = "";
-      paginationEl.classList.add("hidden");
+      const dailyHoursCell = document.getElementById("dailyTotalHoursCell");
+      const dailyStatusCell = document.getElementById("dailyTotalStatusCell");
+      if (dailyHoursCell) {
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const totalCombSecs = rows.reduce(
+          (acc, r) => acc + (r.combinedSeconds || r.totalSeconds || 0),
+          0,
+        );
+        const combH = Math.floor(totalCombSecs / 3600);
+        const combM = Math.floor((totalCombSecs % 3600) / 60);
+        if (totalLateSecs > 0) {
+          dailyHoursCell.innerHTML = `
+            <div class="flex flex-col">
+              <span class="font-extrabold text-[#0B2B6A]">${combH} Jam ${combM} Menit</span>
+              <span class="text-[10px] font-normal text-slate-500">(${h}j ${m}m kerja + ${lateH}j ${lateM}m telat)</span>
+            </div>
+          `;
+        } else {
+          dailyHoursCell.textContent = `${h} Jam ${m} Menit`;
+        }
+      }
+      if (dailyStatusCell) {
+        dailyStatusCell.textContent = `${presentRows.length} Present • ${lateTxt}`;
+      }
     }
-    return;
+
+    const { page, rowsPerPage, onPageChange } = paginationState;
+    const startIdx = (page - 1) * rowsPerPage;
+    const endIdx = startIdx + rowsPerPage;
+    const displayedRows = rows.length > rowsPerPage ? rows.slice(startIdx, endIdx) : rows;
+
+    const frag = document.createDocumentFragment();
+    displayedRows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.className = `border-b border-slate-100 hover:bg-slate-50/50 transition-colors ${
+        r.status &&
+        (r.status.startsWith("Tidak Valid") ||
+          r.status.startsWith("Belum Clock Out"))
+          ? "row-warning"
+          : ""
+      }`;
+
+      const categoryBadge =
+        r.category === "intern"
+          ? '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">Intern</span>'
+          : '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">Team</span>';
+
+      let clockInHtml = '<span class="text-slate-400 font-medium">-</span>';
+      if (r.loginTime && r.loginTime !== "-") {
+        if (r.isLate) {
+          clockInHtml = `
+            <div class="flex flex-col">
+              <span class="font-bold text-rose-600">${r.loginTime}</span>
+              <span class="text-[10px] font-semibold text-rose-500 flex items-center gap-0.5">
+                <i class="bi bi-clock-history"></i> +${r.lateFormatted}
+              </span>
+            </div>
+          `;
+        } else {
+          clockInHtml = `
+            <div class="flex flex-col">
+              <span class="font-semibold text-slate-700">${r.loginTime}</span>
+              <span class="text-[10px] font-semibold text-emerald-600 flex items-center gap-0.5">
+                <i class="bi bi-check2"></i> Tepat Waktu
+              </span>
+            </div>
+          `;
+        }
+      }
+
+      let totalJamKerjaHtml = '<span class="text-slate-400 font-medium">-</span>';
+      if (r.totalSeconds != null) {
+        if (r.isLate && r.lateSeconds > 0) {
+          totalJamKerjaHtml = `
+            <div class="flex flex-col">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-800">${r.combinedLabel}</span>
+                <span class="badge-late-added px-1.5 py-0.5 rounded text-[10px] font-bold" title="Total kerja ditambah keterlambatan (+${r.lateFormatted})">
+                  <i class="bi bi-clock-history"></i> +Telat
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-500 font-normal">
+                ${r.totalLabel} kerja + ${r.lateFormatted} telat
+              </span>
+            </div>
+          `;
+        } else {
+          totalJamKerjaHtml = `<span class="font-medium text-slate-700">${r.totalLabel}</span>`;
+        }
+      }
+
+      tr.innerHTML = `
+        <td class="px-4 py-3 cell-name">
+          <div class="flex items-center gap-2.5">
+            ${avatarHtml(r.photo, r.name)}
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-semibold text-slate-800">${r.name}</span>
+              ${categoryBadge}
+            </div>
+          </div>
+        </td>
+        <td class="px-4 py-3">${clockInHtml}</td>
+        <td class="px-4 py-3 font-medium text-slate-600">${r.logoutTime}</td>
+        <td class="px-4 py-3">${totalJamKerjaHtml}</td>
+        <td class="px-4 py-3">${statusBadge(r.status, r.isLate)}</td>
+      `;
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+
+    renderPaginationComponent(paginationEl, {
+      currentPage: page,
+      totalRows: rows.length,
+      rowsPerPage,
+      onPageChange,
+    });
   }
 
-  if (emptyEl) emptyEl.classList.add("hidden");
+  /**
+   * Renders Monthly Recap Table with conditional pagination.
+   */
+  export function renderMonthlyRecapTable(rows, paginationState) {
+    const tbody = document.getElementById("internRecapBody");
+    const emptyEl = document.getElementById("internRecapEmpty");
+    const paginationEl = document.getElementById("monthlyRecapPagination");
+    const footEl = document.getElementById("internRecapFoot");
+    if (!tbody) return;
 
-  const { page, rowsPerPage, onPageChange, formatMinutes } = paginationState;
-  const startIdx = (page - 1) * rowsPerPage;
-  const endIdx = startIdx + rowsPerPage;
-  const displayedRows = rows.length > rowsPerPage ? rows.slice(startIdx, endIdx) : rows;
+    tbody.innerHTML = "";
 
-  const frag = document.createDocumentFragment();
-  displayedRows.forEach((r) => {
-    const tr = document.createElement("tr");
-    tr.className = "border-b border-slate-100 hover:bg-slate-50/50 transition-colors";
-    tr.innerHTML = `
-      <td class="px-4 py-3 cell-name">
-        <div class="flex items-center gap-3">
-          ${avatarHtml(r.photo, r.name)}
-          <span class="font-semibold text-slate-800">${r.name}</span>
-        </div>
-      </td>
-      <td class="px-4 py-3 font-medium text-slate-600">${r.attendanceDays} hari</td>
-      <td class="px-4 py-3 font-medium text-slate-700">${formatMinutes(r.total)}</td>
-    `;
-    frag.appendChild(tr);
-  });
-  tbody.appendChild(frag);
+    if (!rows || !rows.length) {
+      if (emptyEl) emptyEl.classList.remove("hidden");
+      if (paginationEl) {
+        paginationEl.innerHTML = "";
+        paginationEl.classList.add("hidden");
+      }
+      if (footEl) footEl.classList.add("hidden");
+      return;
+    }
+
+    if (emptyEl) emptyEl.classList.add("hidden");
+
+    // Render Monthly Table Footer
+    if (footEl) {
+      footEl.classList.remove("hidden");
+      const totalSecs = rows.reduce((acc, r) => acc + (r.total || 0), 0);
+      const totalDays = rows.reduce((acc, r) => acc + (r.attendanceDays || 0), 0);
+      const totalLateSecs = rows.reduce((acc, r) => acc + (r.totalLateSeconds || 0), 0);
+      const totalLateCount = rows.reduce((acc, r) => acc + (r.lateCount || 0), 0);
+
+      const mDaysCell = document.getElementById("monthlyTotalDaysCell");
+      const mLateCell = document.getElementById("monthlyTotalLateCell");
+      const mHoursCell = document.getElementById("monthlyTotalHoursCell");
+
+      if (mDaysCell) mDaysCell.textContent = `${totalDays} hari`;
+      if (mLateCell) {
+        const h = Math.floor(totalLateSecs / 3600);
+        const m = Math.floor((totalLateSecs % 3600) / 60);
+        const lateStr = h > 0 ? `${h} Jam ${m} Menit` : `${m} Menit`;
+        mLateCell.textContent =
+          totalLateCount > 0 ? `${totalLateCount}x (${lateStr})` : "Tepat Waktu";
+      }
+      if (mHoursCell) {
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const totalCombSecs = rows.reduce(
+          (acc, r) => acc + (r.totalCombined || r.total || 0),
+          0,
+        );
+        const combH = Math.floor(totalCombSecs / 3600);
+        const combM = Math.floor((totalCombSecs % 3600) / 60);
+        if (totalLateSecs > 0) {
+          const lateH = Math.floor(totalLateSecs / 3600);
+          const lateM = Math.floor((totalLateSecs % 3600) / 60);
+          const lateStr = lateH > 0 ? `${lateH}j ${lateM}m` : `${lateM}m`;
+          mHoursCell.innerHTML = `
+            <div class="flex flex-col">
+              <span class="font-extrabold text-[#0B2B6A]">${combH} Jam ${combM} Menit</span>
+              <span class="text-[10px] font-normal text-slate-500">(${h}j ${m}m kerja + ${lateStr} telat)</span>
+            </div>
+          `;
+        } else {
+          mHoursCell.textContent = `${h} Jam ${m} Menit`;
+        }
+      }
+    }
+
+    const { page, rowsPerPage, onPageChange, formatMinutes } = paginationState;
+    const startIdx = (page - 1) * rowsPerPage;
+    const endIdx = startIdx + rowsPerPage;
+    const displayedRows = rows.length > rowsPerPage ? rows.slice(startIdx, endIdx) : rows;
+
+    const frag = document.createDocumentFragment();
+    displayedRows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-b border-slate-100 hover:bg-slate-50/50 transition-colors";
+      const categoryBadge =
+        r.category === "intern"
+          ? '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">Intern</span>'
+          : '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">Team</span>';
+
+      const lateFormatted =
+        r.lateFormattedHours ||
+        (r.totalLateMinutes ? `${r.totalLateMinutes} Menit` : "-");
+      const lateHtml =
+        r.lateCount > 0
+          ? `<span class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">${r.lateCount}x (${lateFormatted})</span>`
+          : `<span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">Tepat Waktu</span>`;
+
+      let monthlyTotalJamHtml = `<span class="font-medium text-slate-700">${formatMinutes(r.total)}</span>`;
+      if (r.lateCount > 0 && r.totalLateSeconds > 0) {
+        monthlyTotalJamHtml = `
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-bold text-slate-800">${formatMinutes(r.totalCombined)}</span>
+              <span class="badge-late-added px-1.5 py-0.5 rounded text-[10px] font-bold" title="Ditambah keterlambatan: ${r.lateFormattedHours}">
+                <i class="bi bi-clock-history"></i> +Telat
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-normal">
+              ${formatMinutes(r.total)} kerja + ${r.lateFormattedHours} telat
+            </span>
+          </div>
+        `;
+      }
+
+      tr.innerHTML = `
+        <td class="px-4 py-3 cell-name">
+          <div class="flex items-center gap-2.5">
+            ${avatarHtml(r.photo, r.name)}
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-semibold text-slate-800">${r.name}</span>
+              ${categoryBadge}
+            </div>
+          </div>
+        </td>
+        <td class="px-4 py-3 font-medium text-slate-600">${r.attendanceDays} hari</td>
+        <td class="px-4 py-3 font-medium">${lateHtml}</td>
+        <td class="px-4 py-3">${monthlyTotalJamHtml}</td>
+      `;
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
 
   renderPaginationComponent(paginationEl, {
     currentPage: page,
@@ -268,6 +498,7 @@ export function renderTotalHoursTable(rows, paginationState) {
   const tbody = document.getElementById("internshipTotalBody");
   const emptyEl = document.getElementById("internshipTotalEmpty");
   const paginationEl = document.getElementById("totalJamPagination");
+  const footEl = document.getElementById("internshipTotalFoot");
   if (!tbody) return;
 
   tbody.innerHTML = "";
@@ -278,10 +509,35 @@ export function renderTotalHoursTable(rows, paginationState) {
       paginationEl.innerHTML = "";
       paginationEl.classList.add("hidden");
     }
+    if (footEl) footEl.classList.add("hidden");
     return;
   }
 
   if (emptyEl) emptyEl.classList.add("hidden");
+
+  // Render Total Hours Table Footer
+  if (footEl) {
+    footEl.classList.remove("hidden");
+    const totalSecs = rows.reduce((acc, r) => acc + (r.total || 0), 0);
+    const totalDays = rows.reduce((acc, r) => acc + (r.days || 0), 0);
+    const avgSecs = totalDays > 0 ? Math.floor(totalSecs / totalDays) : 0;
+
+    const tHoursCell = document.getElementById("totalJamAllHoursCell");
+    const tDaysCell = document.getElementById("totalJamAllDaysCell");
+    const tAvgCell = document.getElementById("totalJamAllAvgCell");
+
+    if (tHoursCell) {
+      const h = Math.floor(totalSecs / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      tHoursCell.textContent = `${h} Jam ${m} Menit`;
+    }
+    if (tDaysCell) tDaysCell.textContent = `${totalDays} hari`;
+    if (tAvgCell) {
+      const h = Math.floor(avgSecs / 3600);
+      const m = Math.floor((avgSecs % 3600) / 60);
+      tAvgCell.textContent = `${h} Jam ${m} Menit`;
+    }
+  }
 
   const { page, rowsPerPage, onPageChange, formatMinutes } = paginationState;
   const startIdx = (page - 1) * rowsPerPage;
@@ -292,6 +548,11 @@ export function renderTotalHoursTable(rows, paginationState) {
   displayedRows.forEach((r, idx) => {
     const rankNum = startIdx + idx + 1;
     const avg = r.days > 0 ? Math.floor(r.total / r.days) : 0;
+    const categoryBadge =
+      r.category === "intern"
+        ? '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">Intern</span>'
+        : '<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">Team</span>';
+
     const tr = document.createElement("tr");
     tr.className =
       "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
@@ -300,7 +561,10 @@ export function renderTotalHoursTable(rows, paginationState) {
         <div class="flex items-center gap-3">
           <span class="text-[11px] font-bold text-slate-400 w-5">${rankNum}</span>
           ${avatarHtml(r.photo, r.name)}
-          <span class="font-semibold text-slate-800">${r.name}</span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="font-semibold text-slate-800">${r.name}</span>
+            ${categoryBadge}
+          </div>
         </div>
       </td>
       <td class="px-4 py-3 font-semibold text-[#0B2B6A]">${formatMinutes(r.total)}</td>
@@ -512,3 +776,66 @@ export function setDailyLoading(isLoading) {
     else spinner.classList.add("hidden");
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Presence Team.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initPresenceExportModal(onFormatChange, onRangeChange) {
+  const baseControls = setupExportModalControls({
+    modalId: "exportPresenceModal",
+    onFormatChange,
+    onRangeChange,
+  });
+
+  const modalEl = document.getElementById("exportPresenceModal");
+  let selectedCategory = "all";
+
+  if (modalEl) {
+    const catSegmented = modalEl.querySelector("#exportCategorySegmented");
+    if (catSegmented) {
+      const catBtns = catSegmented.querySelectorAll("[data-category]");
+      catBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          catBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedCategory = btn.dataset.category || "all";
+        });
+      });
+    }
+  }
+
+  const setCategory = (cat) => {
+    selectedCategory = cat || "all";
+    if (modalEl) {
+      const catSegmented = modalEl.querySelector("#exportCategorySegmented");
+      if (catSegmented) {
+        const catBtns = catSegmented.querySelectorAll("[data-category]");
+        catBtns.forEach((b) => {
+          if (b.dataset.category === selectedCategory) {
+            b.classList.add("active");
+          } else {
+            b.classList.remove("active");
+          }
+        });
+      }
+    }
+  };
+
+  return {
+    ...baseControls,
+    setCategory,
+    getFormData: () => {
+      const baseData =
+        baseControls && typeof baseControls.getFormData === "function"
+          ? baseControls.getFormData()
+          : {};
+      return {
+        ...baseData,
+        category: selectedCategory,
+      };
+    },
+  };
+}
+

@@ -7,8 +7,15 @@
 import { db } from "../../../assets/js/firebase-config.js";
 import {
     collection,
-    onSnapshot
+    onSnapshot,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const COLLECTION_NAME = "subscription_email";
 
@@ -123,3 +130,56 @@ export function resolveMailingErrorMessage(error) {
     }
     return "Gagal terhubung ke Firebase. Pastikan collection `subscription_email` dapat diakses.";
 }
+
+/**
+ * Export mailing list data to Excel or CSV
+ */
+export async function exportMailingListData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+    const snap = await getDocs(collection(db, COLLECTION_NAME));
+    const items = [];
+    snap.forEach((docSnap) => {
+        const item = normalizeSubscriber(docSnap);
+        if (item.email) items.push(item);
+    });
+
+    const { start, end } = calcDateRange(dateRange, startDate, endDate);
+    const filtered = items.filter((item) => {
+        if (!start && !end) return true;
+        const time = extractTimestamp(item.createdAt);
+        if (!time) return true;
+        if (start && time < start) return false;
+        if (end && time > end) return false;
+        return true;
+    });
+
+    // Sort descending: newest first
+    filtered.sort((a, b) => {
+        const ta = a.createdAt ? a.createdAt.getTime() : 0;
+        const tb = b.createdAt ? b.createdAt.getTime() : 0;
+        return tb - ta;
+    });
+
+    const columns = [
+        { key: "no", header: "No", width: 6 },
+        { key: "email", header: "Alamat Email", width: 35 },
+        { key: "date", header: "Waktu Berlangganan", width: 25 },
+    ];
+
+    const rows = filtered.map((item, index) => ({
+        no: index + 1,
+        email: item.email || "-",
+        date: formatDateIndo(item.createdAt),
+    }));
+
+    const filename = `Data_Mailing_List_${new Date().toISOString().slice(0, 10)}`;
+    await downloadExportFile({
+        format,
+        filename,
+        sheetName: "Mailing List",
+        columns,
+        rows,
+    });
+
+    return { total: rows.length };
+}
+

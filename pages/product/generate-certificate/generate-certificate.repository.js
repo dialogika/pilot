@@ -16,6 +16,12 @@ import {
     writeBatch,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 export const CERT_LOG_STORAGE_KEY = 'dlg_certificate_logs_v1';
 export const CERT_LOG_COLLECTION = 'certificate_logs';
@@ -127,3 +133,87 @@ export async function deleteCertificateLogsByIds(logIds) {
         await batch.commit();
     }
 }
+
+/**
+ * Exports Certificate Logs data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter transactionType (individual, batch)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportCertificateData({
+    format = "xlsx",
+    rangeType = "all",
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+    status = "",
+}) {
+    const { start, end, label: periodLabel } = calcDateRange({
+        rangeType,
+        startDate,
+        endDate,
+        monthValue,
+        weekValue,
+    });
+
+    const logs = await fetchCertificateLogsFromFirestore(10000);
+
+    const filtered = logs.filter((item) => {
+        if (status && status !== "" && String(item.transactionType || "").toLowerCase() !== status.toLowerCase()) {
+            return false;
+        }
+        if (start && end) {
+            let ts = item.createdAtMs;
+            if (!ts) {
+                ts = extractTimestamp(item.createdAt || item.certificateDate);
+            }
+            if (!ts) return false;
+            const itemDate = new Date(ts);
+            if (itemDate < start || itemDate > end) return false;
+        }
+        return true;
+    });
+
+    const columns = [
+        { header: "No", key: "no", width: 8 },
+        { header: "No Invoice", key: "invoice", width: 18 },
+        { header: "Nama Penerima", key: "recipientName", width: 28 },
+        { header: "Program / Kelas", key: "className", width: 26 },
+        { header: "Tanggal Sertifikat", key: "certificateDate", width: 18 },
+        { header: "Tipe Transaksi", key: "transactionType", width: 16 },
+        { header: "Format Export", key: "exportFormat", width: 14 },
+        { header: "Waktu Pembuatan", key: "createdAt", width: 22 },
+        { header: "File Reference", key: "fileReference", width: 24 },
+    ];
+
+    const rows = filtered.map((item, idx) => ({
+        no: idx + 1,
+        invoice: item.invoice || "-",
+        recipientName: item.recipientName || "-",
+        className: item.className || "-",
+        certificateDate: item.certificateDate || "-",
+        transactionType: (item.transactionType || "individual").toUpperCase(),
+        exportFormat: (item.exportFormat || "svg").toUpperCase(),
+        createdAt: item.createdAt || "-",
+        fileReference: item.fileReference || "-",
+    }));
+
+    const filename = `Data_Log_Sertifikat_${periodLabel}`;
+    await downloadExportFile({
+        filename,
+        sheetName: "Log Sertifikat",
+        columns,
+        rows,
+        format,
+    });
+
+    return { count: rows.length, filename };
+}
+

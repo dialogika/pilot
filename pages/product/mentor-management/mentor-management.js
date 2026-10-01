@@ -621,33 +621,26 @@ function setupEventListeners() {
     });
   }
 
-  // Export Menu
-  if (btnExportMenu && exportDropdown) {
-    btnExportMenu.addEventListener("click", (e) => {
-      e.stopPropagation();
-      exportDropdown.classList.toggle("hidden");
-    });
-    document.addEventListener("click", (e) => {
-      if (
-        !exportDropdown.contains(e.target) &&
-        e.target !== btnExportMenu &&
-        !btnExportMenu.contains(e.target)
-      ) {
-        exportDropdown.classList.add("hidden");
+  // Standard Export Modal Controls
+  const mentorExportControls = ui.initMentorExportModal();
+  const mentorExportForm = document.getElementById("exportMentorForm");
+  if (mentorExportForm && mentorExportControls) {
+    mentorExportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mentorExportControls.setLoading(true);
+      try {
+        const formData = mentorExportControls.getFormData();
+        await repo.exportMentorData(formData);
+        const modalEl = document.getElementById("exportMentorModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export mentor error:", err);
+        alertDialog("Gagal mengekspor data mentor: " + err.message);
+      } finally {
+        mentorExportControls.setLoading(false);
       }
-    });
-  }
-
-  if (btnExportCsv) {
-    btnExportCsv.addEventListener("click", () => {
-      exportToCsv(getFilteredAndSortedMentors());
-      if (exportDropdown) exportDropdown.classList.add("hidden");
-    });
-  }
-  if (btnExportExcel) {
-    btnExportExcel.addEventListener("click", () => {
-      exportToCsv(getFilteredAndSortedMentors());
-      if (exportDropdown) exportDropdown.classList.add("hidden");
     });
   }
 

@@ -22,6 +22,12 @@ import {
   getDownloadURL,
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  extractTimestamp,
+  formatDateIndo,
+} from "/assets/js/utils/export-helper.js";
 
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1519571944364576809/hDYfs52OwPDvKcu_00WuL48PAcF0TKf_4BgDGu58vUXNmaVGkPg0w5aMoArM9OU02-ax";
 
@@ -411,3 +417,113 @@ export async function sendDiscordPaidNotification(expenseData) {
     console.error("[OperationalExpensesRepo] Failed to send Discord paid notification:", error);
   }
 }
+
+/**
+ * Export Operational Expenses data to Excel (.xlsx) or CSV (.csv).
+ * @param {Object} options
+ * @param {string} options.category - 'all' | 'Class' | 'Mentor Fee' | 'Subscription' | 'Travel' | 'Reimbursement' | 'Operational'
+ * @param {string} options.status - 'all' | 'requested' | 'reviewing' | 'approved' | 'paid' | 'rejected' | 'canceled'
+ * @param {string} options.rangeType - 'all' | 'month' | 'week'
+ * @param {string} options.month
+ * @param {string} options.weekMonth
+ * @param {number} options.week
+ * @param {string} options.format - 'xlsx' | 'csv'
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportExpensesData({
+  category = "all",
+  status = "all",
+  rangeType = "all",
+  month = "",
+  weekMonth = "",
+  week = 1,
+  format = "xlsx",
+}) {
+  const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+    rangeType,
+    month,
+    weekMonth,
+    week
+  );
+
+  const allExpenses = await loadExpenses();
+
+  let filtered = allExpenses;
+
+  // Filter category
+  if (category && category !== "all") {
+    const cTerm = category.toLowerCase().trim();
+    filtered = filtered.filter((item) => (item.category || "").toLowerCase().trim() === cTerm);
+  }
+
+  // Filter status
+  if (status && status !== "all") {
+    const sTerm = status.toLowerCase().trim();
+    filtered = filtered.filter((item) => (item.status || "").toLowerCase().trim() === sTerm);
+  }
+
+  // Filter date
+  if (rangeType !== "all") {
+    filtered = filtered.filter((item) => {
+      const ts =
+        item.createdAtMs ||
+        item.updatedAtMs ||
+        extractTimestamp(item.dueDate) ||
+        extractTimestamp(item.created_at);
+      if (!ts) return true;
+      return ts >= startTimestamp && ts <= endTimestamp;
+    });
+  }
+
+  if (!filtered.length) {
+    throw new Error("Tidak ada data pengeluaran pada periode / filter yang dipilih.");
+  }
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "Kode Expense", key: "code", width: 18 },
+    { header: "Judul Pengeluaran", key: "title", width: 30 },
+    { header: "Kategori", key: "category", width: 18 },
+    { header: "Nominal (Rp)", key: "amount", width: 18 },
+    { header: "Penerima Transfer", key: "beneficiary", width: 24 },
+    { header: "Bank / E-Wallet", key: "bank", width: 18 },
+    { header: "No. Rekening", key: "accountNumber", width: 22 },
+    { header: "Pengaju / PIC", key: "requester", width: 22 },
+    { header: "Jatuh Tempo (Due Date)", key: "dueDate", width: 20 },
+    { header: "Status", key: "status", width: 16 },
+    { header: "Tanggal Dibuat", key: "createdAt", width: 20 },
+    { header: "Tanggal Dibayar", key: "paidAt", width: 20 },
+    { header: "Catatan", key: "notes", width: 32 },
+  ];
+
+  const rows = filtered.map((e, idx) => ({
+    no: idx + 1,
+    code: e.expenseCode || e.id || "-",
+    title: e.title || "-",
+    category: e.category || "-",
+    amount: Number(e.amount || 0),
+    beneficiary: e.beneficiaryName || "-",
+    bank: e.bankName || "-",
+    accountNumber: e.accountNumber || "-",
+    requester: e.requesterName || "-",
+    dueDate: formatDateIndo(e.dueDate),
+    status: (e.status || "Requested").toUpperCase(),
+    createdAt: e.createdAtMs ? formatDateIndo(e.createdAtMs, true) : "-",
+    paidAt: e.paidAtMs ? formatDateIndo(e.paidAtMs, true) : "-",
+    notes: e.notes || e.paymentNotes || "-",
+  }));
+
+  const catSuffix = category === "all" ? "Semua_Kategori" : category.replace(/\s+/g, "_");
+  const filename = `Operational_Expenses_${catSuffix}_${periodLabel}`;
+
+  await downloadExportFile({
+    filename,
+    sheetName: "Operational Expenses",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

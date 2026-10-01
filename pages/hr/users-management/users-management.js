@@ -21,6 +21,7 @@ import {
   updateUser,
   updateUserRole,
   deleteUser,
+  exportUsersData,
 } from "./users-management.repository.js";
 
 import {
@@ -57,6 +58,7 @@ import {
   setExportHandlers,
   exportToExcel,
   exportToPdf,
+  initUsersExportModal,
   notifySuccess,
   notifyError,
 } from "./users-management.ui.js";
@@ -178,15 +180,68 @@ function wireEventHandlers() {
   // Select all row checkboxes
   wireSelectAllCheckbox();
 
-  // Export to Excel & PDF
-  setExportHandlers({
-    onExportPdf: () => {
-      exportToPdf(filteredUsers(), _positionsMap);
-    },
-    onExportExcel: () => {
-      exportToExcel(filteredUsers(), _positionsMap);
-    },
-  });
+  // Setup Universal Export Modal (Excel .xlsx & CSV .csv)
+  const exportControls = initUsersExportModal();
+  const exportForm = document.getElementById("exportUsersForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = _users.slice();
+
+        // Filter status
+        if (params.status) {
+          exportList = exportList.filter((u) => {
+            const rawStatus = (u.status || "").toLowerCase().trim();
+            return rawStatus === params.status;
+          });
+        }
+
+        // Filter date range
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((u) => {
+            const ts =
+              extractTimestamp(u.createdAt) ||
+              extractTimestamp(u.registered_at) ||
+              extractTimestamp(u.joined_at);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          notifyError("Tidak ada data user pada periode/filter yang dipilih.");
+          return;
+        }
+
+        await exportUsersData({
+          users: exportList,
+          format: params.format,
+          periodLabel,
+        });
+
+        exportControls.closeModal();
+        notifySuccess("Data user berhasil diexport!");
+      } catch (err) {
+        console.error("Export error:", err);
+        notifyError("Gagal mengekspor data user: " + err.message);
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 
   // Rows per page
   setRowsPerPageChangeHandler((val) => {

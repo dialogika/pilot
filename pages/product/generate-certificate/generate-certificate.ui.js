@@ -3,6 +3,8 @@
  * Presentation helpers, SVG formatting, Canvas PNG rasterization, Batch ZIP, and Log Table rendering.
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 export const DEFAULT_INVOICE = "13.07353";
 export const DEFAULT_NAME = "Asih Wulansari";
 export const GUIDE_EXAMPLE_TEXT = `13.07353\tAsih Wulansari\tPublic Speaking Basic
@@ -411,3 +413,17 @@ export function exportLogAsExcel(rows) {
     ].join('');
     return new Blob([tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
 }
+
+/**
+ * Initializes Standard Export Modal for Certificate Logs.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initCertificateExportModal(onFormatChange, onRangeChange) {
+    return setupExportModalControls({
+        modalId: "exportCertificateModal",
+        onFormatChange,
+        onRangeChange,
+    });
+}
+

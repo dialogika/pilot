@@ -10,6 +10,7 @@
 
 import { escapeHtml } from "/assets/js/utils.js";
 import { toast, setButtonBusy } from "/assets/js/ui.js";
+import { setupExportModalControls } from "/assets/js/utils/export-helper.js";
 
 function el(id) {
   return document.getElementById(id);
@@ -262,3 +263,18 @@ export function setupSurveyUI(onSubmitCallback) {
     });
   }
 }
+
+/**
+ * Initializes Export Modal controls for People Development.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ * @returns {Object} Modal control handles
+ */
+export function initPeopleDevExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportPeopleDevModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

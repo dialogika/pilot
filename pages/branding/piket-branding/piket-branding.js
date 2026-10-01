@@ -309,6 +309,29 @@ function wireEventListeners() {
         }
     });
 
+    // Standard Export Modal Controls
+    const piketExportControls = ui.initPiketExportModal();
+    const piketExportForm = document.getElementById('exportPiketForm');
+    if (piketExportForm && piketExportControls) {
+        piketExportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            piketExportControls.setLoading(true);
+            try {
+                const formData = piketExportControls.getFormData();
+                await repo.exportPiketData(formData);
+                const modalEl = document.getElementById('exportPiketModal');
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error('Export piket error:', err);
+                Swal.fire({ title: 'Gagal!', text: 'Gagal mengekspor data piket: ' + err.message, icon: 'error' });
+            } finally {
+                piketExportControls.setLoading(false);
+            }
+        });
+    }
+
     // Cleanup on page unload
     window.addEventListener('unload', () => {
         if (unsubTypes)     unsubTypes();

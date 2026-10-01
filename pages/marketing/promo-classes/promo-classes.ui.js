@@ -4,6 +4,8 @@
 // Handles pure DOM rendering, formatters, and UI component state.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 const MONTH_NAMES = [
   "Januari",
   "Februari",
@@ -437,3 +439,16 @@ export function populateEditForm(item, activeBatchLabel) {
   const batchLabel = document.getElementById("formBatchLabel");
   if (batchLabel) batchLabel.textContent = item.promoDuration || activeBatchLabel || "-";
 }
+
+export function initPromoExportModal() {
+  return setupExportModalControls({
+    modalId: "exportPromoModal",
+    formatInputId: "exportPromoFormat",
+    rangeInputId: "exportPromoRange",
+    customDateContainerId: "exportPromoCustomDateContainer",
+    startDateInputId: "exportPromoStartDate",
+    endDateInputId: "exportPromoEndDate",
+    submitBtnId: "btnSubmitExportPromo",
+  });
+}
+

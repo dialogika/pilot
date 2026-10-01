@@ -5,6 +5,8 @@
 // Strictly NO Firestore access or network calls here.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 export function mean(arr) {
@@ -473,3 +475,17 @@ export function openDetailModal(survey, userPhoto, categories) {
     modal.show();
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Intern Satisfaction Survey.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initSurveyExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportSurveyModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

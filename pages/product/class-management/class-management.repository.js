@@ -15,6 +15,12 @@ import {
   arrayUnion,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 /**
  * Fallback dataset if Firestore is unreachable or empty
@@ -524,3 +530,118 @@ export async function deleteClassDoc(docId) {
   if (!db) return;
   await deleteDoc(doc(db, "class_planning", docId));
 }
+
+/**
+ * Exports Class Management data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportClassManagementData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const classes = await fetchClasses();
+
+  const filtered = classes.filter((c) => {
+    if (status && status !== "" && String(c.status || "").toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    if (start && end) {
+      const ts = extractTimestamp(c.startDate || c.date || c.start_date);
+      if (!ts) return false;
+      const cDate = new Date(ts);
+      if (cDate < start || cDate > end) return false;
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Nama Kelas", key: "name", width: 30 },
+    { header: "Status", key: "status", width: 16 },
+    { header: "Tanggal Mulai", key: "startDate", width: 18 },
+    { header: "Lokasi", key: "location", width: 22 },
+    { header: "Tipe", key: "type", width: 16 },
+    { header: "PIC", key: "pic", width: 20 },
+    { header: "Notify Team", key: "notify", width: 20 },
+    { header: "Mentor", key: "mentor", width: 25 },
+    { header: "Meeting Done", key: "meetingDone", width: 14 },
+    { header: "Meeting Total", key: "meetingTotal", width: 14 },
+    { header: "Kehadiran (%)", key: "attendance", width: 16 },
+    { header: "Keterlambatan", key: "delay", width: 16 },
+    { header: "Reschedule", key: "reschedule", width: 14 },
+    { header: "Health Score", key: "healthScore", width: 14 },
+    { header: "Link WhatsApp", key: "groupLink", width: 30 },
+  ];
+
+  const rows = filtered.map((c, idx) => {
+    const mentorNames = Array.isArray(c.mentors)
+      ? c.mentors.map((m) => m.name || "").join(" / ")
+      : (c.mentor || "");
+    const done = c.meeting ? c.meeting.done || 0 : 0;
+    const total = c.meeting ? c.meeting.total || 0 : 0;
+    const attendance = typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+    const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+    const reschedule = typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+    let hs = 0;
+    if (typeof c.healthScore === "number") {
+      hs = c.healthScore;
+    } else {
+      let score = (attendance / 100) * 10 - delay * 0.8 - reschedule * 1.0;
+      if (score < 0) score = 0;
+      if (score > 10) score = 10;
+      hs = score;
+    }
+
+    return {
+      no: idx + 1,
+      name: c.name || "-",
+      status: c.status || "-",
+      startDate: c.startDate ? formatDateIndo(c.startDate) : "-",
+      location: c.location || "-",
+      type: c.type || "-",
+      pic: c.pic && c.pic.name ? c.pic.name : (c.pic || "-"),
+      notify: c.notify && c.notify.name ? c.notify.name : (c.notify || "-"),
+      mentor: mentorNames || "-",
+      meetingDone: done,
+      meetingTotal: total,
+      attendance: `${attendance}%`,
+      delay,
+      reschedule,
+      healthScore: Number(hs).toFixed(1),
+      groupLink: c.groupLink || "-",
+    };
+  });
+
+  const filename = `Data_Class_Management_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Class Management",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

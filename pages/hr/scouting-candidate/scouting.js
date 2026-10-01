@@ -47,9 +47,12 @@ const state = {
 function getFilteredTalents() {
   let result = state.talents.slice();
 
-  // Filter out records without radar in history (matching legacy logic)
+  // Filter out records without radar in history or current status (matching legacy logic)
   result = result.filter((t) => {
     const recruitment = t.recruitment_status || {};
+    const current = (recruitment.current || t.status || t.stage || "").toString().toLowerCase();
+    if (current === "radar") return true;
+
     const history = Array.isArray(recruitment.history)
       ? recruitment.history
       : [];
@@ -162,10 +165,11 @@ function setViewMode(mode) {
 async function loadTalents() {
   try {
     state.talents = await ScoutingRepo.listTalents();
-    applyFiltersAndRender();
   } catch (error) {
     console.error("Failed to load talents:", error);
+    state.talents = [];
   }
+  applyFiltersAndRender();
 }
 
 /**

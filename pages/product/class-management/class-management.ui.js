@@ -4,6 +4,7 @@
  */
 
 import { alertDialog } from "/assets/js/ui.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 export function computeHealthScore(c) {
   const attendance = typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
@@ -1114,3 +1115,17 @@ export function closePlanningModal() {
   const modal = document.getElementById("planningModal");
   if (modal) modal.classList.remove("open");
 }
+
+/**
+ * Initializes Standard Export Modal for Class Management.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initClassExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportClassModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

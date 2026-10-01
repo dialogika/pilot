@@ -14,6 +14,7 @@ import {
   fetchProducts,
   saveProduct,
   deleteProduct,
+  exportProductData,
   FALLBACK_PRODUCTS,
 } from "./product-management.repository.js";
 
@@ -37,6 +38,7 @@ import {
   addSpecificationItem,
   addOutcomeItem,
   executeRichCommand,
+  initProductExportModal,
 } from "./product-management.ui.js";
 
 let allProducts = [];
@@ -227,6 +229,29 @@ function setupEventListeners() {
   // Delete Modal Confirmation
   document.getElementById("btnCancelDelete")?.addEventListener("click", closeDeleteModal);
   document.getElementById("btnConfirmDelete")?.addEventListener("click", handleConfirmDelete);
+
+  // Standard Export Modal Controls
+  const productExportControls = initProductExportModal();
+  const productExportForm = document.getElementById("exportProductForm");
+  if (productExportForm && productExportControls) {
+    productExportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      productExportControls.setLoading(true);
+      try {
+        const formData = productExportControls.getFormData();
+        await exportProductData(formData);
+        const modalEl = document.getElementById("exportProductModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export product error:", err);
+        alertDialog("Gagal mengekspor data produk: " + err.message);
+      } finally {
+        productExportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 /**

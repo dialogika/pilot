@@ -1051,6 +1051,44 @@ function setupAutocompleteInputs() {
       setTimeout(() => ui.hideSearchResults("classSearchResults"), 150);
     });
   }
+
+  // Wire Export Modal
+  const exportControls = ui.initExpensesExportModal();
+  const exportForm = document.getElementById("exportExpensesForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        const category = document.getElementById("exportExpensesCategory")?.value || "all";
+
+        await repo.exportExpensesData({
+          category,
+          status: formData.status,
+          rangeType: formData.rangeType,
+          month: formData.month,
+          weekMonth: formData.weekMonth,
+          week: formData.week,
+          format: formData.format,
+        });
+
+        const modalEl = document.getElementById("exportExpensesModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("[OperationalExpenses] Export error:", err);
+        await alertDialog("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"), {
+          type: "error",
+          title: "Ekspor Gagal",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 // --- Initialization ---

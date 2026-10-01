@@ -14,6 +14,7 @@ import {
     deleteCertificateLogById,
     deleteCertificateLogsByIds,
     generateLogId,
+    exportCertificateData,
     CERT_LOG_STORAGE_KEY
 } from "./generate-certificate.repository.js";
 import {
@@ -48,7 +49,8 @@ import {
     svgStringToPngBlob,
     createEntryFilename,
     exportLogAsCsv,
-    exportLogAsExcel
+    exportLogAsExcel,
+    initCertificateExportModal
 } from "./generate-certificate.ui.js";
 
 // Ensure authenticated user before initializing page
@@ -821,6 +823,29 @@ downloadPngBtn?.addEventListener('click', () => {
         setStatus(batchStatus, `Gagal download PNG: ${error.message}`, 'error');
     });
 });
+
+// Export Certificate Data
+const certExportControls = initCertificateExportModal();
+const certExportForm = document.getElementById("exportCertificateForm");
+if (certExportForm && certExportControls) {
+    certExportForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        certExportControls.setLoading(true);
+        try {
+            const formData = certExportControls.getFormData();
+            await exportCertificateData(formData);
+            const modalEl = document.getElementById("exportCertificateModal");
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getInstance(modalEl)?.hide();
+            }
+        } catch (err) {
+            console.error("Export certificate error:", err);
+            alertDialog("Gagal mengekspor data sertifikat: " + err.message);
+        } finally {
+            certExportControls.setLoading(false);
+        }
+    });
+}
 
 // Preload certificate background template
 fetch('/template.png')

@@ -205,3 +205,54 @@ export async function updatePosition(id, payload) {
 export async function deletePosition(id) {
   await deleteDoc(doc(db, activePositionsCollection, id));
 }
+
+/**
+ * Export Company Positions list to Excel or CSV.
+ * @param {Object} options
+ * @param {Array<Object>} options.positions
+ * @param {string} options.format
+ * @param {string} options.periodLabel
+ * @param {Object} options.deptLabelMap
+ */
+export async function exportPositionsData({
+  positions = [],
+  format = "xlsx",
+  periodLabel = "Semua_Data",
+  deptLabelMap = {},
+}) {
+  const { downloadExportFile, formatDateIndo } = await import(
+    "../../../assets/js/utils/export-helper.js"
+  );
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID Posisi", key: "id", width: 22 },
+    { header: "Nama Posisi", key: "name", width: 26 },
+    { header: "Departemen", key: "department", width: 22 },
+    { header: "Quota / Head Count", key: "headCount", width: 18 },
+    { header: "Active Count", key: "activeCount", width: 16 },
+    { header: "Applicant Count", key: "applicantCount", width: 16 },
+    { header: "Status", key: "status", width: 14 },
+    { header: "Tanggal Dibuat", key: "createdAt", width: 18 },
+  ];
+
+  const rowsData = positions.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id || "-",
+    name: item.name || "-",
+    department: deptLabelMap[item.department] || item.department || "-",
+    headCount: item.headCount ?? 0,
+    activeCount: item.activeCount ?? 0,
+    applicantCount: item.applicantCount ?? 0,
+    status: item.status || "Open",
+    createdAt: formatDateIndo(item.createdAt),
+  }));
+
+  await downloadExportFile({
+    filename: `Company_Position_${periodLabel}`,
+    sheetName: "Company Position",
+    columns,
+    rowsData,
+    format,
+  });
+}

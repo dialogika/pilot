@@ -15,6 +15,7 @@ import {
   normalizeAvailabilityList,
   sanitizePhoneNumber,
 } from "./mentor-management.repository.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 export function computeScore(m) {
   const ratingScore = ((m.rating || 0) / 5) * 4;
@@ -1138,3 +1139,17 @@ export function setAddMentorError(msg) {
     errorEl.classList.remove("hidden");
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Mentor Management.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initMentorExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportMentorModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

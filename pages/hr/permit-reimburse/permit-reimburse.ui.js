@@ -519,17 +519,26 @@ export function setExportFileFormat(format) {
 }
 
 export function setExportPeriodMode(mode) {
+  const allBtn = document.getElementById("exportTypeAllBtn");
   const monthBtn = document.getElementById("exportTypeMonthBtn");
   const weekBtn = document.getElementById("exportTypeWeekBtn");
   const monthBox = document.getElementById("exportMonthBox");
   const weekBox = document.getElementById("exportWeekBox");
 
-  if (mode === "month") {
+  if (mode === "all") {
+    if (allBtn) allBtn.classList.add("active");
+    if (monthBtn) monthBtn.classList.remove("active");
+    if (weekBtn) weekBtn.classList.remove("active");
+    if (monthBox) monthBox.classList.add("hidden");
+    if (weekBox) weekBox.classList.add("hidden");
+  } else if (mode === "month") {
+    if (allBtn) allBtn.classList.remove("active");
     if (monthBtn) monthBtn.classList.add("active");
     if (weekBtn) weekBtn.classList.remove("active");
     if (monthBox) monthBox.classList.remove("hidden");
     if (weekBox) weekBox.classList.add("hidden");
   } else {
+    if (allBtn) allBtn.classList.remove("active");
     if (weekBtn) weekBtn.classList.add("active");
     if (monthBtn) monthBtn.classList.remove("active");
     if (weekBox) weekBox.classList.remove("hidden");
@@ -552,6 +561,7 @@ export function initExportModalUI(onScopeChange, onPeriodModeChange, onFormatCha
   const monthInput = document.getElementById("exportMonthInput");
   const weekStartInput = document.getElementById("exportWeekStart");
   const weekEndInput = document.getElementById("exportWeekEnd");
+  const allBtn = document.getElementById("exportTypeAllBtn");
   const monthBtn = document.getElementById("exportTypeMonthBtn");
   const weekBtn = document.getElementById("exportTypeWeekBtn");
   const xlsxBtn = document.getElementById("exportFormatXlsxBtn");
@@ -583,6 +593,13 @@ export function initExportModalUI(onScopeChange, onPeriodModeChange, onFormatCha
     csvBtn.addEventListener("click", () => {
       setExportFileFormat("csv");
       if (typeof onFormatChange === "function") onFormatChange("csv");
+    });
+  }
+
+  if (allBtn) {
+    allBtn.addEventListener("click", () => {
+      setExportPeriodMode("all");
+      if (typeof onPeriodModeChange === "function") onPeriodModeChange("all");
     });
   }
 

@@ -430,6 +430,76 @@ function wireEvents() {
       }
     });
   }
+
+  // Universal Export Modal Setup & Event Handling
+  const exportControls = TeamUI.initTeamExportModal();
+  const exportForm = document.getElementById("exportTeamForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = state.members.slice();
+
+        if (params.status) {
+          exportList = exportList.filter((m) => {
+            const rawStatus = (m.status || "").toLowerCase().trim();
+            return rawStatus === params.status;
+          });
+        }
+
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((m) => {
+            const ts =
+              extractTimestamp(m.startDate) ||
+              extractTimestamp(m.createdAt) ||
+              extractTimestamp(m.joined_at);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          await alertDialog("Tidak ada data anggota tim pada periode/filter yang dipilih.", {
+            type: "info",
+            title: "Data Tidak Ditemukan",
+          });
+          return;
+        }
+
+        await TeamRepo.exportTeamData({
+          members: exportList,
+          format: params.format,
+          periodLabel,
+        });
+
+        exportControls.closeModal();
+        await alertDialog("Data tim berhasil diexport!", {
+          type: "success",
+          title: "Export Berhasil",
+        });
+      } catch (err) {
+        console.error("Export error:", err);
+        await alertDialog("Gagal mengekspor data: " + err.message, {
+          type: "error",
+          title: "Terjadi Kesalahan",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 /**

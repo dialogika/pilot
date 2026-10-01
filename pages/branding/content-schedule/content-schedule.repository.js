@@ -13,11 +13,18 @@ import {
     doc,
     addDoc,
     getDoc,
+    getDocs,
     updateDoc,
     deleteDoc,
     onSnapshot,
     serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from '../../../assets/js/utils/export-helper.js';
 
 const COLL_CONTENT  = 'branding_content';
 const COLL_DUTY     = 'duty_schedules';
@@ -168,3 +175,98 @@ export async function updateMilestoneStatus(contentId, milestoneIndex, status) {
         throw e;
     }
 }
+
+/**
+ * Exports Branding Content Schedule data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter content status (pending, in-progress, completed)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportContentScheduleData({
+    format = "xlsx",
+    rangeType = "all",
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+    status = "",
+}) {
+    const { start, end, label: periodLabel } = calcDateRange({
+        rangeType,
+        startDate,
+        endDate,
+        monthValue,
+        weekValue,
+    });
+
+    const snap = await getDocs(collection(db, COLL_CONTENT));
+    const items = [];
+    snap.forEach((docSnap) => items.push({ id: docSnap.id, ...docSnap.data() }));
+
+    const filtered = items.filter((item) => {
+        if (status && status !== "" && String(item.status || "").toLowerCase() !== status.toLowerCase()) {
+            return false;
+        }
+        if (start && end) {
+            let ts = extractTimestamp(item.created_at);
+            if (!ts && Array.isArray(item.milestones) && item.milestones.length > 0) {
+                ts = extractTimestamp(item.milestones[0].date);
+            }
+            if (ts) {
+                const itemDate = new Date(ts);
+                if (itemDate < start || itemDate > end) return false;
+            }
+        }
+        return true;
+    });
+
+    const columns = [
+        { header: "No", key: "no", width: 8 },
+        { header: "Judul Konten", key: "title", width: 30 },
+        { header: "Deskripsi", key: "description", width: 35 },
+        { header: "Prioritas", key: "priority", width: 14 },
+        { header: "Status", key: "status", width: 16 },
+        { header: "Total Milestone", key: "totalMilestones", width: 16 },
+        { header: "Milestone Selesai", key: "completedMilestones", width: 18 },
+        { header: "Detail Milestone & PIC", key: "milestoneDetails", width: 40 },
+        { header: "Tanggal Dibuat", key: "createdAt", width: 18 },
+    ];
+
+    const rows = filtered.map((item, idx) => {
+        const ms = Array.isArray(item.milestones) ? item.milestones : [];
+        const completedCount = ms.filter((m) => m.status === "completed").length;
+        const msDetail = ms
+            .map((m) => `${m.name || "Task"} (${m.date ? formatDateIndo(m.date) : "-"}, PIC: ${m.pic || "-"}, Status: ${m.status || "pending"})`)
+            .join(" | ");
+
+        return {
+            no: idx + 1,
+            title: item.title || "-",
+            description: item.description || "-",
+            priority: (item.priority || "medium").toUpperCase(),
+            status: (item.status || "pending").toUpperCase(),
+            totalMilestones: ms.length,
+            completedMilestones: completedCount,
+            milestoneDetails: msDetail || "-",
+            createdAt: item.created_at ? formatDateIndo(item.created_at) : "-",
+        };
+    });
+
+    const filename = `Data_Jadwal_Konten_${periodLabel}`;
+    await downloadExportFile({
+        filename,
+        sheetName: "Jadwal Konten",
+        columns,
+        rows,
+        format,
+    });
+
+    return { count: rows.length, filename };
+}
+

@@ -26,6 +26,12 @@ import {
   arrayRemove,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMs } from "../../assets/js/utils.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../assets/js/utils/export-helper.js";
 
 const STATUS = {
   pending: "pending",
@@ -680,6 +686,227 @@ export async function setUserRole(userIdOrEmail, role) {
   } catch (error) {
     throw new Error(error?.message || "Gagal mengubah role pengguna.");
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Export Data Handlers                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Export daily reports dataset from intern_dailyreport collection.
+ * @param {Object} options
+ * @param {string} options.format - 'xlsx' | 'csv'
+ * @param {string} options.rangeType - 'all' | 'month' | 'week'
+ * @param {string} [options.monthValue]
+ * @param {number} [options.weekValue]
+ * @param {string} [options.status]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportDailyReportsData({
+  format = "xlsx",
+  rangeType = "all",
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+    rangeType,
+    monthValue,
+    monthValue,
+    weekValue
+  );
+
+  const snap = await getDocs(collection(db, "intern_dailyreport"));
+
+  const raw = [];
+  snap.forEach((d) => {
+    raw.push({ id: d.id, ...d.data() });
+  });
+
+  const filtered = raw.filter((item) => {
+    // Status filter
+    if (status) {
+      const itemStatus = String(item.status || "").toLowerCase().trim();
+      const targetStatus = String(status).toLowerCase().trim();
+      if (itemStatus !== targetStatus) return false;
+    }
+
+    // Date range filter
+    if (rangeType !== "all") {
+      const ts =
+        extractTimestamp(item.created_at) ||
+        extractTimestamp(item.report_date) ||
+        extractTimestamp(item.timestamp) ||
+        extractTimestamp(item.date);
+      if (!ts) return false;
+      if (ts < startTimestamp || ts > endTimestamp) return false;
+    }
+
+    return true;
+  });
+
+  // Sort descending by date/time
+  filtered.sort((a, b) => {
+    const tsA = extractTimestamp(a.created_at) || extractTimestamp(a.report_date) || 0;
+    const tsB = extractTimestamp(b.created_at) || extractTimestamp(b.report_date) || 0;
+    return tsB - tsA;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID Laporan", key: "id", width: 22 },
+    { header: "Tanggal Laporan", key: "reportDate", width: 18 },
+    { header: "Waktu Submit", key: "submittedAt", width: 20 },
+    { header: "Nama Lengkap", key: "name", width: 25 },
+    { header: "Divisi / Departemen", key: "department", width: 22 },
+    { header: "Posisi", key: "position", width: 22 },
+    { header: "Status Laporan", key: "status", width: 18 },
+    { header: "Jumlah Task", key: "taskCount", width: 14 },
+    { header: "Ringkasan Aktivitas / Task", key: "tasksSummary", width: 45 },
+    { header: "Total Poin", key: "totalPoints", width: 12 },
+    { header: "Target Reviewer (Report To)", key: "reportTo", width: 25 },
+    { header: "Direview Oleh", key: "reviewerName", width: 25 },
+    { header: "Waktu Review", key: "reviewedAt", width: 20 },
+    { header: "Catatan Penolakan / Feedback", key: "feedback", width: 35 },
+  ];
+
+  const rows = filtered.map((item, idx) => {
+    const tasks = Array.isArray(item.tasks) ? item.tasks : [];
+    const tasksSummary = tasks
+      .map((t, tIdx) => {
+        const title = t.detail || t.note || t.name || t.task || "";
+        const cleanTitle = title.replace(/<[^>]*>/g, "").trim();
+        return `${tIdx + 1}. ${cleanTitle}`;
+      })
+      .filter(Boolean)
+      .join("\n");
+
+    const totalPts =
+      item.total_points ??
+      tasks.reduce((sum, t) => sum + (Number(t.points) || 0), 0);
+
+    const dept =
+      item.department ||
+      (Array.isArray(item.departments) && item.departments.length > 0
+        ? item.departments[0]
+        : "-");
+
+    return {
+      no: idx + 1,
+      id: item.id,
+      reportDate: item.date_label || item.report_date || formatDateIndo(item.created_at) || "-",
+      submittedAt: formatDateIndo(item.created_at || item.timestamp, true) || "-",
+      name: item.name || item.author_name || "-",
+      department: dept || "-",
+      position: item.position || "-",
+      status: item.status || "Pending",
+      taskCount: tasks.length,
+      tasksSummary: tasksSummary || "-",
+      totalPoints: totalPts,
+      reportTo: item.report_to || item.reportTo || item.department_head || "-",
+      reviewerName: item.reviewer_name || "-",
+      reviewedAt: formatDateIndo(item.reviewed_at, true) || "-",
+      feedback: item.rejection_reason || item.feedback || "-",
+    };
+  });
+
+  const filename = `Data_Daily_Report_${status ? status + "_" : ""}${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Daily Report",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+
+/**
+ * Export pending registrations dataset from pending_users collection.
+ * @param {Object} options
+ * @param {string} options.format - 'xlsx' | 'csv'
+ * @param {string} options.rangeType - 'all' | 'month' | 'week'
+ * @param {string} [options.monthValue]
+ * @param {number} [options.weekValue]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportPendingRegistrationsData({
+  format = "xlsx",
+  rangeType = "all",
+  monthValue,
+  weekValue,
+}) {
+  const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+    rangeType,
+    monthValue,
+    monthValue,
+    weekValue
+  );
+
+  const snap = await getDocs(collection(db, "pending_users"));
+
+  const raw = [];
+  snap.forEach((d) => {
+    raw.push({ id: d.id, ...d.data() });
+  });
+
+  const filtered = raw.filter((item) => {
+    // Only pending users
+    if (item.is_approved === true) return false;
+
+    // Date range filter
+    if (rangeType !== "all") {
+      const ts =
+        extractTimestamp(item.registered_at) ||
+        extractTimestamp(item.created_at) ||
+        extractTimestamp(item.timestamp);
+      if (!ts) return false;
+      if (ts < startTimestamp || ts > endTimestamp) return false;
+    }
+
+    return true;
+  });
+
+  // Sort descending by registration date
+  filtered.sort((a, b) => {
+    const tsA = extractTimestamp(a.registered_at) || extractTimestamp(a.created_at) || 0;
+    const tsB = extractTimestamp(b.registered_at) || extractTimestamp(b.created_at) || 0;
+    return tsB - tsA;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID User", key: "id", width: 24 },
+    { header: "Nama Lengkap", key: "name", width: 25 },
+    { header: "Email", key: "email", width: 30 },
+    { header: "Posisi", key: "position", width: 22 },
+    { header: "Divisi / Departemen", key: "department", width: 22 },
+    { header: "Tanggal Registrasi", key: "registeredAt", width: 22 },
+    { header: "Status Verifikasi", key: "status", width: 18 },
+  ];
+
+  const rows = filtered.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id,
+    name: item.name || "No Name",
+    email: item.email || "-",
+    position: item.employment?.position || item.position || "-",
+    department: item.employment?.department || item.department || "-",
+    registeredAt: formatDateIndo(item.registered_at || item.created_at, true) || "-",
+    status: item.is_approved ? "Approved" : "Pending Verification",
+  }));
+
+  const filename = `Data_Pending_Registrations_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Pending Registrations",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
 }
 
 /* ------------------------------------------------------------------ */

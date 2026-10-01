@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 
+    <!-- ExcelJS & SheetJS for Export -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Shared Foundation Styles -->
     <link href="/assets/css/theme.css" rel="stylesheet">
     <link href="/assets/css/layout.css" rel="stylesheet">
@@ -53,6 +57,15 @@
                     <p class="text-slate-500 text-sm mt-1">Kelola section webinar secara dinamis. Hanya satu webinar yang boleh aktif dalam satu waktu.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        class="btn-export-green"
+                        id="btnOpenExportWebinarModal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exportWebinarModal"
+                    >
+                        <i class="fas fa-file-export me-1"></i> Export Data
+                    </button>
                     <button id="btnOpenMemberModal" type="button" class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center gap-2 font-semibold">
                         <i class="bi bi-people-fill"></i>
                         <span>Daftar Member</span>
@@ -293,6 +306,71 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Export Webinar Modal -->
+    <div class="modal fade" id="exportWebinarModal" tabindex="-1" aria-labelledby="exportWebinarModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title font-bold text-slate-800" id="exportWebinarModalLabel">
+              <i class="fas fa-file-export text-emerald-600 me-2"></i>Export Data Webinar
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="exportWebinarForm">
+            <div class="modal-body pt-3">
+              <p class="text-xs text-slate-500 mb-4">Pilih format file dan rentang tanggal data webinar yang ingin Anda unduh.</p>
+
+              <!-- Format Selection -->
+              <div class="mb-4">
+                <label class="form-label text-xs font-semibold text-slate-700 mb-2">FORMAT FILE</label>
+                <div class="export-segmented-control">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx">
+                    <i class="fas fa-file-excel me-1 text-emerald-600"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv">
+                    <i class="fas fa-file-csv me-1 text-blue-600"></i> CSV (.csv)
+                  </button>
+                </div>
+                <input type="hidden" name="exportFormat" id="exportWebinarFormat" value="xlsx" />
+              </div>
+
+              <!-- Date Range Selection -->
+              <div class="mb-3">
+                <label class="form-label text-xs font-semibold text-slate-700 mb-2">RENTANG WAKTU (TANGGAL DIBUAT)</label>
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                  <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="7">7 Hari</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="30">30 Hari</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="month">Bulan Ini</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn active" data-range="all">Semua Data</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary export-range-btn" data-range="custom">Custom</button>
+                </div>
+                <input type="hidden" name="exportRange" id="exportWebinarRange" value="all" />
+
+                <!-- Custom Date Inputs (collapsible) -->
+                <div id="exportWebinarCustomDateContainer" class="row g-2" style="display: none;">
+                  <div class="col-6">
+                    <label class="form-label text-xs text-slate-600">Tanggal Mulai</label>
+                    <input type="date" class="form-control form-control-sm text-xs" id="exportWebinarStartDate" />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-xs text-slate-600">Tanggal Selesai</label>
+                    <input type="date" class="form-control form-control-sm text-xs" id="exportWebinarEndDate" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-sm btn-cancel-export" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-sm btn-download-export" id="btnSubmitExportWebinar">
+                <span class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                <i class="fas fa-download me-1"></i> Unduh File
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- Floating Toast Container -->

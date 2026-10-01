@@ -470,6 +470,29 @@ async function loadMembers() {
  * Wire all events
  */
 function setupEvents() {
+  // Export Member Data Controls
+  const exportControls = ui.initMemberExportModal();
+  const exportForm = document.getElementById("exportMemberForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await repo.exportMemberData(formData);
+        const modalEl = document.getElementById("exportMemberModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export member error:", err);
+        ui.showFeedback("Gagal mengekspor data: " + err.message, "Gagal", "error");
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
+
   // Realtime Rupiah input formatting
   memberFormHarga?.addEventListener("input", (e) => {
     const curPos = e.target.selectionStart;

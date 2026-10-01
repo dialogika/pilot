@@ -12,7 +12,8 @@ import {
     saveWebinar,
     toggleWebinarActive,
     deleteWebinar,
-    fetchMemberWebinarsPage
+    fetchMemberWebinarsPage,
+    exportWebinarData
 } from "./webinar.repository.js";
 import {
     initQuillEditor,
@@ -25,7 +26,8 @@ import {
     setPosterPreview,
     updateActivateWarning,
     renderMemberModal,
-    showToast
+    showToast,
+    initWebinarExportModal
 } from "./webinar.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -440,6 +442,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (memberLoadMoreBtn) {
         memberLoadMoreBtn.addEventListener("click", () => {
             memberLoadNextPage();
+        });
+    }
+
+    // Export Webinar Controls
+    const exportControls = initWebinarExportModal();
+    const exportForm = document.getElementById("exportWebinarForm");
+    if (exportForm && exportControls) {
+        exportForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            exportControls.setLoading(true);
+            try {
+                const formData = exportControls.getFormData();
+                await exportWebinarData(formData);
+                const modalEl = document.getElementById("exportWebinarModal");
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error("Export webinar error:", err);
+                showToast("Gagal mengekspor data: " + err.message, "danger");
+            } finally {
+                exportControls.setLoading(false);
+            }
         });
     }
 

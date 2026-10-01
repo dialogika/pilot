@@ -400,3 +400,192 @@
 @keyframes dg-spin {
   to { transform: rotate(360deg); }
 }
+
+/* =====================================================================
+   SHARED EXPORT MODAL STYLES (Dialogika Pilot Universal)
+   ===================================================================== */
+.btn-export-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff !important;
+  background-color: #14532d;
+  border: 1px solid #14532d;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(20, 83, 45, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-export-green:hover {
+  background-color: #166534;
+  border-color: #166534;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(20, 83, 45, 0.35);
+}
+
+.btn-export-green:active {
+  transform: translateY(0);
+}
+
+.export-modal-dialog {
+  max-width: 480px;
+}
+
+.export-modal-content {
+  border-radius: 24px;
+  border: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+}
+
+.export-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #ecfdf5;
+  color: #107c41;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.export-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.export-segmented-control {
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 14px;
+  display: flex;
+  gap: 4px;
+}
+
+.export-segmented-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.export-segmented-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.export-select,
+.export-input {
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #334155;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.export-select:focus,
+.export-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+  outline: none;
+}
+
+.btn-download-export {
+  background-color: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 20px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-download-export:hover {
+  background-color: #047857;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-cancel-export {
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+  padding: 11px 20px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel-export:hover {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+[data-theme="dark"] .export-modal-content {
+  background-color: var(--surface, #1e293b);
+  color: var(--text, #f8fafc);
+}
+
+[data-theme="dark"] .export-section-label {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .export-segmented-control {
+  background: var(--surface-2, #334155);
+}
+
+[data-theme="dark"] .export-segmented-btn {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .export-segmented-btn.active {
+  background: var(--surface, #1e293b);
+  color: var(--text, #f8fafc);
+}
+
+[data-theme="dark"] .export-select,
+[data-theme="dark"] .export-input {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #475569);
+  color: var(--text, #f8fafc);
+}
+
+[data-theme="dark"] .btn-cancel-export {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #475569);
+  color: var(--text, #f8fafc);
+}

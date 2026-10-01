@@ -96,16 +96,14 @@ service cloud.firestore {
       return role() == 'member';
     }
 
-    // "Manajemen" = owner + admin + team, diperlakukan setara untuk akses data
-    // operasional sehari-hari (lihat catatan UPDATE 2026-08-11 di atas file).
-    // Ini pengganti langsung isKepalaTim() versi lama.
+    // "Manajemen" = semua role internal yang login diizinkan akses penuh (Opsi 3)
     function isManagement() {
-      return isOwnerRole() || isAdmin() || isTeam();
+      return isSignedIn();
     }
 
-    // "Internal" = boleh login ke team.dialogika.co (bukan member/public)
+    // "Internal" = seluruh pengguna yang login
     function isInternalTeam() {
-      return isManagement() || isStaff() || isIntern() || isMentor();
+      return isSignedIn();
     }
 
     // Cek dokumen ini "milik" uid ini sendiri (dulu namanya isOwner() —

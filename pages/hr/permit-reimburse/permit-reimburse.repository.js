@@ -18,6 +18,12 @@ import {
   orderBy,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const withTimeout = (promise, ms = 10000) =>
   Promise.race([
@@ -478,4 +484,232 @@ export async function markReimburseDayCompleted(reimburseId, dateStr, actorName 
   }
 
   return { success: true, allCompleted };
+}
+
+/**
+ * Exports Permit and/or Reimburse data based on filter parameters.
+ */
+export async function exportPermitReimburseData({
+  scope = "permit",
+  format = "xlsx",
+  periodMode = "month",
+  statusFilter = "all",
+  monthVal = "",
+  weekStart = "",
+  weekEnd = "",
+  allPermits = [],
+  allReimburse = []
+}) {
+  let startStr = "";
+  let endStr = "";
+  let periodLabel = "";
+
+  if (periodMode === "all") {
+    startStr = "";
+    endStr = "";
+    periodLabel = "Semua_Data";
+  } else if (periodMode === "month") {
+    if (!monthVal) {
+      throw new Error("Pilih bulan terlebih dahulu.");
+    }
+    const parts = monthVal.split("-");
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const lastDay = new Date(year, month, 0).getDate();
+    startStr = `${monthVal}-01`;
+    endStr = `${monthVal}-${String(lastDay).padStart(2, "0")}`;
+    periodLabel = `Bulan_${monthVal}`;
+  } else {
+    startStr = weekStart;
+    endStr = weekEnd;
+    if (!startStr || !endStr) {
+      throw new Error("Pilih rentang tanggal minggu terlebih dahulu.");
+    }
+    periodLabel = `Minggu_${startStr}_sd_${endStr}`;
+  }
+
+  function extractDateString(val) {
+    if (!val) return "";
+    if (typeof val === "object" && typeof val.toDate === "function") {
+      const d = val.toDate();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+    if (val instanceof Date) {
+      return `${val.getFullYear()}-${String(val.getMonth() + 1).padStart(2, "0")}-${String(val.getDate()).padStart(2, "0")}`;
+    }
+    if (typeof val === "number") {
+      const d = new Date(val);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+    const str = String(val).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+      return str.slice(0, 10);
+    }
+    const parsed = new Date(str);
+    if (!Number.isNaN(parsed.getTime())) {
+      return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
+    }
+    return "";
+  }
+
+  function isDateInRange(dateVal, sStr, eStr) {
+    if (!sStr && !eStr) return true;
+    const targetStr = extractDateString(dateVal);
+    if (!targetStr) return false;
+    if (sStr && targetStr < sStr) return false;
+    if (eStr && targetStr > eStr) return false;
+    return true;
+  }
+
+  const includePermits = scope === "permit" || scope === "all";
+  const includeReimburse = scope === "reimburse" || scope === "all";
+
+  // Filter Permits
+  const filteredPermits = allPermits.filter((p) => {
+    if (statusFilter && statusFilter !== "all" && String(p.status || "").toLowerCase() !== statusFilter) {
+      return false;
+    }
+    const startDate = p.start_date || "";
+    const endDate = p.end_date || p.start_date || "";
+    const createdAt = p.created_at || "";
+
+    const matchStart = isDateInRange(startDate, startStr, endStr);
+    const matchEnd = isDateInRange(endDate, startStr, endStr);
+    const matchCreated = isDateInRange(createdAt, startStr, endStr);
+
+    const startStrExt = extractDateString(startDate);
+    const endStrExt = extractDateString(endDate);
+    const overlap = startStrExt && endStrExt && startStrExt <= endStr && endStrExt >= startStr;
+
+    return matchStart || matchEnd || matchCreated || overlap;
+  });
+
+  // Filter Reimburse
+  const filteredReimburse = allReimburse.filter((r) => {
+    const startDate = r.start_date || "";
+    const endDate = r.end_date || r.start_date || "";
+    const matchStart = isDateInRange(startDate, startStr, endStr);
+    const matchEnd = isDateInRange(endDate, startStr, endStr);
+    const hasEntryInRange = (r.dailyEntries || []).some((e) => isDateInRange(e.date, startStr, endStr));
+    return matchStart || matchEnd || hasEntryInRange;
+  });
+
+  const permitDataRows = [];
+  if (includePermits) {
+    filteredPermits.forEach((p, idx) => {
+      const startFull = formatDateIndo(p.start_date);
+      const endFull = formatDateIndo(p.end_date || p.start_date);
+      let izinDate = startFull || "-";
+      if (startFull && endFull && endFull !== startFull) {
+        izinDate = `${startFull} - ${endFull}`;
+      }
+      permitDataRows.push({
+        no: idx + 1,
+        created_at: formatDateIndo(p.created_at) || "-",
+        user_name: p.user_name || "-",
+        user_position: p.user_position || p.division || "-",
+        izin_date: izinDate,
+        permit_type: p.permit_hours ? `${p.permit_type} (${p.permit_hours})` : (p.permit_type || "-"),
+        reason: p.reason || "-",
+        status: String(p.status || "Pending").toUpperCase(),
+        approver: p.approved_by_name || p.rejected_by_name || "-",
+        approval_date: formatDateIndo(p.approved_at || p.rejected_at) || "-",
+        evidence_url: p.attachment_url || p.evidence_url || "-"
+      });
+    });
+  }
+
+  const reimburseSummaryRows = [];
+  if (includeReimburse) {
+    filteredReimburse.forEach((r, idx) => {
+      reimburseSummaryRows.push({
+        no: idx + 1,
+        user_name: r.user_name || "-",
+        start_date: r.start_date || "-",
+        end_date: r.end_date || r.start_date || "-",
+        total_days: Number(r.total_days ?? r.days ?? r.reimburse_days ?? 0),
+        total_hours: Number(r.total_hours ?? r.hours ?? r.reimburse_hours ?? 0),
+        status: String(r.status || "pending").toUpperCase(),
+        completed_by: r.completed_by_name || "-",
+        reason: (r.related && r.related.reason) || r.reason || "-"
+      });
+    });
+  }
+
+  const totalRowsCount = permitDataRows.length + reimburseSummaryRows.length;
+  if (totalRowsCount === 0) {
+    throw new Error("Tidak ada data pada periode dan filter yang dipilih.");
+  }
+
+  let fileScope = "Izin_Reimburse";
+  let columns = [];
+  let rowsData = [];
+  let sheetName = "Data Izin & Reimburse";
+
+  if (scope === "permit") {
+    fileScope = "Data_Izin";
+    sheetName = "Data Izin";
+    columns = [
+      { header: "No", key: "no", width: 6 },
+      { header: "Tanggal Pengajuan", key: "created_at", width: 20 },
+      { header: "Nama Karyawan", key: "user_name", width: 24 },
+      { header: "Posisi / Divisi", key: "user_position", width: 22 },
+      { header: "Tanggal Izin", key: "izin_date", width: 26 },
+      { header: "Jenis Izin", key: "permit_type", width: 20 },
+      { header: "Alasan Izin", key: "reason", width: 36 },
+      { header: "Status", key: "status", width: 14 },
+      { header: "Disetujui/Ditolak Oleh", key: "approver", width: 24 },
+      { header: "Tanggal Approval", key: "approval_date", width: 20 },
+      { header: "Link Lampiran", key: "evidence_url", width: 30 }
+    ];
+    rowsData = permitDataRows;
+  } else if (scope === "reimburse") {
+    fileScope = "Data_Reimburse";
+    sheetName = "Ringkasan Reimburse";
+    columns = [
+      { header: "No", key: "no", width: 6 },
+      { header: "Nama Karyawan", key: "user_name", width: 24 },
+      { header: "Tanggal Mulai", key: "start_date", width: 16 },
+      { header: "Tanggal Selesai", key: "end_date", width: 16 },
+      { header: "Total Hari", key: "total_days", width: 12 },
+      { header: "Total Jam", key: "total_hours", width: 12 },
+      { header: "Status", key: "status", width: 14 },
+      { header: "Diselesaikan Oleh", key: "completed_by", width: 24 },
+      { header: "Alasan / Keterangan", key: "reason", width: 36 }
+    ];
+    rowsData = reimburseSummaryRows;
+  } else {
+    // Both: if XLSX multi-sheet or combined
+    fileScope = "Data_Izin_Reimburse";
+    if (format === "xlsx" && window.XLSX && permitDataRows.length > 0 && reimburseSummaryRows.length > 0) {
+      const wb = window.XLSX.utils.book_new();
+      const wsPermit = window.XLSX.utils.json_to_sheet(permitDataRows);
+      const wsReimburse = window.XLSX.utils.json_to_sheet(reimburseSummaryRows);
+      window.XLSX.utils.book_append_sheet(wb, wsPermit, "Data Izin");
+      window.XLSX.utils.book_append_sheet(wb, wsReimburse, "Data Reimburse");
+      const fileName = `Dialogika_${fileScope}_${periodLabel}.xlsx`;
+      window.XLSX.writeFile(wb, fileName);
+      return { count: totalRowsCount, filename: fileName };
+    } else {
+      columns = [
+        { header: "No", key: "no", width: 6 },
+        { header: "Nama Karyawan", key: "user_name", width: 24 },
+        { header: "Tanggal Pengajuan / Mulai", key: "created_at", width: 22 },
+        { header: "Status", key: "status", width: 14 },
+        { header: "Keterangan", key: "reason", width: 36 }
+      ];
+      rowsData = permitDataRows.length > 0 ? permitDataRows : reimburseSummaryRows;
+    }
+  }
+
+  const filename = `Dialogika_${fileScope}_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName,
+    columns,
+    rowsData,
+    format
+  });
+
+  return { count: rowsData.length, filename };
 }

@@ -615,6 +615,7 @@ function extractDateString(val) {
 }
 
 function isDateInRange(dateVal, startStr, endStr) {
+  if (!startStr && !endStr) return true;
   const targetStr = extractDateString(dateVal);
   if (!targetStr) return false;
   if (startStr && targetStr < startStr) return false;
@@ -635,12 +636,7 @@ function handleOpenExportModal(defaultScope = "permit") {
   ui.openModal("exportExcelModal");
 }
 
-function performExcelExport() {
-  if (!window.XLSX) {
-    ui.showToast("Library Excel / CSV belum siap. Silakan coba lagi.", "error");
-    return;
-  }
-
+async function performExcelExport() {
   const scopeSelect = document.getElementById("exportDataScope");
   const scope = scopeSelect ? scopeSelect.value : "permit";
   const statusFilterSelect = document.getElementById("exportStatusFilter");
@@ -648,214 +644,45 @@ function performExcelExport() {
     ? String(statusFilterSelect.value || "").toLowerCase().trim()
     : "all";
 
-  let startStr = "";
-  let endStr = "";
-  let periodLabel = "";
+  const monthInput = document.getElementById("exportMonthInput");
+  const monthVal = monthInput ? monthInput.value : "";
+  const weekStartInput = document.getElementById("exportWeekStart");
+  const weekEndInput = document.getElementById("exportWeekEnd");
+  const weekStart = weekStartInput ? weekStartInput.value : "";
+  const weekEnd = weekEndInput ? weekEndInput.value : "";
 
-  if (currentExportPeriodMode === "month") {
-    const monthInput = document.getElementById("exportMonthInput");
-    const monthVal = monthInput ? monthInput.value : "";
-    if (!monthVal) {
-      ui.showToast("Pilih bulan terlebih dahulu.", "error");
-      return;
-    }
-    const parts = monthVal.split("-");
-    const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10);
-    const lastDay = new Date(year, month, 0).getDate();
-    startStr = `${monthVal}-01`;
-    endStr = `${monthVal}-${String(lastDay).padStart(2, "0")}`;
-    periodLabel = `Bulan_${monthVal}`;
-  } else {
-    const weekStartInput = document.getElementById("exportWeekStart");
-    const weekEndInput = document.getElementById("exportWeekEnd");
-    startStr = weekStartInput ? weekStartInput.value : "";
-    endStr = weekEndInput ? weekEndInput.value : "";
-    if (!startStr || !endStr) {
-      ui.showToast("Pilih rentang tanggal minggu terlebih dahulu.", "error");
-      return;
-    }
-    if (startStr > endStr) {
-      ui.showToast("Tanggal mulai tidak boleh melebihi tanggal akhir.", "error");
-      return;
-    }
-    periodLabel = `Minggu_${startStr}_sd_${endStr}`;
+  const submitBtn = document.getElementById("exportExcelModalSubmit");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengekspor...`;
   }
 
-  const includePermits = scope === "permit" || scope === "all";
-  const includeReimburse = scope === "reimburse" || scope === "all";
-
-  // Filter Permits
-  const filteredPermits = allPermits.filter((p) => {
-    if (statusFilter && statusFilter !== "all" && String(p.status || "").toLowerCase() !== statusFilter) {
-      return false;
-    }
-    const startDate = p.start_date || "";
-    const endDate = p.end_date || p.start_date || "";
-    const createdAt = p.created_at || "";
-
-    const matchStart = isDateInRange(startDate, startStr, endStr);
-    const matchEnd = isDateInRange(endDate, startStr, endStr);
-    const matchCreated = isDateInRange(createdAt, startStr, endStr);
-
-    const startStrExt = extractDateString(startDate);
-    const endStrExt = extractDateString(endDate);
-    const overlap = startStrExt && endStrExt && startStrExt <= endStr && endStrExt >= startStr;
-
-    return matchStart || matchEnd || matchCreated || overlap;
-  });
-
-  // Filter Reimburse
-  const filteredReimburse = allReimburse.filter((r) => {
-    const startDate = r.start_date || "";
-    const endDate = r.end_date || r.start_date || "";
-    const matchStart = isDateInRange(startDate, startStr, endStr);
-    const matchEnd = isDateInRange(endDate, startStr, endStr);
-    const hasEntryInRange = (r.dailyEntries || []).some((e) => isDateInRange(e.date, startStr, endStr));
-    return matchStart || matchEnd || hasEntryInRange;
-  });
-
-  const permitDataRows = [];
-  if (includePermits) {
-    filteredPermits.forEach((p, idx) => {
-      const startFull = ui.formatDateIndonesia(p.start_date);
-      const endFull = ui.formatDateIndonesia(p.end_date || p.start_date);
-      let izinDate = startFull || "-";
-      if (startFull && endFull && endFull !== startFull) {
-        izinDate = `${startFull} - ${endFull}`;
-      }
-      permitDataRows.push({
-        "No": idx + 1,
-        "Tanggal Pengajuan": ui.formatDateIndonesia(p.created_at) || "-",
-        "Nama Karyawan": p.user_name || "-",
-        "Posisi / Jabatan": p.user_position || "-",
-        "Tanggal Izin": izinDate,
-        "Jenis Izin": ui.getPermitJenisLabel(p) || "-",
-        "Alasan Izin": p.reason || "-",
-        "Status": String(p.status || "Pending").toUpperCase(),
-        "Disetujui / Ditolak Oleh": p.approved_by_name || p.rejected_by_name || "-",
-        "Tanggal Approval": ui.formatDateIndonesia(p.approved_at || p.rejected_at) || "-",
-        "Link Lampiran": p.attachment_url || "-"
-      });
-    });
-  }
-
-  const reimburseSummaryRows = [];
-  const reimburseDetailRows = [];
-  if (includeReimburse) {
-    filteredReimburse.forEach((r, idx) => {
-      reimburseSummaryRows.push({
-        "No": idx + 1,
-        "Nama Karyawan": r.user_name || "-",
-        "Tanggal Mulai": r.start_date || "-",
-        "Tanggal Selesai": r.end_date || r.start_date || "-",
-        "Total Hari": Number(r.total_days ?? r.days ?? r.reimburse_days ?? 0),
-        "Total Jam": Number(r.total_hours ?? r.hours ?? r.reimburse_hours ?? 0),
-        "Status": String(r.status || "pending").toUpperCase(),
-        "Diselesaikan Oleh": r.completed_by_name || "-",
-        "Alasan / Keterangan": (r.related && r.related.reason) || r.reason || "-"
-      });
+  try {
+    const result = await repo.exportPermitReimburseData({
+      scope,
+      format: currentExportFileFormat,
+      periodMode: currentExportPeriodMode,
+      statusFilter,
+      monthVal,
+      weekStart,
+      weekEnd,
+      allPermits,
+      allReimburse
     });
 
-    let detailCount = 1;
-    filteredReimburse.forEach((r) => {
-      const entries = r.dailyEntries || [];
-      entries.forEach((entry) => {
-        if (isDateInRange(entry.date, startStr, endStr)) {
-          reimburseDetailRows.push({
-            "No": detailCount++,
-            "Nama Karyawan": r.user_name || "-",
-            "Tanggal Reimburse": entry.date || "-",
-            "Status Hari": String(entry.status || "pending").toUpperCase(),
-            "Diselesaikan Oleh": r.completed_by_name || "-",
-            "Alasan / Keterangan": (r.related && r.related.reason) || r.reason || "-"
-          });
-        }
-      });
-    });
-  }
-
-  const totalRowsCount = permitDataRows.length + reimburseSummaryRows.length + reimburseDetailRows.length;
-  if (totalRowsCount === 0) {
-    ui.showToast("Tidak ada data pada periode dan filter yang dipilih.", "error");
-    return;
-  }
-
-  let fileScope = "Izin_Reimburse";
-  if (scope === "permit") fileScope = "Data_Izin";
-  if (scope === "reimburse") fileScope = "Data_Reimburse";
-
-  if (currentExportFileFormat === "csv") {
-    const exportRows = (scope === "reimburse")
-      ? reimburseSummaryRows
-      : (scope === "permit" ? permitDataRows : [...permitDataRows, ...reimburseSummaryRows]);
-
-    const ws = window.XLSX.utils.json_to_sheet(exportRows);
-    const fileName = `Dialogika_${fileScope}_${periodLabel}.csv`;
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    window.XLSX.writeFile(wb, fileName, { bookType: "csv" });
     ui.closeModal("exportExcelModal");
-    ui.showToast(`File ${fileName} berhasil diexport!`);
-    return;
-  }
-
-  // Default: Excel (.xlsx) Multi-Sheet
-  const wb = window.XLSX.utils.book_new();
-
-  if (includePermits && permitDataRows.length > 0) {
-    const wsPermit = window.XLSX.utils.json_to_sheet(permitDataRows);
-    wsPermit["!cols"] = [
-      { wch: 6 },
-      { wch: 18 },
-      { wch: 24 },
-      { wch: 22 },
-      { wch: 26 },
-      { wch: 22 },
-      { wch: 36 },
-      { wch: 14 },
-      { wch: 24 },
-      { wch: 18 },
-      { wch: 32 }
-    ];
-    window.XLSX.utils.book_append_sheet(wb, wsPermit, "Data Izin");
-  }
-
-  if (includeReimburse) {
-    if (reimburseSummaryRows.length > 0) {
-      const wsReimburse = window.XLSX.utils.json_to_sheet(reimburseSummaryRows);
-      wsReimburse["!cols"] = [
-        { wch: 6 },
-        { wch: 24 },
-        { wch: 16 },
-        { wch: 16 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 14 },
-        { wch: 24 },
-        { wch: 35 }
-      ];
-      window.XLSX.utils.book_append_sheet(wb, wsReimburse, "Ringkasan Reimburse");
-    }
-
-    if (reimburseDetailRows.length > 0) {
-      const wsDetail = window.XLSX.utils.json_to_sheet(reimburseDetailRows);
-      wsDetail["!cols"] = [
-        { wch: 6 },
-        { wch: 24 },
-        { wch: 18 },
-        { wch: 16 },
-        { wch: 24 },
-        { wch: 35 }
-      ];
-      window.XLSX.utils.book_append_sheet(wb, wsDetail, "Detail Harian Reimburse");
+    ui.showToast(`Berhasil mengekspor ${result.count || ""} data ke ${result.filename}!`);
+  } catch (error) {
+    console.error("[PermitExport] Export failed:", error);
+    ui.showToast(error.message || "Gagal mengekspor data.", "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      const submitText = document.getElementById("exportSubmitBtnText");
+      const currentText = submitText?.textContent || "Download Excel (.xlsx)";
+      submitBtn.innerHTML = `<i class="bi bi-download"></i> <span id="exportSubmitBtnText">${currentText}</span>`;
     }
   }
-
-  const fileName = `Dialogika_${fileScope}_${periodLabel}.xlsx`;
-  window.XLSX.writeFile(wb, fileName);
-  ui.closeModal("exportExcelModal");
-  ui.showToast(`File ${fileName} berhasil diexport!`);
 }
 
 // --- Setup Global Listeners ---

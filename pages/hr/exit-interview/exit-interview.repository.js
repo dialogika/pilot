@@ -12,12 +12,19 @@ import {
   doc,
   addDoc,
   getDoc,
+  getDocs,
   deleteDoc,
   onSnapshot,
   query,
   orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const EXIT_COLLECTION = "exit_interviews";
 
@@ -134,3 +141,76 @@ export async function checkUserPositionAccess(userId, role = null) {
     return false;
   }
 }
+
+/**
+ * Export exit interview submissions based on modal filters.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportExitInterviewData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const snap = await getDocs(
+    query(collection(db, EXIT_COLLECTION), orderBy("created_at", "desc")),
+  );
+
+  const raw = [];
+  snap.forEach((d) => {
+    raw.push({ id: d.id, ...d.data() });
+  });
+
+  const filtered = raw.filter((item) => {
+    if (start && end) {
+      const ts = extractTimestamp(item.created_at);
+      if (!ts) return false;
+      const itemDate = new Date(ts);
+      if (itemDate < start || itemDate > end) return false;
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "ID Submission", key: "id", width: 24 },
+    { header: "Tanggal Submission", key: "createdAt", width: 22 },
+    { header: "Isi Exit Interview / Feedback", key: "content", width: 60 },
+  ];
+
+  const rows = filtered.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id,
+    createdAt: formatDateIndo(item.created_at, true) || "-",
+    content: item.content || "-",
+  }));
+
+  const filename = `Data_Exit_Interview_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Exit Interview",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

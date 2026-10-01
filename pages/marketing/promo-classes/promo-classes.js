@@ -684,6 +684,29 @@ async function handleDeleteBatch() {
  * Wire all DOM events and event delegations.
  */
 function wireEvents() {
+  // Export Promo Data Controls
+  const exportControls = PromoUI.initPromoExportModal();
+  const exportForm = document.getElementById("exportPromoForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await PromoRepo.exportPromoClassesData(formData);
+        const modalEl = document.getElementById("exportPromoModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export promo error:", err);
+        toast("Gagal mengekspor data: " + err.message, "danger");
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
+
   // Global buttons
   document.getElementById("btnRefreshAll")?.addEventListener("click", () => {
     listenToPromoBatches();

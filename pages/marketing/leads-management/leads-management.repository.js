@@ -17,6 +17,12 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 /**
  * Fetch all Ads Channels from Firestore collection `leads_settings_ads_channels`
@@ -407,3 +413,80 @@ export async function deleteInvoicesBatch(invoiceIds) {
     throw error;
   }
 }
+
+/**
+ * Export leads data to Excel or CSV
+ */
+export async function exportLeadsData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+  const [leads, usersMap] = await Promise.all([
+    fetchLeads(),
+    fetchUsersMap()
+  ]);
+  const { start, end } = calcDateRange(dateRange, startDate, endDate);
+
+  const filtered = leads.filter((item) => {
+    if (!start && !end) return true;
+    const time = extractTimestamp(item.createdDate);
+    if (!time) return true;
+    if (start && time < start) return false;
+    if (end && time > end) return false;
+    return true;
+  });
+
+  const columns = [
+    { key: "no", header: "No", width: 6 },
+    { key: "name", header: "Nama Lead", width: 22 },
+    { key: "whatsapp", header: "No. WhatsApp", width: 16 },
+    { key: "email", header: "Email", width: 22 },
+    { key: "city", header: "Kota", width: 16 },
+    { key: "interest_program", header: "Program Minat", width: 22 },
+    { key: "ads_channel", header: "Channel Iklan", width: 18 },
+    { key: "stage", header: "Status / Stage", width: 16 },
+    { key: "assigned_to", header: "Assigned To / PIC Sales", width: 24 },
+    { key: "referral_code", header: "Kode Referral", width: 16 },
+    { key: "date", header: "Tanggal Masuk", width: 18 },
+    { key: "job", header: "Pekerjaan", width: 18 },
+    { key: "age", header: "Usia", width: 10 },
+    { key: "gender", header: "Jenis Kelamin", width: 14 },
+    { key: "marital_status", header: "Status Menikah", width: 16 },
+    { key: "additional_info", header: "Catatan Tambahan", width: 30 },
+  ];
+
+  const rows = filtered.map((item, index) => {
+    const assignedNames = (item.assigned_ids || [])
+      .map((uid) => usersMap[uid] || uid)
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      no: index + 1,
+      name: item.name || "-",
+      whatsapp: item.whatsapp || "-",
+      email: item.email || "-",
+      city: item.city || "-",
+      interest_program: item.interest_program || "-",
+      ads_channel: item.ads_channel || "-",
+      stage: item.stage || "LEADS",
+      assigned_to: assignedNames || "-",
+      referral_code: item.referral_code || "-",
+      date: formatDateIndo(item.createdDate),
+      job: item.job || "-",
+      age: item.age || "-",
+      gender: item.gender || "-",
+      marital_status: item.marital_status || "-",
+      additional_info: item.additional_info || "-",
+    };
+  });
+
+  const filename = `Data_Leads_${new Date().toISOString().slice(0, 10)}`;
+  await downloadExportFile({
+    format,
+    filename,
+    sheetName: "Leads Data",
+    columns,
+    rows,
+  });
+
+  return { total: rows.length };
+}
+

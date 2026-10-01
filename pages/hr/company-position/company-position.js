@@ -358,6 +358,74 @@ function wireEvents() {
     addBtn.addEventListener("click", handleOpenAddModal);
   }
 
+  // Universal Export Modal Setup & Event Handling
+  const exportControls = PositionUI.initPositionExportModal();
+  const exportForm = document.getElementById("exportPositionForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = allPositions.slice();
+
+        if (params.status) {
+          exportList = exportList.filter((p) => {
+            const rawStatus = (p.status || "").toLowerCase().trim();
+            return rawStatus === params.status;
+          });
+        }
+
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((p) => {
+            const ts = extractTimestamp(p.createdAt);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          await alertDialog("Tidak ada data posisi pada periode/filter yang dipilih.", {
+            type: "info",
+            title: "Data Tidak Ditemukan",
+          });
+          return;
+        }
+
+        await PositionRepo.exportPositionsData({
+          positions: exportList,
+          format: params.format,
+          periodLabel,
+          deptLabelMap: departmentsData.labelMap,
+        });
+
+        exportControls.closeModal();
+        await alertDialog("Data posisi perusahaan berhasil diexport!", {
+          type: "success",
+          title: "Export Berhasil",
+        });
+      } catch (err) {
+        console.error("Export error:", err);
+        await alertDialog("Gagal mengekspor data: " + err.message, {
+          type: "error",
+          title: "Terjadi Kesalahan",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
+
   const addForm = document.getElementById("positionAddForm");
   if (addForm) {
     addForm.addEventListener("submit", handleSubmitAddPosition);

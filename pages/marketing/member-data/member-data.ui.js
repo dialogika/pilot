@@ -4,6 +4,8 @@
 // Handles DOM rendering, table formatting, modal dialogs, and formatting helpers.
 // =====================================================================
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 export const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
   "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
@@ -357,3 +359,16 @@ export function showFeedbackModal(title, message, type = "success") {
     } catch (_) {}
   }, 2500);
 }
+
+export function initMemberExportModal() {
+  return setupExportModalControls({
+    modalId: "exportMemberModal",
+    formatInputId: "exportMemberFormat",
+    rangeInputId: "exportMemberRange",
+    customDateContainerId: "exportMemberCustomDateContainer",
+    startDateInputId: "exportMemberStartDate",
+    endDateInputId: "exportMemberEndDate",
+    submitBtnId: "btnSubmitExportMember",
+  });
+}
+

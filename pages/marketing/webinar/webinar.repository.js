@@ -25,6 +25,12 @@ import {
     uploadBytes,
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const WEBINARS_COLLECTION = "webinars";
 const MEMBER_WEBINAR_COLLECTION = "member_webinar";
@@ -221,3 +227,56 @@ export async function fetchMemberWebinarsPage({ lastVisible = null, pageSize = 2
         hasMore
     };
 }
+
+/**
+ * Export webinar data to Excel or CSV
+ */
+export async function exportWebinarData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+    const snap = await getDocs(collection(db, WEBINARS_COLLECTION));
+    const items = [];
+    snap.forEach((docSnap) => {
+        items.push({ id: docSnap.id, ...docSnap.data() });
+    });
+
+    const { start, end } = calcDateRange(dateRange, startDate, endDate);
+    const filtered = items.filter((item) => {
+        if (!start && !end) return true;
+        const time = extractTimestamp(item.created_at || item.createdAt || item.updated_at || item.updatedAt);
+        if (!time) return true;
+        if (start && time < start) return false;
+        if (end && time > end) return false;
+        return true;
+    });
+
+    const columns = [
+        { key: "no", header: "No", width: 6 },
+        { key: "name", header: "Nama Webinar", width: 30 },
+        { key: "metaTitle", header: "Meta Title", width: 25 },
+        { key: "status", header: "Status", width: 14 },
+        { key: "whatsappLink", header: "Link WhatsApp", width: 30 },
+        { key: "order", header: "Urutan", width: 10 },
+        { key: "date", header: "Tanggal Dibuat / Diperbarui", width: 22 },
+    ];
+
+    const rows = filtered.map((item, index) => ({
+        no: index + 1,
+        name: item.name || "-",
+        metaTitle: item.metaTitle || item.meta_title || "-",
+        status: item.is_active ? "Aktif" : "Non-Aktif",
+        whatsappLink: item.whatsappLink || item.whatsapp_link || "-",
+        order: item.order !== undefined ? item.order : index + 1,
+        date: formatDateIndo(item.created_at || item.createdAt || item.updated_at || item.updatedAt),
+    }));
+
+    const filename = `Data_Webinar_${new Date().toISOString().slice(0, 10)}`;
+    await downloadExportFile({
+        format,
+        filename,
+        sheetName: "Webinar",
+        columns,
+        rows,
+    });
+
+    return { total: rows.length };
+}
+

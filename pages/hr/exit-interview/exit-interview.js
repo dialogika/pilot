@@ -12,8 +12,8 @@ import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 import * as repo from "./exit-interview.repository.js";
 import * as ui from "./exit-interview.ui.js";
 
-// Toggle access restriction (true = enforced, matches legacy)
-const ENFORCE_ACCESS_RESTRICTION = true;
+// Toggle access restriction (false = all roles allowed per Option 3)
+const ENFORCE_ACCESS_RESTRICTION = false;
 
 // ── State ─────────────────────────────────────────────────────────────
 let cachedItems = [];
@@ -170,6 +170,39 @@ function wireEventListeners() {
       handleConfirmDelete(id);
     }
   });
+
+  // Standard Export Modal Controls
+  const exportControls = ui.initExitExportModal();
+  const exportForm = document.getElementById("exportExitForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await repo.exportExitInterviewData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+        });
+
+        const modalEl = document.getElementById("exportExitModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("Export Exit Interview error:", err);
+        await alertDialog("Gagal mengekspor data exit interview: " + (err.message || err), {
+          type: "error",
+          title: "Ekspor Gagal",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 
   window.addEventListener("unload", () => {
     if (unsubscribeListener) unsubscribeListener();

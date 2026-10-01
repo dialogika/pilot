@@ -2,6 +2,7 @@ import {
   getInterviewScheduleStatus,
   filterAndSortInterviewSchedules
 } from "../../../element/recruitment-interview-utils.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 /**
  * Escapes HTML characters to prevent XSS.
@@ -987,3 +988,16 @@ export function renderTabPagination(cat, info, onPageChange) {
   };
 }
 
+/**
+ * Initializes Export Modal controls for Candidate Management.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ * @returns {Object} Modal control handles
+ */
+export function initCandidateMgmtExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportCandidateMgmtModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}

@@ -5,6 +5,8 @@
 // Zero Firebase or Firestore operations.
 // =====================================================================
 
+import { setupExportModalControls } from "/assets/js/utils/export-helper.js";
+
 export const formatCurrency = (value) =>
   new Intl.NumberFormat("id-ID").format(Number(value || 0));
 
@@ -652,3 +654,18 @@ export function showToast(message) {
     toast.classList.remove("show");
   }, 3200);
 }
+
+/**
+ * Initializes Export Modal controls for Operational Expenses.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ * @returns {Object} Modal control handles
+ */
+export function initExpensesExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportExpensesModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

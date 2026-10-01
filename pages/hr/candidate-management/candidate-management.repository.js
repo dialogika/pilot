@@ -22,6 +22,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { saveTemplates, setTemplatesLastModified } from "../../../element/template-manager.js";
 import { syncAcceptedCandidateToTeamManagement, resolveCandidateDivision } from "../../../element/team-management-sync.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  extractTimestamp,
+  formatDateIndo,
+} from "../../../assets/js/utils/export-helper.js";
+import {
+  formatInterviewScheduleLabel,
+  getInterviewScheduleStatus,
+} from "../../../element/recruitment-interview-utils.js";
 
 /**
  * Normalizes interviewer availability status.
@@ -522,3 +532,322 @@ export async function uploadFileToStorage(file, folder = "uploads") {
   await uploadBytes(r, file);
   return await getDownloadURL(r);
 }
+
+/**
+ * Safely converts any timestamp/date input into a Date object.
+ * @param {any} raw 
+ * @returns {Date|null}
+ */
+function toDateObj(raw) {
+  if (!raw) return null;
+  if (typeof raw.toDate === "function") {
+    const d = raw.toDate();
+    return d instanceof Date && !isNaN(d.getTime()) ? d : null;
+  }
+  if (raw instanceof Date) return isNaN(raw.getTime()) ? null : raw;
+  if (typeof raw === "number") {
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof raw === "string") {
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+/**
+ * Export Candidate Management data to Excel (.xlsx) or CSV (.csv).
+ * @param {Object} options
+ * @param {string} options.category - 'all' | 'team' | 'mentor' | 'internship'
+ * @param {string} options.status - 'all' | 'screening' | 'interview' | 'micro_teaching' | 'accepted' | 'onboarding' | 'rejected' | 'canceled'
+ * @param {string} options.rangeType - 'all' | 'month' | 'week'
+ * @param {string} options.month
+ * @param {string} options.weekMonth
+ * @param {number} options.week
+ * @param {string} options.format - 'xlsx' | 'csv'
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportCandidateMgmtData({
+  category = "all",
+  status = "all",
+  rangeType = "all",
+  month = "",
+  weekMonth = "",
+  week = 1,
+  format = "xlsx",
+}) {
+  const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+    rangeType,
+    month,
+    weekMonth,
+    week
+  );
+
+  const usersMap = await fetchUsersMap().catch(() => ({}));
+
+  const targets = [];
+  if (category === "team" || category === "all") {
+    targets.push({ categoryLabel: "Team", col: "teams_screening", fallbackCol: "team_screening" });
+  }
+  if (category === "mentor" || category === "all") {
+    targets.push({ categoryLabel: "Mentor", col: "mentors_screening", fallbackCol: "mentor_screening" });
+  }
+  if (category === "internship" || category === "all") {
+    targets.push({
+      categoryLabel: "Internship",
+      col: "interns_screening",
+      fallbackCol: "intern_screening",
+      extraFallbackCols: ["internships_screening", "internship_screening"],
+    });
+  }
+
+  const allRecords = [];
+  for (const t of targets) {
+    try {
+      let { snap } = await fetchCandidates(t.col, t.fallbackCol);
+      if (snap.empty && Array.isArray(t.extraFallbackCols)) {
+        for (const extraCol of t.extraFallbackCols) {
+          const extraSnap = await getDocs(collection(db, extraCol));
+          if (!extraSnap.empty) {
+            snap = extraSnap;
+            break;
+          }
+        }
+      }
+      snap.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        allRecords.push({
+          id: docSnap.id,
+          categoryLabel: t.categoryLabel,
+          ...data,
+        });
+      });
+    } catch (e) {
+      console.warn(`[exportCandidateMgmtData] Failed to fetch ${t.col}:`, e);
+    }
+  }
+
+  // Filter status
+  let filtered = allRecords;
+  if (status && status !== "all") {
+    const sTerm = status.toLowerCase().trim();
+    filtered = filtered.filter((item) => {
+      const rec = item.recruitment_status || item.recruitment_system || {};
+      const cur = (rec.current || item.status || "screening").toString().toLowerCase().trim();
+      const fd = (rec.final_decision || rec.finalDecision || "").toString().toLowerCase().trim();
+      if (cur === sTerm || fd === sTerm) return true;
+      if (sTerm === "accepted" && (cur === "accept" || fd === "accept")) return true;
+      if (sTerm === "rejected" && (cur === "reject" || fd === "reject")) return true;
+      if (sTerm === "canceled" && ["withdrawn", "mengundurkan_diri", "mengundurkan diri"].includes(fd || cur)) return true;
+      return false;
+    });
+  }
+
+  // Filter date
+  if (rangeType !== "all") {
+    filtered = filtered.filter((item) => {
+      const ts =
+        extractTimestamp(item.created_at) ||
+        extractTimestamp(item.createdAt) ||
+        extractTimestamp(item.timestamp) ||
+        extractTimestamp(item.applied_at);
+      if (ts === null) return true;
+      return ts >= startTimestamp && ts <= endTimestamp;
+    });
+  }
+
+  if (!filtered.length) {
+    throw new Error("Tidak ada data kandidat pada periode / filter yang dipilih.");
+  }
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "Kategori", key: "category", width: 14 },
+    { header: "ID Kandidat", key: "id", width: 22 },
+    { header: "Nama Lengkap", key: "name", width: 26 },
+    { header: "Posisi / Role", key: "position", width: 24 },
+    { header: "Status Rekrutmen", key: "status", width: 18 },
+    { header: "Tanggal Pendaftaran", key: "createdAt", width: 20 },
+    { header: "Interviewer (PIC)", key: "interviewer", width: 24 },
+    { header: "Jadwal Interview", key: "interviewSchedule", width: 28 },
+    { header: "Status Interview", key: "interviewStatus", width: 18 },
+    { header: "Mode Kerja", key: "mode", width: 14 },
+    { header: "Lokasi / Domisili", key: "location", width: 22 },
+    { header: "Asal Kampus / Sekolah", key: "institution", width: 26 },
+    { header: "No. WhatsApp", key: "phone", width: 18 },
+    { header: "Email", key: "email", width: 26 },
+    { header: "Log Aktivitas Terakhir", key: "lastLog", width: 32 },
+    { header: "Catatan / Alasan", key: "notes", width: 30 },
+  ];
+
+  const rows = filtered.map((c, index) => {
+    const basic = c.basic_info || {};
+    const scouting = c.scouting_info || {};
+    const contact = c.contact_info || {};
+    const internship = c.internship || c.internship_info || {};
+    const education = c.education_info || c.education || {};
+    const recruitment = c.recruitment_status || c.recruitment_system || {};
+
+    const name =
+      basic.full_name ||
+      scouting.full_name ||
+      c.name ||
+      c.full_name ||
+      "-";
+
+    const position =
+      c.role_name ||
+      internship.position_name ||
+      scouting.position_name ||
+      scouting.role_name ||
+      c.position_name ||
+      c.position ||
+      "-";
+
+    const stat =
+      recruitment.current ||
+      recruitment.status ||
+      c.status ||
+      "Screening";
+
+    const createdTs =
+      c.created_at ||
+      c.createdAt ||
+      c.timestamp ||
+      c.applied_at;
+
+    // Interviewer lookup via usersMap
+    const interviewerIds = Array.isArray(c.interviewers)
+      ? c.interviewers.filter(Boolean)
+      : (Array.isArray(c.interviewerIds) ? c.interviewerIds.filter(Boolean) : []);
+
+    const interviewerNames = interviewerIds
+      .map((uid) => usersMap[uid]?.name || uid)
+      .filter(Boolean);
+
+    const interviewer = interviewerNames.length
+      ? interviewerNames.join(", ")
+      : (c.interviewer_name || c.interviewer || "-");
+
+    // Interview schedule & status formatting
+    const rawSched =
+      recruitment.interview_schedule ||
+      recruitment.due_date ||
+      c.interview_schedule ||
+      c.interviewScheduleRaw ||
+      null;
+
+    let interviewSchedule = "-";
+    let interviewStatus = "-";
+
+    if (rawSched && rawSched !== "-") {
+      const dObj = toDateObj(rawSched);
+      if (dObj) {
+        interviewSchedule = formatInterviewScheduleLabel(dObj);
+        const st = getInterviewScheduleStatus(dObj);
+        interviewStatus = st === "completed" ? "Completed" : (st === "today" ? "Hari Ini (Today)" : "Scheduled / Upcoming");
+      } else if (typeof rawSched === "string") {
+        interviewSchedule = rawSched;
+        interviewStatus = "Scheduled";
+      }
+    }
+
+    // Mode & Location
+    const mode = (c.mode || internship.mode || c.work_mode || "-").toString().toUpperCase();
+    const location = contact.address || contact.city || internship.address || c.address || c.city || c.location || "-";
+
+    const inst =
+      education.institution ||
+      education.campus ||
+      education.university ||
+      education.school ||
+      internship.campus ||
+      c.campus ||
+      c.university ||
+      "-";
+
+    const phone =
+      contact.phone ||
+      contact.whatsapp ||
+      basic.whatsapp ||
+      basic.phone ||
+      c.whatsapp ||
+      c.phone ||
+      "-";
+
+    const email =
+      contact.email ||
+      basic.email ||
+      internship.email ||
+      c.email ||
+      "-";
+
+    // Activity Log & Notes
+    let lastLog = "-";
+    let notes = "-";
+
+    const logsArr = Array.isArray(c.logs) ? c.logs : [];
+    const histArr = Array.isArray(recruitment.history) ? recruitment.history : [];
+
+    if (logsArr.length > 0) {
+      const lastEntry = logsArr[logsArr.length - 1] || {};
+      const byName = lastEntry.by || "Admin";
+      const logDate = lastEntry.date ? formatDateIndo(lastEntry.date, true) : "";
+      const action = lastEntry.action || lastEntry.to || "Update";
+      lastLog = logDate ? `${action} oleh ${byName} (${logDate})` : `${action} oleh ${byName}`;
+      if (lastEntry.notes) {
+        notes = lastEntry.notes;
+      }
+    } else if (histArr.length > 0) {
+      const lastEntry = histArr[histArr.length - 1] || {};
+      const byName = lastEntry.by || "Admin";
+      const histDate = lastEntry.date ? formatDateIndo(lastEntry.date, true) : "";
+      const st = lastEntry.status || "Update";
+      lastLog = histDate ? `${st} oleh ${byName} (${histDate})` : `${st} oleh ${byName}`;
+    } else if (recruitment.final_decision_at) {
+      const decDate = formatDateIndo(recruitment.final_decision_at, true);
+      const decStatus = recruitment.final_decision || recruitment.finalDecision || stat;
+      lastLog = `${decStatus.toUpperCase()} (${decDate})`;
+    }
+
+    const reason = recruitment.rejection_reason || recruitment.rejection_notes || recruitment.withdrawn_notes || "";
+    if (reason) {
+      notes = notes !== "-" ? `${notes} | ${reason}` : reason;
+    }
+
+    return {
+      no: index + 1,
+      category: c.categoryLabel || "-",
+      id: c.id,
+      name,
+      position,
+      status: stat.toUpperCase(),
+      createdAt: formatDateIndo(createdTs, true),
+      interviewer,
+      interviewSchedule,
+      interviewStatus,
+      mode,
+      location,
+      institution: inst,
+      phone,
+      email,
+      lastLog,
+      notes,
+    };
+  });
+
+  const catSuffix = category === "all" ? "Semua_Kategori" : category.toUpperCase();
+  const filename = `Data_Kandidat_${catSuffix}_${periodLabel}`;
+
+  await downloadExportFile({
+    filename,
+    sheetName: "Data Kandidat",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+
