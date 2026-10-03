@@ -502,11 +502,26 @@ export function populateProductDropdown(selectEl, products, selectedVal = "", in
  */
 export function populateMentorDropdown(selectEl, mentors, selectedVal = "") {
     if (!selectEl) return;
-    selectEl.innerHTML = `<option value="Unknown">Unknown (Pilih Nanti)</option>`;
-    mentors.forEach((m) => {
-        const isSel = m.name === selectedVal;
-        selectEl.innerHTML += `<option value="${escapeHtml(m.name)}" ${isSel ? "selected" : ""}>${escapeHtml(m.name)}</option>`;
+    const isUnknown = !selectedVal || selectedVal === "Unknown";
+    selectEl.innerHTML = `<option value="Unknown" ${isUnknown ? "selected" : ""}>Unknown (Pilih Nanti)</option>`;
+    let hasSelected = isUnknown;
+    const seen = new Set(["unknown"]);
+
+    (mentors || []).forEach((m) => {
+        const mentorName = typeof m === "string" ? m : m?.name;
+        if (!mentorName) return;
+        const lower = mentorName.trim().toLowerCase();
+        if (seen.has(lower)) return;
+        seen.add(lower);
+
+        const isSel = mentorName === selectedVal;
+        if (isSel) hasSelected = true;
+        selectEl.innerHTML += `<option value="${escapeHtml(mentorName)}" ${isSel ? "selected" : ""}>${escapeHtml(mentorName)}</option>`;
     });
+
+    if (selectedVal && selectedVal !== "Unknown" && !hasSelected) {
+        selectEl.innerHTML += `<option value="${escapeHtml(selectedVal)}" selected>${escapeHtml(selectedVal)}</option>`;
+    }
 }
 
 export function openModal(modalId) {

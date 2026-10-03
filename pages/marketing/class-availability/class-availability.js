@@ -644,7 +644,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             classesState = classes && classes.length > 0 ? classes : FALLBACK_CLASSES;
             productsState = products || [];
-            mentorsState = mentors || [];
+
+            // Gunakan daftar mentor resmi dari database jika ada; jika kosong, baru fallback dari data kelas
+            if (mentors && mentors.length > 0) {
+                mentorsState = mentors;
+            } else {
+                const mentorMap = new Map();
+                classesState.forEach(c => {
+                    if (c.mentor_name && c.mentor_name !== "Unknown" && c.mentor_name !== "-" && !mentorMap.has(c.mentor_name)) {
+                        mentorMap.set(c.mentor_name, { id: c.mentor_name, name: c.mentor_name });
+                    }
+                });
+                mentorsState = Array.from(mentorMap.values()).sort((a, b) => a.name.localeCompare(b.name, "id"));
+            }
 
             // Pre-populate Add Batch dropdowns
             populateProductDropdown(newBatchProductSelect, productsState, "", true);
