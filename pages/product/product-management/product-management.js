@@ -40,6 +40,7 @@ import {
   executeRichCommand,
   initProductExportModal,
   initErdModalControls,
+  mountSidebarErdButton,
 } from "./product-management.ui.js";
 
 let allProducts = [];
@@ -56,6 +57,7 @@ async function initialize() {
     // Render shared app shell
     renderTopbar({ user, role });
     renderSidebar({ role, activePage: "product-management" });
+    mountSidebarErdButton();
 
     // Show table loading state
     renderLoading();
