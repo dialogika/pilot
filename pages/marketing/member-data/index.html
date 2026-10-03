@@ -778,6 +778,813 @@
       </div>
     </div>
 
+    <!-- ===================================================================== -->
+    <!-- DATABASE MAPPING & ERD MODAL (MEMBER DATA DOMAIN)                    -->
+    <!-- ===================================================================== -->
+    <div
+      class="modal fade"
+      id="memberErdModal"
+      tabindex="-1"
+      aria-labelledby="memberErdModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable erd-modal-dialog">
+        <div class="modal-content erd-modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+          <!-- Header Modal -->
+          <div class="erd-modal-header px-6 py-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="font-bold text-slate-800 text-lg mb-0" id="memberErdModalLabel">Database Mapping &amp; Schema ERD</h5>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase tracking-wider">Siswa &amp; Kelas</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-0">Struktur relasi tabel siswa, pendaftaran kelas, batch &amp; jadwal sesi Dialogika</p>
+              </div>
+            </div>
+
+            <!-- Tab Segmented Control -->
+            <div class="flex items-center gap-2">
+              <div class="erd-segmented-tabs flex items-center bg-slate-100 p-1 rounded-xl">
+                <button type="button" class="erd-tab-btn active" data-tab="visual" id="memberErdTabVisualBtn">
+                  <i class="bi bi-diagram-3"></i> Visual ERD
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="dictionary" id="memberErdTabDictBtn">
+                  <i class="bi bi-table"></i> Kamus Data
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="sql" id="memberErdTabSqlBtn">
+                  <i class="bi bi-code-slash"></i> SQL DDL
+                </button>
+              </div>
+              <button type="button" class="btn-close shadow-none ml-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Body Modal -->
+          <div class="modal-body erd-modal-body p-6 bg-slate-50">
+            <!-- ========================================== -->
+            <!-- TAB 1: VISUAL ERD CANVAS                  -->
+            <!-- ========================================== -->
+            <div id="memberErdTabVisualContent" class="erd-tab-panel active">
+              <!-- Info Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div class="text-xs text-slate-600">
+                    <span class="font-bold text-slate-800">4 Tabel Relasional:</span> 
+                    Siswa (<code class="text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">members</code>) mendaftar ke 
+                    <code class="text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">class_members</code>, terhubung ke 
+                    <code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">classes</code> &amp; 
+                    <code class="text-teal-700 font-bold bg-teal-50 px-1.5 py-0.5 rounded">class_schedules</code>.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" id="memberBtnCopyDocsPath" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Buka file docs/MEMBER-DATABASE-MAPPING.md di Obsidian">
+                    <i class="bi bi-journal-text text-indigo-600"></i> docs/MEMBER-DATABASE-MAPPING.md
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relation Highlight / Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2 mb-4" id="memberErdPills">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <i class="bi bi-bezier2 text-emerald-600 mr-1"></i>Relasi Tabel:
+                </span>
+                <button type="button" class="erd-rel-pill active" data-rel="all">
+                  Semua Relasi (3)
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="member-class-member">
+                  <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span>
+                  members ➔ class_members
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="class-class-member">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500 inline-block mr-1"></span>
+                  classes ➔ class_members
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="class-schedule">
+                  <span class="w-2 h-2 rounded-full bg-teal-500 inline-block mr-1"></span>
+                  classes ➔ class_schedules
+                </button>
+              </div>
+
+              <!-- Interactive ERD Grid (2 Columns) -->
+              <div class="erd-diagram-wrapper relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6" id="memberErdDiagramWrapper">
+                <!-- SVG CONNECTOR OVERLAY -->
+                <svg id="memberErdConnectorSvg" class="erd-connector-svg absolute inset-0 w-full h-full pointer-events-none" style="z-index: 15; overflow: visible; min-height: 100%;">
+                  <defs>
+                    <marker id="memberErdArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="memberErdArrowIndigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#6366f1" />
+                    </marker>
+                    <marker id="memberErdArrowTeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0d9488" />
+                    </marker>
+                    <marker id="memberErdDotStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                      <circle cx="5" cy="5" r="4" fill="#0f172a" stroke="#ffffff" stroke-width="1.5" />
+                    </marker>
+                  </defs>
+                  <g id="memberErdPathsGroup"></g>
+                </svg>
+
+                <!-- LEFT COLUMN: Master Tables (members & classes) -->
+                <div class="lg:col-span-6 flex flex-col gap-6 relative z-10">
+                  <!-- Table 1: members (Master Siswa) -->
+                  <div class="bg-white rounded-2xl border-2 border-blue-400 shadow-md overflow-hidden erd-table-card" id="memberCardMembers">
+                    <div class="bg-gradient-to-r from-blue-700 to-indigo-900 text-white px-4 py-3 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-people-fill text-blue-300 text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">dialogika.members</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/40 text-white uppercase tracking-wider">
+                        Master Siswa
+                      </span>
+                    </div>
+                    <div class="p-3 text-xs bg-blue-50/50 border-b border-blue-100 text-blue-950 flex items-center justify-between">
+                      <span><i class="bi bi-info-circle mr-1"></i> Data master profil &amp; kontak siswa Dialogika</span>
+                      <span class="font-bold mono text-[11px] text-blue-700">7 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div id="memberErdAnchorMembersId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50 font-semibold hover:bg-amber-100/50 transition">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-key-fill text-amber-500 text-xs"></i>
+                          <span class="mono font-bold text-slate-800">id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">full_name</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(150)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">phone_whatsapp</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(20)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">email</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(100)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">city</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(100)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">status</span>
+                        <span class="mono text-[11px] text-slate-400">enum('active','alumni')</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">created_at</span>
+                        <span class="mono text-[11px] text-slate-400">timestamp</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Table 2: classes (Master Batch Kelas) -->
+                  <div class="bg-white rounded-2xl border-2 border-emerald-300 shadow-md overflow-hidden erd-table-card" id="memberCardClasses">
+                    <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white px-4 py-3 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-mortarboard-fill text-emerald-300 text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">dialogika.classes</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/40 text-white uppercase tracking-wider">
+                        Batch Kelas
+                      </span>
+                    </div>
+                    <div class="p-3 text-xs bg-emerald-50/50 border-b border-emerald-100 text-emerald-950 flex items-center justify-between">
+                      <span><i class="bi bi-info-circle mr-1"></i> Kelas yang diikuti oleh siswa &amp; diajar oleh mentor</span>
+                      <span class="font-bold mono text-[11px] text-emerald-700">10 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div id="memberErdAnchorClassesId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50 font-semibold hover:bg-amber-100/50 transition">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-key-fill text-amber-500 text-xs"></i>
+                          <span class="mono font-bold text-slate-800">id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">product_id</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(50) FK</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">mentor_id</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(50) FK</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">name</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(150)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">type</span>
+                        <span class="mono text-[11px] text-slate-400">enum('Online','Offline','Hybrid')</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">max_capacity</span>
+                        <span class="mono text-[11px] text-slate-400">int(11) [default: 10]</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">start_date</span>
+                        <span class="mono text-[11px] text-slate-400">date</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">end_date</span>
+                        <span class="mono text-[11px] text-slate-400">date</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">status</span>
+                        <span class="mono text-[11px] text-slate-400">enum('open','ongoing','completed')</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">created_at</span>
+                        <span class="mono text-[11px] text-slate-400">timestamp</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Operational Tables (class_members & class_schedules) -->
+                <div class="lg:col-span-6 flex flex-col gap-6 relative z-10">
+                  <!-- Table 3: class_members (Pendaftaran Siswa ke Kelas - Junction M:N) -->
+                  <div class="bg-white rounded-2xl border-2 border-indigo-400 shadow-md overflow-hidden erd-table-card" id="memberCardClassMembers">
+                    <div class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-person-check-fill text-indigo-300 text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">dialogika.class_members</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/40 text-white uppercase tracking-wider">
+                        Enrollment (M:N)
+                      </span>
+                    </div>
+                    <div class="p-3 text-xs bg-indigo-50/50 border-b border-indigo-100 text-indigo-950 flex items-center justify-between">
+                      <span><i class="bi bi-info-circle mr-1"></i> Data pendaftaran siswa ke batch kelas tertentu</span>
+                      <span class="font-bold mono text-[11px] text-indigo-700">6 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">id</span>
+                        <span class="mono text-[11px] text-slate-400">int(11) PK</span>
+                      </div>
+                      <div id="memberErdTargetClassMembersMemberId" class="px-4 py-2.5 flex items-center justify-between bg-blue-50 font-bold border-l-4 border-blue-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-blue-600 text-sm"></i>
+                          <span class="mono text-blue-900">member_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[11px] text-blue-700">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-800">FK (N)</span>
+                        </div>
+                      </div>
+                      <div id="memberErdTargetClassMembersClassId" class="px-4 py-2.5 flex items-center justify-between bg-emerald-50 font-bold border-l-4 border-emerald-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-emerald-600 text-sm"></i>
+                          <span class="mono text-emerald-900">class_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[11px] text-emerald-700">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">FK (N)</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">enrollment_date</span>
+                        <span class="mono text-[11px] text-slate-400">timestamp</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">payment_status</span>
+                        <span class="mono text-[11px] text-slate-400">enum('paid','dp','unpaid')</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">status</span>
+                        <span class="mono text-[11px] text-slate-400">enum('active','graduated','dropped')</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Table 4: class_schedules (Jadwal Pertemuan Sesi) -->
+                  <div class="bg-white rounded-2xl border-2 border-teal-300 shadow-md overflow-hidden erd-table-card" id="memberCardSchedules">
+                    <div class="bg-gradient-to-r from-teal-800 to-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-calendar-event-fill text-teal-300 text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">dialogika.class_schedules</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-500/40 text-white uppercase tracking-wider">
+                        Sesi Pertemuan
+                      </span>
+                    </div>
+                    <div class="p-3 text-xs bg-teal-50/50 border-b border-teal-100 text-teal-950 flex items-center justify-between">
+                      <span><i class="bi bi-info-circle mr-1"></i> Kalender jadwal belajar siswa per sesi kelas</span>
+                      <span class="font-bold mono text-[11px] text-teal-700">8 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">id</span>
+                        <span class="mono text-[11px] text-slate-400">int(11) PK</span>
+                      </div>
+                      <div id="memberErdTargetSchedulesClassId" class="px-4 py-2.5 flex items-center justify-between bg-emerald-50 font-bold border-l-4 border-emerald-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-emerald-600 text-sm"></i>
+                          <span class="mono text-emerald-900">class_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[11px] text-emerald-700">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">FK (N)</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">session_order</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(10) (Sesi 1, 2..)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">topic_title</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(255)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">schedule_date</span>
+                        <span class="mono text-[11px] text-slate-400">date</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">start_time - end_time</span>
+                        <span class="mono text-[11px] text-slate-400">time</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">meeting_url</span>
+                        <span class="mono text-[11px] text-slate-400">varchar(255) (Zoom/GMeet)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between">
+                        <span class="mono text-slate-700 font-medium">status</span>
+                        <span class="mono text-[11px] text-slate-400">enum('scheduled','completed')</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matriks Detail Relasi Antar Tabel -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="bi bi-diagram-3 text-blue-600 text-base"></i>
+                  <h6 class="font-bold text-slate-800 text-xs mb-0">Rincian Relasi Kunci Antar Tabel (Foreign Key Integrity)</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle text-xs mb-0">
+                    <thead class="bg-slate-50 text-slate-600 font-bold text-[10px] uppercase">
+                      <tr>
+                        <th>Tabel Induk (Parent)</th>
+                        <th>Kardinalitas</th>
+                        <th>Tabel Anak (Child)</th>
+                        <th>Kunci Penghubung</th>
+                        <th>Aksi Delete / Update</th>
+                        <th>Deskripsi Hubungan Bisnis</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="bg-blue-50/30">
+                        <td><code class="text-blue-700 font-bold">members (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-800">1 : N</span></td>
+                        <td><code class="text-indigo-800 font-bold">class_members</code></td>
+                        <td><code>member_id ➔ members.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 member siswa dapat mendaftar ke lebih dari satu batch kelas (program berkelanjutan).</td>
+                      </tr>
+                      <tr class="bg-indigo-50/30">
+                        <td><code class="text-emerald-700 font-bold">classes (id)</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">1 : N</span></td>
+                        <td><code class="text-indigo-800 font-bold">class_members</code></td>
+                        <td><code>class_id ➔ classes.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 batch kelas menampung hingga 10 siswa terdaftar (relasi Many-to-Many via class_members).</td>
+                      </tr>
+                      <tr class="bg-teal-50/30">
+                        <td><code class="text-emerald-700 font-bold">classes (id)</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">1 : N</span></td>
+                        <td><code class="text-teal-700 font-bold">class_schedules</code></td>
+                        <td><code>class_id ➔ classes.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 batch kelas memiliki jadwal sesi belajar berulang (tanggal, jam sesi, link Zoom kelas).</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KAMUS DATA (DATA DICTIONARY)       -->
+            <!-- ========================================== -->
+            <div id="memberErdTabDictContent" class="erd-tab-panel" style="display: none;">
+              <!-- Toolbar Filter & Search -->
+              <div class="flex flex-col md:flex-row gap-3 items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm mb-4">
+                <div class="relative w-full md:w-80">
+                  <input
+                    id="memberErdDictSearchInput"
+                    type="text"
+                    placeholder="Cari kolom, tipe data, penjelasan..."
+                    class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <i class="bi bi-search absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                  <select id="memberErdDictTableFilter" class="form-select text-xs py-2 bg-slate-50 border border-slate-200 rounded-xl shadow-none">
+                    <option value="all">Semua Tabel (4 Tabel / 31 Kolom)</option>
+                    <option value="members">members (7 Kolom)</option>
+                    <option value="class_members">class_members (6 Kolom)</option>
+                    <option value="classes">classes (10 Kolom)</option>
+                    <option value="class_schedules">class_schedules (8 Kolom)</option>
+                  </select>
+                  <span id="memberErdDictCountBadge" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 whitespace-nowrap">
+                    31 Kolom
+                  </span>
+                </div>
+              </div>
+
+              <!-- Table Data Dictionary -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0 text-xs" id="memberErdDictTable">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-bold text-[10px]">
+                      <tr>
+                        <th class="py-3 px-4">Tabel</th>
+                        <th class="py-3 px-4">Nama Kolom (Field)</th>
+                        <th class="py-3 px-4">Tipe Data</th>
+                        <th class="py-3 px-4" style="min-width: 220px;">Penjelasan Kolom</th>
+                        <th class="py-3 px-4">Contoh Nilai</th>
+                        <th class="py-3 px-4">Keterangan / Relasi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="memberErdDictTableBody" class="divide-y divide-slate-100">
+                      <!-- 1. members -->
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik akun siswa / member</td>
+                        <td class="px-4 py-2.5"><code class="text-blue-700 font-bold bg-blue-50 px-1.5 py-0.5 rounded">"MBR-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800">➔ class_members.member_id</span></td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">full_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap siswa peserta program</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Siti Rahmawati"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">phone_whatsapp</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(20)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nomor telepon / WhatsApp aktif member</td>
+                        <td class="px-4 py-2.5 text-slate-700">"6281234567890"</td>
+                        <td class="px-4 py-2.5 text-slate-400">Format internasional</td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">email</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Alamat email resmi member</td>
+                        <td class="px-4 py-2.5 text-slate-700">"siti.rahma@gmail.com"</td>
+                        <td class="px-4 py-2.5 text-slate-400">Bisa NULL</td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">city</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kota asal domisili member</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Yogyakarta"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status siswa ('active' sedang belajar, 'alumni' lulus)</td>
+                        <td class="px-4 py-2.5 text-slate-700">'active'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="members">
+                        <td class="px-4 py-2.5 font-bold text-blue-800"><code>members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu pendaftaran awal member</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-01 09:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 2. class_members -->
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key auto increment data enrollment</td>
+                        <td class="px-4 py-2.5 text-slate-700">101</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-blue-700">member_id</span> <span class="badge bg-blue-100 text-blue-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID member peserta yang mendaftar</td>
+                        <td class="px-4 py-2.5"><code class="text-blue-800 font-bold bg-blue-50 px-1.5 py-0.5 rounded">"MBR-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800">➔ Merujuk ke members.id</span></td>
+                      </tr>
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-emerald-700">class_id</span> <span class="badge bg-emerald-100 text-emerald-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kelas yang diikuti oleh siswa</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CLS-BP03-202610"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-emerald-100 text-emerald-800">➔ Merujuk ke classes.id</span></td>
+                      </tr>
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">enrollment_date</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu peserta resmi terdaftar dalam kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-03 11:30:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">payment_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status pembayaran tiket kelas ('paid','dp','unpaid')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'paid'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_members">
+                        <td class="px-4 py-2.5 font-bold text-indigo-900"><code>class_members</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status siswa di kelas ('active','graduated','dropped')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'active'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 3. classes -->
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kode unik per batch kelas</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CLS-BP03-202610"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-emerald-100 text-emerald-800">➔ class_members &amp; class_schedules</span></td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">product_id</span> <span class="badge bg-slate-100 text-slate-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID produk program pelatihan asal kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"BP-LVL-03"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">mentor_id</span> <span class="badge bg-slate-100 text-slate-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID mentor coach penanggung jawab kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"MTR-001"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama label batch kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Basic Plus Level 3 - Batch Oktober 2026"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">type</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Moda pelaksanaan ('Online','Offline','Hybrid')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'Online'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">max_capacity</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Batas maksimal kuota peserta kelas (standar 10 orang)</td>
+                        <td class="px-4 py-2.5 text-slate-700">10</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">start_date</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DATE</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal pertemuan perdana batch kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-15</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">end_date</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DATE</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal penutupan sesi kelulusan batch</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-11-15</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status siklus kelas ('open','ongoing','completed','cancelled')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'open'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="classes">
+                        <td class="px-4 py-2.5 font-bold text-emerald-800"><code>classes</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu data kelas dibuat</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-03 10:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 4. class_schedules -->
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key auto increment nomor sesi</td>
+                        <td class="px-4 py-2.5 text-slate-700">501</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-emerald-700">class_id</span> <span class="badge bg-emerald-100 text-emerald-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kelas induk jadwal pertemuan</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CLS-BP03-202610"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-emerald-100 text-emerald-800">➔ Merujuk ke classes.id</span></td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">session_order</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(10)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Urutan sesi pertemuan dalam silabus</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Sesi 01"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">topic_title</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Judul topik / materi yang dibahas pada sesi</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Vocal Mastery &amp; Articulation Drills"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">schedule_date</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DATE</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal pelaksanaan pertemuan sesi</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-18</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">start_time - end_time</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIME</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu jam mulai hingga selesai sesi</td>
+                        <td class="px-4 py-2.5 text-slate-700">19:30:00 - 21:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">WIB</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">meeting_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Link ruang tatap muka virtual sesi kelas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://zoom.us/j/9876543210"</td>
+                        <td class="px-4 py-2.5 text-slate-400">Zoom / GMeet</td>
+                      </tr>
+                      <tr data-table="class_schedules">
+                        <td class="px-4 py-2.5 font-bold text-teal-800"><code>class_schedules</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status pertemuan ('scheduled','completed','rescheduled')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'scheduled'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SQL DDL SCRIPT                     -->
+            <!-- ========================================== -->
+            <div id="memberErdTabSqlContent" class="erd-tab-panel" style="display: none;">
+              <div class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm mb-4">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-file-earmark-code text-blue-600 text-lg"></i>
+                  <div>
+                    <h6 class="font-bold text-slate-800 mb-0 text-xs">MySQL DDL Script (Member &amp; Enrollment Domain)</h6>
+                    <p class="text-[11px] text-slate-500 mb-0">Script CREATE TABLE lengkap dengan Foreign Key &amp; ON DELETE CASCADE</p>
+                  </div>
+                </div>
+                <button type="button" id="memberBtnCopySqlScript" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-2 shadow-sm">
+                  <i class="bi bi-clipboard"></i>
+                  <span id="memberBtnCopySqlText">Salin Script SQL</span>
+                </button>
+              </div>
+
+              <div class="bg-slate-900 rounded-2xl p-4 overflow-x-auto shadow-inner text-slate-200 text-xs font-mono border border-slate-800">
+                <pre class="mb-0"><code id="memberSqlScriptContent">-- =======================================================
+-- DIALOGIKA: MEMBER DATA, ENROLLMENT &amp; CLASS MAPPING DDL
+-- =======================================================
+
+-- 1. TABEL MASTER SISWA: members
+CREATE TABLE IF NOT EXISTS `members` (
+  `id` VARCHAR(50) NOT NULL,
+  `full_name` VARCHAR(150) NOT NULL,
+  `phone_whatsapp` VARCHAR(20) NOT NULL,
+  `email` VARCHAR(100) NULL,
+  `city` VARCHAR(100) NULL,
+  `status` ENUM('active', 'alumni') NOT NULL DEFAULT 'active',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. TABEL MASTER BATCH KELAS: classes
+CREATE TABLE IF NOT EXISTS `classes` (
+  `id` VARCHAR(50) NOT NULL,
+  `product_id` VARCHAR(50) NOT NULL,
+  `mentor_id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(150) NOT NULL,
+  `type` ENUM('Online', 'Offline', 'Hybrid') NOT NULL DEFAULT 'Online',
+  `max_capacity` INT(11) NOT NULL DEFAULT 10,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NOT NULL,
+  `status` ENUM('open', 'ongoing', 'completed', 'cancelled') NOT NULL DEFAULT 'open',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. TABEL PENDAFTARAN KELAS SISWA (JUNCTION M:N): class_members
+CREATE TABLE IF NOT EXISTS `class_members` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `class_id` VARCHAR(50) NOT NULL,
+  `member_id` VARCHAR(50) NOT NULL,
+  `enrollment_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `payment_status` ENUM('paid', 'dp', 'unpaid') NOT NULL DEFAULT 'paid',
+  `status` ENUM('active', 'graduated', 'dropped') NOT NULL DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_class_member` (`class_id`, `member_id`),
+  INDEX `idx_class_members_class` (`class_id`),
+  INDEX `idx_class_members_member` (`member_id`),
+  CONSTRAINT `fk_class_members_class` FOREIGN KEY (`class_id`)
+    REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_class_members_member` FOREIGN KEY (`member_id`)
+    REFERENCES `members` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 4. TABEL PENJADWALAN SESI KELAS: class_schedules
+CREATE TABLE IF NOT EXISTS `class_schedules` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `class_id` VARCHAR(50) NOT NULL,
+  `session_order` VARCHAR(10) NOT NULL,
+  `topic_title` VARCHAR(255) NOT NULL,
+  `schedule_date` DATE NOT NULL,
+  `start_time` TIME NOT NULL,
+  `end_time` TIME NOT NULL,
+  `meeting_url` VARCHAR(255) NULL,
+  `status` ENUM('scheduled', 'completed', 'rescheduled') NOT NULL DEFAULT 'scheduled',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_schedules_class` (`class_id`),
+  CONSTRAINT `fk_schedules_class` FOREIGN KEY (`class_id`)
+    REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="erd-modal-footer px-6 py-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-shield-check text-blue-600"></i>
+              <span>Schema integrity: 4 Tabel &bull; 3 Relasi Antar Tabel &bull; Cascade Integrity Enforced</span>
+            </div>
+            <button type="button" class="btn btn-light rounded-xl px-4 py-2 font-semibold text-slate-700" data-bs-dismiss="modal">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

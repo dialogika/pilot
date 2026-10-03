@@ -543,8 +543,7 @@
 }
 
 /* Relation Filter / Highlight Pills */
-.erd-rel-pill,
-.erd-rel-pill-class {
+.erd-rel-pill {
   padding: 4px 12px;
   font-size: 11px;
   font-weight: 700;
@@ -558,15 +557,13 @@
   cursor: pointer;
 }
 
-.erd-rel-pill:hover,
-.erd-rel-pill-class:hover {
+.erd-rel-pill:hover {
   background-color: #f1f5f9;
   color: #1e293b;
   border-color: #cbd5e1;
 }
 
-.erd-rel-pill.active,
-.erd-rel-pill-class.active {
+.erd-rel-pill.active {
   background-color: #0f172a;
   color: #ffffff;
   border-color: #0f172a;
@@ -610,75 +607,6 @@
   transform: scale(0.98);
 }
 
-/* Sidebar Button for Database Mapping (Contextual to Product Management) */
-#sidebarBtnErd {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
 
-#sidebarBtnErd:hover {
-  background-color: #eef2ff !important;
-  color: #4338ca !important;
-}
 
-#sidebarBtnErd:hover i {
-  color: #4338ca !important;
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
-}
 
-[data-theme="dark"] #sidebarBtnErd:hover {
-  background-color: var(--surface-hover) !important;
-  color: #a5b4fc !important;
-}
-
-[data-theme="dark"] #sidebarBtnErd:hover i {
-  color: #a5b4fc !important;
-}/* Domain Selector Tabs */
-.erd-domain-tab {
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background-color: #f8fafc;
-  color: #64748b;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.erd-domain-tab:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
-}
-
-.erd-domain-tab.active {
-  background-color: #4338ca;
-  color: #ffffff;
-  border-color: #4338ca;
-  box-shadow: 0 2px 6px rgba(67, 56, 202, 0.25);
-}
-
-.erd-domain-tab.active i {
-  color: #ffffff !important;
-}
-
-[data-theme="dark"] .erd-domain-tab {
-  background-color: var(--surface-2);
-  border-color: var(--border);
-  color: var(--text-muted);
-}
-
-[data-theme="dark"] .erd-domain-tab:hover {
-  background-color: var(--surface-hover);
-  color: var(--text-strong);
-}
-
-[data-theme="dark"] .erd-domain-tab.active {
-  background-color: #6366f1;
-  border-color: #6366f1;
-  color: #ffffff;
-}

@@ -857,14 +857,14 @@ export function initErdModalControls() {
   const searchInput = document.getElementById("erdDictSearchInput");
   const tableFilter = document.getElementById("erdDictTableFilter");
   const countBadge = document.getElementById("erdDictCountBadge");
+  const rows = document.querySelectorAll("#erdDictTableBody tr");
 
   function filterDictionaryRows() {
     const q = (searchInput?.value || "").toLowerCase().trim();
     const selectedTable = tableFilter?.value || "all";
-    const currentRows = document.querySelectorAll("#erdDictTableBody tr");
     let visibleCount = 0;
 
-    currentRows.forEach((row) => {
+    rows.forEach((row) => {
       const rowTable = row.getAttribute("data-table");
       const matchTable = selectedTable === "all" || rowTable === selectedTable;
       const textContent = row.textContent.toLowerCase();
@@ -938,6 +938,8 @@ export function initErdModalControls() {
       color: "#10b981",
       marker: "url(#erdArrowEmerald)",
       label: "1 : N (product_id)",
+      y1Offset: -10,
+      tBadge: 0.35,
     },
     {
       id: "features",
@@ -946,6 +948,8 @@ export function initErdModalControls() {
       color: "#f59e0b",
       marker: "url(#erdArrowAmber)",
       label: "1 : N (product_id)",
+      y1Offset: -3,
+      tBadge: 0.58,
     },
     {
       id: "outcomes",
@@ -954,6 +958,8 @@ export function initErdModalControls() {
       color: "#3b82f6",
       marker: "url(#erdArrowBlue)",
       label: "1 : N (product_id)",
+      y1Offset: 4,
+      tBadge: 0.42,
     },
     {
       id: "specs",
@@ -962,16 +968,35 @@ export function initErdModalControls() {
       color: "#a855f7",
       marker: "url(#erdArrowPurple)",
       label: "1 : N (product_id)",
+      y1Offset: 11,
+      tBadge: 0.65,
     },
   ];
 
   let currentActiveRel = "all";
+
+  function getBezierPoint(t, p0, p1, p2, p3) {
+    const mt = 1 - t;
+    const mt2 = mt * mt;
+    const mt3 = mt2 * mt;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return {
+      x: mt3 * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t3 * p3.x,
+      y: mt3 * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t3 * p3.y,
+    };
+  }
 
   function drawErdRelations() {
     if (!wrapper || !svgGroup || !originAnchor) return;
 
     const wrapRect = wrapper.getBoundingClientRect();
     if (wrapRect.width === 0 || wrapRect.height === 0) return;
+
+    if (window.innerWidth < 1024) {
+      svgGroup.innerHTML = "";
+      return;
+    }
 
     const origRect = originAnchor.getBoundingClientRect();
 
@@ -995,10 +1020,17 @@ export function initErdModalControls() {
         // Target: Left edge center of child product_id row
         const x2 = tgtRect.left - wrapRect.left;
         const y2 = tgtRect.top + tgtRect.height / 2 - wrapRect.top;
-        const dx = Math.max(35, (x2 - x1) * 0.45);
-        d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-        midX = (x1 + x2) / 2;
-        midY = (y1 + y2) / 2;
+        const startY = y1 + (cfg.y1Offset || 0);
+        const dx = Math.max(40, (x2 - x1) * 0.45);
+        d = `M ${x1} ${startY} C ${x1 + dx} ${startY}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        const p0 = { x: x1, y: startY };
+        const p1 = { x: x1 + dx, y: startY };
+        const p2 = { x: x2 - dx, y: y2 };
+        const p3 = { x: x2, y: y2 };
+        const badgePos = getBezierPoint(cfg.tBadge || 0.5, p0, p1, p2, p3);
+        midX = badgePos.x;
+        midY = badgePos.y;
       } else {
         // Stacked (Mobile view)
         const x1B = origRect.left + origRect.width / 2 - wrapRect.left;
@@ -1012,8 +1044,8 @@ export function initErdModalControls() {
       }
 
       const isCurrentActive = currentActiveRel === "all" || currentActiveRel === cfg.id;
-      const opacity = isCurrentActive ? 1 : 0.15;
-      const strokeWidth = isCurrentActive && currentActiveRel !== "all" ? 3.5 : 2.5;
+      const opacity = isCurrentActive ? 1 : 0.12;
+      const strokeWidth = isCurrentActive && currentActiveRel !== "all" ? 3 : 2;
 
       svgHtml += `
         <g class="erd-relation-path-group" data-rel-id="${cfg.id}" style="opacity: ${opacity};">
@@ -1025,7 +1057,7 @@ export function initErdModalControls() {
             stroke-dasharray="6 3" class="erd-relation-path" />
           <!-- Center badge -->
           <g transform="translate(${midX}, ${midY})">
-            <rect x="-38" y="-10" width="76" height="20" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+            <rect x="-34" y="-9" width="68" height="18" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
             <text x="0" y="3.5" text-anchor="middle" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" fill="${cfg.color}">
               1 : N
             </text>
@@ -1083,314 +1115,28 @@ export function initErdModalControls() {
     });
   });
 
-  // =====================================================================
-  // DOMAIN 2: DYNAMIC SVG RELATIONS (CLASSES, MENTORS, MEMBERS, SCHEDULES)
-  // =====================================================================
-  const wrapperClass = document.getElementById("erdDiagramWrapperClass");
-  const svgGroupClass = document.getElementById("erdPathsGroupClass");
-
-  const classRelationConfigs = [
-    {
-      id: "mentor-class",
-      from: document.getElementById("erdAnchorMentorsId"),
-      to: document.getElementById("erdAnchorClassesMentorId"),
-      card: document.getElementById("cardClasses"),
-      color: "#f59e0b",
-      marker: "url(#erdArrowAmber2)",
-      label: "1 : N (mentor_id)",
-      type: "right-to-left",
-    },
-    {
-      id: "class-schedule",
-      from: document.getElementById("erdAnchorClassesId"),
-      to: document.getElementById("erdAnchorSchedulesClassId"),
-      card: document.getElementById("cardSchedules"),
-      color: "#10b981",
-      marker: "url(#erdArrowEmerald2)",
-      label: "1 : N (class_id)",
-      type: "col-down-left",
-    },
-    {
-      id: "class-enrollment",
-      from: document.getElementById("erdAnchorClassesId"),
-      to: document.getElementById("erdAnchorClassMembersClassId"),
-      card: document.getElementById("cardClassMembers"),
-      color: "#6366f1",
-      marker: "url(#erdArrowIndigo2)",
-      label: "1 : N (class_id)",
-      type: "left-to-right",
-    },
-    {
-      id: "member-enrollment",
-      from: document.getElementById("erdAnchorMembersId"),
-      to: document.getElementById("erdAnchorClassMembersMemberId"),
-      card: document.getElementById("cardClassMembers"),
-      color: "#3b82f6",
-      marker: "url(#erdArrowBlue2)",
-      label: "1 : N (member_id)",
-      type: "col-down-right",
-    },
-  ];
-
-  function drawErdRelationsClass() {
-    if (!wrapperClass || !svgGroupClass) return;
-
-    const wrapRect = wrapperClass.getBoundingClientRect();
-    if (wrapRect.width === 0 || wrapRect.height === 0) return;
-
-    let svgHtml = "";
-
-    classRelationConfigs.forEach((cfg) => {
-      if (!cfg.from || !cfg.to) return;
-      const fromRect = cfg.from.getBoundingClientRect();
-      const toRect = cfg.to.getBoundingClientRect();
-      if (fromRect.width === 0 || toRect.width === 0) return;
-
-      const isSideBySide = Math.abs(fromRect.left - toRect.left) > 100;
-      let d = "";
-      let midX = 0;
-      let midY = 0;
-
-      if (!isSideBySide) {
-        // Stacked Layout (Mobile)
-        const x1B = fromRect.left + fromRect.width / 2 - wrapRect.left;
-        const y1B = fromRect.bottom - wrapRect.top;
-        const x2T = toRect.left + toRect.width / 2 - wrapRect.left;
-        const y2T = toRect.top - wrapRect.top;
-        const dy = Math.max(25, Math.abs(y2T - y1B) * 0.35);
-        d = `M ${x1B} ${y1B} C ${x1B} ${y1B + dy}, ${x2T} ${y2T - dy}, ${x2T} ${y2T}`;
-        midX = (x1B + x2T) / 2;
-        midY = (y1B + y2T) / 2;
-      } else if (cfg.type === "right-to-left") {
-        // From Mentors (Right Col) ➔ Classes.mentor_id (Left Col)
-        const x1 = fromRect.left - wrapRect.left;
-        const y1 = fromRect.top + fromRect.height / 2 - wrapRect.top;
-        const x2 = toRect.right - wrapRect.left;
-        const y2 = toRect.top + toRect.height / 2 - wrapRect.top;
-        const dx = Math.max(35, Math.abs(x1 - x2) * 0.45);
-        d = `M ${x1} ${y1} C ${x1 - dx} ${y1}, ${x2 + dx} ${y2}, ${x2} ${y2}`;
-        midX = (x1 + x2) / 2;
-        midY = (y1 + y2) / 2;
-      } else if (cfg.type === "left-to-right") {
-        // From Classes (Left Col) ➔ ClassMembers.class_id (Right Col)
-        const x1 = fromRect.right - wrapRect.left;
-        const y1 = fromRect.top + fromRect.height / 2 - wrapRect.top;
-        const x2 = toRect.left - wrapRect.left;
-        const y2 = toRect.top + toRect.height / 2 - wrapRect.top;
-        const dx = Math.max(35, Math.abs(x2 - x1) * 0.45);
-        d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-        midX = (x1 + x2) / 2;
-        midY = (y1 + y2) / 2;
-      } else if (cfg.type === "col-down-left") {
-        // Classes ➔ Schedules (Both in Left Col, arc out to left)
-        const x1 = fromRect.left - wrapRect.left;
-        const y1 = fromRect.top + fromRect.height / 2 - wrapRect.top;
-        const x2 = toRect.left - wrapRect.left;
-        const y2 = toRect.top + toRect.height / 2 - wrapRect.top;
-        const bow = 40;
-        d = `M ${x1} ${y1} C ${x1 - bow} ${y1}, ${x2 - bow} ${y2}, ${x2} ${y2}`;
-        midX = Math.min(x1, x2) - bow * 0.7;
-        midY = (y1 + y2) / 2;
-      } else if (cfg.type === "col-down-right") {
-        // Members ➔ ClassMembers (Both in Right Col, arc out to right)
-        const x1 = fromRect.right - wrapRect.left;
-        const y1 = fromRect.top + fromRect.height / 2 - wrapRect.top;
-        const x2 = toRect.right - wrapRect.left;
-        const y2 = toRect.top + toRect.height / 2 - wrapRect.top;
-        const bow = 40;
-        d = `M ${x1} ${y1} C ${x1 + bow} ${y1}, ${x2 + bow} ${y2}, ${x2} ${y2}`;
-        midX = Math.max(x1, x2) + bow * 0.7;
-        midY = (y1 + y2) / 2;
-      }
-
-      const isCurrentActive = currentActiveRelClass === "all" || currentActiveRelClass === cfg.id;
-      const opacity = isCurrentActive ? 1 : 0.15;
-      const strokeWidth = isCurrentActive && currentActiveRelClass !== "all" ? 3.5 : 2.5;
-
-      svgHtml += `
-        <g class="erd-relation-path-group" data-rel-id="${cfg.id}" style="opacity: ${opacity};">
-          <!-- Glow halo -->
-          <path d="${d}" stroke="${cfg.color}" stroke-width="7" fill="none" opacity="0.18" stroke-linecap="round" />
-          <!-- Animated connecting line -->
-          <path d="${d}" stroke="${cfg.color}" stroke-width="${strokeWidth}" fill="none" 
-            marker-start="url(#erdDotStart2)" marker-end="${cfg.marker}" 
-            stroke-dasharray="6 3" class="erd-relation-path" />
-          <!-- Center badge -->
-          <g transform="translate(${midX}, ${midY})">
-            <rect x="-38" y="-10" width="76" height="20" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
-            <text x="0" y="3.5" text-anchor="middle" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" fill="${cfg.color}">
-              1 : N
-            </text>
-          </g>
-        </g>
-      `;
-    });
-
-    svgGroupClass.innerHTML = svgHtml;
-
-    // Attach click to each SVG path group in Domain 2
-    svgGroupClass.querySelectorAll(".erd-relation-path-group").forEach((grp) => {
-      grp.addEventListener("click", () => {
-        const relId = grp.getAttribute("data-rel-id");
-        if (relId) setActiveRelationClass(relId === currentActiveRelClass ? "all" : relId);
-      });
-    });
-  }
-
-  let currentActiveRelClass = "all";
-
-  const classCards = [
-    document.getElementById("cardClasses"),
-    document.getElementById("cardSchedules"),
-    document.getElementById("cardMentors"),
-    document.getElementById("cardMembers"),
-    document.getElementById("cardClassMembers"),
-  ];
-
-  function setActiveRelationClass(relId) {
-    currentActiveRelClass = relId;
-
-    // Update Pills
-    document.querySelectorAll(".erd-rel-pill-class").forEach((pill) => {
-      const pRel = pill.getAttribute("data-rel");
-      if (pRel === relId) {
-        pill.classList.add("active");
-      } else {
-        pill.classList.remove("active");
-      }
-    });
-
-    // Determine participating cards for this relation
-    let activeCardIds = [];
-    if (relId === "mentor-class") {
-      activeCardIds = ["cardMentors", "cardClasses"];
-    } else if (relId === "class-schedule") {
-      activeCardIds = ["cardClasses", "cardSchedules"];
-    } else if (relId === "class-enrollment") {
-      activeCardIds = ["cardClasses", "cardClassMembers"];
-    } else if (relId === "member-enrollment") {
-      activeCardIds = ["cardMembers", "cardClassMembers"];
-    }
-
-    // Update Card Highlight states in Domain 2
-    classCards.forEach((card) => {
-      if (!card) return;
-      if (relId === "all") {
-        card.classList.remove("relation-highlight", "relation-faded");
-      } else if (activeCardIds.includes(card.id)) {
-        card.classList.add("relation-highlight");
-        card.classList.remove("relation-faded");
-      } else {
-        card.classList.remove("relation-highlight");
-        card.classList.add("relation-faded");
-      }
-    });
-
-    drawErdRelationsClass();
-  }
-
-  // Relation Filter Pills (Class Domain) Click
-  document.querySelectorAll(".erd-rel-pill-class").forEach((pill) => {
-    pill.addEventListener("click", () => {
-      const rel = pill.getAttribute("data-rel") || "all";
-      setActiveRelationClass(rel);
-    });
-  });
-
-  // =====================================================================
-  // DOMAIN SELECTOR SWITCHER
-  // =====================================================================
-  const btnDomainCatalog = document.getElementById("btnDomainCatalog");
-  const btnDomainClass = document.getElementById("btnDomainClass");
-  const btnDomainAll = document.getElementById("btnDomainAll");
-  const erdDomainDesc = document.getElementById("erdDomainDesc");
-  const erdPillsCatalog = document.getElementById("erdPillsCatalog");
-  const erdPillsClass = document.getElementById("erdPillsClass");
-
-  let activeDomain = "catalog";
-
-  function switchDomain(domain) {
-    activeDomain = domain;
-
-    [btnDomainCatalog, btnDomainClass, btnDomainAll].forEach((btn) => {
-      if (!btn) return;
-      if (btn.getAttribute("data-domain") === domain) {
-        btn.classList.add("active");
-      } else {
-        btn.classList.remove("active");
-      }
-    });
-
-    if (domain === "catalog") {
-      if (wrapper) wrapper.style.display = "";
-      if (wrapperClass) wrapperClass.style.display = "none";
-      if (erdPillsCatalog) erdPillsCatalog.style.display = "";
-      if (erdPillsClass) erdPillsClass.style.display = "none";
-      if (erdDomainDesc) {
-        erdDomainDesc.textContent = "Menampilkan relasi produk katalog, silabus kurikulum, fasilitas, capaian & spesifikasi.";
-      }
-      setTimeout(drawErdRelations, 60);
-    } else if (domain === "class") {
-      if (wrapper) wrapper.style.display = "none";
-      if (wrapperClass) wrapperClass.style.display = "";
-      if (erdPillsCatalog) erdPillsCatalog.style.display = "none";
-      if (erdPillsClass) erdPillsClass.style.display = "";
-      if (erdDomainDesc) {
-        erdDomainDesc.textContent = "Menampilkan relasi master batch kelas, mentor pengampu, pendaftaran member, dan penjadwalan sesi.";
-      }
-      setTimeout(drawErdRelationsClass, 60);
-    } else if (domain === "all") {
-      if (wrapper) wrapper.style.display = "";
-      if (wrapperClass) wrapperClass.style.display = "";
-      if (erdPillsCatalog) erdPillsCatalog.style.display = "";
-      if (erdPillsClass) erdPillsClass.style.display = "";
-      if (erdDomainDesc) {
-        erdDomainDesc.textContent = "Menampilkan integrasi penuh antara katalog produk dan operasional kelas, mentor, member, serta jadwal.";
-      }
-      setTimeout(() => {
-        drawErdRelations();
-        drawErdRelationsClass();
-      }, 60);
-    }
-  }
-
-  btnDomainCatalog?.addEventListener("click", () => switchDomain("catalog"));
-  btnDomainClass?.addEventListener("click", () => switchDomain("class"));
-  btnDomainAll?.addEventListener("click", () => switchDomain("all"));
-
-  function redrawActiveDiagrams() {
-    if (activeDomain === "catalog") {
-      drawErdRelations();
-    } else if (activeDomain === "class") {
-      drawErdRelationsClass();
-    } else {
-      drawErdRelations();
-      drawErdRelationsClass();
-    }
-  }
-
   // Modal Shown Event Listener
   const erdModalEl = document.getElementById("erdMappingModal");
   if (erdModalEl) {
     erdModalEl.addEventListener("shown.bs.modal", () => {
-      setTimeout(redrawActiveDiagrams, 80);
+      setTimeout(drawErdRelations, 80);
     });
   }
 
   // Tab switch redraw
   tabVisualBtn?.addEventListener("click", () => {
-    setTimeout(redrawActiveDiagrams, 80);
+    setTimeout(drawErdRelations, 80);
   });
 
   // Window resize redraw (debounced)
   let resizeTimer = null;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(redrawActiveDiagrams, 100);
+    resizeTimer = setTimeout(drawErdRelations, 100);
   });
 
   // Initial draw
-  setTimeout(redrawActiveDiagrams, 300);
+  setTimeout(drawErdRelations, 300);
 }
 
 /**
@@ -1432,7 +1178,5 @@ export function mountSidebarErdButton() {
     }
   }
 }
-
-
 
 
