@@ -179,15 +179,22 @@ export async function fetchProducts() {
  */
 export async function fetchMentors() {
     try {
-        const snap = await getDocs(collection(db, "mentor"));
+        let snap = await getDocs(collection(db, "mentors"));
+        if (snap.empty) {
+            snap = await getDocs(collection(db, "mentor"));
+        }
         const list = [];
+        const seenNames = new Set();
         snap.forEach((docSnap) => {
             const d = docSnap.data() || {};
             const id = docSnap.id;
-            if (d.fullName) {
+            const name = (d.fullName || d.name || d.nama_lengkap || d.mentor_name || d.displayName || "").trim();
+            const lower = name.toLowerCase();
+            if (name && name !== "Unknown" && !seenNames.has(lower)) {
+                seenNames.add(lower);
                 list.push({
                     id,
-                    name: d.fullName
+                    name
                 });
             }
         });
