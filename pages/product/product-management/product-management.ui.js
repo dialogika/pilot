@@ -819,3 +819,293 @@ export function initProductExportModal(onFormatChange, onRangeChange) {
   });
 }
 
+/**
+ * Initializes Database Mapping and ERD Schema Modal Controls.
+ */
+export function initErdModalControls() {
+  const tabVisualBtn = document.getElementById("tabBtnErdVisual");
+  const tabDictBtn = document.getElementById("tabBtnErdDict");
+  const tabSqlBtn = document.getElementById("tabBtnErdSql");
+
+  const panelVisual = document.getElementById("erdTabVisualContent");
+  const panelDict = document.getElementById("erdTabDictContent");
+  const panelSql = document.getElementById("erdTabSqlContent");
+
+  const allTabs = [
+    { btn: tabVisualBtn, panel: panelVisual },
+    { btn: tabDictBtn, panel: panelDict },
+    { btn: tabSqlBtn, panel: panelSql },
+  ];
+
+  allTabs.forEach(({ btn, panel }) => {
+    if (!btn || !panel) return;
+    btn.addEventListener("click", () => {
+      allTabs.forEach((t) => {
+        if (t.btn) t.btn.classList.remove("active");
+        if (t.panel) {
+          t.panel.classList.remove("active");
+          t.panel.style.display = "none";
+        }
+      });
+      btn.classList.add("active");
+      panel.classList.add("active");
+      panel.style.display = "block";
+    });
+  });
+
+  // Data Dictionary Search & Filter
+  const searchInput = document.getElementById("erdDictSearchInput");
+  const tableFilter = document.getElementById("erdDictTableFilter");
+  const countBadge = document.getElementById("erdDictCountBadge");
+  const rows = document.querySelectorAll("#erdDictTableBody tr");
+
+  function filterDictionaryRows() {
+    const q = (searchInput?.value || "").toLowerCase().trim();
+    const selectedTable = tableFilter?.value || "all";
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+      const rowTable = row.getAttribute("data-table");
+      const matchTable = selectedTable === "all" || rowTable === selectedTable;
+      const textContent = row.textContent.toLowerCase();
+      const matchSearch = !q || textContent.includes(q);
+
+      if (matchTable && matchSearch) {
+        row.style.display = "";
+        visibleCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    if (countBadge) {
+      countBadge.textContent = `${visibleCount} Kolom`;
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", filterDictionaryRows);
+  }
+  if (tableFilter) {
+    tableFilter.addEventListener("change", filterDictionaryRows);
+  }
+
+  // Copy SQL Script Button
+  const btnCopySql = document.getElementById("btnCopySqlScript");
+  const btnCopyText = document.getElementById("btnCopySqlText");
+  const sqlContent = document.getElementById("sqlScriptContent");
+
+  if (btnCopySql && sqlContent) {
+    btnCopySql.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(sqlContent.textContent || "");
+        if (btnCopyText) btnCopyText.textContent = "Tersalin!";
+        showToast("Script SQL DDL berhasil disalin ke clipboard!");
+        setTimeout(() => {
+          if (btnCopyText) btnCopyText.textContent = "Salin Script SQL";
+        }, 2500);
+      } catch (err) {
+        console.error("Gagal menyalin SQL:", err);
+      }
+    });
+  }
+
+  // Copy Obsidian Docs Path Button
+  const btnCopyDocs = document.getElementById("btnCopyDocsPath");
+  if (btnCopyDocs) {
+    btnCopyDocs.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("docs/PRODUCT-DATABASE-MAPPING.md");
+        showToast("Path docs/PRODUCT-DATABASE-MAPPING.md tersalin!");
+      } catch (e) {
+        console.error("Gagal menyalin path:", e);
+      }
+    });
+  }
+
+  // =====================================================================
+  // DYNAMIC SVG RELATIONS (LINES & ARROWS)
+  // =====================================================================
+  const wrapper = document.getElementById("erdDiagramWrapper");
+  const svgGroup = document.getElementById("erdPathsGroup");
+  const originAnchor = document.getElementById("erdOriginProductsId");
+
+  const relationConfigs = [
+    {
+      id: "curriculums",
+      targetAnchor: document.getElementById("erdTargetCurriculumsId"),
+      card: document.getElementById("cardCurriculums"),
+      color: "#10b981",
+      marker: "url(#erdArrowEmerald)",
+      label: "1 : N (product_id)",
+    },
+    {
+      id: "features",
+      targetAnchor: document.getElementById("erdTargetFeaturesId"),
+      card: document.getElementById("cardFeatures"),
+      color: "#f59e0b",
+      marker: "url(#erdArrowAmber)",
+      label: "1 : N (product_id)",
+    },
+    {
+      id: "outcomes",
+      targetAnchor: document.getElementById("erdTargetOutcomesId"),
+      card: document.getElementById("cardOutcomes"),
+      color: "#3b82f6",
+      marker: "url(#erdArrowBlue)",
+      label: "1 : N (product_id)",
+    },
+    {
+      id: "specs",
+      targetAnchor: document.getElementById("erdTargetSpecsId"),
+      card: document.getElementById("cardSpecs"),
+      color: "#a855f7",
+      marker: "url(#erdArrowPurple)",
+      label: "1 : N (product_id)",
+    },
+  ];
+
+  let currentActiveRel = "all";
+
+  function drawErdRelations() {
+    if (!wrapper || !svgGroup || !originAnchor) return;
+
+    const wrapRect = wrapper.getBoundingClientRect();
+    if (wrapRect.width === 0 || wrapRect.height === 0) return;
+
+    const origRect = originAnchor.getBoundingClientRect();
+
+    // Origin point: Right edge center of products.id row
+    const x1 = origRect.right - wrapRect.left;
+    const y1 = origRect.top + origRect.height / 2 - wrapRect.top;
+
+    let svgHtml = "";
+
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.targetAnchor) return;
+      const tgtRect = cfg.targetAnchor.getBoundingClientRect();
+      if (tgtRect.width === 0) return;
+
+      const isSideBySide = tgtRect.left > origRect.left + 50;
+      let d = "";
+      let midX = 0;
+      let midY = 0;
+
+      if (isSideBySide) {
+        // Target: Left edge center of child product_id row
+        const x2 = tgtRect.left - wrapRect.left;
+        const y2 = tgtRect.top + tgtRect.height / 2 - wrapRect.top;
+        const dx = Math.max(35, (x2 - x1) * 0.45);
+        d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+        midX = (x1 + x2) / 2;
+        midY = (y1 + y2) / 2;
+      } else {
+        // Stacked (Mobile view)
+        const x1B = origRect.left + origRect.width / 2 - wrapRect.left;
+        const y1B = origRect.bottom - wrapRect.top;
+        const x2T = tgtRect.left + tgtRect.width / 2 - wrapRect.left;
+        const y2T = tgtRect.top - wrapRect.top;
+        const dy = Math.max(25, (y2T - y1B) * 0.4);
+        d = `M ${x1B} ${y1B} C ${x1B} ${y1B + dy}, ${x2T} ${y2T - dy}, ${x2T} ${y2T}`;
+        midX = (x1B + x2T) / 2;
+        midY = (y1B + y2T) / 2;
+      }
+
+      const isCurrentActive = currentActiveRel === "all" || currentActiveRel === cfg.id;
+      const opacity = isCurrentActive ? 1 : 0.15;
+      const strokeWidth = isCurrentActive && currentActiveRel !== "all" ? 3.5 : 2.5;
+
+      svgHtml += `
+        <g class="erd-relation-path-group" data-rel-id="${cfg.id}" style="opacity: ${opacity};">
+          <!-- Glow halo -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="7" fill="none" opacity="0.18" stroke-linecap="round" />
+          <!-- Animated connecting line -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="${strokeWidth}" fill="none" 
+            marker-start="url(#erdDotStart)" marker-end="${cfg.marker}" 
+            stroke-dasharray="6 3" class="erd-relation-path" />
+          <!-- Center badge -->
+          <g transform="translate(${midX}, ${midY})">
+            <rect x="-38" y="-10" width="76" height="20" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+            <text x="0" y="3.5" text-anchor="middle" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" fill="${cfg.color}">
+              1 : N
+            </text>
+          </g>
+        </g>
+      `;
+    });
+
+    svgGroup.innerHTML = svgHtml;
+
+    // Attach click to each SVG path group
+    svgGroup.querySelectorAll(".erd-relation-path-group").forEach((grp) => {
+      grp.addEventListener("click", () => {
+        const relId = grp.getAttribute("data-rel-id");
+        if (relId) setActiveRelation(relId === currentActiveRel ? "all" : relId);
+      });
+    });
+  }
+
+  function setActiveRelation(relId) {
+    currentActiveRel = relId;
+
+    // Update Pills
+    document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+      const pRel = pill.getAttribute("data-rel");
+      if (pRel === relId) {
+        pill.classList.add("active");
+      } else {
+        pill.classList.remove("active");
+      }
+    });
+
+    // Update Card Highlight states
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.card) return;
+      if (relId === "all") {
+        cfg.card.classList.remove("relation-highlight", "relation-faded");
+      } else if (cfg.id === relId) {
+        cfg.card.classList.add("relation-highlight");
+        cfg.card.classList.remove("relation-faded");
+      } else {
+        cfg.card.classList.remove("relation-highlight");
+        cfg.card.classList.add("relation-faded");
+      }
+    });
+
+    drawErdRelations();
+  }
+
+  // Relation Filter Pills Click
+  document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const rel = pill.getAttribute("data-rel") || "all";
+      setActiveRelation(rel);
+    });
+  });
+
+  // Modal Shown Event Listener
+  const erdModalEl = document.getElementById("erdMappingModal");
+  if (erdModalEl) {
+    erdModalEl.addEventListener("shown.bs.modal", () => {
+      setTimeout(drawErdRelations, 80);
+    });
+  }
+
+  // Tab switch redraw
+  tabVisualBtn?.addEventListener("click", () => {
+    setTimeout(drawErdRelations, 80);
+  });
+
+  // Window resize redraw (debounced)
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawErdRelations, 100);
+  });
+
+  // Initial draw
+  setTimeout(drawErdRelations, 300);
+}
+
+
+
