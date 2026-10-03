@@ -39,6 +39,7 @@ import {
   addOutcomeItem,
   executeRichCommand,
   initProductExportModal,
+  initErdModalControls,
 } from "./product-management.ui.js";
 
 let allProducts = [];
@@ -252,6 +253,9 @@ function setupEventListeners() {
       }
     });
   }
+
+  // Database Mapping & ERD Modal Controls
+  initErdModalControls();
 }
 
 /**
