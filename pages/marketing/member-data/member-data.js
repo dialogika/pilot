@@ -661,6 +661,8 @@ async function initializeMemberData() {
     // Render shared topbar and sidebar
     renderTopbar({ user, role });
     renderSidebar({ role, activePage: "member-data" });
+    ui.mountSidebarMemberErdButton();
+    ui.initMemberErdModalControls();
 
     // Cache DOM references
     loadingState = document.getElementById("loadingState");

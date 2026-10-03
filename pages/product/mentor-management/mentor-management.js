@@ -55,6 +55,8 @@ async function initializeMentorManagement() {
     // 2. Render shared application shell
     renderTopbar({ user: currentUser, role: currentRole });
     renderSidebar({ role: currentRole, activePage: "mentor-management" });
+    ui.mountSidebarMentorErdButton();
+    ui.initMentorErdModalControls();
 
     // 3. Load mentor data from repository
     await loadMentorData();

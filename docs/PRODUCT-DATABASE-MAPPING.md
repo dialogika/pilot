@@ -282,3 +282,11 @@ CREATE TABLE IF NOT EXISTS `product_specifications` (
     REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
+
+---
+
+## 5. Referensi Modul Terkait
+
+Sesuai pembagian domain arsitektur Dialogika:
+- **Member Data (Peserta & Pendaftaran Kelas):** Lihat [MEMBER-DATABASE-MAPPING.md](file:///d:/MAGANG/pilot/docs/MEMBER-DATABASE-MAPPING.md)
+- **Mentor Management (Coach & Penjadwalan Sesi):** Lihat [MENTOR-DATABASE-MAPPING.md](file:///d:/MAGANG/pilot/docs/MENTOR-DATABASE-MAPPING.md)

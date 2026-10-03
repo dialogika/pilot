@@ -36,6 +36,8 @@ import {
   closePlanningModal,
   initClassExportModal,
   showToast,
+  mountSidebarClassErdButton,
+  initClassErdModalControls,
 } from "./class-management.ui.js";
 
 // State
@@ -601,7 +603,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (topbarMount) renderTopBar(topbarMount);
 
   const sidebarMount = document.getElementById("dg-sidebar-mount");
-  if (sidebarMount) renderSidebar(sidebarMount);
+  if (sidebarMount) {
+    renderSidebar(sidebarMount);
+    mountSidebarClassErdButton();
+    initClassErdModalControls();
+  }
 
   // 3. Load Data from Repository
   classesState = await fetchClasses();
