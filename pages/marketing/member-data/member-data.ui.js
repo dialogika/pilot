@@ -381,33 +381,41 @@ export function mountSidebarMemberErdButton() {
   if (!sidebarWrapper) return;
 
   // Prevent duplicate mounts
-  if (document.getElementById("sidebarMemberErdSection")) return;
+  if (document.getElementById("sidebarBtnMemberErd")) return;
 
-  const sectionEl = document.createElement("div");
-  sectionEl.id = "sidebarMemberErdSection";
-  sectionEl.innerHTML = `
-    <div class="nav-category mt-4">MARKETING DIVISION</div>
-    <a href="javascript:void(0)" class="sidebar-link" id="sidebarBtnMemberErd" data-bs-toggle="modal" data-bs-target="#memberErdModal" role="button">
-      <i class="bi bi-diagram-3-fill text-blue-600"></i>
-      <span>Database Mapping</span>
-      <span class="sidebar-badge">
-        <span class="badge bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">ERD</span>
-      </span>
-    </a>
+  const linkEl = document.createElement("a");
+  linkEl.href = "javascript:void(0)";
+  linkEl.className = "sidebar-link";
+  linkEl.id = "sidebarBtnMemberErd";
+  linkEl.setAttribute("data-bs-toggle", "modal");
+  linkEl.setAttribute("data-bs-target", "#memberErdModal");
+  linkEl.setAttribute("role", "button");
+  linkEl.innerHTML = `
+    <i class="bi bi-database text-blue-600"></i>
+    <span>Database</span>
+    <span class="sidebar-badge">
+      <span class="badge bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">ERD</span>
+    </span>
   `;
 
-  // Find the "SYSTEM" category to cleanly place it right above SYSTEM
-  const navCategories = Array.from(sidebarWrapper.querySelectorAll(".nav-category"));
-  const systemCategory = navCategories.find((cat) => cat.textContent.trim().toUpperCase() === "SYSTEM");
+  // Place inside MAIN NAVIGATION right after "My Stuff" (or right before "SYSTEM" category)
+  const links = Array.from(sidebarWrapper.querySelectorAll(".sidebar-link"));
+  const myStuffLink = links.find((link) => link.textContent.includes("My Stuff"));
 
-  if (systemCategory) {
-    sidebarWrapper.insertBefore(sectionEl, systemCategory);
+  if (myStuffLink) {
+    myStuffLink.insertAdjacentElement("afterend", linkEl);
   } else {
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      sidebarWrapper.insertBefore(sectionEl, logoutBtn);
+    const navCategories = Array.from(sidebarWrapper.querySelectorAll(".nav-category"));
+    const systemCategory = navCategories.find((cat) => cat.textContent.trim().toUpperCase() === "SYSTEM");
+    if (systemCategory) {
+      sidebarWrapper.insertBefore(linkEl, systemCategory);
     } else {
-      sidebarWrapper.appendChild(sectionEl);
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        sidebarWrapper.insertBefore(linkEl, logoutBtn);
+      } else {
+        sidebarWrapper.appendChild(linkEl);
+      }
     }
   }
 }
