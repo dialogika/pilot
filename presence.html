@@ -485,7 +485,7 @@ body[data-theme="dark"] { background-color: var(--bg-body-theme); color: var(--t
         <p id="confirmedType" class="text-sm font-semibold mt-1" style="color:var(--dlg-blue);"></p>
         <p id="confirmedUser" class="text-gray-500 mt-2 font-light"></p>
         <p id="workDurationInfo" class="text-gray-500 mt-1 text-sm"></p>
-        <button onclick="location.reload()"
+        <button id="btnDismissSuccess"
             class="mt-12 px-8 py-3 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-all">Selesai</button>
     </div>
 
@@ -516,8 +516,16 @@ import { app, db } from "./assets/js/firebase-config.js";
         
 
         const urlParams = new URLSearchParams(window.location.search);
-        const isNfcSource = urlParams.get('source') === 'nfc';
+        let isNfcSource = urlParams.get('source') === 'nfc';
         let hasAutoTriggeredNfc = false;
+
+        function cleanNfcUrlParam() {
+            if (window.history && window.history.replaceState) {
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                isNfcSource = false;
+            }
+        }
 
         const nameSelectEl = document.getElementById('nameSelect');
         if (isNfcSource) {
@@ -577,19 +585,13 @@ import { app, db } from "./assets/js/firebase-config.js";
 
         function getDayPresenceRule(date = new Date()) {
             const day = date.getDay();
-            const logoutDeadlineSec = (18 * 3600);
-
-            if (day === 2 || day === 4) { // Selasa, Kamis
+            // Hari aktif presensi: Selasa (2), Kamis (4), Sabtu (6), Minggu (0)
+            if (day === 2 || day === 4 || day === 6 || day === 0) {
                 return {
-                    loginStartSec: (9 * 3600) + (45 * 60),
-                    logoutDeadlineSec
-                };
-            }
-
-            if (day === 6 || day === 0) { // Sabtu, Minggu
-                return {
-                    loginStartSec: (8 * 3600) + (45 * 60),
-                    logoutDeadlineSec
+                    loginStartSec: (8 * 3600),       // 08:00
+                    loginDeadlineSec: (13 * 3600),   // 13:00
+                    logoutStartSec: (13 * 3600),     // 13:00
+                    logoutDeadlineSec: (18 * 3600)   // 18:00
                 };
             }
 
@@ -608,18 +610,34 @@ import { app, db } from "./assets/js/firebase-config.js";
 
             const nowSec = getNowSeconds(date);
 
-            if (mode === 'login' && nowSec < rule.loginStartSec) {
-                return {
-                    valid: false,
-                    message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
-                };
+            if (mode === 'login') {
+                if (nowSec < rule.loginStartSec) {
+                    return {
+                        valid: false,
+                        message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
+                    };
+                }
+                if (rule.loginDeadlineSec && nowSec > rule.loginDeadlineSec) {
+                    return {
+                        valid: false,
+                        message: `Clock In sudah ditutup (batas maksimal ${formatClockHHMM(rule.loginDeadlineSec)}).`
+                    };
+                }
             }
 
-            if (mode === 'logout' && nowSec > rule.logoutDeadlineSec) {
-                return {
-                    valid: false,
-                    message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
-                };
+            if (mode === 'logout') {
+                if (rule.logoutStartSec && nowSec < rule.logoutStartSec) {
+                    return {
+                        valid: false,
+                        message: `Clock Out baru dibuka mulai ${formatClockHHMM(rule.logoutStartSec)}.`
+                    };
+                }
+                if (nowSec > rule.logoutDeadlineSec) {
+                    return {
+                        valid: false,
+                        message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
+                    };
+                }
             }
 
             return { valid: true, message: "" };
@@ -1026,9 +1044,27 @@ import { app, db } from "./assets/js/firebase-config.js";
                 setSliderEnabled(true);
 
                 // Auto clock-in / clock-out if opened via NFC and location is valid
-                if (isNfcSource && !hasAutoTriggeredNfc && (currentPresenceMode === 'login' || currentPresenceMode === 'logout')) {
-                    hasAutoTriggeredNfc = true;
-                    await triggerAutoNfcAttendance();
+                if (isNfcSource && !hasAutoTriggeredNfc) {
+                    if (currentPresenceMode === 'login') {
+                        hasAutoTriggeredNfc = true;
+                        await triggerAutoNfcAttendance();
+                    } else if (currentPresenceMode === 'logout') {
+                        // Cooldown: Cegah auto clock-out instan jika baru saja Clock In (< 15 menit)
+                        const dateStr = getLocalDateString();
+                        const loginTime = await getTodayLatestLoginTime(userId, dateStr);
+                        const loginSec = parseTimeToSeconds(loginTime);
+                        const nowSec = getNowSeconds();
+                        const MIN_LOGOUT_COOLDOWN_SEC = 15 * 60; // 15 menit
+                        const hasPassedCooldown = loginSec === null || (nowSec - loginSec) >= MIN_LOGOUT_COOLDOWN_SEC;
+
+                        if (hasPassedCooldown) {
+                            hasAutoTriggeredNfc = true;
+                            await triggerAutoNfcAttendance();
+                        } else {
+                            cleanNfcUrlParam();
+                            setValidationMessage(`Anda baru saja Clock In (${loginTime || ''}). Selamat bekerja!`, 'info');
+                        }
+                    }
                 }
             } else {
                 isLocationValid = false;
@@ -1243,6 +1279,7 @@ import { app, db } from "./assets/js/firebase-config.js";
                 return;
             }
             setValidationMessage('', 'info');
+            cleanNfcUrlParam();
             successOverlay.style.display = 'flex';
             if (currentPresenceMode === 'logout' && attendanceResult.workDurationText) {
                 workDurationInfo.textContent = `Durasi kerja hari ini: ${attendanceResult.workDurationText}`;
@@ -1254,6 +1291,15 @@ import { app, db } from "./assets/js/firebase-config.js";
                     // Ignore if vibration is not permitted
                 }
             }
+        }
+
+        const btnDismissSuccess = document.getElementById('btnDismissSuccess');
+        if (btnDismissSuccess) {
+            btnDismissSuccess.addEventListener('click', () => {
+                successOverlay.style.display = 'none';
+                cleanNfcUrlParam();
+                onUserSelected();
+            });
         }
 
         window.addEventListener('resize', () => {
