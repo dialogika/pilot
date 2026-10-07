@@ -1113,6 +1113,8 @@ export async function initialize() {
 
     renderTopbar({ user, role });
     renderSidebar({ role, activePage: "presence-team" });
+    ui.mountSidebarPresenceTeamErdButton();
+    ui.initPresenceTeamErdModalControls();
 
     const todayKey = getTodayKey();
     const todayMonth = getMonthKeyFromDate(todayKey);

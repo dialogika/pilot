@@ -61,6 +61,8 @@ import {
   initUsersExportModal,
   notifySuccess,
   notifyError,
+  mountSidebarUsersManagementErdButton,
+  initUsersManagementErdModalControls,
 } from "./users-management.ui.js";
 
 let _users = [];
@@ -512,6 +514,10 @@ export async function initialize() {
     wireModalCloseButtons();
     wireEventHandlers();
     refreshTable();
+
+    // Initialize ERD modal controls & mount sidebar button
+    mountSidebarUsersManagementErdButton();
+    initUsersManagementErdModalControls();
   } catch (err) {
     console.error("[UsersManagement] Failed to initialize:", err);
     renderError(err.message || "Failed to load Users Management");
@@ -523,6 +529,7 @@ async function initializeWithShell() {
   const { user, role } = await requireAuth();
   renderTopbar({ user, role });
   renderSidebar({ role, activePage: "users-management" });
+  mountSidebarUsersManagementErdButton();
   return initialize();
 }
 
