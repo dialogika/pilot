@@ -33,6 +33,8 @@ async function initializePeopleDevelopment() {
     // 2. Mount shared shell components
     renderTopbar({ user: currentUser, role: currentRole });
     renderSidebar({ role: currentRole, activePage: "people-development" });
+    ui.mountSidebarPeopleDevErdButton();
+    ui.initPeopleDevErdModalControls();
 
     // 3. Dynamic header greeting
     const userName = currentUser?.displayName || currentUser?.name || "";
