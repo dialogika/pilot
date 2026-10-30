@@ -1560,14 +1560,7 @@ export function getRemedialStatusStyle(status) {
         badge: "bg-sky-100 text-sky-800 border-sky-200",
         text: "SCHEDULE",
       };
-    case "RESCHEDULE":
-      return {
-        dot: "bg-fuchsia-500",
-        chip: "border-l-fuchsia-500 bg-fuchsia-50/90 text-fuchsia-900 hover:bg-fuchsia-100",
-        badge: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200",
-        text: "RESCHEDULE",
-      };
-    case "STALL":
+        case "STALL":
       return {
         dot: "bg-slate-500",
         chip: "border-l-slate-500 bg-slate-100 text-slate-800 hover:bg-slate-200",
@@ -1601,14 +1594,7 @@ export function getClickUpStatusMeta(status) {
         ringBorder: "border-[#475569]",
         iconHtml: `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
       };
-    case "RESCHEDULE":
-      return {
-        label: "RESCHEDULE",
-        badgeBg: "bg-[#9333ea]",
-        ringBorder: "border-[#a855f7]",
-        iconHtml: `<i data-lucide="clock" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
-      };
-    case "SCHEDULE":
+        case "SCHEDULE":
       return {
         label: "SCHEDULE",
         badgeBg: "bg-[#0284c7]",
@@ -1837,7 +1823,6 @@ export function renderRemedialKPIs(counts) {
     CONTACT: "badgeCountContact",
     PROCESS: "badgeCountProcess",
     SCHEDULE: "badgeCountSchedule",
-    RESCHEDULE: "badgeCountReschedule",
     STALL: "badgeCountStall",
     COMPLETE: "badgeCountComplete",
   };
@@ -1848,7 +1833,7 @@ export function renderRemedialKPIs(counts) {
 }
 
 export function renderRemedialBoard(reports, onStatusChange, onCommentClick, onDeleteClick, onCardClick) {
-  const statuses = ["REQUEST", "CONTACT", "PROCESS", "SCHEDULE", "RESCHEDULE", "STALL", "COMPLETE"];
+  const statuses = ["REQUEST", "CONTACT", "PROCESS", "SCHEDULE", "STALL", "COMPLETE"];
 
   statuses.forEach((statusKey) => {
     const colEl = document.querySelector(`.remedial-col[data-status="${statusKey}"]`);
@@ -1993,7 +1978,6 @@ export function renderRemedialBoard(reports, onStatusChange, onCommentClick, onD
           <div class="flex-1">
             <select class="remedial-status-changer text-[10px] font-bold py-1 px-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 w-full focus:outline-none focus:ring-1 focus:ring-sky-500">
               <option value="STALL" ${statusKey === "STALL" ? "selected" : ""}>⚫ STALL</option>
-              <option value="RESCHEDULE" ${statusKey === "RESCHEDULE" ? "selected" : ""}>🟪 RESCHEDULE</option>
               <option value="SCHEDULE" ${statusKey === "SCHEDULE" ? "selected" : ""}>🔵 SCHEDULE</option>
               <option value="PROCESS" ${statusKey === "PROCESS" ? "selected" : ""}>🟠 PROCESS</option>
               <option value="CONTACT" ${statusKey === "CONTACT" ? "selected" : ""}>🟣 CONTACT</option>
@@ -2111,7 +2095,7 @@ export function renderRemedialCalendar(
   reports.forEach((item) => {
     const dateKey = parseItemDateKey(item, dateMode);
     const s = String(item.status || "REQUEST").toUpperCase();
-    const isScheduledStage = s === "SCHEDULE" || s === "RESCHEDULE" || s === "COMPLETE";
+    const isScheduledStage = s === "SCHEDULE" || s === "COMPLETE";
 
     if (dateMode === "schedule") {
       if (!isScheduledStage) return;
@@ -2470,7 +2454,7 @@ export function renderRemedialList(
     totalCountBadge.textContent = `${reports.length} task${reports.length === 1 ? "" : "s"}`;
   }
 
-  const listStatuses = ["STALL", "RESCHEDULE", "SCHEDULE", "PROCESS", "CONTACT", "REQUEST", "COMPLETE"];
+  const listStatuses = ["STALL", "SCHEDULE", "PROCESS", "CONTACT", "REQUEST", "COMPLETE"];
   wrapper.innerHTML = "";
 
   listStatuses.forEach((statusKey) => {
@@ -2675,7 +2659,6 @@ export function renderRemedialList(
             item.id
           }" title="Ubah Status">
                   <option value="STALL" ${statusKey === "STALL" ? "selected" : ""} class="bg-white text-slate-800 font-bold">STALL</option>
-                  <option value="RESCHEDULE" ${statusKey === "RESCHEDULE" ? "selected" : ""} class="bg-white text-fuchsia-700 font-bold">RESCHEDULE</option>
                   <option value="SCHEDULE" ${statusKey === "SCHEDULE" ? "selected" : ""} class="bg-white text-sky-700 font-bold">SCHEDULE</option>
                   <option value="PROCESS" ${statusKey === "PROCESS" ? "selected" : ""} class="bg-white text-orange-700 font-bold">PROCESS</option>
                   <option value="CONTACT" ${statusKey === "CONTACT" ? "selected" : ""} class="bg-white text-purple-700 font-bold">CONTACT</option>

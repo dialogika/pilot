@@ -978,8 +978,6 @@
 .puzzle-knob[data-status="PROCESS"] .puzzle-knob-core { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.45); }
 .puzzle-knob[data-status="SCHEDULE"] { border-color: #38bdf8; }
 .puzzle-knob[data-status="SCHEDULE"] .puzzle-knob-core { background: #0284c7; box-shadow: 0 0 8px rgba(2, 132, 199, 0.45); }
-.puzzle-knob[data-status="RESCHEDULE"] { border-color: #e879f9; }
-.puzzle-knob[data-status="RESCHEDULE"] .puzzle-knob-core { background: #d946ef; box-shadow: 0 0 8px rgba(217, 70, 239, 0.45); }
 .puzzle-knob[data-status="STALL"] { border-color: #94a3b8; }
 .puzzle-knob[data-status="STALL"] .puzzle-knob-core { background: #64748b; box-shadow: 0 0 8px rgba(100, 116, 139, 0.45); }
 .puzzle-knob[data-status="COMPLETE"] { border-color: #34d399; }
@@ -1008,7 +1006,6 @@
 .puzzle-socket[data-status="CONTACT"] { border-color: #e9d5ff; }
 .puzzle-socket[data-status="PROCESS"] { border-color: #fde68a; }
 .puzzle-socket[data-status="SCHEDULE"] { border-color: #bae6fd; }
-.puzzle-socket[data-status="RESCHEDULE"] { border-color: #f5d0fe; }
 .puzzle-socket[data-status="STALL"] { border-color: #cbd5e1; }
 .puzzle-socket[data-status="COMPLETE"] { border-color: #a7f3d0; }
 

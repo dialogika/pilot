@@ -580,7 +580,6 @@ function updateAllRemedialViews() {
     CONTACT: 0,
     PROCESS: 0,
     SCHEDULE: 0,
-    RESCHEDULE: 0,
     STALL: 0,
     COMPLETE: 0,
   };
@@ -1032,7 +1031,7 @@ function handleDayClick(dateKey) {
     const k = parseItemDateKey(item, remedialDateMode);
     if (remedialDateMode === "schedule") {
       const s = String(item.status || "REQUEST").toUpperCase();
-      const isScheduledStatus = s === "SCHEDULE" || s === "RESCHEDULE" || s === "COMPLETE";
+      const isScheduledStatus = s === "SCHEDULE" || s === "COMPLETE";
       return isScheduledStatus && k === dateKey;
     }
     return k === dateKey;
