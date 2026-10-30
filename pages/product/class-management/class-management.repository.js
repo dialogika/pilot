@@ -645,3 +645,497 @@ export async function exportClassManagementData({
   return { count: rows.length, filename };
 }
 
+/**
+ * ==================================================
+ * REMEDIAL REPORTS REPOSITORY
+ * ==================================================
+ */
+
+export const SAMPLE_REMEDIAL_REPORTS = [
+  // STALL items
+  {
+    id: "rem-stall-1",
+    name: "Indah Miranti",
+    group_whatsapp: "Online Class Batch 12",
+    class_name: "Online Class Batch 12",
+    phone: "0889-0123-4567",
+    mentor_name: "Nurallah",
+    meeting_number: 8,
+    meeting_numbers: [8],
+    meeting_missed: "Pertemuan 8",
+    reason: "Belum konfirmasi kehadiran lebih dari H+3",
+    status: "STALL",
+    schedule_date: "2026-10-12 19:00",
+    created_at: "2026-10-08",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-stall-2",
+    name: "Bagas Pratama",
+    group_whatsapp: "First Class Jan #1",
+    class_name: "First Class Jan #1",
+    phone: "0813-8899-2233",
+    mentor_name: "Afra Habibi",
+    meeting_number: 3,
+    meeting_numbers: [3],
+    meeting_missed: "Pertemuan 3",
+    reason: "Tidak merespons pesan WhatsApp konfirmasi",
+    status: "STALL",
+    schedule_date: null,
+    created_at: "2026-09-25",
+    comments_count: 0,
+    comments: [],
+  },
+  // RESCHEDULE items
+  {
+    id: "rem-resched-1",
+    name: "Mutia melianawati",
+    group_whatsapp: "First class januari #4",
+    class_name: "First class januari #4",
+    phone: "0838-6700-0138",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 5,
+    meeting_numbers: [5],
+    meeting_missed: "Pertemuan 5",
+    reason: "Jadwal tabrakan dengan ujian kampus",
+    status: "RESCHEDULE",
+    schedule_date: null,
+    created_at: "2026-02-08",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-resched-2",
+    name: "Nafisah Ashfia Syifa",
+    group_whatsapp: "First class Februari #4",
+    class_name: "First class Februari #4",
+    phone: "0897-8688-311",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 4,
+    meeting_numbers: [4],
+    meeting_missed: "Pertemuan 4",
+    reason: "Kendala teknis mendadak dan perlu reschedule ke minggu depan",
+    status: "RESCHEDULE",
+    schedule_date: null,
+    created_at: "2026-03-06",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-resched-3",
+    name: "Chusna Amalia Wahida",
+    group_whatsapp: "First class februari #2",
+    class_name: "First class februari #2",
+    phone: "0899-5304-791",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 1,
+    meeting_numbers: [1, 2],
+    meeting_missed: "Pertemuan 1, 2",
+    reason: "Keluarga ada acara di luar kota",
+    status: "RESCHEDULE",
+    schedule_date: null,
+    created_at: "2026-02-09",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-resched-4",
+    name: "Chusna",
+    group_whatsapp: "First class Februari #2",
+    class_name: "First class Februari #2",
+    phone: "0899-5304-791",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 4,
+    meeting_numbers: [4, 5],
+    meeting_missed: "Pertemuan 4, 5",
+    reason: "Lanjutan pertemuan yang belum terselesaikan",
+    status: "RESCHEDULE",
+    schedule_date: null,
+    created_at: "2026-02-21",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-resched-5",
+    name: "Tharifah Qani Farah",
+    group_whatsapp: "Basic Plus April #4",
+    class_name: "Basic Plus April #4",
+    phone: "0812-2684-2770",
+    mentor_name: "Bani Firdaus",
+    meeting_number: 4,
+    meeting_numbers: [4],
+    meeting_missed: "Pertemuan 4",
+    reason: "Tugas kantor lembur malam hari",
+    status: "RESCHEDULE",
+    schedule_date: null,
+    created_at: "2026-05-10",
+    comments_count: 0,
+    comments: [],
+  },
+  // SCHEDULE items
+  {
+    id: "rem-sched-1",
+    name: "Ira Fitriawati",
+    group_whatsapp: "First Class January #2",
+    class_name: "First Class January #2",
+    phone: "0857-6658-2968",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 4,
+    meeting_numbers: [4, 5],
+    meeting_missed: "Pertemuan 4, 5",
+    reason: "Telah konfirmasi jadwal, menunggu link zoom",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-18 19:30",
+    created_at: "2026-01-27",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-2",
+    name: "Jonathan Aditya Nugroho",
+    group_whatsapp: "First Class Maret #3",
+    class_name: "First Class Maret #3",
+    phone: "0852-8030-3496",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 6,
+    meeting_numbers: [6, 7, 8, 9, 10],
+    meeting_missed: "Pertemuan 6, 7, 8, 9, 10",
+    reason: "Paket remedial intensif persiapan final speech",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-25 10:00",
+    created_at: "2026-04-19",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-3",
+    name: "Alfa Reza Raditya",
+    group_whatsapp: "First Class Maret #3",
+    class_name: "First Class Maret #3",
+    phone: "0821-3758-9050",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 8,
+    meeting_numbers: [8],
+    meeting_missed: "Pertemuan 8",
+    reason: "Sesi evaluasi akhir",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-26 19:00",
+    created_at: "2026-04-26",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-4",
+    name: "Dian Pertiwi",
+    group_whatsapp: "Basic Plus April #4",
+    class_name: "Basic Plus April #4",
+    phone: "0856-0082-9705",
+    mentor_name: "Bani Firdaus",
+    meeting_number: 5,
+    meeting_numbers: [5],
+    meeting_missed: "Pertemuan 5",
+    reason: "Sudah konfirmasi jadwal pengganti",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-28 14:00",
+    created_at: "2026-05-10",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-5",
+    name: "Basic Plus April #3 (ASTRI MARDYA FITRI)",
+    group_whatsapp: "Basic Plus April #3",
+    class_name: "Basic Plus April #3",
+    phone: "0822-7231-2615",
+    mentor_name: "Salsabila Astari",
+    meeting_number: 5,
+    meeting_numbers: [5],
+    meeting_missed: "Pertemuan 5",
+    reason: "Jadwal sudah fix dan terkonfirmasi",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-29 19:30",
+    created_at: "2026-05-03",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-6",
+    name: "Tharifah Qani Farah",
+    group_whatsapp: "Basic plus april #4",
+    class_name: "Basic plus april #4",
+    phone: "0812-2684-2770",
+    mentor_name: "Bani Firdaus",
+    meeting_number: 5,
+    meeting_numbers: [5],
+    meeting_missed: "Pertemuan 5",
+    reason: "Konfirmasi siap hadir sesi weekend",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-30 14:00",
+    created_at: "2026-05-10",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-7",
+    name: "fasya",
+    group_whatsapp: "first class",
+    class_name: "first class",
+    phone: "0812-9988-7766",
+    mentor_name: "Daniel Ari",
+    meeting_number: 3,
+    meeting_numbers: [3],
+    meeting_missed: "Pertemuan 3",
+    reason: "sakit",
+    status: "SCHEDULE",
+    schedule_date: "2026-10-31 16:00",
+    created_at: "2026-10-20",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-sched-8",
+    name: "yeni mayanti",
+    group_whatsapp: "Private First Class",
+    class_name: "Private First Class",
+    phone: "0858-1234-5678",
+    mentor_name: "Fanny Carolina",
+    meeting_number: 3,
+    meeting_numbers: [3],
+    meeting_missed: "Pertemuan 3",
+    reason: "Lembur pekerjaan kantor",
+    status: "SCHEDULE",
+    schedule_date: "2026-11-02 19:00",
+    created_at: "2026-10-22",
+    comments_count: 0,
+    comments: [],
+  },
+  // CONTACT items
+  {
+    id: "rem-contact-1",
+    name: "elvi",
+    group_whatsapp: "first class",
+    class_name: "first class",
+    phone: "0813-1122-3344",
+    mentor_name: "Haryanto Saputra",
+    meeting_number: 2,
+    meeting_numbers: [2, 3],
+    meeting_missed: "Pertemuan 2, 3",
+    reason: "ada urusan",
+    status: "CONTACT",
+    schedule_date: null,
+    created_at: "2026-10-25",
+    comments_count: 0,
+    comments: [],
+  },
+  // REQUEST items
+  {
+    id: "rem-req-1",
+    name: "Gabriel Bayunanda Pinaringan",
+    group_whatsapp: "Speaking Remedial Batch 3",
+    class_name: "Speaking Remedial Batch 3",
+    phone: "0812-3456-7890",
+    mentor_name: "Afra Habibi",
+    meeting_number: 4,
+    meeting_numbers: [4],
+    meeting_missed: "Pertemuan 4",
+    reason: "Tidak bisa hadir karena ada urusan keluarga mendadak",
+    status: "REQUEST",
+    schedule_date: "2026-10-19 14:00",
+    created_at: "2026-10-14",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-req-2",
+    name: "First Class Februari Agustin",
+    group_whatsapp: "First Class Feb #2",
+    class_name: "First Class Feb #2",
+    phone: "0823-4567-8901",
+    mentor_name: "Dian Pertiwi",
+    meeting_number: 5,
+    meeting_numbers: [5],
+    meeting_missed: "Pertemuan 5",
+    reason: "Sakit dan perlu mengulang materi presentasi",
+    status: "REQUEST",
+    schedule_date: null,
+    created_at: "2026-10-15",
+    comments_count: 0,
+    comments: [],
+  },
+  {
+    id: "rem-req-3",
+    name: "Rahmaningsih Mora Sabirin",
+    group_whatsapp: "Basic Plus Mei #1",
+    class_name: "Basic Plus Mei #1",
+    phone: "0834-5678-9012",
+    mentor_name: "Bella Ababil",
+    meeting_number: 4,
+    meeting_numbers: [4],
+    meeting_missed: "Pertemuan 4",
+    reason: "Izin dinas luar kota",
+    status: "REQUEST",
+    schedule_date: null,
+    created_at: "2026-10-15",
+    comments_count: 0,
+    comments: [],
+  },
+  // PROCESS items
+  {
+    id: "rem-proc-1",
+    name: "Rizky Ramadhan",
+    group_whatsapp: "Speaking Batch 5",
+    class_name: "Speaking Batch 5",
+    phone: "0812-7788-9900",
+    mentor_name: "Afra Habibi",
+    meeting_number: 2,
+    meeting_numbers: [2],
+    meeting_missed: "Pertemuan 2",
+    reason: "Menunggu kecocokan jadwal mentor",
+    status: "PROCESS",
+    schedule_date: null,
+    created_at: "2026-10-24",
+    comments_count: 0,
+    comments: [],
+  },
+  // COMPLETE items
+  {
+    id: "rem-comp-1",
+    name: "Siti Rahmawati",
+    group_whatsapp: "Basic Plus Batch 7",
+    class_name: "Basic Plus Batch 7",
+    phone: "0877-3344-5566",
+    mentor_name: "Nurallah",
+    meeting_number: 6,
+    meeting_numbers: [6],
+    meeting_missed: "Pertemuan 6",
+    reason: "Selesai remedial materi speech",
+    status: "COMPLETE",
+    schedule_date: "2026-10-10 19:00",
+    created_at: "2026-10-01",
+    comments_count: 1,
+    comments: [
+      {
+        id: "c-1",
+        author: "Nurallah",
+        text: "Sesi remedial sudah terlaksana dengan sangat baik.",
+        created_at: "2026-10-10 20:30",
+      },
+    ],
+  },
+];
+
+/**
+ * Fetches all remedial reports from Firestore 'remedial_reports'.
+ * Falls back to SAMPLE_REMEDIAL_REPORTS if empty or disconnected.
+ */
+export async function fetchRemedialReports() {
+  if (!db) {
+    return SAMPLE_REMEDIAL_REPORTS.map((r) => ({ ...r }));
+  }
+
+  try {
+    const snap = await getDocs(collection(db, "remedial_reports"));
+    if (snap.empty) {
+      return SAMPLE_REMEDIAL_REPORTS.map((r) => ({ ...r }));
+    }
+
+    const list = [];
+    snap.forEach((docSnap) => {
+      const d = docSnap.data() || {};
+      const rawPhone = d.phone || d.whatsapp || "-";
+      const rawName = d.name || d.nama || "Tanpa Nama";
+      const explicitClass = (d.group_whatsapp || d.group_name || d.class_name || "").trim();
+
+      list.push({
+        id: docSnap.id,
+        name: rawName,
+        group_whatsapp: explicitClass,
+        class_name: explicitClass,
+        hasExplicitClass: Boolean(explicitClass),
+        phone: rawPhone,
+        email: d.email || "-",
+        mentor_name: d.mentor_name || d.mentor || "-",
+        mentor_id: d.mentor_id || "",
+        meeting_number: typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1),
+        meeting_numbers: Array.isArray(d.meeting_numbers) ? d.meeting_numbers : [typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1)],
+        meeting_missed: d.meeting_missed || `Pertemuan ${d.meeting_number || 1}`,
+        reason: d.reason || d.alasan || "-",
+        status: (d.status || "REQUEST").toUpperCase(),
+        schedule_date: d.schedule_date || d.scheduled_date || d.date || null,
+        created_at: d.created_at || d.createdAt || null,
+        comments: Array.isArray(d.comments) ? d.comments : [],
+        comments_count: typeof d.comments_count === "number" ? d.comments_count : (Array.isArray(d.comments) ? d.comments.length : 0),
+      });
+    });
+
+    return list.length > 0 ? list : SAMPLE_REMEDIAL_REPORTS.map((r) => ({ ...r }));
+  } catch (err) {
+    console.warn("fetchRemedialReports error, fallback to local:", err);
+    return SAMPLE_REMEDIAL_REPORTS.map((r) => ({ ...r }));
+  }
+}
+
+/**
+ * Saves a new remedial ticket in Firestore 'remedial_reports'.
+ */
+export async function saveRemedialReport(reportData) {
+  if (!db) {
+    return `rem_local_${Date.now()}`;
+  }
+  const payload = {
+    ...reportData,
+    status: (reportData.status || "REQUEST").toUpperCase(),
+    created_at: reportData.created_at || new Date().toISOString().slice(0, 10),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  const docRef = await addDoc(collection(db, "remedial_reports"), payload);
+  return docRef.id;
+}
+
+/**
+ * Updates remedial status in Firestore.
+ */
+export async function updateRemedialStatusDoc(itemId, newStatus) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    status: (newStatus || "REQUEST").toUpperCase(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Updates remedial schedule & details in Firestore.
+ */
+export async function updateRemedialScheduleDoc(itemId, scheduleData) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    ...scheduleData,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Deletes a remedial report ticket from Firestore.
+ */
+export async function deleteRemedialReportDoc(itemId) {
+  if (!db) return;
+  await deleteDoc(doc(db, "remedial_reports", itemId));
+}
+
+/**
+ * Appends a comment to a remedial ticket.
+ */
+export async function addRemedialCommentDoc(itemId, currentComments, newCommentObj) {
+  const updatedList = [...(currentComments || []), newCommentObj];
+  if (!db) return updatedList;
+
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    comments: updatedList,
+    comments_count: updatedList.length,
+    updatedAt: serverTimestamp(),
+  });
+  return updatedList;
+}
+

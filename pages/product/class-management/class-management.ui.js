@@ -1475,4 +1475,1986 @@ export function initClassErdModalControls() {
   });
 }
 
+/* ==========================================================================
+   REMEDIAL MANAGEMENT UI PRESENTATION LAYER (Zero Firebase)
+   ========================================================================== */
+
+export const REMEDIAL_MONTH_NAMES = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+export const REMEDIAL_MONTH_NAMES_EN = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+export function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+export function positionGlider(gliderEl, targetBtnEl, isInitial = false) {
+  if (!gliderEl || !targetBtnEl) return;
+  if (targetBtnEl.offsetWidth === 0) return;
+
+  const left = targetBtnEl.offsetLeft;
+  const top = targetBtnEl.offsetTop;
+  const width = targetBtnEl.offsetWidth;
+  const height = targetBtnEl.offsetHeight;
+
+  if (isInitial) {
+    gliderEl.style.transition = "none";
+  } else {
+    gliderEl.style.transition =
+      "transform 0.32s cubic-bezier(0.34, 1.35, 0.64, 1), width 0.26s cubic-bezier(0.34, 1.35, 0.64, 1), background-color 0.25s ease, box-shadow 0.25s ease";
+  }
+
+  gliderEl.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+  gliderEl.style.width = `${width}px`;
+  gliderEl.style.height = `${height}px`;
+
+  if (isInitial) {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        gliderEl.style.transition =
+          "transform 0.32s cubic-bezier(0.34, 1.35, 0.64, 1), width 0.26s cubic-bezier(0.34, 1.35, 0.64, 1), background-color 0.25s ease, box-shadow 0.25s ease";
+      }, 50);
+    });
+  }
+}
+
+export function getRemedialStatusStyle(status) {
+  const s = String(status || "REQUEST").toUpperCase();
+  switch (s) {
+    case "REQUEST":
+      return {
+        dot: "bg-rose-500",
+        chip: "border-l-rose-500 bg-rose-50/90 text-rose-900 hover:bg-rose-100",
+        badge: "bg-rose-100 text-rose-800 border-rose-200",
+        text: "REQUEST",
+      };
+    case "CONTACT":
+      return {
+        dot: "bg-purple-500",
+        chip: "border-l-purple-500 bg-purple-50/90 text-purple-900 hover:bg-purple-100",
+        badge: "bg-purple-100 text-purple-800 border-purple-200",
+        text: "CONTACT",
+      };
+    case "PROCESS":
+      return {
+        dot: "bg-orange-500",
+        chip: "border-l-orange-500 bg-orange-50/90 text-orange-900 hover:bg-orange-100",
+        badge: "bg-orange-100 text-orange-800 border-orange-200",
+        text: "PROCESS",
+      };
+    case "SCHEDULE":
+      return {
+        dot: "bg-sky-500",
+        chip: "border-l-sky-500 bg-sky-50/90 text-sky-900 hover:bg-sky-100",
+        badge: "bg-sky-100 text-sky-800 border-sky-200",
+        text: "SCHEDULE",
+      };
+    case "RESCHEDULE":
+      return {
+        dot: "bg-fuchsia-500",
+        chip: "border-l-fuchsia-500 bg-fuchsia-50/90 text-fuchsia-900 hover:bg-fuchsia-100",
+        badge: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200",
+        text: "RESCHEDULE",
+      };
+    case "STALL":
+      return {
+        dot: "bg-slate-500",
+        chip: "border-l-slate-500 bg-slate-100 text-slate-800 hover:bg-slate-200",
+        badge: "bg-slate-200 text-slate-800 border-slate-300",
+        text: "STALL",
+      };
+    case "COMPLETE":
+      return {
+        dot: "bg-emerald-500",
+        chip: "border-l-emerald-500 bg-emerald-50/90 text-emerald-900 hover:bg-emerald-100",
+        badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        text: "COMPLETE",
+      };
+    default:
+      return {
+        dot: "bg-slate-400",
+        chip: "border-l-slate-400 bg-slate-50 text-slate-700",
+        badge: "bg-slate-100 text-slate-700 border-slate-200",
+        text: s,
+      };
+  }
+}
+
+export function getClickUpStatusMeta(status) {
+  const s = String(status || "REQUEST").toUpperCase();
+  switch (s) {
+    case "STALL":
+      return {
+        label: "STALL",
+        badgeBg: "bg-[#475569]",
+        ringBorder: "border-[#475569]",
+        iconHtml: `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "RESCHEDULE":
+      return {
+        label: "RESCHEDULE",
+        badgeBg: "bg-[#9333ea]",
+        ringBorder: "border-[#a855f7]",
+        iconHtml: `<i data-lucide="clock" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "SCHEDULE":
+      return {
+        label: "SCHEDULE",
+        badgeBg: "bg-[#0284c7]",
+        ringBorder: "border-[#0ea5e9]",
+        iconHtml: `<i data-lucide="circle-dot" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "PROCESS":
+      return {
+        label: "PROCESS",
+        badgeBg: "bg-[#ea580c]",
+        ringBorder: "border-[#f97316]",
+        iconHtml: `<i data-lucide="clock-3" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "CONTACT":
+      return {
+        label: "CONTACT",
+        badgeBg: "bg-[#9333ea]",
+        ringBorder: "border-[#a855f7]",
+        iconHtml: `<i data-lucide="circle-dashed" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "REQUEST":
+      return {
+        label: "REQUEST",
+        badgeBg: "bg-[#dc2626]",
+        ringBorder: "border-[#ef4444]",
+        iconHtml: `<i data-lucide="circle-dashed" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    case "COMPLETE":
+      return {
+        label: "COMPLETE",
+        badgeBg: "bg-[#16a34a]",
+        ringBorder: "border-[#22c55e]",
+        iconHtml: `<i data-lucide="check-check" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+    default:
+      return {
+        label: s,
+        badgeBg: "bg-slate-500",
+        ringBorder: "border-slate-400",
+        iconHtml: `<i data-lucide="circle" class="w-3.5 h-3.5 stroke-[2.5]"></i>`,
+      };
+  }
+}
+
+export function formatClickUpPhone(rawPhone) {
+  if (!rawPhone || rawPhone === "-") return "-";
+  const digits = String(rawPhone).replace(/\D/g, "");
+  if (digits.startsWith("62")) {
+    const local = "0" + digits.slice(2);
+    if (local.length === 11) return `${local.slice(0, 4)}-${local.slice(4, 7)}-${local.slice(7)}`;
+    if (local.length >= 12) return `${local.slice(0, 4)}-${local.slice(4, 8)}-${local.slice(8)}`;
+    return local;
+  }
+  if (digits.startsWith("0")) {
+    if (digits.length === 11) return `${digits.slice(0, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+    if (digits.length >= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+    return digits;
+  }
+  return String(rawPhone);
+}
+
+export function formatClickUpDate(val) {
+  if (!val) return "-";
+  let d = null;
+  if (typeof val === "object" && typeof val.toDate === "function") {
+    d = val.toDate();
+  } else if (val instanceof Date) {
+    d = val;
+  } else if (typeof val === "string") {
+    const m = val.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) {
+      d = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+    } else {
+      d = new Date(val);
+    }
+  }
+  if (!d || isNaN(d.getTime())) return String(val).slice(0, 10);
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const year2 = String(d.getFullYear()).slice(-2);
+  return `${month}/${day}/${year2}`;
+}
+
+export function parseItemDateKey(item, mode) {
+  let raw = mode === "created" ? item.created_at : (item.schedule_date || item.scheduled_date || item.date);
+  if (!raw) return null;
+  if (typeof raw === "object" && typeof raw.toDate === "function") {
+    raw = raw.toDate();
+  }
+  if (typeof raw === "string") {
+    const m = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) {
+      return `${m[1]}-${String(m[2]).padStart(2, "0")}-${String(m[3]).padStart(2, "0")}`;
+    }
+  }
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function parseItemTimeStr(item) {
+  let raw = item.schedule_date || item.scheduled_date || item.date;
+  if (!raw) return "";
+  if (typeof raw === "object" && typeof raw.toDate === "function") {
+    raw = raw.toDate();
+  }
+  if (typeof raw === "string") {
+    const m = raw.match(/(?:T|\s)(\d{1,2}):(\d{2})/);
+    if (m) return `${m[1]}:${m[2]}`;
+  }
+  if (raw instanceof Date) {
+    return `${String(raw.getHours()).padStart(2, "0")}:${String(raw.getMinutes()).padStart(2, "0")}`;
+  }
+  return item.schedule_time || "";
+}
+
+export function getClassDates(c) {
+  if (!c) return [];
+  const datesSet = new Set();
+  const normalize = (v) => {
+    if (!v) return null;
+    if (typeof v === "object" && typeof v.toDate === "function") v = v.toDate();
+    if (v instanceof Date && !isNaN(v.getTime())) {
+      return `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, "0")}-${String(v.getDate()).padStart(2, "0")}`;
+    }
+    const str = String(v).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
+    return null;
+  };
+  const start = normalize(c.startDate || c.date || c.start_date);
+  if (start) datesSet.add(start);
+  if (Array.isArray(c.dates)) {
+    c.dates.forEach((d) => {
+      if (typeof d === "string") {
+        const n = normalize(d);
+        if (n) datesSet.add(n);
+      } else if (d && typeof d === "object") {
+        const n = normalize(d.date || d.start_date);
+        if (n) datesSet.add(n);
+      }
+    });
+  }
+  return Array.from(datesSet);
+}
+
+export function getItemCommentCount(item) {
+  if (!item) return 0;
+  if (Array.isArray(item.comments)) return item.comments.length;
+  if (typeof item.comments_count === "number") return item.comments_count;
+  return 0;
+}
+
+export function renderClickUpMeetingBadges(item) {
+  let nums = [];
+  if (Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0) {
+    nums = item.meeting_numbers.slice();
+  } else if (item.meeting_number) {
+    nums = [parseInt(item.meeting_number, 10) || 1];
+  } else {
+    nums = [1];
+  }
+
+  const maxBadges = 3;
+  const visibleNums = nums.slice(0, maxBadges);
+  const extraCount = nums.length - maxBadges;
+
+  const badgesHtml = visibleNums.map((n) => {
+    const numStr = String(n).padStart(2, "0");
+    let badgeClass = "badge-meeting-teal";
+    if (n >= 4 && n <= 5) {
+      badgeClass = "badge-meeting-rose";
+    } else if (n === 6) {
+      badgeClass = "badge-meeting-teal";
+    } else if (n === 7) {
+      badgeClass = "badge-meeting-orange";
+    } else if (n >= 8) {
+      badgeClass = "badge-meeting-slate";
+    }
+    return `<span class="clickup-meeting-badge ${badgeClass}" title="Pertemuan ${n}">${numStr}</span>`;
+  }).join("");
+
+  const moreHtml =
+    extraCount > 0
+      ? `<span class="clickup-meeting-badge badge-meeting-more" title="+${extraCount} pertemuan lainnya">+${extraCount}</span>`
+      : "";
+
+  return badgesHtml + moreHtml;
+}
+
+export function renderClickUpMentorBadge(mentorName) {
+  const name = (mentorName || "-").trim();
+  if (name === "-" || !name) {
+    return `<span class="text-slate-400 text-[11px]">-</span>`;
+  }
+
+  let styleClass = "bg-slate-100 text-slate-700 border-slate-200";
+  const lower = name.toLowerCase();
+  if (lower.includes("fanny")) {
+    styleClass = "bg-[#fdf2f8] text-[#db2777] border-[#fbcfe8]";
+  } else if (lower.includes("bani")) {
+    styleClass = "bg-[#f5f3ff] text-[#7c3aed] border-[#ddd6fe]";
+  } else if (lower.includes("salsabila")) {
+    styleClass = "bg-[#f0f9ff] text-[#0284c7] border-[#bae6fd]";
+  } else if (lower.includes("afra")) {
+    styleClass = "bg-[#fffbeb] text-[#d97706] border-[#fde68a]";
+  } else if (lower.includes("dian")) {
+    styleClass = "bg-[#ecfdf5] text-[#059669] border-[#a7f3d0]";
+  } else if (lower.includes("bella")) {
+    styleClass = "bg-[#fdf4ff] text-[#c026d3] border-[#f0abfc]";
+  } else if (lower.includes("jonathan")) {
+    styleClass = "bg-[#eef2ff] text-[#4f46e5] border-[#c7d2fe]";
+  } else if (lower.includes("faris")) {
+    styleClass = "bg-[#fef2f2] text-[#dc2626] border-[#fecaca]";
+  } else if (lower.includes("nurallah")) {
+    styleClass = "bg-[#f0fdf4] text-[#16a34a] border-[#bbf7d0]";
+  }
+
+  return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border whitespace-nowrap ${styleClass}" title="Mentor: ${escapeHtml(
+    name
+  )}">${escapeHtml(name)}</span>`;
+}
+
+export function renderRemedialKPIs(counts) {
+  const ids = {
+    REQUEST: "badgeCountRequest",
+    CONTACT: "badgeCountContact",
+    PROCESS: "badgeCountProcess",
+    SCHEDULE: "badgeCountSchedule",
+    RESCHEDULE: "badgeCountReschedule",
+    STALL: "badgeCountStall",
+    COMPLETE: "badgeCountComplete",
+  };
+  Object.keys(ids).forEach((k) => {
+    const el = document.getElementById(ids[k]);
+    if (el) el.textContent = String(counts[k] || 0);
+  });
+}
+
+export function renderRemedialBoard(reports, onStatusChange, onCommentClick, onDeleteClick, onCardClick) {
+  const statuses = ["REQUEST", "CONTACT", "PROCESS", "SCHEDULE", "RESCHEDULE", "STALL", "COMPLETE"];
+
+  statuses.forEach((statusKey) => {
+    const colEl = document.querySelector(`.remedial-col[data-status="${statusKey}"]`);
+    const countEl = colEl ? colEl.querySelector(".col-count") : null;
+    const listEl = colEl ? colEl.querySelector(`.cards-list[data-status="${statusKey}"]`) : null;
+
+    const itemsInCol = reports.filter(
+      (r) => (r.status || "REQUEST").toUpperCase() === statusKey
+    );
+
+    if (countEl) countEl.textContent = itemsInCol.length;
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+
+    if (itemsInCol.length === 0) {
+      const emptyEl = document.createElement("div");
+      emptyEl.className =
+        "text-center py-10 px-3 text-slate-400 text-[11px] border-2 border-dashed border-slate-200/80 rounded-2xl flex flex-col items-center justify-center gap-1.5";
+      emptyEl.innerHTML = `
+        <i data-lucide="inbox" class="w-5 h-5 text-slate-300"></i>
+        <span>Kosong</span>
+      `;
+      listEl.appendChild(emptyEl);
+      return;
+    }
+
+    itemsInCol.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.draggable = true;
+      card.dataset.id = item.id;
+
+      const isSingle = itemsInCol.length === 1;
+      const hasPuzzleTop = !isSingle && index > 0;
+      const hasPuzzleBottom = !isSingle && index < itemsInCol.length - 1;
+
+      let puzzleClass = "";
+      if (!isSingle) {
+        if (index === 0) puzzleClass = "puzzle-piece-top";
+        else if (index === itemsInCol.length - 1) puzzleClass = "puzzle-piece-bottom";
+        else puzzleClass = "puzzle-piece-middle";
+      }
+      card.className = `remedial-card ${puzzleClass}`.trim();
+
+      let meetingTagStr = "";
+      let meetingNum = 1;
+      if (Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0) {
+        meetingNum = item.meeting_numbers[0];
+        meetingTagStr = item.meeting_numbers.map((n) => `P${String(n).padStart(2, "0")}`).join(", ");
+      } else {
+        meetingNum = parseInt(item.meeting_number || "1", 10);
+        meetingTagStr = `P${String(meetingNum).padStart(2, "0")}`;
+      }
+
+      let tagColorClass = "bg-teal-100 text-teal-800 border-teal-200";
+      if (meetingNum >= 4 && meetingNum <= 6) tagColorClass = "bg-sky-100 text-sky-800 border-sky-200";
+      if (meetingNum >= 7 && meetingNum <= 8) tagColorClass = "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200";
+      if (meetingNum > 8) tagColorClass = "bg-amber-100 text-amber-800 border-amber-200";
+
+      let cleanPhone = String(item.phone || "").replace(/\D/g, "");
+      if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
+      if (!cleanPhone.startsWith("62") && cleanPhone.length > 5) cleanPhone = "62" + cleanPhone;
+
+      const resolvedClass = item.group_whatsapp || item.class_name || "";
+      const hasClass = Boolean(resolvedClass && resolvedClass !== "-");
+      const classText = hasClass ? ` di ${resolvedClass}` : "";
+      const waMsg = encodeURIComponent(
+        `Halo kak ${item.name}, kami dari Admin Kelas Dialogika mengenai pengajuan remedial ${
+          item.meeting_missed || "pertemuan kelas"
+        }${classText}. Apakah saat ini kakak bisa konfirmasi jadwal kelas penggantinya? Terima kasih!`
+      );
+
+      const mentorInitials = (item.mentor_name || "M")
+        .split(" ")
+        .filter(Boolean)
+        .map((p) => p[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+      card.innerHTML = `
+        ${
+          hasPuzzleTop
+            ? `<div class="puzzle-socket-container">
+                 <div class="puzzle-socket" data-status="${statusKey}"></div>
+               </div>`
+            : ""
+        }
+
+        <div class="flex items-start justify-between gap-2">
+          <div class="font-bold text-slate-900 text-xs leading-snug break-words">
+            ${escapeHtml(item.name)}
+          </div>
+          <span class="tag-meeting ${tagColorClass} border flex-shrink-0" title="Pertemuan ke-${meetingNum}">
+            ${meetingTagStr}
+          </span>
+        </div>
+
+        <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
+          <i data-lucide="layers" class="w-3 h-3 text-slate-300"></i>
+          <span>In Remedial Report</span>
+        </div>
+
+        ${
+          hasClass
+            ? `<div class="mt-2 text-[11px] font-medium text-slate-700 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100 truncate" title="${escapeHtml(
+                resolvedClass
+              )}">
+                <i data-lucide="book-open" class="w-3 h-3 inline text-slate-400 mr-1"></i>
+                <span>${escapeHtml(resolvedClass)}</span>
+               </div>`
+            : ""
+        }
+
+        <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-500">
+          <div class="flex items-center gap-1.5 truncate">
+            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 font-extrabold text-[8px] flex items-center justify-center flex-shrink-0">
+              ${mentorInitials}
+            </span>
+            <span class="truncate">${escapeHtml(item.mentor_name)}</span>
+          </div>
+          ${
+            cleanPhone.length > 5
+              ? `<a href="https://wa.me/${cleanPhone}?text=${waMsg}" target="_blank" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-bold border border-emerald-200 transition" title="Kirim Pesan WhatsApp">
+                  <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i> WA
+                 </a>`
+              : ""
+          }
+        </div>
+
+        ${
+          item.reason && item.reason !== "-"
+            ? `<div class="mt-2 text-[10px] text-slate-500 italic bg-amber-50/50 border border-amber-100/60 p-1.5 rounded-lg line-clamp-2" title="${escapeHtml(
+                item.reason
+              )}">
+                "${escapeHtml(item.reason)}"
+               </div>`
+            : ""
+        }
+
+        <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <select class="remedial-status-changer text-[10px] font-bold py-1 px-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 w-full focus:outline-none focus:ring-1 focus:ring-sky-500">
+              <option value="STALL" ${statusKey === "STALL" ? "selected" : ""}>⚫ STALL</option>
+              <option value="RESCHEDULE" ${statusKey === "RESCHEDULE" ? "selected" : ""}>🟪 RESCHEDULE</option>
+              <option value="SCHEDULE" ${statusKey === "SCHEDULE" ? "selected" : ""}>🔵 SCHEDULE</option>
+              <option value="PROCESS" ${statusKey === "PROCESS" ? "selected" : ""}>🟠 PROCESS</option>
+              <option value="CONTACT" ${statusKey === "CONTACT" ? "selected" : ""}>🟣 CONTACT</option>
+              <option value="REQUEST" ${statusKey === "REQUEST" ? "selected" : ""}>🔴 REQUEST</option>
+              <option value="COMPLETE" ${statusKey === "COMPLETE" ? "selected" : ""}>🟢 COMPLETE</option>
+            </select>
+          </div>
+          <button type="button" class="btn-card-comments p-1 text-slate-400 hover:text-sky-600 rounded-md hover:bg-sky-50 transition flex items-center gap-1 text-[11px] cursor-pointer" title="Buka Komentar" data-id="${
+            item.id
+          }">
+            <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+            <span class="text-[10px] font-bold">${getItemCommentCount(item)}</span>
+          </button>
+          <button type="button" class="btn-delete-card p-1 text-slate-300 hover:text-rose-500 rounded-md hover:bg-rose-50 transition" title="Hapus kartu ini">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        ${
+          hasPuzzleBottom
+            ? `<div class="puzzle-knob-container">
+                 <div class="puzzle-knob" data-status="${statusKey}" title="Puzzle Interlock (${statusKey})">
+                   <span class="puzzle-knob-core"></span>
+                 </div>
+               </div>`
+            : ""
+        }
+      `;
+
+      const statusSelect = card.querySelector(".remedial-status-changer");
+      if (statusSelect) {
+        statusSelect.addEventListener("click", (e) => e.stopPropagation());
+        statusSelect.addEventListener("change", (e) => {
+          e.stopPropagation();
+          if (onStatusChange) onStatusChange(item.id, e.target.value);
+        });
+      }
+
+      const cmtBtn = card.querySelector(".btn-card-comments");
+      if (cmtBtn) {
+        cmtBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onCommentClick) onCommentClick(item.id);
+        });
+      }
+
+      const deleteBtn = card.querySelector(".btn-delete-card");
+      if (deleteBtn) {
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onDeleteClick) onDeleteClick(item.id, item.name);
+        });
+      }
+
+      let isDragging = false;
+      card.addEventListener("dragstart", (e) => {
+        isDragging = true;
+        card.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", item.id);
+      });
+      card.addEventListener("dragend", () => {
+        setTimeout(() => {
+          isDragging = false;
+          card.classList.remove("dragging");
+        }, 60);
+      });
+
+      card.addEventListener("click", (e) => {
+        if (isDragging) return;
+        if (
+          e.target.closest(".remedial-status-changer, .btn-card-comments, .btn-delete-card, a, button, select")
+        ) {
+          return;
+        }
+        if (onCardClick) onCardClick(item.id);
+      });
+
+      listEl.appendChild(card);
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function renderRemedialCalendar(
+  reports,
+  calYear,
+  calMonth,
+  dateMode,
+  showCheckupLayer,
+  classesState,
+  onDayClick,
+  onChipClick,
+  onQuickAdd,
+  onScheduleUnscheduled
+) {
+  const grid = document.getElementById("remedialCalGrid");
+  const monthLabel = document.getElementById("remedialCalMonthLabel");
+  const activeCountBadge = document.getElementById("remedialCalActiveCountBadge");
+  const checkupCountBadge = document.getElementById("remedialCalCheckupCountBadge");
+  const unscheduledBadge = document.getElementById("remedialUnscheduledCountBadge");
+  const unscheduledPanelBadge = document.getElementById("unscheduledPanelBadge");
+  const unscheduledContainer = document.getElementById("unscheduledListContainer");
+  if (!grid) return;
+
+  const monthName = REMEDIAL_MONTH_NAMES_EN[calMonth] || REMEDIAL_MONTH_NAMES[calMonth];
+  if (monthLabel) {
+    monthLabel.textContent = `${monthName} ${calYear}`;
+  }
+
+  const itemsByDate = {};
+  const unscheduledList = [];
+  let scheduledThisMonthCount = 0;
+
+  reports.forEach((item) => {
+    const dateKey = parseItemDateKey(item, dateMode);
+    const s = String(item.status || "REQUEST").toUpperCase();
+    const isScheduledStage = s === "SCHEDULE" || s === "RESCHEDULE" || s === "COMPLETE";
+
+    if (dateMode === "schedule") {
+      if (!isScheduledStage) return;
+
+      if (dateKey) {
+        if (!itemsByDate[dateKey]) itemsByDate[dateKey] = [];
+        itemsByDate[dateKey].push(item);
+
+        const [y, m] = dateKey.split("-").map(Number);
+        if (y === calYear && m === calMonth + 1) {
+          scheduledThisMonthCount++;
+        }
+      } else {
+        unscheduledList.push(item);
+      }
+    } else {
+      if (dateKey) {
+        if (!itemsByDate[dateKey]) itemsByDate[dateKey] = [];
+        itemsByDate[dateKey].push(item);
+
+        const [y, m] = dateKey.split("-").map(Number);
+        if (y === calYear && m === calMonth + 1) {
+          scheduledThisMonthCount++;
+        }
+      } else {
+        unscheduledList.push(item);
+      }
+    }
+  });
+
+  const classesByDate = {};
+  let checkupClassesThisMonthCount = 0;
+
+  if (showCheckupLayer && Array.isArray(classesState)) {
+    classesState.forEach((c) => {
+      const dates = getClassDates(c);
+      dates.forEach((dateKey) => {
+        if (!classesByDate[dateKey]) classesByDate[dateKey] = [];
+        classesByDate[dateKey].push(c);
+
+        const [y, m] = dateKey.split("-").map(Number);
+        if (y === calYear && m === calMonth + 1) {
+          checkupClassesThisMonthCount++;
+        }
+      });
+    });
+  }
+
+  if (activeCountBadge) {
+    activeCountBadge.textContent = `${scheduledThisMonthCount} Terjadwal`;
+  }
+  if (checkupCountBadge) {
+    if (showCheckupLayer) {
+      checkupCountBadge.textContent = `${checkupClassesThisMonthCount} Kelas Check-Up`;
+      checkupCountBadge.classList.remove("hidden");
+    } else {
+      checkupCountBadge.classList.add("hidden");
+    }
+  }
+  if (unscheduledBadge) unscheduledBadge.textContent = String(unscheduledList.length);
+  if (unscheduledPanelBadge) unscheduledPanelBadge.textContent = String(unscheduledList.length);
+
+  grid.innerHTML = "";
+
+  const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+  const daysInCurrentMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
+  const today = new Date();
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(
+    today.getDate()
+  ).padStart(2, "0")}`;
+
+  function buildCell(dayNum, dateKey, isOtherMonth, isToday) {
+    const cell = document.createElement("div");
+    cell.className = `remedial-cal-cell group ${isOtherMonth ? "other-month" : ""} ${isToday ? "today" : ""}`;
+    cell.dataset.date = dateKey;
+    cell.addEventListener("click", () => {
+      if (onDayClick) onDayClick(dateKey);
+    });
+
+    const topBar = document.createElement("div");
+    topBar.className = "flex items-center justify-between mb-1";
+
+    const numEl = document.createElement("span");
+    numEl.className = `text-[11px] font-extrabold cursor-pointer hover:text-sky-600 transition ${
+      isToday
+        ? "w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center font-black shadow-xs text-[10px]"
+        : isOtherMonth
+        ? "text-slate-300"
+        : "text-slate-700"
+    }`;
+    numEl.textContent = dayNum;
+    numEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (onDayClick) onDayClick(dateKey);
+    });
+    topBar.appendChild(numEl);
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.className =
+      "w-4 h-4 rounded text-slate-300 hover:text-sky-600 hover:bg-sky-50 flex items-center justify-center transition opacity-0 group-hover:opacity-100 cursor-pointer";
+    addBtn.title = `Tambah jadwal untuk ${dateKey}`;
+    addBtn.innerHTML = `<i data-lucide="plus" class="w-2.5 h-2.5"></i>`;
+    addBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (onQuickAdd) onQuickAdd(dateKey);
+    });
+    topBar.appendChild(addBtn);
+
+    cell.appendChild(topBar);
+
+    const listEl = document.createElement("div");
+    listEl.className = "remedial-cal-list flex-1";
+
+    const rItems = itemsByDate[dateKey] || [];
+    const cItems = classesByDate[dateKey] || [];
+    const hasRemedial = rItems.length > 0;
+    const hasCheckup = cItems.length > 0 && showCheckupLayer;
+
+    if (hasRemedial) {
+      const maxRemedial = 2;
+      const shownRemedial = rItems.slice(0, maxRemedial);
+
+      shownRemedial.forEach((item) => {
+        const chip = document.createElement("div");
+        const style = getRemedialStatusStyle(item.status);
+        chip.className = `remedial-cal-chip ${style.chip}`;
+        chip.dataset.id = item.id;
+
+        const timeStr = parseItemTimeStr(item);
+        const mNum =
+          Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0
+            ? item.meeting_numbers[0]
+            : item.meeting_number || 1;
+        const mTag = `P${String(mNum).padStart(2, "0")}`;
+        const mentorName = item.mentor_name || "";
+        const mentorShort = mentorName.split(" ")[0] || "-";
+
+        chip.innerHTML = `
+          <div class="flex items-center justify-between gap-1 leading-tight">
+            <span class="truncate font-extrabold text-[10.5px] text-slate-900">${escapeHtml(item.name)}</span>
+            <span class="text-[8.5px] font-black px-1 py-0.2 rounded bg-sky-100 text-sky-800 shrink-0 uppercase tracking-tighter">${mTag}</span>
+          </div>
+          <div class="flex items-center gap-1 text-[9px] text-slate-500 font-medium leading-none mt-0.5 truncate">
+            ${timeStr ? `<span class="font-bold text-slate-700">${escapeHtml(timeStr)}</span><span>&bull;</span>` : ""}
+            <span class="truncate text-slate-600" title="${escapeHtml(mentorName)}">${escapeHtml(mentorShort)}</span>
+          </div>
+        `;
+        chip.title = `[Remedial] ${item.name} (${item.status}) - ${item.meeting_missed || mTag} - Mentor: ${mentorName}`;
+
+        chip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onChipClick) onChipClick(item.id);
+        });
+
+        listEl.appendChild(chip);
+      });
+
+      if (rItems.length > maxRemedial) {
+        const moreRemedialEl = document.createElement("div");
+        moreRemedialEl.className =
+          "text-[9px] font-extrabold text-amber-700 hover:text-amber-900 cursor-pointer pt-0.5";
+        moreRemedialEl.textContent = `+${rItems.length - maxRemedial} remedial lagi...`;
+        moreRemedialEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onDayClick) onDayClick(dateKey);
+        });
+        listEl.appendChild(moreRemedialEl);
+      }
+
+      if (hasCheckup) {
+        const checkupPill = document.createElement("div");
+        checkupPill.className = "checkup-summary-pill";
+        checkupPill.title = `Terdapat ${cItems.length} kelas Check-Up pada tanggal ini. Klik untuk lihat detail.`;
+        checkupPill.innerHTML = `
+          <div class="flex items-center justify-between gap-1 leading-tight">
+            <span class="flex items-center gap-1 min-w-0 font-black text-[9.5px] text-sky-950 truncate">
+              <i data-lucide="graduation-cap" class="w-3 h-3 text-sky-600 shrink-0"></i>
+              <span class="truncate">${cItems.length} Kelas Check-Up</span>
+            </span>
+            <span class="text-[8px] font-extrabold text-sky-700 bg-sky-200/60 px-1 py-0.2 rounded shrink-0">Lihat &rsaquo;</span>
+          </div>
+        `;
+        checkupPill.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onDayClick) onDayClick(dateKey);
+        });
+        listEl.appendChild(checkupPill);
+      }
+    } else if (hasCheckup) {
+      const maxCheckup = 2;
+      const shown = cItems.slice(0, maxCheckup);
+
+      shown.forEach((c) => {
+        const chip = document.createElement("div");
+        chip.className = "checkup-cal-chip";
+        chip.dataset.classId = c.id;
+
+        const mentorName =
+          Array.isArray(c.mentors) && c.mentors.length ? c.mentors[0].name : c.mentor || "-";
+        const mentorShort = mentorName.split(" ")[0] || "-";
+        const mtgDone = c.meeting?.done ?? c.meetingDone ?? 0;
+        const mtgTotal = c.meeting?.total ?? c.meetingTotal ?? 0;
+        const timeStr = c.startTime || c.time || "";
+
+        chip.innerHTML = `
+          <div class="flex items-center justify-between gap-1 leading-tight">
+            <span class="flex items-center gap-1 min-w-0 font-black text-[10px] text-sky-950 truncate">
+              <i data-lucide="graduation-cap" class="w-2.5 h-2.5 text-sky-600 shrink-0"></i>
+              <span class="truncate">${escapeHtml(c.name)}</span>
+            </span>
+            <span class="text-[8.5px] font-extrabold text-sky-700 px-1 py-0.2 rounded bg-sky-200/60 shrink-0">M${mtgDone}/${mtgTotal}</span>
+          </div>
+          <div class="flex items-center gap-1 text-[9px] text-slate-500 font-semibold leading-none mt-0.5 truncate">
+            ${timeStr ? `<span class="text-sky-700 font-bold">${escapeHtml(timeStr)}</span><span>&bull;</span>` : ""}
+            <span class="truncate text-slate-600" title="${escapeHtml(mentorName)}">${escapeHtml(mentorShort)}</span>
+            <span>&bull;</span>
+            <span class="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold shrink-0">${escapeHtml(
+              c.type || "Offline"
+            )}</span>
+          </div>
+        `;
+
+        chip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onDayClick) onDayClick(dateKey);
+        });
+
+        listEl.appendChild(chip);
+      });
+
+      if (cItems.length > maxCheckup) {
+        const moreEl = document.createElement("div");
+        moreEl.className = "text-[9px] font-extrabold text-sky-600 hover:text-sky-800 cursor-pointer pt-0.5";
+        moreEl.textContent = `+${cItems.length - maxCheckup} kelas lagi...`;
+        moreEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onDayClick) onDayClick(dateKey);
+        });
+        listEl.appendChild(moreEl);
+      }
+    }
+
+    cell.appendChild(listEl);
+    return cell;
+  }
+
+  // 1. Previous month trailing days
+  for (let i = 0; i < firstDayIndex; i++) {
+    const dayNum = daysInPrevMonth - firstDayIndex + 1 + i;
+    let prevMonth = calMonth - 1;
+    let prevYear = calYear;
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevYear--;
+    }
+    const prevKey = `${prevYear}-${String(prevMonth + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+    grid.appendChild(buildCell(dayNum, prevKey, true, false));
+  }
+
+  // 2. Current month days
+  for (let d = 1; d <= daysInCurrentMonth; d++) {
+    const curKey = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const isToday = curKey === todayKey;
+    grid.appendChild(buildCell(d, curKey, false, isToday));
+  }
+
+  // 3. Next month leading days
+  const totalRendered = firstDayIndex + daysInCurrentMonth;
+  const totalSlots = totalRendered > 35 ? 42 : 35;
+  const nextMonthDaysCount = totalSlots - totalRendered;
+
+  for (let n = 1; n <= nextMonthDaysCount; n++) {
+    let nextMonth = calMonth + 1;
+    let nextYear = calYear;
+    if (nextMonth > 11) {
+      nextMonth = 0;
+      nextYear++;
+    }
+    const nextKey = `${nextYear}-${String(nextMonth + 1).padStart(2, "0")}-${String(n).padStart(2, "0")}`;
+    grid.appendChild(buildCell(n, nextKey, true, false));
+  }
+
+  // Render Unscheduled list
+  if (unscheduledContainer) {
+    unscheduledContainer.innerHTML = "";
+    if (unscheduledList.length === 0) {
+      unscheduledContainer.innerHTML = `
+        <div class="text-center py-8 px-2 text-slate-400 text-xs">
+          <i data-lucide="check-circle" class="w-6 h-6 mx-auto mb-1 text-emerald-400"></i>
+          <p class="font-semibold text-slate-600">Semua Terjadwal!</p>
+          <p class="text-[10px] text-slate-400">Tidak ada pengajuan Schedule tanpa tanggal.</p>
+        </div>
+      `;
+    } else {
+      unscheduledList.forEach((item) => {
+        const card = document.createElement("div");
+        card.className =
+          "bg-white p-3 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-sm transition-all flex flex-col gap-1.5";
+        const style = getRemedialStatusStyle(item.status);
+        const mNum =
+          Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0
+            ? item.meeting_numbers[0]
+            : item.meeting_number || 1;
+        const mTag = `P${String(mNum).padStart(2, "0")}`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-1.5">
+            <span class="font-bold text-slate-900 text-xs truncate leading-snug">${escapeHtml(item.name)}</span>
+            <span class="tag-meeting bg-sky-50 text-sky-700 border border-sky-200 flex-shrink-0 text-[9px] px-1.5 py-0.5">${mTag}</span>
+          </div>
+          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+            <span class="truncate">${escapeHtml(item.group_whatsapp || item.class_name || "Tanpa Kelas")}</span>
+            <span class="font-extrabold ${style.badge} px-1.5 py-0.5 rounded text-[9px] border">${style.text}</span>
+          </div>
+          <div class="flex items-center justify-between pt-1 mt-1 border-t border-slate-100 text-[10px]">
+            <span class="text-slate-400 truncate max-w-[120px]">${escapeHtml(item.mentor_name)}</span>
+            <button type="button" class="btn-schedule-item px-2 py-1 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white font-bold transition flex items-center gap-1 cursor-pointer" data-id="${
+              item.id
+            }">
+              <i data-lucide="calendar-plus" class="w-3 h-3"></i>
+              <span>Jadwalkan</span>
+            </button>
+          </div>
+        `;
+
+        card.querySelector(".btn-schedule-item")?.addEventListener("click", () => {
+          if (onScheduleUnscheduled) onScheduleUnscheduled(item.id);
+        });
+
+        unscheduledContainer.appendChild(card);
+      });
+    }
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function renderRemedialList(
+  reports,
+  collapsedGroups,
+  onToggleCollapse,
+  onStatusChange,
+  onCommentClick,
+  onScheduleClick,
+  onRowClick,
+  onQuickAdd
+) {
+  const wrapper = document.getElementById("clickupListGroupsWrapper");
+  const totalCountBadge = document.getElementById("clickupListTotalCountBadge");
+  if (!wrapper) return;
+
+  if (totalCountBadge) {
+    totalCountBadge.textContent = `${reports.length} task${reports.length === 1 ? "" : "s"}`;
+  }
+
+  const listStatuses = ["STALL", "RESCHEDULE", "SCHEDULE", "PROCESS", "CONTACT", "REQUEST", "COMPLETE"];
+  wrapper.innerHTML = "";
+
+  listStatuses.forEach((statusKey) => {
+    const itemsInStatus = reports.filter((r) => (r.status || "REQUEST").toUpperCase() === statusKey);
+    const meta = getClickUpStatusMeta(statusKey);
+    const isCollapsed = collapsedGroups ? collapsedGroups.has(statusKey) : false;
+
+    const groupContainer = document.createElement("div");
+    groupContainer.className =
+      "clickup-group-block rounded-2xl border border-slate-200/70 overflow-hidden bg-white shadow-2xs transition-all";
+    groupContainer.dataset.status = statusKey;
+
+    const headerEl = document.createElement("div");
+    headerEl.className =
+      "clickup-group-header flex items-center justify-between py-2.5 px-4 cursor-pointer select-none border-b border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 transition";
+    headerEl.innerHTML = `
+      <div class="flex items-center gap-2.5">
+        <span class="group-chevron w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-transform duration-200 ${
+          isCollapsed ? "-rotate-90" : ""
+        }">
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </span>
+        <span class="inline-flex items-center gap-1.5 justify-center px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wider uppercase text-white shadow-xs ${
+          meta.badgeBg
+        }">
+          ${meta.iconHtml || ""}
+          <span>${statusKey}</span>
+        </span>
+        <span class="text-xs font-bold text-slate-400 ml-1">
+          ${itemsInStatus.length}
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="btn-group-add-task inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-500 hover:text-sky-600 hover:bg-white transition border border-transparent hover:border-slate-200"
+          data-status="${statusKey}"
+          title="Tambah task di grup ${statusKey}"
+        >
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Task</span>
+        </button>
+      </div>
+    `;
+
+    headerEl.addEventListener("click", (e) => {
+      if (e.target.closest(".btn-group-add-task")) return;
+      if (onToggleCollapse) onToggleCollapse(statusKey);
+    });
+
+    const addBtn = headerEl.querySelector(".btn-group-add-task");
+    if (addBtn) {
+      addBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (onQuickAdd) onQuickAdd(statusKey);
+      });
+    }
+
+    groupContainer.appendChild(headerEl);
+
+    if (!isCollapsed) {
+      const tableWrap = document.createElement("div");
+      tableWrap.className = "overflow-x-auto";
+
+      const table = document.createElement("table");
+      table.className = "w-full text-left text-xs border-collapse min-w-[980px]";
+
+      table.innerHTML = `
+        <thead>
+          <tr class="border-b border-slate-200/80 text-[11px] font-semibold text-slate-400 bg-white select-none">
+            <th class="py-2.5 px-4 font-semibold w-[260px]">Name</th>
+            <th class="py-2.5 px-3 font-semibold w-[110px]">Date created</th>
+            <th class="py-2.5 px-3 font-semibold w-[100px]">Due date</th>
+            <th class="py-2.5 px-3 font-semibold w-[160px]">Whatsapp Pengisi Form</th>
+            <th class="py-2.5 px-3 font-semibold w-[180px]">Class</th>
+            <th class="py-2.5 px-3 font-semibold w-[120px]">Meeting</th>
+            <th class="py-2.5 px-3 font-semibold w-[90px]">Comments</th>
+            <th class="py-2.5 px-3 font-semibold w-[140px]">Mentor</th>
+            <th class="py-2.5 px-3 font-semibold w-[130px]">Status</th>
+            <th class="py-2.5 px-2 font-semibold w-[40px] text-center">
+              <i data-lucide="plus" class="w-3.5 h-3.5 mx-auto text-slate-300"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100/80"></tbody>
+      `;
+
+      const tbody = table.querySelector("tbody");
+
+      if (itemsInStatus.length === 0) {
+        const emptyTr = document.createElement("tr");
+        emptyTr.innerHTML = `
+          <td colspan="10" class="py-4 px-4 text-center text-slate-400 text-xs italic">
+            Tidak ada task dengan status ${statusKey}
+          </td>
+        `;
+        tbody.appendChild(emptyTr);
+      } else {
+        itemsInStatus.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.className = "clickup-row-hover transition-colors group cursor-pointer";
+          tr.dataset.id = item.id;
+
+          let cleanPhone = String(item.phone || "").replace(/\D/g, "");
+          if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
+          if (!cleanPhone.startsWith("62") && cleanPhone.length > 5) cleanPhone = "62" + cleanPhone;
+
+          const displayClass = item.group_whatsapp || item.class_name || "-";
+          const hasClass = Boolean(displayClass && displayClass !== "-");
+          const classText = hasClass ? ` di ${displayClass}` : "";
+          const waMsg = encodeURIComponent(
+            `Halo kak ${item.name}, kami dari Admin Kelas Dialogika mengenai remedial ${
+              item.meeting_missed || "pertemuan kelas"
+            }${classText}. Apakah jadwal pengganti ini sudah sesuai? Terima kasih!`
+          );
+
+          const hasScheduleDate = Boolean(item.schedule_date || item.scheduled_date || item.date);
+
+          tr.innerHTML = `
+            <td class="py-2.5 px-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3.5 h-3.5 rounded-full border-2 ${meta.ringBorder} flex-shrink-0 group-hover:scale-110 transition-transform"></span>
+                <span class="font-semibold text-slate-800 hover:text-sky-600 transition truncate max-w-[200px]" title="${escapeHtml(
+                  item.name
+                )}">
+                  ${escapeHtml(item.name)}
+                </span>
+                ${
+                  item.reason && item.reason !== "-"
+                    ? `<i data-lucide="align-left" class="w-3 h-3 text-slate-400 flex-shrink-0" title="${escapeHtml(
+                        item.reason
+                      )}"></i>`
+                    : ""
+                }
+              </div>
+            </td>
+            <td class="py-2.5 px-3 text-[11px] text-slate-600 font-medium whitespace-nowrap">
+              ${formatClickUpDate(item.created_at)}
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              ${
+                hasScheduleDate
+                  ? `
+                <div class="inline-flex items-center gap-1.5 text-[11px] text-slate-700 font-medium hover:text-sky-600 transition" title="Jadwal: ${escapeHtml(
+                  String(item.schedule_date)
+                )}">
+                  <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
+                  <span>${formatClickUpDate(item.schedule_date)}</span>
+                </div>
+              `
+                  : `
+                <button type="button" class="btn-cell-schedule text-slate-300 hover:text-sky-600 p-1 rounded hover:bg-slate-100 transition" title="Atur Jadwal Remedial" data-id="${item.id}">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                </button>
+              `
+              }
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              ${
+                cleanPhone.length > 5
+                  ? `
+                <a href="https://wa.me/${cleanPhone}?text=${waMsg}" target="_blank" class="text-[11px] text-slate-700 hover:text-emerald-600 font-medium hover:underline inline-flex items-center gap-1.5" title="Kirim WhatsApp">
+                  <span>${formatClickUpPhone(item.phone)}</span>
+                </a>
+              `
+                  : `
+                <span class="text-slate-400 text-[11px]">-</span>
+              `
+              }
+            </td>
+            <td class="py-2.5 px-3 text-[11px] text-slate-700 font-medium truncate max-w-[180px]" title="${escapeHtml(
+              displayClass
+            )}">
+              ${escapeHtml(displayClass)}
+            </td>
+            <td class="py-2.5 px-3">
+              <div class="flex items-center gap-1 flex-wrap">
+                ${renderClickUpMeetingBadges(item)}
+              </div>
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              <button
+                type="button"
+                class="btn-cell-comments inline-flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-sky-600 hover:bg-slate-100 px-2 py-1 rounded-md transition group/cmt-btn cursor-pointer"
+                data-id="${item.id}"
+                title="Buka Komentar ClickUp"
+              >
+                <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-400 group-hover/cmt-btn:text-sky-500 transition-colors"></i>
+                <span class="font-medium text-slate-600 group-hover/cmt-btn:text-sky-600">${getItemCommentCount(
+                  item
+                )}</span>
+              </button>
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              ${renderClickUpMentorBadge(item.mentor_name)}
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap relative">
+              <div class="inline-block relative">
+                <select class="btn-cell-status-select text-[10px] font-extrabold uppercase tracking-wider text-white ${
+                  meta.badgeBg
+                } rounded-full px-2.5 py-1 border-0 focus:outline-none cursor-pointer appearance-none text-center shadow-xs hover:opacity-90 active:scale-95 transition" data-id="${
+            item.id
+          }" title="Ubah Status">
+                  <option value="STALL" ${statusKey === "STALL" ? "selected" : ""} class="bg-white text-slate-800 font-bold">STALL</option>
+                  <option value="RESCHEDULE" ${statusKey === "RESCHEDULE" ? "selected" : ""} class="bg-white text-fuchsia-700 font-bold">RESCHEDULE</option>
+                  <option value="SCHEDULE" ${statusKey === "SCHEDULE" ? "selected" : ""} class="bg-white text-sky-700 font-bold">SCHEDULE</option>
+                  <option value="PROCESS" ${statusKey === "PROCESS" ? "selected" : ""} class="bg-white text-orange-700 font-bold">PROCESS</option>
+                  <option value="CONTACT" ${statusKey === "CONTACT" ? "selected" : ""} class="bg-white text-purple-700 font-bold">CONTACT</option>
+                  <option value="REQUEST" ${statusKey === "REQUEST" ? "selected" : ""} class="bg-white text-rose-700 font-bold">REQUEST</option>
+                  <option value="COMPLETE" ${statusKey === "COMPLETE" ? "selected" : ""} class="bg-white text-emerald-700 font-bold">COMPLETE</option>
+                </select>
+              </div>
+            </td>
+            <td class="py-2.5 px-2 text-center whitespace-nowrap">
+              <button type="button" class="btn-cell-open p-1 text-slate-300 hover:text-slate-700 rounded-md hover:bg-slate-100 transition" title="Buka Detail Jadwal" data-id="${
+                item.id
+              }">
+                <i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          `;
+
+          tr.addEventListener("click", (e) => {
+            if (e.target.closest(".btn-cell-status-select, .btn-cell-comments, a, button")) return;
+            if (onRowClick) onRowClick(item.id);
+          });
+
+          tr.querySelector(".btn-cell-comments")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (onCommentClick) onCommentClick(item.id);
+          });
+
+          tr.querySelector(".btn-cell-status-select")?.addEventListener("change", (e) => {
+            e.stopPropagation();
+            if (onStatusChange) onStatusChange(item.id, e.target.value);
+          });
+
+          tr.querySelector(".btn-cell-schedule")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (onScheduleClick) onScheduleClick(item.id);
+          });
+
+          tr.querySelector(".btn-cell-open")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (onRowClick) onRowClick(item.id);
+          });
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      tableWrap.appendChild(table);
+
+      const bottomAddRow = document.createElement("div");
+      bottomAddRow.className =
+        "flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 cursor-pointer transition border-t border-slate-100/60 select-none";
+      bottomAddRow.innerHTML = `
+        <i data-lucide="plus" class="w-3.5 h-3.5 text-slate-400"></i>
+        <span>Add Task</span>
+      `;
+      bottomAddRow.addEventListener("click", () => {
+        if (onQuickAdd) onQuickAdd(statusKey);
+      });
+      tableWrap.appendChild(bottomAddRow);
+
+      groupContainer.appendChild(tableWrap);
+    }
+
+    wrapper.appendChild(groupContainer);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+/* ==========================================================================
+   REMEDIAL MODALS CONTROLLER & POPUPS
+   ========================================================================== */
+
+export function openRemedialScheduleModal(item, classesState, onPickSuggestion, onSave, onDelete, onCommentClick, onClose) {
+  const modal = document.getElementById("remedialScheduleModal");
+  if (!modal || !item) return;
+
+  const memberName = item.name || "Tanpa Nama";
+  const nameEl = document.getElementById("schedModalMemberName");
+  if (nameEl) nameEl.textContent = memberName;
+
+  const avatarEl = document.getElementById("schedModalMemberAvatar");
+  if (avatarEl) {
+    avatarEl.textContent = memberName.trim().charAt(0).toUpperCase() || "M";
+  }
+
+  const resolvedClass = item.group_whatsapp || item.class_name || "Tanpa Kelas";
+  const classEl = document.getElementById("schedModalClassName");
+  if (classEl) classEl.textContent = resolvedClass;
+
+  let meetingBadgeStr = "";
+  if (Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0) {
+    meetingBadgeStr = item.meeting_numbers.map((n) => `P${String(n).padStart(2, "0")}`).join(", ");
+  } else {
+    meetingBadgeStr = `P${String(item.meeting_number || 1).padStart(2, "0")}`;
+  }
+  const badgeEl = document.getElementById("schedModalMeetingBadge");
+  if (badgeEl) badgeEl.textContent = meetingBadgeStr;
+
+  const mentorEl = document.getElementById("schedModalMentor");
+  if (mentorEl) mentorEl.textContent = item.mentor_name || "-";
+
+  const phoneEl = document.getElementById("schedModalPhone");
+  if (phoneEl) phoneEl.textContent = item.phone || "-";
+
+  const createdAtEl = document.getElementById("schedModalCreatedAt");
+  if (createdAtEl) createdAtEl.textContent = formatClickUpDate(item.created_at) || "-";
+
+  const emailEl = document.getElementById("schedModalEmail");
+  if (emailEl) emailEl.textContent = item.email && item.email !== "-" ? item.email : "-";
+
+  const reasonBox = document.getElementById("schedModalReasonBox");
+  const reasonText = document.getElementById("schedModalReasonText");
+  if (item.reason && item.reason !== "-") {
+    if (reasonText) reasonText.textContent = item.reason;
+    if (reasonBox) reasonBox.classList.remove("hidden");
+  } else if (reasonBox) {
+    reasonBox.classList.add("hidden");
+  }
+
+  const dateInput = document.getElementById("schedModalDateInput");
+  if (dateInput) {
+    let dtVal = "";
+    let raw = item.schedule_date || item.scheduled_date || item.date;
+    if (raw) {
+      if (typeof raw === "object" && typeof raw.toDate === "function") {
+        const d = raw.toDate();
+        dtVal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+          d.getDate()
+        ).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      } else if (typeof raw === "string") {
+        if (raw.includes("T")) {
+          dtVal = raw.slice(0, 16);
+        } else if (raw.includes(" ")) {
+          dtVal = raw.replace(" ", "T").slice(0, 16);
+        } else {
+          dtVal = `${raw}T19:00`;
+        }
+      }
+    }
+    dateInput.value = dtVal;
+    dateInput.onchange = () => {
+      if (dateInput.value) {
+        const sel = document.getElementById("schedModalStatusSelect");
+        if (sel && (sel.value === "REQUEST" || sel.value === "CONTACT" || sel.value === "PROCESS")) {
+          sel.value = "SCHEDULE";
+        }
+      }
+    };
+  }
+
+  const statusSelect = document.getElementById("schedModalStatusSelect");
+  if (statusSelect) {
+    statusSelect.value = (item.status || "REQUEST").toUpperCase();
+  }
+
+  const btnWA = document.getElementById("btnSchedModalWhatsApp");
+  if (btnWA) {
+    let cleanPhone = String(item.phone || "").replace(/\D/g, "");
+    if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
+    if (!cleanPhone.startsWith("62") && cleanPhone.length > 5) cleanPhone = "62" + cleanPhone;
+
+    const hasClass = Boolean(resolvedClass && resolvedClass !== "-");
+    const classText = hasClass ? ` di ${resolvedClass}` : "";
+    const msg = encodeURIComponent(
+      `Halo kak ${item.name}, kami dari Admin Kelas Dialogika mengenai jadwal remedial ${
+        item.meeting_missed || "pertemuan kelas"
+      }${classText}. Apakah jadwal pengganti ini sudah sesuai? Terima kasih!`
+    );
+    btnWA.href = `https://wa.me/${cleanPhone}?text=${msg}`;
+  }
+
+  const commentsCountEl = document.getElementById("schedModalCommentsCount");
+  if (commentsCountEl) {
+    commentsCountEl.textContent = `${getItemCommentCount(item)} Komentar`;
+  }
+  const btnComments = document.getElementById("btnSchedModalComments");
+  if (btnComments) {
+    btnComments.onclick = () => {
+      if (onCommentClick) onCommentClick(item.id);
+    };
+  }
+
+  const btnDelete = document.getElementById("btnSchedModalDelete");
+  if (btnDelete) {
+    btnDelete.onclick = () => {
+      if (onDelete) onDelete(item.id, item.name);
+    };
+  }
+
+  const btnSave = document.getElementById("btnSaveSchedModal");
+  if (btnSave) {
+    btnSave.onclick = () => {
+      const newDate = dateInput?.value || null;
+      let newStatus = statusSelect?.value || item.status;
+      if (newDate && (newStatus === "REQUEST" || newStatus === "CONTACT" || newStatus === "PROCESS")) {
+        newStatus = "SCHEDULE";
+      }
+      if (onSave) onSave(item.id, newDate, newStatus);
+    };
+  }
+
+  const btnClose = document.getElementById("btnCloseSchedModal");
+  const btnCancel = document.getElementById("btnCancelSchedModal");
+  const doClose = () => {
+    closeRemedialScheduleModal();
+    if (onClose) onClose();
+  };
+  if (btnClose) btnClose.onclick = doClose;
+  if (btnCancel) btnCancel.onclick = doClose;
+
+  renderScheduleClassSuggestions(item, classesState, onPickSuggestion);
+
+  modal.classList.add("open");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function renderScheduleClassSuggestions(item, classesState, onPickSuggestion) {
+  const container = document.getElementById("schedModalSuggestionsList");
+  const countBadge = document.getElementById("schedModalSuggestionsCount");
+  const box = document.getElementById("schedModalSuggestionsBox");
+  if (!container || !box) return;
+
+  container.innerHTML = "";
+
+  if (!Array.isArray(classesState) || classesState.length === 0) {
+    box.classList.add("hidden");
+    return;
+  }
+
+  box.classList.remove("hidden");
+
+  const targetMeetingNum =
+    Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0
+      ? item.meeting_numbers[0]
+      : parseInt(item.meeting_number, 10) || 1;
+  const targetMentor = (item.mentor_name || "").toLowerCase().trim();
+
+  const candidates = [];
+
+  classesState.forEach((c) => {
+    const dates = getClassDates(c);
+    const validDate = dates.find((d) => d >= new Date().toISOString().slice(0, 10)) || dates[0] || c.startDate;
+    if (!validDate) return;
+
+    const mentorName = Array.isArray(c.mentors) && c.mentors.length ? c.mentors[0].name : c.mentor || "";
+    const isSameMentor = targetMentor && mentorName.toLowerCase().includes(targetMentor);
+    const mtgDone = c.meeting?.done ?? c.meetingDone ?? 0;
+    const mtgTotal = c.meeting?.total ?? c.meetingTotal ?? 0;
+    const nextMtg = mtgDone + 1;
+    const isSameMeeting = nextMtg === targetMeetingNum || mtgDone === targetMeetingNum;
+
+    let score = 0;
+    if (isSameMentor) score += 4;
+    if (isSameMeeting) score += 3;
+    if (c.status === "Running" || c.status === "Soon") score += 2;
+
+    if (score > 0 || candidates.length < 5) {
+      candidates.push({
+        class: c,
+        score,
+        targetDate: validDate,
+        mentorName,
+        nextMtg,
+        mtgDone,
+        mtgTotal,
+      });
+    }
+  });
+
+  candidates.sort((a, b) => b.score - a.score);
+  const topCandidates = candidates.slice(0, 4);
+
+  if (countBadge) {
+    countBadge.textContent = `${topCandidates.length} Rekomendasi`;
+  }
+
+  if (topCandidates.length === 0) {
+    container.innerHTML = `
+      <div class="text-[10px] text-slate-400 italic py-2 text-center bg-white/60 rounded-xl border border-sky-100">
+        Belum ada jadwal kelas reguler yang cocok. Silakan atur jadwal manual di bawah.
+      </div>
+    `;
+    return;
+  }
+
+  topCandidates.forEach((cand) => {
+    const c = cand.class;
+    const card = document.createElement("div");
+    card.className =
+      "bg-white p-2 rounded-xl border border-sky-100 hover:border-sky-300 flex items-center justify-between gap-2 shadow-2xs transition";
+
+    const timeStr = c.startTime || c.time || "11:00";
+    const dateFormatted = cand.targetDate;
+    const matchTag = cand.score >= 6 ? "Sangat Cocok" : cand.score >= 4 ? "Mentor Sama" : "Opsi Kelas";
+    const matchTagColor =
+      cand.score >= 6
+        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+        : "bg-sky-50 text-sky-700 border-sky-200";
+
+    card.innerHTML = `
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5 leading-snug">
+          <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-sky-600 shrink-0"></i>
+          <span class="font-extrabold text-xs text-slate-900 truncate">${escapeHtml(c.name)}</span>
+          <span class="text-[8.5px] font-black px-1.5 py-0.5 rounded border ${matchTagColor} shrink-0">${matchTag}</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[9.5px] text-slate-500 font-medium mt-0.5 truncate">
+          <span class="font-bold text-slate-700">${escapeHtml(dateFormatted)}</span>
+          <span>&bull;</span>
+          <span class="font-extrabold text-sky-700">${escapeHtml(timeStr)}</span>
+          <span>&bull;</span>
+          <span class="truncate" title="${escapeHtml(cand.mentorName)}">${escapeHtml(cand.mentorName)}</span>
+          <span>&bull;</span>
+          <span class="font-semibold text-slate-600">Mtg ${cand.mtgDone}/${cand.mtgTotal}</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="btn-pick-suggested-schedule px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-[10px] transition shrink-0 cursor-pointer shadow-xs flex items-center gap-1"
+      >
+        <i data-lucide="calendar-plus" class="w-3 h-3"></i>
+        <span>Pilih</span>
+      </button>
+    `;
+
+    card.querySelector(".btn-pick-suggested-schedule")?.addEventListener("click", () => {
+      const dateInput = document.getElementById("schedModalDateInput");
+      const statusSelect = document.getElementById("schedModalStatusSelect");
+      if (dateInput) {
+        let cleanTime = timeStr;
+        if (cleanTime.length === 5) cleanTime = `${cleanTime}:00`;
+        else if (cleanTime.length < 5) cleanTime = "11:00:00";
+        dateInput.value = `${dateFormatted}T${cleanTime.slice(0, 5)}`;
+        dateInput.classList.add("ring-2", "ring-emerald-500", "bg-emerald-50/50");
+        setTimeout(() => {
+          dateInput.classList.remove("ring-2", "ring-emerald-500", "bg-emerald-50/50");
+        }, 1200);
+      }
+      if (statusSelect) {
+        statusSelect.value = "SCHEDULE";
+      }
+      if (onPickSuggestion) onPickSuggestion(c, dateFormatted, timeStr);
+      showToast(`Jadwal diisi dari: ${c.name} (${dateFormatted} ${timeStr})`, "success");
+    });
+
+    container.appendChild(card);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function closeRemedialScheduleModal() {
+  const modal = document.getElementById("remedialScheduleModal");
+  if (modal) modal.classList.remove("open");
+}
+
+export function openRemedialDayAgendaModal(dateKey, dayRemedial = [], dayClasses = [], onManageRemedial, onAddRemedial, onClose) {
+  const modal = document.getElementById("remedialDayAgendaModal");
+  if (!modal) return;
+
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const dateObj = new Date(y, m - 1, d);
+  const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const dayName = dayNames[dateObj.getDay()] || "";
+  const monthName = REMEDIAL_MONTH_NAMES[m - 1] || "";
+  const formattedTitle = `${dayName}, ${d} ${monthName} ${y}`;
+
+  const titleEl = document.getElementById("dayAgendaTitle");
+  if (titleEl) titleEl.textContent = `Agenda Tanggal ${formattedTitle}`;
+
+  const remedialBadge = document.getElementById("dayAgendaRemedialBadge");
+  const checkupBadge = document.getElementById("dayAgendaCheckupBadge");
+  const remedialCountSub = document.getElementById("dayAgendaRemedialCount");
+  const checkupCountSub = document.getElementById("dayAgendaCheckupCount");
+
+  if (remedialBadge) remedialBadge.textContent = `${dayRemedial.length} Member`;
+  if (checkupBadge) checkupBadge.textContent = `${dayClasses.length} Kelas`;
+  if (remedialCountSub) remedialCountSub.textContent = `${dayRemedial.length} Member Remedial`;
+  if (checkupCountSub) checkupCountSub.textContent = `${dayClasses.length} Kelas Check-Up`;
+
+  const remedialContainer = document.getElementById("dayAgendaRemedialList");
+  if (remedialContainer) {
+    remedialContainer.innerHTML = "";
+    if (dayRemedial.length === 0) {
+      remedialContainer.innerHTML = `
+        <div class="text-[11px] text-slate-400 italic p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          Tidak ada member remedial yang dijadwalkan pada tanggal ini.
+        </div>
+      `;
+    } else {
+      dayRemedial.forEach((item) => {
+        const card = document.createElement("div");
+        const style = getRemedialStatusStyle(item.status);
+        const mNum =
+          Array.isArray(item.meeting_numbers) && item.meeting_numbers.length > 0
+            ? item.meeting_numbers[0]
+            : item.meeting_number || 1;
+        const mTag = `P${String(mNum).padStart(2, "0")}`;
+        const timeStr = parseItemTimeStr(item) || "-";
+        const resolvedClass = item.group_whatsapp || item.class_name || "Tanpa Kelas";
+
+        card.className =
+          "bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+              ${(item.name || "M").charAt(0).toUpperCase()}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-black text-xs text-slate-900 truncate">${escapeHtml(item.name)}</span>
+                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 border border-sky-200">${mTag}</span>
+                <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${style.badge}">${style.text}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5 flex-wrap">
+                <span class="font-bold text-slate-700">${timeStr}</span>
+                <span>&bull;</span>
+                <span class="truncate">${escapeHtml(resolvedClass)}</span>
+                <span>&bull;</span>
+                <span class="font-semibold text-slate-600">Mentor: ${escapeHtml(item.mentor_name || "-")}</span>
+              </div>
+              ${
+                item.reason && item.reason !== "-"
+                  ? `<div class="text-[9.5px] text-amber-700 italic mt-0.5 truncate">Alasan: ${escapeHtml(item.reason)}</div>`
+                  : ""
+              }
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn-edit-remedial-from-day px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-600 hover:text-white text-sky-700 text-xs font-bold transition flex items-center gap-1.5 shrink-0 self-end sm:self-center cursor-pointer shadow-2xs"
+            data-id="${item.id}"
+          >
+            <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+            <span>Kelola Jadwal</span>
+          </button>
+        `;
+
+        card.querySelector(".btn-edit-remedial-from-day")?.addEventListener("click", () => {
+          closeRemedialDayAgendaModal();
+          if (onManageRemedial) onManageRemedial(item.id);
+        });
+
+        remedialContainer.appendChild(card);
+      });
+    }
+  }
+
+  const checkupContainer = document.getElementById("dayAgendaCheckupList");
+  if (checkupContainer) {
+    checkupContainer.innerHTML = "";
+    if (dayClasses.length === 0) {
+      checkupContainer.innerHTML = `
+        <div class="text-[11px] text-slate-400 italic p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          Tidak ada kelas reguler dari Check-Up Class pada tanggal ini.
+        </div>
+      `;
+    } else {
+      dayClasses.forEach((c) => {
+        const card = document.createElement("div");
+        const mentorName =
+          Array.isArray(c.mentors) && c.mentors.length
+            ? c.mentors.map((m) => m.name || "").join(", ")
+            : c.mentor || "-";
+        const mtgDone = c.meeting?.done ?? c.meetingDone ?? 0;
+        const mtgTotal = c.meeting?.total ?? c.meetingTotal ?? 0;
+        const timeStr = c.startTime || c.time || "-";
+
+        card.className =
+          "bg-sky-50/50 p-3 rounded-2xl border border-sky-100 hover:border-sky-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center shrink-0">
+              <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-black text-xs text-slate-900 truncate">${escapeHtml(c.name)}</span>
+                <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-sky-200/80 text-sky-800">Meeting ${mtgDone}/${mtgTotal}</span>
+                <span class="text-[8.5px] uppercase font-black px-1.5 py-0.2 rounded bg-white text-slate-600 border border-slate-200">${escapeHtml(
+                  c.type || "Offline"
+                )}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5 flex-wrap">
+                <span class="font-extrabold text-sky-700">${timeStr}</span>
+                <span>&bull;</span>
+                <span class="font-semibold text-slate-700">Mentor: ${escapeHtml(mentorName)}</span>
+                ${c.location ? `<span>&bull;</span><span class="text-slate-400">${escapeHtml(c.location)}</span>` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+
+        checkupContainer.appendChild(card);
+      });
+    }
+  }
+
+  const btnAddOnDay = document.getElementById("btnAddRemedialOnDay");
+  if (btnAddOnDay) {
+    btnAddOnDay.onclick = () => {
+      closeRemedialDayAgendaModal();
+      if (onAddRemedial) onAddRemedial(dateKey);
+    };
+  }
+
+  const btnClose = document.getElementById("btnCloseDayAgendaModal");
+  const btnCloseFooter = document.getElementById("btnCloseDayAgendaFooter");
+  const doClose = () => {
+    closeRemedialDayAgendaModal();
+    if (onClose) onClose();
+  };
+  if (btnClose) btnClose.onclick = doClose;
+  if (btnCloseFooter) btnCloseFooter.onclick = doClose;
+
+  modal.classList.add("open");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function closeRemedialDayAgendaModal() {
+  const modal = document.getElementById("remedialDayAgendaModal");
+  if (modal) modal.classList.remove("open");
+}
+
+/* ==========================================================================
+   ClickUp Floating Comments Popup
+   ========================================================================== */
+
+export function openClickupCommentPopup(item, onAddComment, onReaction, onReply, onClose) {
+  const popup = document.getElementById("clickupRemedialCommentPopup");
+  if (!popup || !item) return;
+
+  const comments = Array.isArray(item.comments) ? item.comments : [];
+
+  const titleEl = document.getElementById("clickupCommentTaskName");
+  if (titleEl) {
+    titleEl.textContent = item.name || "Remedial Task";
+    titleEl.title = item.name || "";
+  }
+
+  const classEl = document.getElementById("clickupCommentHeaderClass");
+  if (classEl) {
+    classEl.textContent = item.group_whatsapp || item.class_name || "Tanpa Kelas";
+  }
+
+  const statusBadge = document.getElementById("clickupCommentStatusBadge");
+  if (statusBadge) {
+    const statusKey = (item.status || "REQUEST").toUpperCase();
+    const meta = getClickUpStatusMeta(statusKey);
+    statusBadge.textContent = statusKey;
+    statusBadge.className = `text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full text-white ${meta.badgeBg} shadow-xs flex-shrink-0`;
+  }
+
+  const countEl = document.getElementById("clickupCommentHeaderCount");
+  if (countEl) {
+    countEl.textContent = `${comments.length} comment${comments.length === 1 ? "" : "s"}`;
+  }
+
+  renderRemedialCommentsList(item, onReaction, onReply);
+
+  const btnClose = document.getElementById("btnCloseClickupComment");
+  if (btnClose) {
+    btnClose.onclick = () => {
+      closeClickupCommentPopup();
+      if (onClose) onClose();
+    };
+  }
+
+  const submitBtn = document.getElementById("btnSubmitClickupComment");
+  const inputEl = document.getElementById("clickupCommentInput");
+
+  if (submitBtn && inputEl) {
+    submitBtn.onclick = () => {
+      const text = (inputEl.value || "").trim();
+      if (!text) return;
+      inputEl.value = "";
+      if (onAddComment) onAddComment(item.id, text);
+    };
+
+    inputEl.onkeydown = (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const text = (inputEl.value || "").trim();
+        if (!text) return;
+        inputEl.value = "";
+        if (onAddComment) onAddComment(item.id, text);
+      }
+    };
+  }
+
+  popup.classList.remove("hidden");
+  if (window.lucide) window.lucide.createIcons();
+
+  if (inputEl) {
+    setTimeout(() => inputEl.focus(), 80);
+  }
+}
+
+export function closeClickupCommentPopup() {
+  const popup = document.getElementById("clickupRemedialCommentPopup");
+  if (popup) popup.classList.add("hidden");
+}
+
+export function renderRemedialCommentsList(item, onReaction, onReply) {
+  const listWrapper = document.getElementById("clickupCommentListWrapper");
+  if (!listWrapper || !item) return;
+
+  const comments = Array.isArray(item.comments) ? item.comments : [];
+
+  if (comments.length === 0) {
+    listWrapper.innerHTML = `
+      <div class="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 text-slate-400">
+        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+          <i data-lucide="message-square" class="w-5 h-5"></i>
+        </div>
+        <p class="text-xs font-semibold text-slate-600">Belum ada komentar</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Ketik komentar pertama Anda di bawah untuk berdiskusi.</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  listWrapper.innerHTML = "";
+
+  comments.forEach((cmt) => {
+    const cmtEl = document.createElement("div");
+    cmtEl.className = "clickup-comment-row group flex items-start gap-2.5 transition";
+
+    let avatarHtml = "";
+    if (cmt.avatar) {
+      avatarHtml = `<img src="${escapeHtml(cmt.avatar)}" alt="${escapeHtml(
+        cmt.author || "User"
+      )}" class="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-2xs border border-slate-200 mt-0.5" />`;
+    } else {
+      const initials = (cmt.author || "User")
+        .split(" ")
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+      avatarHtml = `<div class="w-7 h-7 rounded-full bg-slate-800 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs mt-0.5">${initials}</div>`;
+    }
+
+    cmtEl.innerHTML = `
+      ${avatarHtml}
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-900 text-xs">${escapeHtml(cmt.author || "User")}</span>
+          <span class="text-[11px] text-slate-400 font-normal">${escapeHtml(cmt.time || "")}</span>
+        </div>
+        <div class="mt-1 text-slate-800 text-xs leading-relaxed whitespace-pre-line break-words select-text">
+          ${escapeHtml(cmt.text || "")}
+        </div>
+        <div class="mt-1.5 flex items-center justify-between pt-0.5">
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              class="btn-cmt-reaction inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              data-cmtid="${cmt.id}"
+              data-type="thumbs_up"
+              title="Suka"
+            >
+              <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
+              ${cmt.thumbs_up ? `<span class="text-[10px] font-bold text-sky-600">${cmt.thumbs_up}</span>` : ""}
+            </button>
+            <button
+              type="button"
+              class="btn-cmt-reaction inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              data-cmtid="${cmt.id}"
+              data-type="smile"
+              title="Reaksi"
+            >
+              <i data-lucide="smile" class="w-3.5 h-3.5"></i>
+              ${cmt.smile ? `<span class="text-[10px] font-bold text-amber-500">${cmt.smile}</span>` : ""}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="btn-cmt-reply text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition cursor-pointer"
+            data-author="${escapeHtml(cmt.author || "")}"
+          >
+            Reply
+          </button>
+        </div>
+      </div>
+    `;
+
+    cmtEl.querySelectorAll(".btn-cmt-reaction").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const type = btn.getAttribute("data-type");
+        if (onReaction) onReaction(item.id, cmt.id, type);
+      });
+    });
+
+    cmtEl.querySelector(".btn-cmt-reply")?.addEventListener("click", () => {
+      const author = cmt.author || "";
+      const inputEl = document.getElementById("clickupCommentInput");
+      if (inputEl) {
+        inputEl.value = `@${author} `;
+        inputEl.focus();
+      }
+      if (onReply) onReply(author);
+    });
+
+    listWrapper.appendChild(cmtEl);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+  listWrapper.scrollTop = listWrapper.scrollHeight;
+}
+
+export function updateCommentCountInTable(itemId, count) {
+  const counters = document.querySelectorAll(
+    `.btn-cell-comments[data-id="${itemId}"] span, .btn-card-comments[data-id="${itemId}"] span`
+  );
+  counters.forEach((el) => {
+    el.textContent = String(count);
+  });
+}
+
+export function populateRemedialMentorDropdown(mentorNames = []) {
+  const select = document.getElementById("remedialFormMentor");
+  const filterSelect = document.getElementById("filterRemedialMentor");
+
+  if (select) {
+    const curVal = select.value;
+    select.innerHTML = '<option value="">Pilih Mentor...</option>';
+    mentorNames.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      select.appendChild(opt);
+    });
+    if (curVal) select.value = curVal;
+  }
+
+  if (filterSelect) {
+    const curVal = filterSelect.value;
+    filterSelect.innerHTML = '<option value="">Semua Mentor</option>';
+    mentorNames.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      filterSelect.appendChild(opt);
+    });
+    if (curVal) filterSelect.value = curVal;
+  }
+}
+
+export function openRemedialSubmissionModal(defaultStatus = "REQUEST", defaultScheduleDate = "") {
+  const modal = document.getElementById("remedialModal");
+  if (!modal) return;
+
+  const form = document.getElementById("internalRemedialForm");
+  if (form) form.reset();
+
+  const statusSelect = document.getElementById("remedialFormStatus");
+  if (statusSelect) statusSelect.value = defaultStatus;
+
+  const dateInput = document.getElementById("remedialFormScheduleDate");
+  if (dateInput && defaultScheduleDate) {
+    dateInput.value = defaultScheduleDate;
+  }
+
+  const btnClose = document.getElementById("btnCloseRemedial");
+  const btnCancel = document.getElementById("btnCancelRemedialModal");
+  if (btnClose) btnClose.onclick = closeRemedialSubmissionModal;
+  if (btnCancel) btnCancel.onclick = closeRemedialSubmissionModal;
+
+  modal.classList.add("open");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+export function closeRemedialSubmissionModal() {
+  const modal = document.getElementById("remedialModal");
+  if (modal) modal.classList.remove("open");
+}
+
+
 
