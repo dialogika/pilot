@@ -27,6 +27,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- International Telephone Input (intl-tel-input) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.1.0/build/css/intlTelInput.css" />
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.1.0/build/js/intlTelInput.min.js"></script>
+
     <!-- ExcelJS and SheetJS for Spreadsheet Export -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -79,6 +83,32 @@
 
           <!-- Action Buttons -->
           <div class="flex items-center gap-2 flex-wrap">
+            <!-- View Mode Switcher with Animated Sliding Glider -->
+            <div id="mainViewSwitcher" class="relative inline-flex p-1 bg-slate-200/80 rounded-2xl border border-slate-200 gap-1 shadow-inner select-none">
+              <!-- Animated Sliding Glider Pill -->
+              <div
+                id="mainViewGlider"
+                class="absolute rounded-xl pointer-events-none bg-white shadow-sm"
+                style="left: 0; top: 0; transform: translate3d(0, 0, 0); z-index: 1;"
+              ></div>
+              <button
+                id="btnViewClasses"
+                type="button"
+                class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer text-slate-900 active:scale-95 is-active"
+              >
+                <i data-lucide="table" class="w-3.5 h-3.5 transition-colors duration-200 text-slate-700"></i>
+                <span>Daftar Kelas</span>
+              </button>
+              <button
+                id="btnOpenRemedial"
+                type="button"
+                class="relative z-10 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 active:scale-95"
+              >
+                <i data-lucide="kanban" class="w-3.5 h-3.5 transition-colors duration-200 text-sky-600"></i>
+                <span>Kelas Remedial</span>
+              </button>
+            </div>
+
             <a
               href="/setting/class-planning.html"
               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-sm"
@@ -86,14 +116,6 @@
               <i class="bi bi-calendar-check text-sm"></i>
               Perencanaan Kelas
             </a>
-            <button
-              id="btnOpenRemedial"
-              type="button"
-              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm"
-            >
-              <i class="bi bi-pencil-square text-sm"></i>
-              Kelas Remedial
-            </button>
             <a
               href="/setting/class-checkup.html"
               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition shadow-sm"
@@ -121,8 +143,11 @@
           </div>
         </div>
 
+        <!-- Classes View Wrapper (Preserves all existing features) -->
+        <div id="classesView">
         <!-- 4 Metric Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
           <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
             <div>
               <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Total Class</div>
@@ -385,8 +410,487 @@
             </div>
           </div>
         </div>
+        </div> <!-- end #classesView -->
+
+        <!-- ClickUp Style Remedial Board View -->
+        <div id="remedialView" class="hidden space-y-6">
+          <!-- Remedial Board Header Card -->
+          <div class="bg-white rounded-3xl border border-slate-100 p-4 sm:p-5 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold shrink-0">
+                    <i data-lucide="kanban" class="w-4 h-4"></i>
+                  </span>
+                  <div>
+                    <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                      Remedial Report Board
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5 leading-normal">
+                      Dashboard pemantauan dan pelacakan seluruh proses remedial member dari tahap pengajuan awal hingga tuntas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="flex items-center gap-2 flex-wrap shrink-0">
+                <button
+                  id="btnCopyRemedialLink"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 transition shadow-xs cursor-pointer"
+                  title="Salin Link Form Pengajuan Remedial Publik"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5 text-slate-500"></i>
+                  Salin Link Form
+                </button>
+                <a
+                  href="https://dialogika.co/remedial.html"
+                  target="_blank"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-sky-600 border border-sky-200 hover:bg-sky-50 transition shadow-xs"
+                >
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  Buka Form Publik
+                </a>
+                <button
+                  id="btnOpenAddRemedial"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-700 transition shadow-md shadow-sky-600/20 cursor-pointer"
+                >
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                  + Ajukan Remedial
+                </button>
+              </div>
+            </div>
+
+            <!-- Status counter summary KPI cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 pt-3 mt-3 border-t border-slate-100">
+              <!-- 1. REQUEST -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-rose-200 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-rose-500 transition-colors">Request</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="inbox" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountRequest" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+
+              <!-- 2. CONTACT -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-purple-200 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-purple-600 transition-colors">Contact</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="message-square" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountContact" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+
+              <!-- 3. PROCESS -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-amber-200 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-amber-600 transition-colors">Process</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="clock" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountProcess" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+
+              <!-- 4. SCHEDULE -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-sky-200 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-sky-600 transition-colors">Schedule</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="calendar" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountSchedule" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+
+              <!-- 5. STALL -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-slate-300 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-slate-700 transition-colors">Stall</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="alert-circle" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountStall" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+
+              <!-- 6. COMPLETE -->
+              <div class="bg-white rounded-xl sm:rounded-2xl border border-slate-100 hover:border-emerald-200 p-2.5 sm:p-3 flex flex-col justify-between gap-1.5 shadow-xs hover:shadow-sm transition-all duration-200 group col-span-1">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-emerald-600 transition-colors">Complete</span>
+                  <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="check-circle-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                  <span id="badgeCountComplete" class="text-lg sm:text-xl font-black text-slate-900 leading-none">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium">sesi</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Search, Filter Bar & Sub-View Tabs -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-3 mt-3 border-t border-slate-100">
+              <!-- Sub-View Switcher with Animated Sliding Glider -->
+              <div id="remedialSubViewSwitcher" class="relative inline-flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/60 self-start select-none">
+                <!-- Animated Sliding Glider Pill -->
+                <div
+                  id="remedialSubViewGlider"
+                  class="absolute rounded-xl bg-white shadow-sm pointer-events-none"
+                  style="left: 0; top: 0; transform: translate3d(0, 0, 0); z-index: 1;"
+                ></div>
+                <button
+                  id="btnRemedialSubViewBoard"
+                  type="button"
+                  class="relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 text-slate-900 cursor-pointer active:scale-95 is-active"
+                >
+                  <i data-lucide="kanban" class="w-3.5 h-3.5 transition-colors duration-200 text-sky-600"></i>
+                  <span>Board</span>
+                </button>
+                <button
+                  id="btnRemedialSubViewCalendar"
+                  type="button"
+                  class="relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer active:scale-95"
+                >
+                  <i data-lucide="calendar" class="w-3.5 h-3.5 transition-colors duration-200 text-slate-400"></i>
+                  <span>Calendar</span>
+                </button>
+                <button
+                  id="btnRemedialSubViewList"
+                  type="button"
+                  class="relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer active:scale-95"
+                >
+                  <i data-lucide="list" class="w-3.5 h-3.5 transition-colors duration-200 text-slate-400"></i>
+                  <span>List</span>
+                </button>
+              </div>
+
+              <!-- Search and Filter Controls -->
+              <div class="flex items-center gap-2 flex-1 justify-end flex-wrap sm:flex-nowrap">
+                <div class="relative flex-1 max-w-xs">
+                  <input
+                    id="searchRemedial"
+                    type="text"
+                    placeholder="Cari nama, kelas, no telp..."
+                    class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-slate-50"
+                  />
+                  <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                </div>
+                <select
+                  id="filterRemedialMentor"
+                  class="text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua Mentor</option>
+                </select>
+                <select
+                  id="filterRemedialMeeting"
+                  class="text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  <option value="">Semua Pertemuan</option>
+                  <option value="1">Pertemuan 1</option>
+                  <option value="2">Pertemuan 2</option>
+                  <option value="3">Pertemuan 3</option>
+                  <option value="4">Pertemuan 4</option>
+                  <option value="5">Pertemuan 5</option>
+                  <option value="6">Pertemuan 6</option>
+                  <option value="7">Pertemuan 7</option>
+                  <option value="8">Pertemuan 8</option>
+                  <option value="9">Pertemuan 9</option>
+                  <option value="10">Pertemuan 10</option>
+                  <option value="11">Pertemuan 11</option>
+                  <option value="12">Pertemuan 12</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. ClickUp Style Kanban Board with 7 Columns -->
+          <div id="remedialBoardContainer" class="remedial-board-scroll">
+            <!-- REQUEST Column -->
+            <div class="remedial-col" data-status="REQUEST">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <span class="font-extrabold text-xs text-rose-700 tracking-wider">REQUEST</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="REQUEST" title="Tambah ke Request">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="REQUEST"></div>
+            </div>
+
+            <!-- CONTACT Column -->
+            <div class="remedial-col" data-status="CONTACT">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                  <span class="font-extrabold text-xs text-purple-700 tracking-wider">CONTACT</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="CONTACT" title="Tambah ke Contact">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="CONTACT"></div>
+            </div>
+
+            <!-- PROCESS Column -->
+            <div class="remedial-col" data-status="PROCESS">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                  <span class="font-extrabold text-xs text-orange-700 tracking-wider">PROCESS</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="PROCESS" title="Tambah ke Process">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="PROCESS"></div>
+            </div>
+
+            <!-- SCHEDULE Column -->
+            <div class="remedial-col" data-status="SCHEDULE">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                  <span class="font-extrabold text-xs text-sky-700 tracking-wider">SCHEDULE</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="SCHEDULE" title="Tambah ke Schedule">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="SCHEDULE"></div>
+            </div>
+
+            <!-- STALL Column -->
+            <div class="remedial-col" data-status="STALL">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                  <span class="font-extrabold text-xs text-slate-700 tracking-wider">STALL</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="STALL" title="Tambah ke Stall">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="STALL"></div>
+            </div>
+
+            <!-- COMPLETE Column -->
+            <div class="remedial-col" data-status="COMPLETE">
+              <div class="p-3 border-b border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span class="font-extrabold text-xs text-emerald-700 tracking-wider">COMPLETE</span>
+                  <span class="col-count text-[11px] font-bold text-slate-400">0</span>
+                </div>
+                <button type="button" class="btn-quick-add text-slate-400 hover:text-slate-700 text-xs font-bold p-1 rounded-md hover:bg-slate-200/50" data-status="COMPLETE" title="Tambah ke Complete">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="cards-list p-2 space-y-2 flex-1 min-h-[420px]" data-status="COMPLETE"></div>
+            </div>
+          </div>
+
+          <!-- 2. ClickUp Style Remedial Calendar View -->
+          <div id="remedialCalendarContainer" class="hidden space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-5">
+              <!-- Calendar Toolbar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button
+                    id="btnRemedialCalToday"
+                    type="button"
+                    class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition shadow-xs cursor-pointer"
+                  >
+                    Today
+                  </button>
+
+                  <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200/80">
+                    <button
+                      id="btnRemedialCalPrev"
+                      type="button"
+                      class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition cursor-pointer"
+                      title="Bulan Sebelumnya"
+                    >
+                      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <button
+                      id="btnRemedialCalNext"
+                      type="button"
+                      class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition cursor-pointer"
+                      title="Bulan Berikutnya"
+                    >
+                      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <h3 id="remedialCalMonthLabel" class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                      October 2026
+                    </h3>
+                    <span id="remedialCalActiveCountBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                      0 Terjadwal
+                    </span>
+                    <span id="remedialCalCheckupCountBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      0 Kelas Check-Up
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                    <label for="remedialCalDateMode" class="text-[11px] font-medium text-slate-400">Tampilkan:</label>
+                    <select
+                      id="remedialCalDateMode"
+                      class="text-xs font-semibold rounded-xl border border-slate-200 px-3 py-1.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700 cursor-pointer"
+                    >
+                      <option value="schedule">Jadwal Remedial</option>
+                      <option value="created">Tanggal Pengajuan</option>
+                    </select>
+                  </div>
+
+                  <button
+                    id="btnToggleCheckupLayer"
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-sky-200 bg-sky-50 text-sky-800 hover:bg-sky-100 transition shadow-xs cursor-pointer select-none"
+                    title="Tampilkan atau sembunyikan jadwal kelas reguler dari Check-Up Class"
+                  >
+                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-sky-600"></i>
+                    <span>Kelas Check-Up:</span>
+                    <span id="checkupLayerStatusBadge" class="px-1.5 py-0.5 rounded-md bg-sky-600 text-white font-black text-[9.5px]">ON</span>
+                  </button>
+
+                  <button
+                    id="btnToggleUnscheduledPanel"
+                    type="button"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 transition cursor-pointer"
+                  >
+                    <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-amber-600"></i>
+                    <span>Unscheduled</span>
+                    <span id="remedialUnscheduledCountBadge" class="px-2 py-0.5 rounded-full bg-amber-200/70 text-amber-900 font-extrabold text-[10px]">
+                      0
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Calendar Body -->
+              <div class="flex flex-col xl:flex-row gap-5 items-start">
+                <div class="flex-1 w-full min-w-0">
+                  <div class="grid grid-cols-7 gap-1 mb-1 text-center">
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50/50 rounded-xl">Sunday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 rounded-xl">Monday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 rounded-xl">Tuesday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 rounded-xl">Wednesday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 rounded-xl">Thursday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 rounded-xl">Friday</div>
+                    <div class="py-2 text-[11px] font-bold uppercase tracking-wider text-sky-600 bg-sky-50/50 rounded-xl">Saturday</div>
+                  </div>
+
+                  <div id="remedialCalGrid" class="grid grid-cols-7 gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+                    <!-- Rendered dynamically -->
+                  </div>
+                </div>
+
+                <!-- Unscheduled Side Drawer -->
+                <div
+                  id="remedialUnscheduledPanel"
+                  class="w-full xl:w-80 flex-shrink-0 bg-slate-50/90 rounded-2xl border border-slate-200 p-4 flex flex-col gap-3 transition-all"
+                >
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <div>
+                      <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>
+                        Belum Terjadwal
+                      </h4>
+                      <p class="text-[10px] text-slate-400 mt-0.5">Pengajuan Schedule tanpa tanggal</p>
+                    </div>
+                    <span id="unscheduledPanelBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white text-slate-700 border border-slate-200">
+                      0
+                    </span>
+                  </div>
+
+                  <div id="unscheduledListContainer" class="space-y-2 overflow-y-auto max-h-[500px] pr-1">
+                    <!-- Unscheduled cards rendered dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. ClickUp Style Remedial List View -->
+          <div id="remedialListContainer" class="hidden space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100/90 text-slate-700 text-xs font-bold border border-slate-200/80 shadow-xs">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-600"></i>
+                    <span>Group: Status</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400 ml-0.5"></i>
+                  </div>
+                  <div class="text-xs text-slate-400 flex items-center gap-2 pl-1">
+                    <span id="clickupListTotalCountBadge" class="font-bold text-slate-600">0 tasks</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button
+                    id="btnExpandAllListGroups"
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
+                    title="Buka / Tutup Semua Grup"
+                  >
+                    <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span id="btnExpandAllListGroupsText">Collapse All</span>
+                  </button>
+                  <button
+                    id="btnListQuickAddRemedial"
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-700 transition shadow-sm shadow-sky-600/20 cursor-pointer"
+                  >
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>+ Task</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ClickUp Groups Container -->
+              <div id="clickupListGroupsWrapper" class="space-y-6">
+                <!-- Status groups rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
+
 
     <!-- Modal: Class Detail -->
     <div id="classDetailModal" class="modal-backdrop-custom">
@@ -539,118 +1043,806 @@
       </div>
     </div>
 
-    <!-- Modal: Kelas Remedial -->
+    <!-- Dedicated Remedial Submission Form Modal -->
     <div id="remedialModal" class="modal-backdrop-custom">
-      <div class="bg-white rounded-3xl max-w-xl modal-card">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+      <div
+        class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-2xl mx-auto"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap"
+        >
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base font-bold">
-              <i class="bi bi-mortarboard-fill"></i>
+            <div
+              class="w-9 h-9 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold"
+            >
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
             </div>
             <div>
-              <h2 class="text-sm font-extrabold text-slate-900">Buat Kelas Remedial</h2>
-              <p class="text-[11px] text-slate-400">Turunkan kelas remedial dari batch parent kelas aktif.</p>
+              <div class="text-sm font-bold text-slate-900">
+                Form Pengajuan Kelas Remedial
+              </div>
+              <div class="text-[11px] text-slate-500">
+                Isi data pengajuan remedial member untuk dijadwalkan ulang.
+              </div>
             </div>
           </div>
-          <button id="btnCloseRemedial" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm transition">
-            <i class="bi bi-x-lg"></i>
+          <button
+            id="btnCloseRemedial"
+            type="button"
+            class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
-
-        <div class="p-5 modal-body-scroll space-y-3.5 text-xs">
-          <!-- Parent Class Search -->
-          <div class="relative">
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih Kelas Parent <span class="text-rose-500">*</span></label>
-            <input
-              id="remedialClassSearch"
-              type="text"
-              placeholder="Ketik nama kelas parent..."
-              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              autocomplete="off"
-            />
-            <div id="remedialClassList" class="search-dropdown hidden"></div>
-            <div id="remedialClassError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
-          </div>
-
-          <!-- Remedial Class Name -->
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Kelas Remedial <span class="text-rose-500">*</span></label>
-            <input
-              id="remedialClassName"
-              type="text"
-              placeholder="Contoh: Remedial Basic Class Batch 1"
-              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
-            <div id="remedialClassNameError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
-          </div>
-
-          <!-- Product Auto fields -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Product Name</label>
-              <input id="remedialProductName" type="text" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs" readonly />
+        <div class="px-6 py-5 modal-body-scroll text-xs">
+          <form id="internalRemedialForm" class="space-y-4">
+            <!-- Nama & No. Telp -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                  Nama Member <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  id="remedialFormName"
+                  type="text"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Contoh: Gabriel Bayunanda"
+                  required
+                />
+                <p id="errRemedialName" class="field-error-text hidden"></p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1" for="remedialFormPhone">
+                  Whatsapp <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  id="remedialFormPhone"
+                  type="tel"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Contoh: 0812-3456-7890"
+                  required
+                />
+                <p class="text-[10px] text-slate-400 mt-1">
+                  Contoh: <span class="font-medium text-slate-500">0812-3456-7890</span> atau <span class="font-medium text-slate-500">81234567890</span>
+                </p>
+                <p id="errRemedialPhone" class="field-error-text hidden"></p>
+              </div>
             </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Product ID</label>
-              <input id="remedialProductId" type="text" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs" readonly />
-            </div>
-          </div>
 
-          <!-- Mentor Search -->
-          <div class="relative">
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih Mentor <span class="text-rose-500">*</span></label>
-            <input
-              id="remedialMentorSearch"
-              type="text"
-              placeholder="Ketik nama mentor..."
-              class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              autocomplete="off"
-            />
-            <div id="remedialMentorList" class="search-dropdown hidden"></div>
-            <div id="remedialMentorError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
-          </div>
+            <!-- Kelas & Mentor -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="search-dropdown">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                  Kelas (Opsional)
+                </label>
+                <input
+                  id="remedialFormClass"
+                  type="text"
+                  autocomplete="off"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Cari atau ketik nama kelas (opsional)..."
+                />
+                <div id="remedialFormClassList" class="search-dropdown-list hidden"></div>
+                <p id="errRemedialClass" class="field-error-text hidden"></p>
+              </div>
 
-          <!-- Date & Total Meeting -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Mulai</label>
-              <input id="remedialStartDate" type="date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                  Pilih Mentor <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  id="remedialFormMentor"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  required
+                >
+                  <option value="">Pilih Mentor...</option>
+                </select>
+                <p id="errRemedialMentor" class="field-error-text hidden"></p>
+              </div>
             </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Total Meeting</label>
-              <input id="remedialMeetingTotal" type="number" min="1" value="8" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
-              <div id="remedialMeetingTotalError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
-            </div>
-          </div>
 
-          <!-- Type & Location -->
-          <div class="grid grid-cols-2 gap-3">
+            <!-- Status Alur Pengajuan -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe Kelas</label>
-              <select id="remedialType" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20">
-                <option value="Online">Online</option>
-                <option value="Offline">Offline</option>
-                <option value="Hybrid">Hybrid</option>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                Status Alur Pengajuan <span class="text-rose-500">*</span>
+              </label>
+              <select
+                id="remedialFormStatus"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 font-semibold text-slate-700"
+                required
+              >
+                <option value="REQUEST">REQUEST (Baru)</option>
+                <option value="CONTACT">CONTACT (Sudah di-chat)</option>
+                <option value="PROCESS">PROCESS (Mencari jadwal)</option>
+                <option value="SCHEDULE">SCHEDULE (Terjadwal)</option>
+                                <option value="STALL">STALL (Pending / Belum respon)</option>
+                <option value="COMPLETE">COMPLETE (Selesai)</option>
               </select>
             </div>
+
+            <!-- Tanggal & Jam Jadwal Remedial (Opsional) -->
             <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
-              <input id="remedialLocation" type="text" placeholder="Zoom / Kota" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20" />
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                Tanggal & Jam Remedial (Opsional)
+              </label>
+              <input
+                id="remedialFormScheduleDate"
+                type="datetime-local"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+              <p class="text-[10px] text-slate-400 mt-1">
+                Isi jika sudah ada jadwal pasti (status SCHEDULE) agar otomatis muncul di kalender.
+              </p>
+            </div>
+
+            <!-- Pertemuan yang tidak bisa dihadiri (Admin Dropdown Checkbox Multi-select) -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase" for="adminMeetingDropdownToggle">
+                  Pertemuan Yang Tidak Bisa Dihadiri <span class="text-rose-500">*</span>
+                </label>
+                <span class="text-[10px] text-sky-700 font-semibold bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">
+                  Bisa pilih lebih dari 1
+                </span>
+              </div>
+
+              <!-- Dropdown Trigger & Popover Panel -->
+              <div class="relative" id="adminMeetingDropdownWrapper">
+                <button
+                  type="button"
+                  id="adminMeetingDropdownToggle"
+                  class="w-full text-left rounded-xl border border-slate-200 px-3 py-2.5 bg-slate-50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition flex items-center justify-between cursor-pointer"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <div class="flex items-center gap-2 min-w-0 pr-2">
+                    <span class="w-6 h-6 rounded-lg bg-sky-100/80 text-sky-700 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span id="adminMeetingDropdownLabel" class="text-xs text-slate-400 font-medium truncate">
+                      Pilih pertemuan yang tidak bisa dihadiri...
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <span id="adminMeetingDropdownBadge" class="hidden text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
+                      0 dipilih
+                    </span>
+                    <i data-lucide="chevron-down" id="adminMeetingDropdownChevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"></i>
+                  </div>
+                </button>
+
+                <!-- Popover Panel -->
+                <div
+                  id="adminMeetingDropdownPanel"
+                  class="hidden absolute z-50 left-0 right-0 mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-2xl p-3 text-xs"
+                >
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+                    <div>
+                      <span class="text-xs font-bold text-slate-800 block">Pilih Pertemuan</span>
+                      <span class="text-[10px] text-slate-400">Centang pertemuan yang tidak dihadiri</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        id="btnAdminSelectAllMeetings"
+                        class="text-[11px] text-sky-600 hover:text-sky-800 font-semibold px-2 py-0.5 rounded hover:bg-sky-50 transition cursor-pointer"
+                      >
+                        Pilih Semua
+                      </button>
+                      <span class="text-slate-300">&bull;</span>
+                      <button
+                        type="button"
+                        id="btnAdminClearDropdownMeetings"
+                        class="text-[11px] text-rose-600 hover:text-rose-800 font-semibold px-2 py-0.5 rounded hover:bg-rose-50 transition cursor-pointer"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Grid of 12 Checkboxes -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-52 overflow-y-auto pr-1" id="adminMeetingCheckboxList">
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="1">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="1" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 1</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="2">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="2" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 2</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="3">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="3" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 3</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="4">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="4" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 4</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="5">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="5" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 5</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="6">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="6" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 6</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="7">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="7" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 7</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="8">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="8" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 8</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="9">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="9" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 9</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="10">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="10" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 10</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="11">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="11" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 11</span>
+                    </label>
+                    <label class="admin-meeting-check-label flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/50 cursor-pointer select-none transition-all" data-meeting="12">
+                      <input type="checkbox" class="sr-only admin-meeting-check-input" value="12" />
+                      <span class="checkbox-box w-4 h-4 rounded border border-slate-300 flex items-center justify-center text-white bg-white transition-all flex-shrink-0">
+                        <svg class="check-icon w-3 h-3 hidden stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="meeting-label-text text-[11px] font-medium text-slate-700 truncate">Pertemuan 12</span>
+                    </label>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="flex items-center justify-between pt-2 mt-2 border-t border-slate-100 bg-slate-50/70 -mx-3 -mb-3 px-3 py-2 rounded-b-2xl">
+                    <span id="adminMeetingDropdownFooterCount" class="text-[10px] text-slate-500 font-medium">
+                      Belum ada pertemuan dipilih
+                    </span>
+                    <button
+                      type="button"
+                      id="btnAdminCloseMeetingDropdown"
+                      class="px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-[11px] transition cursor-pointer"
+                    >
+                      Selesai
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selected Meeting Tags Strip -->
+              <div id="adminSelectedMeetingsTagsContainer" class="mt-2 hidden">
+                <div class="flex items-center justify-between text-xs text-sky-900 mb-1">
+                  <span class="font-bold text-[10px] text-slate-500 uppercase">Pertemuan Dipilih:</span>
+                  <button type="button" id="btnAdminClearAllTags" class="text-[10px] text-rose-600 hover:text-rose-800 font-bold underline cursor-pointer">
+                    Hapus Semua
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5" id="adminSelectedMeetingsPillsList"></div>
+              </div>
+
+              <p id="errRemedialMeeting" class="field-error-text hidden"></p>
+            </div>
+
+            <!-- Alasan Remedial -->
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                Alasan Remedial <span class="text-rose-500">*</span>
+              </label>
+              <textarea
+                id="remedialFormReason"
+                rows="3"
+                class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="Contoh: Sakit saat jadwal pertemuan 4, meminta izin mengulang materi."
+                required
+              ></textarea>
+              <p id="errRemedialReason" class="field-error-text hidden"></p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div id="remedialFormStatusMsg" class="text-[11px] text-slate-500"></div>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  id="btnCancelRemedialModal"
+                  class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  id="btnSaveRemedial"
+                  class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white hover:bg-sky-700 transition shadow-md shadow-sky-600/20"
+                >
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                  Simpan Pengajuan
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Remedial Detail & Schedule Modal -->
+    <div id="remedialScheduleModal" class="modal-backdrop-custom">
+      <div class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-xl mx-auto overflow-hidden flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3 bg-gradient-to-r from-slate-50/80 via-white to-sky-50/40 flex-shrink-0 select-none">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-600 flex items-center justify-center shadow-xs shrink-0">
+              <i data-lucide="calendar-check" class="w-5 h-5 text-sky-600"></i>
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-slate-900 tracking-tight leading-snug" id="schedModalTitle">Detail & Jadwal Remedial</div>
+              <div class="text-xs text-slate-500 font-medium" id="schedModalSubtitle">Kelola status dan tanggal jadwal remedial member</div>
+            </div>
+          </div>
+          <button
+            id="btnCloseSchedModal"
+            type="button"
+            class="w-8 h-8 rounded-full border border-slate-200/80 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:rotate-90 active:scale-90 transition-all duration-200 shrink-0"
+            title="Tutup"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Body Content -->
+        <div class="modal-card-body px-6 py-4 text-xs space-y-3.5">
+          <!-- Member & Class Highlight Card -->
+          <div class="bg-gradient-to-b from-slate-50/90 to-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs space-y-3 relative transition-all duration-200 hover:shadow-sm">
+            <!-- Top Profile Row: Avatar, Member Name, and Remedial Session Badge -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  id="schedModalMemberAvatar"
+                  class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-sky-500/20 ring-2 ring-white shrink-0"
+                >
+                  M
+                </div>
+                <div class="min-w-0">
+                  <div class="text-base font-extrabold text-slate-900 tracking-tight leading-snug truncate" id="schedModalMemberName">-</div>
+                  <div class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                    <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                    <span>Member Dialogika</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col items-end shrink-0">
+                <span class="text-[9.5px] uppercase font-extrabold tracking-wider text-sky-600 mb-0.5 text-right">Sesi Remedial</span>
+                <span
+                  id="schedModalMeetingBadge"
+                  class="tag-meeting bg-sky-100 text-sky-800 border border-sky-300/80 font-black text-xs px-3 py-1 rounded-lg shadow-2xs"
+                >
+                  P01
+                </span>
+              </div>
+            </div>
+
+            <!-- PROMINENT CLASS SHOWCASE BANNER -->
+            <div class="p-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-blue-500/5 border border-sky-200/90 flex items-center justify-between gap-3 shadow-xs hover:border-sky-300 transition">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-white border border-sky-200 text-sky-600 flex items-center justify-center shadow-xs shrink-0">
+                  <i data-lucide="graduation-cap" class="w-4 h-4 text-sky-600"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[9.5px] uppercase font-black tracking-widest text-sky-600 flex items-center gap-1.5">
+                    <span>Program / Kelas</span>
+                  </div>
+                  <div class="text-sm font-black text-slate-900 truncate tracking-tight" id="schedModalClassName">-</div>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-600 text-white text-[10px] font-extrabold tracking-wider uppercase shadow-xs shrink-0">
+                <i data-lucide="award" class="w-3 h-3 text-sky-200"></i> Kelas
+              </span>
+            </div>
+
+            <!-- 4-Column Grid: Mentor, WhatsApp, Tanggal Pengajuan, Email -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 text-xs">
+              <div class="p-2 px-2.5 rounded-xl bg-white/90 border border-slate-200/70 hover:bg-white hover:border-slate-300 transition-colors">
+                <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                  <i data-lucide="user-check" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Mentor</span>
+                </div>
+                <span class="font-bold text-slate-800 text-xs block truncate" id="schedModalMentor">-</span>
+              </div>
+              <div class="p-2 px-2.5 rounded-xl bg-white/90 border border-slate-200/70 hover:bg-white hover:border-slate-300 transition-colors">
+                <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                  <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>WhatsApp</span>
+                </div>
+                <span class="font-bold text-slate-800 text-xs block truncate" id="schedModalPhone">-</span>
+              </div>
+              <div class="p-2 px-2.5 rounded-xl bg-white/90 border border-slate-200/70 hover:bg-white hover:border-slate-300 transition-colors">
+                <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Tanggal Pengajuan</span>
+                </div>
+                <span class="font-bold text-slate-800 text-xs block truncate" id="schedModalCreatedAt">-</span>
+              </div>
+              <div class="p-2 px-2.5 rounded-xl bg-white/90 border border-slate-200/70 hover:bg-white hover:border-slate-300 transition-colors">
+                <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                  <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Email</span>
+                </div>
+                <span class="font-bold text-slate-800 text-xs block truncate" id="schedModalEmail">-</span>
+              </div>
+            </div>
+
+            <!-- Alasan Pengajuan Box -->
+            <div id="schedModalReasonBox" class="text-xs text-amber-900 bg-amber-50/80 p-2.5 px-3 rounded-xl border border-amber-200/80 flex items-start gap-2.5 shadow-2xs">
+              <div class="w-5 h-5 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="message-square-quote" class="w-3 h-3"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <span class="font-extrabold text-[10px] uppercase tracking-wider text-amber-800 block mb-0.5">Alasan Pengajuan Remedial:</span>
+                <span id="schedModalReasonText" class="italic text-slate-700 leading-snug text-xs block">-</span>
+              </div>
+            </div>
+
+            <!-- Smart Match / Rekomendasi Kelas Check-Up yang Sesuai -->
+            <div id="schedModalSuggestionsBox" class="p-3 rounded-2xl bg-sky-50/80 border border-sky-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-[11px] font-black text-sky-950 uppercase tracking-wider">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                  <span>Rekomendasi Kelas Check-Up Sesuai</span>
+                </div>
+                <span id="schedModalSuggestionsCount" class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-white text-sky-700 border border-sky-200">
+                  0 Tersedia
+                </span>
+              </div>
+              <p class="text-[10px] text-slate-500 leading-tight">
+                Pilih salah satu kelas di bawah untuk mengisi tanggal & jam jadwal pengganti secara otomatis:
+              </p>
+              <div id="schedModalSuggestionsList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
           </div>
 
-          <!-- Reason -->
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Alasan Remedial <span class="text-rose-500">*</span></label>
-            <textarea id="remedialReason" rows="2" placeholder="Jelaskan alasan pembukaan kelas remedial ini..." class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/20"></textarea>
-            <div id="remedialReasonError" class="text-rose-500 text-[10px] mt-1 hidden"></div>
+          <!-- 2-Column Row: Jadwal Pengganti & Status Alur Remedial -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <!-- Schedule Date & Time -->
+            <div>
+              <label class="flex items-center justify-between text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-sky-600"></i>
+                  Jadwal Pengganti
+                </span>
+                <span class="text-[9px] font-semibold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">Kalender</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="datetime-local"
+                  id="schedModalDateInput"
+                  class="w-full text-xs font-semibold rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 text-slate-800 focus:bg-white focus:outline-none focus:ring-3 focus:ring-sky-500/15 focus:border-sky-500 transition-all duration-200 shadow-2xs"
+                />
+              </div>
+              <p class="text-[9.5px] text-slate-400 mt-1 flex items-center gap-1 truncate" title="Sinkron otomatis ke kalender tim">
+                <i data-lucide="info" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                Sinkron otomatis ke kalender.
+              </p>
+            </div>
+
+            <!-- Status Dropdown -->
+            <div>
+              <label class="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                <i data-lucide="git-pull-request" class="w-3.5 h-3.5 text-sky-600"></i>
+                Status Alur Remedial
+              </label>
+              <div class="relative">
+                <select
+                  id="schedModalStatusSelect"
+                  class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white focus:outline-none focus:ring-3 focus:ring-sky-500/15 focus:border-sky-500 font-bold text-slate-700 transition-all duration-200 shadow-2xs cursor-pointer"
+                >
+                  <option value="STALL">⚫ STALL</option>
+                                    <option value="SCHEDULE">🔵 SCHEDULE</option>
+                  <option value="PROCESS">🟠 PROCESS</option>
+                  <option value="CONTACT">🟣 CONTACT</option>
+                  <option value="REQUEST">🔴 REQUEST</option>
+                  <option value="COMPLETE">🟢 COMPLETE</option>
+                </select>
+              </div>
+              <p class="text-[9.5px] text-slate-400 mt-1 flex items-center gap-1">
+                <i data-lucide="refresh-cw" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                Perbarui status progres alur.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div class="p-4 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/50 rounded-b-3xl">
-          <button id="btnSaveRemedial" type="button" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
-            Simpan Kelas Remedial
+        <!-- Fixed Footer Buttons -->
+        <div class="px-6 py-3.5 border-t border-slate-100 flex items-center justify-between gap-3 bg-slate-50/80 flex-shrink-0 select-none">
+          <div class="flex items-center gap-2 shrink-0">
+            <a
+              id="btnSchedModalWhatsApp"
+              href="#"
+              target="_blank"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 active:scale-95 transition-all duration-200 shadow-2xs hover:shadow-xs"
+            >
+              <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-600 transition-colors"></i>
+              Kirim WA
+            </a>
+            <button
+              type="button"
+              id="btnSchedModalComments"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 active:scale-95 transition-all duration-200 cursor-pointer shadow-2xs"
+              title="Buka Komentar ClickUp"
+            >
+              <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span id="schedModalCommentsCount">0 Komentar</span>
+            </button>
+            <button
+              type="button"
+              id="btnSchedModalDelete"
+              class="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 active:scale-95 transition-all duration-200"
+              title="Hapus data ini"
+            >
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              id="btnCancelSchedModal"
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 active:scale-95 transition-all duration-200"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              id="btnSaveSchedModal"
+              class="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-sky-500 text-white hover:from-sky-500 hover:to-sky-600 active:scale-95 transition-all duration-200 shadow-md shadow-sky-600/20"
+            >
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Remedial Day Agenda Modal (Shows all remedial tickets & check-up classes on a specific date) -->
+    <div id="remedialDayAgendaModal" class="modal-backdrop-custom">
+      <div class="modal-card bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-2xl mx-auto overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-gradient-to-r from-slate-50/80 via-white to-sky-50/40 shrink-0 select-none">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-600 flex items-center justify-center shadow-xs shrink-0">
+              <i data-lucide="calendar" class="w-5 h-5 text-sky-600"></i>
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-slate-900 tracking-tight" id="dayAgendaTitle">Agenda Tanggal -</div>
+              <div class="text-xs text-slate-500 font-medium flex items-center gap-2 mt-0.5" id="dayAgendaSubtitle">
+                <span id="dayAgendaRemedialCount" class="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">0 Member Remedial</span>
+                <span id="dayAgendaCheckupCount" class="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">0 Kelas Check-Up</span>
+              </div>
+            </div>
+          </div>
+          <button
+            id="btnCloseDayAgendaModal"
+            type="button"
+            class="w-8 h-8 rounded-full border border-slate-200/80 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:rotate-90 active:scale-90 transition-all duration-200 shrink-0 cursor-pointer"
+            title="Tutup"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
+        </div>
+
+        <!-- Scrollable Body Content -->
+        <div class="modal-card-body px-6 py-4 overflow-y-auto space-y-5 flex-1">
+          <!-- Section 1: Member Remedial -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="users" class="w-4 h-4 text-sky-600"></i>
+                <span>Member Remedial Terdaftar</span>
+              </h4>
+              <span id="dayAgendaRemedialBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
+                0 Member
+              </span>
+            </div>
+            <div id="dayAgendaRemedialList" class="space-y-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Section 2: Kelas Reguler Check-Up -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-sky-600"></i>
+                <span>Jadwal Kelas Reguler (Check-Up Class)</span>
+              </h4>
+              <span id="dayAgendaCheckupBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                0 Kelas
+              </span>
+            </div>
+            <p class="text-[10.5px] text-slate-400 mb-2 leading-tight">
+              Daftar kelas operasional yang berjalan pada tanggal ini. Klik "Pilih Jadwal Ini" pada kelas untuk langsung menjadwalkan siswa remedial.
+            </p>
+            <div id="dayAgendaCheckupList" class="space-y-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between gap-3 bg-slate-50/80 shrink-0">
+          <button
+            type="button"
+            id="btnAddRemedialOnDay"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-sky-600 border border-sky-200 hover:bg-sky-50 active:scale-95 transition shadow-2xs cursor-pointer"
+          >
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Tambah Pengajuan Remedial
+          </button>
+          <button
+            type="button"
+            id="btnCloseDayAgendaFooter"
+            class="px-4 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 active:scale-95 transition cursor-pointer"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ClickUp Style Floating Comments Popup -->
+    <div
+      id="clickupRemedialCommentPopup"
+      class="clickup-comments-popup hidden"
+      role="dialog"
+      aria-labelledby="clickupCommentTaskName"
+    >
+      <!-- Header -->
+      <div class="px-4 py-3 bg-white border-b border-slate-100 flex items-center justify-between select-none flex-shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span
+            id="clickupCommentStatusBadge"
+            class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full text-white bg-sky-500 shadow-xs flex-shrink-0"
+          >
+            SCHEDULE
+          </span>
+          <div class="min-w-0">
+            <h4
+              id="clickupCommentTaskName"
+              class="font-bold text-xs text-slate-800 truncate max-w-[210px]"
+              title="Task Name"
+            >
+              Remedial Task
+            </h4>
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-400">
+              <span id="clickupCommentHeaderClass" class="truncate max-w-[130px]">-</span>
+              <span>•</span>
+              <span id="clickupCommentHeaderCount" class="font-medium text-slate-500">2 comments</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            id="btnCloseClickupComment"
+            class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+            title="Tutup (Esc)"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Comments Body (Scrollable) -->
+      <div
+        id="clickupCommentListWrapper"
+        class="clickup-comments-body flex-1 overflow-y-auto px-4 py-3.5 space-y-4 text-xs bg-white"
+      >
+        <!-- Dynamic comment cards inserted by JavaScript -->
+      </div>
+
+      <!-- Bottom Composer (ClickUp Style) -->
+      <div class="p-3 bg-white border-t border-slate-100 flex-shrink-0">
+        <div class="border border-slate-200/90 rounded-xl focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 bg-white transition p-2.5 shadow-2xs">
+          <textarea
+            id="clickupCommentInput"
+            rows="2"
+            placeholder="Comment or type '/' for commands"
+            class="w-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none resize-none bg-transparent leading-relaxed"
+          ></textarea>
+          <div class="mt-2 flex items-center justify-between gap-2 pt-1 border-t border-slate-100/80">
+            <div class="flex items-center gap-0.5 text-slate-400">
+              <button
+                type="button"
+                id="btnCommentAddAttachment"
+                class="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                title="Add action"
+              >
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-slate-800 px-1.5 py-0.5 rounded hover:bg-slate-100 transition"
+                title="Comment mode"
+              >
+                <span>Comment</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+              </button>
+              <button
+                type="button"
+                id="btnCommentMention"
+                class="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                title="Mention (@)"
+              >
+                <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
+              </button>
+              <button
+                type="button"
+                id="btnCommentEmoji"
+                class="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                title="Emoji"
+              >
+                <i data-lucide="smile" class="w-3.5 h-3.5"></i>
+              </button>
+              <button
+                type="button"
+                id="btnCommentAttachFile"
+                class="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                title="Attach file"
+              >
+                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+              </button>
+              <button
+                type="button"
+                id="btnCommentVoice"
+                class="p-1 rounded hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                title="Voice note"
+              >
+                <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <button
+              type="button"
+              id="btnSubmitClickupComment"
+              class="w-7 h-7 rounded-lg bg-sky-500 hover:bg-sky-600 active:scale-95 text-white flex items-center justify-center transition shadow-2xs cursor-pointer"
+              title="Kirim komentar (Enter)"
+            >
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

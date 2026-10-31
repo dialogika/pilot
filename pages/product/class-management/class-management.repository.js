@@ -645,3 +645,151 @@ export async function exportClassManagementData({
   return { count: rows.length, filename };
 }
 
+/**
+ * ==================================================
+ * REMEDIAL REPORTS REPOSITORY
+ * ==================================================
+ */
+
+export const SAMPLE_REMEDIAL_REPORTS = [];
+
+/**
+ * Fetches all remedial reports from Firestore 'remedial_reports'.
+ * Returns an empty array if empty or offline (no simulated mock data).
+ */
+export async function fetchRemedialReports() {
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const snap = await getDocs(collection(db, "remedial_reports"));
+    if (snap.empty) {
+      return [];
+    }
+
+    const list = [];
+    snap.forEach((docSnap) => {
+      const d = docSnap.data() || {};
+      const rawPhone = d.phone || d.whatsapp || "";
+      const rawName = d.name || d.nama || "Tanpa Nama";
+      const explicitClass = (d.group_whatsapp || d.group_name || d.class_name || "").trim();
+
+      list.push({
+        id: docSnap.id,
+        name: rawName,
+        group_whatsapp: explicitClass,
+        class_name: explicitClass,
+        hasExplicitClass: Boolean(explicitClass),
+        phone: rawPhone,
+        email: d.email || "",
+        mentor_name: d.mentor_name || d.mentor || "",
+        mentor_id: d.mentor_id || "",
+        meeting_number: typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1),
+        meeting_numbers: Array.isArray(d.meeting_numbers) ? d.meeting_numbers : [typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1)],
+        meeting_missed: d.meeting_missed || `Pertemuan ${d.meeting_number || 1}`,
+        reason: d.reason || d.alasan || "",
+        status: (d.status || "REQUEST").toUpperCase(),
+        schedule_date: d.schedule_date || d.scheduled_date || d.date || null,
+        created_at: d.created_at || d.createdAt || null,
+        comments: Array.isArray(d.comments) ? d.comments : [],
+        comments_count: typeof d.comments_count === "number" ? d.comments_count : (Array.isArray(d.comments) ? d.comments.length : 0),
+      });
+    });
+
+    return list;
+  } catch (err) {
+    console.warn("fetchRemedialReports error:", err);
+    return [];
+  }
+}
+
+/**
+ * Saves a new remedial ticket in Firestore 'remedial_reports'.
+ */
+export async function saveRemedialReport(reportData) {
+  if (!db) {
+    return `rem_local_${Date.now()}`;
+  }
+  const payload = {
+    name: reportData.name || reportData.nama || "",
+    nama: reportData.name || reportData.nama || "",
+    phone: reportData.phone || reportData.whatsapp || "",
+    whatsapp: reportData.phone || reportData.whatsapp || "",
+    email: reportData.email || "",
+    group_whatsapp: reportData.group_whatsapp || reportData.class_name || "",
+    class_name: reportData.class_name || reportData.group_whatsapp || "",
+    mentor_name: reportData.mentor_name || "",
+    mentor_id: reportData.mentor_id || "",
+    meeting_number: typeof reportData.meeting_number === "number" ? reportData.meeting_number : 1,
+    meeting_numbers: Array.isArray(reportData.meeting_numbers) ? reportData.meeting_numbers : [reportData.meeting_number || 1],
+    meeting_missed: reportData.meeting_missed || `Pertemuan ${reportData.meeting_number || 1}`,
+    reason: reportData.reason || "",
+    status: (reportData.status || "REQUEST").toUpperCase(),
+    schedule_date: reportData.schedule_date || reportData.scheduled_date || null,
+    scheduled_date: reportData.schedule_date || reportData.scheduled_date || null,
+    source: reportData.source || "internal_form",
+    comments: Array.isArray(reportData.comments) ? reportData.comments : [],
+    comments_count: typeof reportData.comments_count === "number" ? reportData.comments_count : (Array.isArray(reportData.comments) ? reportData.comments.length : 0),
+    created_at: reportData.created_at || new Date().toISOString().slice(0, 10),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  const docRef = await addDoc(collection(db, "remedial_reports"), payload);
+  return docRef.id;
+}
+
+/**
+ * Updates remedial status in Firestore.
+ */
+export async function updateRemedialStatusDoc(itemId, newStatus) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    status: (newStatus || "REQUEST").toUpperCase(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Updates remedial schedule & details in Firestore.
+ */
+export async function updateRemedialScheduleDoc(itemId, newDate, newStatus) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    schedule_date: newDate || null,
+    scheduled_date: newDate || null,
+    status: (newStatus || "SCHEDULE").toUpperCase(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Deletes a remedial report ticket from Firestore.
+ */
+export async function deleteRemedialReportDoc(itemId) {
+  if (!db) return;
+  await deleteDoc(doc(db, "remedial_reports", itemId));
+}
+
+/**
+ * Appends a comment to a remedial ticket.
+ */
+export async function addRemedialCommentDoc(itemId, newCommentObj, commentsList) {
+  let updatedList;
+  if (Array.isArray(commentsList)) {
+    updatedList = commentsList;
+  } else if (newCommentObj) {
+    updatedList = [newCommentObj];
+  } else {
+    updatedList = [];
+  }
+
+  if (!db) return updatedList;
+
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    comments: updatedList,
+    comments_count: updatedList.length,
+    updatedAt: serverTimestamp(),
+  });
+  return updatedList;
+}

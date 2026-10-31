@@ -1,0 +1,367 @@
+/* pages/file-manager/file-manager.css
+   =====================================================================
+   FILE MANAGER FEATURE STYLES — dialogika file explorer with Google Drive
+   Follows design tokens from /assets/css/theme.css.
+   ===================================================================== */
+
+.fm-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- Header & Title --- */
+.fm-header-title {
+  color: var(--dlg-blue);
+  font-size: 1.5rem;
+}
+.fm-header-desc {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* --- Storage Connection Banner --- */
+.fm-connection-banner {
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.fm-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+.fm-status-dot.connected {
+  background-color: var(--success, #22c55e);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+.fm-status-dot.disconnected {
+  background-color: var(--danger, #ef4444);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+.fm-connection-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-strong);
+}
+
+/* --- Toolbar --- */
+.fm-toolbar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fm-search-wrap {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+  max-width: 420px;
+}
+.fm-search-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 0.95rem;
+}
+.fm-search-input {
+  padding-left: 38px !important;
+  font-size: 0.875rem;
+  border-color: var(--border) !important;
+  background-color: var(--surface-muted) !important;
+}
+.fm-search-input:focus {
+  background-color: var(--surface) !important;
+  border-color: var(--dlg-blue) !important;
+  box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1) !important;
+}
+
+/* --- Breadcrumb Bar --- */
+.fm-breadcrumb-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.fm-crumb-item {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.fm-crumb-item:hover {
+  background-color: var(--surface-hover);
+  color: var(--dlg-blue);
+}
+.fm-crumb-item.active {
+  color: var(--dlg-blue);
+  font-weight: 700;
+  background-color: var(--surface-active);
+  cursor: default;
+}
+.fm-crumb-sep {
+  color: var(--text-faint-2);
+  font-size: 0.75rem;
+}
+
+/* --- Section Titles --- */
+.fm-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fm-section-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: var(--surface-2);
+  border-radius: 20px;
+  color: var(--text-muted);
+}
+
+/* --- Folder Grid Cards --- */
+.fm-folder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+.fm-folder-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--dlg-blue);
+  box-shadow: var(--shadow-card);
+}
+.fm-folder-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+.fm-folder-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.fm-folder-text {
+  min-width: 0;
+}
+.fm-folder-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.fm-folder-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* --- File Grid Cards --- */
+.fm-file-grid-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+.fm-file-grid-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--dlg-blue);
+  box-shadow: var(--shadow-card);
+}
+.fm-file-preview-box {
+  height: 110px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+}
+.fm-file-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fm-file-type-icon {
+  font-size: 2.8rem;
+}
+.fm-file-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.fm-file-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.fm-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* --- File List Table --- */
+.fm-list-table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+.fm-list-table table {
+  margin-bottom: 0;
+}
+.fm-list-table th {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 18px;
+}
+.fm-list-table td {
+  padding: 14px 18px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.875rem;
+}
+.fm-list-table tr:hover td {
+  background-color: var(--surface-hover);
+}
+
+/* --- Dropzone in Upload Modal --- */
+.fm-dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: 14px;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--surface-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.fm-dropzone:hover,
+.fm-dropzone.dragover {
+  border-color: var(--dlg-blue);
+  background: var(--surface-active);
+}
+.fm-dropzone i {
+  font-size: 2.5rem;
+  color: var(--dlg-blue);
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+/* --- Empty / Loading States --- */
+.fm-state-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 60px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+.fm-state-icon {
+  font-size: 3rem;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+.fm-state-title {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+.fm-state-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* --- Dialogika Blue Button --- */
+.btn-dlg-blue {
+  background-color: var(--dlg-blue);
+  color: #ffffff;
+  border: 1px solid var(--dlg-blue);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-dlg-blue:hover {
+  background-color: var(--dlg-blue-end, #1247af);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(11, 43, 106, 0.25);
+}
+
