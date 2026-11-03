@@ -60,7 +60,79 @@ async function initializeList() {
     searchInput.addEventListener("input", () => applyFilters());
   }
 
+  setupExport();
   await loadInterns();
+}
+
+function setupExport() {
+  const controls = ui.initPerformanceExportModal();
+  if (!controls) return;
+
+  const form = document.getElementById("exportPerformanceForm");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      controls.setLoading(true);
+      try {
+        const params = controls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = allInterns.slice();
+
+        // Filter status
+        if (params.status === "appraised") {
+          exportList = exportList.filter(
+            (i) => i.raw?.appraisal || i.raw?.appraisal_completed || i.raw?.score
+          );
+        } else if (params.status === "pending") {
+          exportList = exportList.filter(
+            (i) => !i.raw?.appraisal && !i.raw?.appraisal_completed && !i.raw?.score
+          );
+        }
+
+        // Filter date range if not 'all'
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((i) => {
+            const ts =
+              extractTimestamp(i.raw?.appraisal_date) ||
+              extractTimestamp(i.raw?.created_at) ||
+              extractTimestamp(i.raw?.updated_at) ||
+              extractTimestamp(i.raw?.start_date);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          ui.notifyError("Tidak ada data penilaian intern pada periode/filter yang dipilih.");
+          return;
+        }
+
+        await repo.exportPerformanceData({
+          interns: exportList,
+          format: params.format,
+          periodLabel,
+          positionMap,
+        });
+
+        controls.closeModal();
+        ui.notifySuccess("Data performance appraisal berhasil diexport!");
+      } catch (err) {
+        console.error("Export error:", err);
+        ui.notifyError("Gagal melakukan export data: " + err.message);
+      } finally {
+        controls.setLoading(false);
+      }
+    });
+  }
 }
 
 async function loadInterns() {

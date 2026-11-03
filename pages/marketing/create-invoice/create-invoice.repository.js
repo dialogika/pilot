@@ -17,6 +17,12 @@ import {
   query,
   orderBy,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const STORAGE_KEY_SETTINGS = "dlg_invoice_settings";
 const STORAGE_KEY_BANKS = "dlg_invoice_banks";
@@ -418,3 +424,74 @@ export async function saveReferrals(referrals) {
     return false;
   }
 }
+
+/**
+ * Export invoice data to Excel or CSV
+ */
+export async function exportInvoiceData({ format = "xlsx", dateRange = "all", startDate = "", endDate = "" }) {
+  const invoices = await fetchInvoices();
+  const { start, end } = calcDateRange(dateRange, startDate, endDate);
+
+  const filtered = invoices.filter((item) => {
+    if (!start && !end) return true;
+    const time = extractTimestamp(item.createdAtMs || item.createdAt);
+    if (!time) return true;
+    if (start && time < start) return false;
+    if (end && time > end) return false;
+    return true;
+  });
+
+  const columns = [
+    { key: "no", header: "No", width: 6 },
+    { key: "invoiceNumber", header: "No. Invoice", width: 22 },
+    { key: "date", header: "Tanggal Dibuat", width: 20 },
+    { key: "paidDate", header: "Tanggal Bayar", width: 20 },
+    { key: "leadName", header: "Nama Lead", width: 22 },
+    { key: "leadPhone", header: "No. WhatsApp", width: 16 },
+    { key: "className", header: "Kelas", width: 25 },
+    { key: "batchLabel", header: "Batch", width: 14 },
+    { key: "classType", header: "Tipe", width: 12 },
+    { key: "location", header: "Lokasi", width: 16 },
+    { key: "basePrice", header: "Harga Dasar (Rp)", width: 18 },
+    { key: "dpAmount", header: "DP (Rp)", width: 16 },
+    { key: "paidAmount", header: "Total Bayar (Rp)", width: 18 },
+    { key: "referralCode", header: "Kode Referral", width: 16 },
+    { key: "paymentMethod", header: "Metode Bayar", width: 16 },
+    { key: "bankName", header: "Bank", width: 14 },
+    { key: "paymentType", header: "Tipe Bayar", width: 14 },
+    { key: "verificationStatus", header: "Status Verifikasi", width: 16 },
+  ];
+
+  const rows = filtered.map((item, index) => ({
+    no: index + 1,
+    invoiceNumber: item.invoiceNumber || "-",
+    date: formatDateIndo(item.createdAtMs || item.createdAt),
+    paidDate: item.paidAtMs ? formatDateIndo(item.paidAtMs, true) : "-",
+    leadName: item.leadName || "-",
+    leadPhone: item.leadPhone || "-",
+    className: item.className || "-",
+    batchLabel: item.batchLabel || "-",
+    classType: item.classType || "-",
+    location: item.location || "-",
+    basePrice: item.basePrice ? Number(item.basePrice).toLocaleString("id-ID") : "0",
+    dpAmount: item.dpAmount ? Number(item.dpAmount).toLocaleString("id-ID") : "0",
+    paidAmount: item.paidAmount ? Number(item.paidAmount).toLocaleString("id-ID") : "0",
+    referralCode: item.referralCode || "-",
+    paymentMethod: item.paymentMethod || "-",
+    bankName: item.bankName || "-",
+    paymentType: item.paymentType || "-",
+    verificationStatus: item.verificationStatus || "legit",
+  }));
+
+  const filename = `Data_Invoice_${new Date().toISOString().slice(0, 10)}`;
+  await downloadExportFile({
+    format,
+    filename,
+    sheetName: "Invoice Data",
+    columns,
+    rows,
+  });
+
+  return { total: rows.length };
+}
+

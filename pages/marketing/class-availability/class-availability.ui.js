@@ -3,6 +3,8 @@
  * Pure DOM presentation logic (Zero direct Firebase queries).
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 export function formatDate(dateStr) {
     if (!dateStr || dateStr === 'Flexible') return dateStr || 'Flexible';
     try {
@@ -500,11 +502,26 @@ export function populateProductDropdown(selectEl, products, selectedVal = "", in
  */
 export function populateMentorDropdown(selectEl, mentors, selectedVal = "") {
     if (!selectEl) return;
-    selectEl.innerHTML = `<option value="Unknown">Unknown (Pilih Nanti)</option>`;
-    mentors.forEach((m) => {
-        const isSel = m.name === selectedVal;
-        selectEl.innerHTML += `<option value="${escapeHtml(m.name)}" ${isSel ? "selected" : ""}>${escapeHtml(m.name)}</option>`;
+    const isUnknown = !selectedVal || selectedVal === "Unknown";
+    selectEl.innerHTML = `<option value="Unknown" ${isUnknown ? "selected" : ""}>Unknown (Pilih Nanti)</option>`;
+    let hasSelected = isUnknown;
+    const seen = new Set(["unknown"]);
+
+    (mentors || []).forEach((m) => {
+        const mentorName = typeof m === "string" ? m : m?.name;
+        if (!mentorName) return;
+        const lower = mentorName.trim().toLowerCase();
+        if (seen.has(lower)) return;
+        seen.add(lower);
+
+        const isSel = mentorName === selectedVal;
+        if (isSel) hasSelected = true;
+        selectEl.innerHTML += `<option value="${escapeHtml(mentorName)}" ${isSel ? "selected" : ""}>${escapeHtml(mentorName)}</option>`;
     });
+
+    if (selectedVal && selectedVal !== "Unknown" && !hasSelected) {
+        selectEl.innerHTML += `<option value="${escapeHtml(selectedVal)}" selected>${escapeHtml(selectedVal)}</option>`;
+    }
 }
 
 export function openModal(modalId) {
@@ -589,6 +606,7 @@ export function showToast(message, type = "info") {
 }
 
 /**
+ refactor/marketing/class-availability
  * Parses a 2D matrix (from SheetJS / CSV) into structured class batch objects.
  * @param {Array<Array>} matrix
  * @param {Object} options
@@ -897,3 +915,17 @@ export function renderImportPreview({ container, countBadge, items = [], onRemov
         container.appendChild(tr);
     });
 }
+
+ * Initializes Standard Export Modal for Class Availability.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initClassExportModal(onFormatChange, onRangeChange) {
+    return setupExportModalControls({
+        modalId: "exportClassModal",
+        onFormatChange,
+        onRangeChange,
+    });
+}
+
+ main

@@ -15,6 +15,12 @@ import {
   arrayUnion,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 /**
  * Fallback dataset if Firestore is unreachable or empty
@@ -523,4 +529,267 @@ export async function updateClassDoc(docId, updateData) {
 export async function deleteClassDoc(docId) {
   if (!db) return;
   await deleteDoc(doc(db, "class_planning", docId));
+}
+
+/**
+ * Exports Class Management data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportClassManagementData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const classes = await fetchClasses();
+
+  const filtered = classes.filter((c) => {
+    if (status && status !== "" && String(c.status || "").toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    if (start && end) {
+      const ts = extractTimestamp(c.startDate || c.date || c.start_date);
+      if (!ts) return false;
+      const cDate = new Date(ts);
+      if (cDate < start || cDate > end) return false;
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Nama Kelas", key: "name", width: 30 },
+    { header: "Status", key: "status", width: 16 },
+    { header: "Tanggal Mulai", key: "startDate", width: 18 },
+    { header: "Lokasi", key: "location", width: 22 },
+    { header: "Tipe", key: "type", width: 16 },
+    { header: "PIC", key: "pic", width: 20 },
+    { header: "Notify Team", key: "notify", width: 20 },
+    { header: "Mentor", key: "mentor", width: 25 },
+    { header: "Meeting Done", key: "meetingDone", width: 14 },
+    { header: "Meeting Total", key: "meetingTotal", width: 14 },
+    { header: "Kehadiran (%)", key: "attendance", width: 16 },
+    { header: "Keterlambatan", key: "delay", width: 16 },
+    { header: "Reschedule", key: "reschedule", width: 14 },
+    { header: "Health Score", key: "healthScore", width: 14 },
+    { header: "Link WhatsApp", key: "groupLink", width: 30 },
+  ];
+
+  const rows = filtered.map((c, idx) => {
+    const mentorNames = Array.isArray(c.mentors)
+      ? c.mentors.map((m) => m.name || "").join(" / ")
+      : (c.mentor || "");
+    const done = c.meeting ? c.meeting.done || 0 : 0;
+    const total = c.meeting ? c.meeting.total || 0 : 0;
+    const attendance = typeof c.attendanceRate === "number" ? c.attendanceRate : 0;
+    const delay = typeof c.delayCount === "number" ? c.delayCount : 0;
+    const reschedule = typeof c.rescheduleCount === "number" ? c.rescheduleCount : 0;
+    let hs = 0;
+    if (typeof c.healthScore === "number") {
+      hs = c.healthScore;
+    } else {
+      let score = (attendance / 100) * 10 - delay * 0.8 - reschedule * 1.0;
+      if (score < 0) score = 0;
+      if (score > 10) score = 10;
+      hs = score;
+    }
+
+    return {
+      no: idx + 1,
+      name: c.name || "-",
+      status: c.status || "-",
+      startDate: c.startDate ? formatDateIndo(c.startDate) : "-",
+      location: c.location || "-",
+      type: c.type || "-",
+      pic: c.pic && c.pic.name ? c.pic.name : (c.pic || "-"),
+      notify: c.notify && c.notify.name ? c.notify.name : (c.notify || "-"),
+      mentor: mentorNames || "-",
+      meetingDone: done,
+      meetingTotal: total,
+      attendance: `${attendance}%`,
+      delay,
+      reschedule,
+      healthScore: Number(hs).toFixed(1),
+      groupLink: c.groupLink || "-",
+    };
+  });
+
+  const filename = `Data_Class_Management_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Class Management",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+
+/**
+ * ==================================================
+ * REMEDIAL REPORTS REPOSITORY
+ * ==================================================
+ */
+
+export const SAMPLE_REMEDIAL_REPORTS = [];
+
+/**
+ * Fetches all remedial reports from Firestore 'remedial_reports'.
+ * Returns an empty array if empty or offline (no simulated mock data).
+ */
+export async function fetchRemedialReports() {
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const snap = await getDocs(collection(db, "remedial_reports"));
+    if (snap.empty) {
+      return [];
+    }
+
+    const list = [];
+    snap.forEach((docSnap) => {
+      const d = docSnap.data() || {};
+      const rawPhone = d.phone || d.whatsapp || "";
+      const rawName = d.name || d.nama || "Tanpa Nama";
+      const explicitClass = (d.group_whatsapp || d.group_name || d.class_name || "").trim();
+
+      list.push({
+        id: docSnap.id,
+        name: rawName,
+        group_whatsapp: explicitClass,
+        class_name: explicitClass,
+        hasExplicitClass: Boolean(explicitClass),
+        phone: rawPhone,
+        email: d.email || "",
+        mentor_name: d.mentor_name || d.mentor || "",
+        mentor_id: d.mentor_id || "",
+        meeting_number: typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1),
+        meeting_numbers: Array.isArray(d.meeting_numbers) ? d.meeting_numbers : [typeof d.meeting_number === "number" ? d.meeting_number : (parseInt(d.meeting_number || "0", 10) || 1)],
+        meeting_missed: d.meeting_missed || `Pertemuan ${d.meeting_number || 1}`,
+        reason: d.reason || d.alasan || "",
+        status: (d.status || "REQUEST").toUpperCase(),
+        schedule_date: d.schedule_date || d.scheduled_date || d.date || null,
+        created_at: d.created_at || d.createdAt || null,
+        comments: Array.isArray(d.comments) ? d.comments : [],
+        comments_count: typeof d.comments_count === "number" ? d.comments_count : (Array.isArray(d.comments) ? d.comments.length : 0),
+      });
+    });
+
+    return list;
+  } catch (err) {
+    console.warn("fetchRemedialReports error:", err);
+    return [];
+  }
+}
+
+/**
+ * Saves a new remedial ticket in Firestore 'remedial_reports'.
+ */
+export async function saveRemedialReport(reportData) {
+  if (!db) {
+    return `rem_local_${Date.now()}`;
+  }
+  const payload = {
+    name: reportData.name || reportData.nama || "",
+    nama: reportData.name || reportData.nama || "",
+    phone: reportData.phone || reportData.whatsapp || "",
+    whatsapp: reportData.phone || reportData.whatsapp || "",
+    email: reportData.email || "",
+    group_whatsapp: reportData.group_whatsapp || reportData.class_name || "",
+    class_name: reportData.class_name || reportData.group_whatsapp || "",
+    mentor_name: reportData.mentor_name || "",
+    mentor_id: reportData.mentor_id || "",
+    meeting_number: typeof reportData.meeting_number === "number" ? reportData.meeting_number : 1,
+    meeting_numbers: Array.isArray(reportData.meeting_numbers) ? reportData.meeting_numbers : [reportData.meeting_number || 1],
+    meeting_missed: reportData.meeting_missed || `Pertemuan ${reportData.meeting_number || 1}`,
+    reason: reportData.reason || "",
+    status: (reportData.status || "REQUEST").toUpperCase(),
+    schedule_date: reportData.schedule_date || reportData.scheduled_date || null,
+    scheduled_date: reportData.schedule_date || reportData.scheduled_date || null,
+    source: reportData.source || "internal_form",
+    comments: Array.isArray(reportData.comments) ? reportData.comments : [],
+    comments_count: typeof reportData.comments_count === "number" ? reportData.comments_count : (Array.isArray(reportData.comments) ? reportData.comments.length : 0),
+    created_at: reportData.created_at || new Date().toISOString().slice(0, 10),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  const docRef = await addDoc(collection(db, "remedial_reports"), payload);
+  return docRef.id;
+}
+
+/**
+ * Updates remedial status in Firestore.
+ */
+export async function updateRemedialStatusDoc(itemId, newStatus) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    status: (newStatus || "REQUEST").toUpperCase(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Updates remedial schedule & details in Firestore.
+ */
+export async function updateRemedialScheduleDoc(itemId, newDate, newStatus) {
+  if (!db) return;
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    schedule_date: newDate || null,
+    scheduled_date: newDate || null,
+    status: (newStatus || "SCHEDULE").toUpperCase(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Deletes a remedial report ticket from Firestore.
+ */
+export async function deleteRemedialReportDoc(itemId) {
+  if (!db) return;
+  await deleteDoc(doc(db, "remedial_reports", itemId));
+}
+
+/**
+ * Appends a comment to a remedial ticket.
+ */
+export async function addRemedialCommentDoc(itemId, newCommentObj, commentsList) {
+  let updatedList;
+  if (Array.isArray(commentsList)) {
+    updatedList = commentsList;
+  } else if (newCommentObj) {
+    updatedList = [newCommentObj];
+  } else {
+    updatedList = [];
+  }
+
+  if (!db) return updatedList;
+
+  await updateDoc(doc(db, "remedial_reports", itemId), {
+    comments: updatedList,
+    comments_count: updatedList.length,
+    updatedAt: serverTimestamp(),
+  });
+  return updatedList;
 }

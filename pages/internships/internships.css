@@ -293,3 +293,21 @@
 [data-theme="dark"] .internship-table tbody tr:hover .internship-col-status {
   background-color: var(--surface-hover);
 }
+
+[data-theme="dark"] .internship-breadcrumb a,
+[data-theme="dark"] .internship-breadcrumb-sep,
+[data-theme="dark"] .internship-breadcrumb-link {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .badge-soft-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+[data-theme="dark"] .badge-soft-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+[data-theme="dark"] .badge-soft-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+[data-theme="dark"] .badge-soft-primary { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+[data-theme="dark"] .badge-soft-secondary { background: var(--surface-2); color: var(--text-muted); }
+[data-theme="dark"] .btn-action:hover { color: #60a5fa; }
+[data-theme="dark"] .form-control-custom:focus,
+[data-theme="dark"] .form-select-custom:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}

@@ -8,6 +8,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import {
   subscribeToInventory,
@@ -17,6 +18,7 @@ import {
   addInventory,
   updateInventory,
   deleteInventory,
+  exportInventoryData,
 } from "./office-inventory.repository.js";
 
 import {
@@ -33,6 +35,7 @@ import {
   getAddFormData,
   getEditFormData,
   setButtonLoading,
+  initInventoryExportModal,
 } from "./office-inventory.ui.js";
 
 let allItems = [];
@@ -132,19 +135,19 @@ async function handleSaveInventory() {
   const data = getAddFormData();
 
   if (!data.nama_barang) {
-    alert("Nama barang harus diisi.");
+    await alertDialog("Nama barang harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.kategori_kode) {
-    alert("Kategori harus dipilih.");
+    await alertDialog("Kategori harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.lokasi_kode) {
-    alert("Lokasi harus dipilih.");
+    await alertDialog("Lokasi harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.tanggal_beli) {
-    alert("Tanggal beli harus diisi.");
+    await alertDialog("Tanggal beli harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -173,10 +176,10 @@ async function handleSaveInventory() {
     });
 
     closeAddModal();
-    alert("Barang berhasil ditambahkan!");
+    await alertDialog("Barang berhasil ditambahkan!", { type: "success", title: "Berhasil" });
   } catch (e) {
     console.error("Gagal menyimpan inventaris:", e);
-    alert("Gagal menyimpan: " + e.message);
+    await alertDialog("Gagal menyimpan: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "addSave",
@@ -206,19 +209,19 @@ async function handleUpdateInventory() {
   const data = getEditFormData();
 
   if (!data.nama_barang) {
-    alert("Nama barang harus diisi.");
+    await alertDialog("Nama barang harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.kategori_kode) {
-    alert("Kategori harus dipilih.");
+    await alertDialog("Kategori harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.lokasi_kode) {
-    alert("Lokasi harus dipilih.");
+    await alertDialog("Lokasi harus dipilih.", { type: "warning", title: "Validasi Form" });
     return;
   }
   if (!data.tanggal_beli) {
-    alert("Tanggal beli harus diisi.");
+    await alertDialog("Tanggal beli harus diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -233,10 +236,10 @@ async function handleUpdateInventory() {
     await updateInventory(editingId, data);
     closeEditModal();
     editingId = null;
-    alert("Inventaris berhasil diperbarui!");
+    await alertDialog("Inventaris berhasil diperbarui!", { type: "success", title: "Berhasil" });
   } catch (e) {
     console.error("Gagal memperbarui inventaris:", e);
-    alert("Gagal menyimpan: " + e.message);
+    await alertDialog("Gagal menyimpan: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "editSave",
@@ -276,7 +279,7 @@ async function handleConfirmDelete() {
     closeDeleteModal();
   } catch (e) {
     console.error("Gagal menghapus inventaris:", e);
-    alert("Gagal menghapus: " + e.message);
+    await alertDialog("Gagal menghapus: " + e.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     setButtonLoading(
       "deleteConfirm",
@@ -333,6 +336,40 @@ function setupEventListeners() {
 
   const deleteConfirm = document.getElementById("deleteConfirm");
   if (deleteConfirm) deleteConfirm.addEventListener("click", handleConfirmDelete);
+
+  // Standard Export Modal Controls
+  const exportControls = initInventoryExportModal();
+  const exportForm = document.getElementById("exportInventoryForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportInventoryData({
+          format: formData.format,
+          rangeType: formData.rangeType,
+          monthValue: formData.month,
+          weekValue: formData.week,
+          status: formData.status,
+        });
+
+        const modalEl = document.getElementById("exportInventoryModal");
+        if (modalEl && window.bootstrap) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+      } catch (err) {
+        console.error("Export Inventory error:", err);
+        await alertDialog("Gagal mengekspor data inventaris: " + (err.message || err), {
+          type: "error",
+          title: "Ekspor Gagal",
+        });
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 }
 
 // Boot module on DOM ready

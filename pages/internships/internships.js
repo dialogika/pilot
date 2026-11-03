@@ -340,10 +340,70 @@ function wireEventHandlers() {
     addBtn.addEventListener("click", () => ui.openAddModal(positionsMap, departmentsMap));
   }
 
-  const exportBtn = document.getElementById("internshipExportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", () => {
-      ui.notifySuccess("Fitur export data sedang disiapkan.");
+  // Export Modal Setup & Event Handling
+  const exportControls = ui.initInternshipExportModal();
+  const exportForm = document.getElementById("exportInternshipForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = internshipsAll.slice();
+
+        // Filter status
+        if (params.status) {
+          exportList = exportList.filter((item) => {
+            const rawStatus = (item.status || "").toLowerCase().trim();
+            if (params.status === "active") return rawStatus === "active" || rawStatus === "aktif";
+            if (params.status === "leave") return rawStatus.includes("leave") || rawStatus.includes("izin") || rawStatus.includes("cuti");
+            if (params.status === "left") return rawStatus.includes("left") || rawStatus.includes("keluar");
+            if (params.status === "completed") return rawStatus.includes("complete") || rawStatus.includes("selesai");
+            return rawStatus === params.status;
+          });
+        }
+
+        // Filter date range
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((item) => {
+            const ts =
+              extractTimestamp(item.startDate) ||
+              extractTimestamp(item.created_at) ||
+              extractTimestamp(item.registered_at);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          ui.notifyError("Tidak ada data internship pada periode/filter yang dipilih.");
+          return;
+        }
+
+        await repo.exportInternshipsData({
+          internships: exportList,
+          format: params.format,
+          periodLabel,
+        });
+
+        exportControls.closeModal();
+        ui.notifySuccess("Data internship berhasil diexport!");
+      } catch (err) {
+        console.error("Export error:", err);
+        ui.notifyError("Gagal mengekspor data: " + err.message);
+      } finally {
+        exportControls.setLoading(false);
+      }
     });
   }
 

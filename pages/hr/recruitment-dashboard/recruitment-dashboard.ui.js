@@ -6,6 +6,8 @@
 // This module MUST NOT import or query Firestore directly.
 // =====================================================================
 
+import { setupExportModalControls } from "/assets/js/utils/export-helper.js";
+
 // ── Shared helpers ──────────────────────────────────────────────────
 
 function escapeDashboardHtml(v) {
@@ -297,4 +299,18 @@ export function setCalendarText(text) {
 export function updateFilterButtonStates(isAllTime) {
   const allTimeBtn = document.getElementById("btnAllTime");
   if (allTimeBtn) allTimeBtn.classList.toggle("active", isAllTime);
+}
+
+/**
+ * Initializes Export Modal controls for Recruitment Dashboard.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ * @returns {Object} Modal control handles
+ */
+export function initRecruitmentExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportRecruitmentModal",
+    onFormatChange,
+    onRangeChange,
+  });
 }

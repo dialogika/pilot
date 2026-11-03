@@ -1001,21 +1001,12 @@ function computeLockState(task) {
 }
 
 function uiConfirm(title, text) {
-  return new Promise((resolve) => {
-    import("https://cdn.jsdelivr.net/npm/sweetalert2@11").then(
-      ({ default: Swal }) => {
-        Swal.fire({
-          title,
-          text,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#dc2626",
-          cancelButtonColor: "#64748b",
-          confirmButtonText: "Hapus",
-          cancelButtonText: "Batal",
-        }).then((r) => resolve(!!r.isConfirmed));
-      },
-    );
+  return ui.confirmAction({
+    title,
+    message: text,
+    confirmText: "Hapus",
+    cancelText: "Batal",
+    danger: true,
   });
 }
 

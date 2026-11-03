@@ -6,6 +6,7 @@
 //   or call window.DLGTheme.toggle() from your own handler.
 
 (function () {
+  if (window.DLGTheme) return;
   const STORAGE_KEY = "dlg-theme";
   const THEME = {
     get current() {
@@ -19,6 +20,7 @@
       }
       try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
       syncIcons();
+      syncLogos();
     },
     toggle() {
       this.apply(this.current === "dark" ? "light" : "dark");
@@ -40,6 +42,9 @@
     },
     syncIcons() {
       syncIcons();
+    },
+    syncLogos() {
+      syncLogos();
     }
   };
 
@@ -60,6 +65,28 @@
     });
   }
 
+  function syncLogos() {
+    const isDark = THEME.current === "dark";
+    document.querySelectorAll(".logo-center img").forEach((img) => {
+      if (img.classList.contains("logo-light") || img.classList.contains("logo-dark")) return;
+      if (isDark) {
+        if (!img.dataset.origSrc) img.dataset.origSrc = img.src;
+        img.src = "/assets/img/white-logo.webp";
+      } else if (img.dataset.origSrc) {
+        img.src = img.dataset.origSrc;
+      }
+    });
+  }
+
+  // Restore clean URL if redirected via 404 router
+  try {
+    const cleanPath = sessionStorage.getItem("dlg_clean_path");
+    if (cleanPath) {
+      sessionStorage.removeItem("dlg_clean_path");
+      window.history.replaceState(null, "", cleanPath);
+    }
+  } catch (e) {}
+
   window.DLGTheme = THEME;
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => THEME.init());
@@ -67,3 +94,4 @@
     THEME.init();
   }
 })();
+

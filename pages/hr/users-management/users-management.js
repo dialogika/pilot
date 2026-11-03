@@ -21,6 +21,7 @@ import {
   updateUser,
   updateUserRole,
   deleteUser,
+  exportUsersData,
 } from "./users-management.repository.js";
 
 import {
@@ -53,14 +54,24 @@ import {
   showDeleteModal,
   hideDeleteModal,
   wireModalCloseButtons,
+  wireSelectAllCheckbox,
+  setExportHandlers,
+  exportToExcel,
+  exportToPdf,
+  initUsersExportModal,
   notifySuccess,
   notifyError,
+  mountSidebarUsersManagementErdButton,
+  initUsersManagementErdModalControls,
 } from "./users-management.ui.js";
 
 let _users = [];
 let _positionsMap = {};
 let _searchQuery = "";
 let _roleFilter = "";
+let _statusFilter = "";
+let _sortFilter = "recent";
+let _datePreset = "last90";
 let _currentPage = 1;
 let _rowsPerPage = 10;
 let _activeModalType = null; // 'add' | 'edit'
@@ -90,6 +101,24 @@ function filteredUsers() {
     );
   }
 
+
+  if (_statusFilter) {
+    list = list.filter(
+      (u) => (u.status || "Active").toLowerCase() === _statusFilter.toLowerCase()
+    );
+  }
+
+  if (_sortFilter === "nameAsc") {
+    list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  } else if (_sortFilter === "nameDesc") {
+    list.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+  } else if (_sortFilter === "recent") {
+    list.sort((a, b) => {
+      const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      return tb - ta;
+    });
+  }
   return list;
 }
 
@@ -138,12 +167,83 @@ function wireEventHandlers() {
     refreshTable();
   });
 
-  // Role filter
-  setFiltersChangeHandler(({ role }) => {
+
+  // Role & filters
+  setFiltersChangeHandler(({ role, status, sort, datePreset }) => {
     _roleFilter = role || "";
+    _statusFilter = status || "";
+    _sortFilter = sort || "recent";
+    _datePreset = datePreset || "last90";
     resetPagination();
     refreshTable();
   });
+
+
+  // Select all row checkboxes
+  wireSelectAllCheckbox();
+
+  // Setup Universal Export Modal (Excel .xlsx & CSV .csv)
+  const exportControls = initUsersExportModal();
+  const exportForm = document.getElementById("exportUsersForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = _users.slice();
+
+        // Filter status
+        if (params.status) {
+          exportList = exportList.filter((u) => {
+            const rawStatus = (u.status || "").toLowerCase().trim();
+            return rawStatus === params.status;
+          });
+        }
+
+        // Filter date range
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((u) => {
+            const ts =
+              extractTimestamp(u.createdAt) ||
+              extractTimestamp(u.registered_at) ||
+              extractTimestamp(u.joined_at);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          notifyError("Tidak ada data user pada periode/filter yang dipilih.");
+          return;
+        }
+
+        await exportUsersData({
+          users: exportList,
+          format: params.format,
+          periodLabel,
+        });
+
+        exportControls.closeModal();
+        notifySuccess("Data user berhasil diexport!");
+      } catch (err) {
+        console.error("Export error:", err);
+        notifyError("Gagal mengekspor data user: " + err.message);
+      } finally {
+        exportControls.setLoading(false);
+      }
+    });
+  }
 
   // Rows per page
   setRowsPerPageChangeHandler((val) => {
@@ -375,6 +475,8 @@ function startDelete(userId) {
 async function _reload() {
   try {
     _users = await listUsers();
+
+    renderFilterRoleOptions({}, _users);
   } catch (err) {
     console.error("[UsersManagement] Failed to reload users:", err);
   }
@@ -403,9 +505,19 @@ export async function initialize() {
       `[UsersManagement] Loaded ${_users.length} users, ${Object.keys(_positionsMap).length} positions`
     );
 
+
+    const searchEl = document.getElementById("um-search");
+    if (searchEl) searchEl.value = "";
+    _searchQuery = "";
+
+    renderFilterRoleOptions({}, _users);
     wireModalCloseButtons();
     wireEventHandlers();
     refreshTable();
+
+    // Initialize ERD modal controls & mount sidebar button
+    mountSidebarUsersManagementErdButton();
+    initUsersManagementErdModalControls();
   } catch (err) {
     console.error("[UsersManagement] Failed to initialize:", err);
     renderError(err.message || "Failed to load Users Management");
@@ -417,6 +529,7 @@ async function initializeWithShell() {
   const { user, role } = await requireAuth();
   renderTopbar({ user, role });
   renderSidebar({ role, activePage: "users-management" });
+  mountSidebarUsersManagementErdButton();
   return initialize();
 }
 

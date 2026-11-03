@@ -6,6 +6,7 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopBar } from "../../../element/topbar.js";
 import { renderSidebar } from "../../../element/sidebar.js";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 import {
     persistCertificateLog,
     migrateLocalLogsToFirestoreIfNeeded,
@@ -13,6 +14,7 @@ import {
     deleteCertificateLogById,
     deleteCertificateLogsByIds,
     generateLogId,
+    exportCertificateData,
     CERT_LOG_STORAGE_KEY
 } from "./generate-certificate.repository.js";
 import {
@@ -47,7 +49,8 @@ import {
     svgStringToPngBlob,
     createEntryFilename,
     exportLogAsCsv,
-    exportLogAsExcel
+    exportLogAsExcel,
+    initCertificateExportModal
 } from "./generate-certificate.ui.js";
 
 // Ensure authenticated user before initializing page
@@ -330,7 +333,10 @@ async function deleteSingleLogFromUi(logId) {
     }
 
     const confirmText = `Hapus log ini?\n\nInvoice: ${found.invoice}\nNama: ${found.recipientName}\nTanggal: ${found.createdAt}`;
-    const confirmed = window.confirm(confirmText);
+    const confirmed = await confirmDialog(confirmText, {
+        title: "Hapus Log Sertifikat",
+        confirmText: "Ya, Hapus"
+    });
     if (!confirmed) return;
 
     const previous = logState.logs.slice();
@@ -359,7 +365,10 @@ async function deleteFilteredLogsFromUi() {
     }
 
     const confirmText = `Hapus ${ids.length} log sesuai filter saat ini?\n\nTindakan ini tidak dapat dibatalkan.`;
-    const confirmed = window.confirm(confirmText);
+    const confirmed = await confirmDialog(confirmText, {
+        title: "Hapus Log Terfilter",
+        confirmText: "Ya, Hapus Semua"
+    });
     if (!confirmed) return;
 
     const previous = logState.logs.slice();
@@ -814,6 +823,29 @@ downloadPngBtn?.addEventListener('click', () => {
         setStatus(batchStatus, `Gagal download PNG: ${error.message}`, 'error');
     });
 });
+
+// Export Certificate Data
+const certExportControls = initCertificateExportModal();
+const certExportForm = document.getElementById("exportCertificateForm");
+if (certExportForm && certExportControls) {
+    certExportForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        certExportControls.setLoading(true);
+        try {
+            const formData = certExportControls.getFormData();
+            await exportCertificateData(formData);
+            const modalEl = document.getElementById("exportCertificateModal");
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getInstance(modalEl)?.hide();
+            }
+        } catch (err) {
+            console.error("Export certificate error:", err);
+            alertDialog("Gagal mengekspor data sertifikat: " + err.message);
+        } finally {
+            certExportControls.setLoading(false);
+        }
+    });
+}
 
 // Preload certificate background template
 fetch('/template.png')

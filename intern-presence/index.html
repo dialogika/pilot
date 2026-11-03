@@ -26,7 +26,7 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f1f7fd;
+            background: var(--bg-body, #f1f7fd);
             color: var(--text-strong);
         }
         .premium-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04); }
@@ -51,6 +51,146 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        /* --- Dark Mode Overrides for Intern Presence --- */
+        [data-theme="dark"] body {
+            background-color: var(--bg-body) !important;
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] .glass {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4) !important;
+        }
+        [data-theme="dark"] .glass h2,
+        [data-theme="dark"] .glass h3 {
+            color: var(--text-strong) !important;
+        }
+        [data-theme="dark"] .glass p.text-3xl {
+            color: var(--text-strong) !important;
+        }
+        [data-theme="dark"] .glass .text-slate-700 {
+            color: var(--text-strong) !important;
+        }
+        [data-theme="dark"] .glass .text-slate-500 {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] #subtitleText {
+            color: var(--icon-blue, #60a5fa) !important;
+        }
+        [data-theme="dark"] .bg-slate-100\/60 {
+            background-color: var(--surface-2) !important;
+            border-color: var(--border) !important;
+        }
+        [data-theme="dark"] #filterDate {
+            background-color: var(--surface-2) !important;
+            border-color: var(--border) !important;
+            color: var(--text-strong) !important;
+            color-scheme: dark;
+        }
+        [data-theme="dark"] #btnClearFilter {
+            background-color: var(--surface-2) !important;
+            border-color: var(--border) !important;
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] #btnClearFilter:hover {
+            background-color: var(--surface-hover) !important;
+        }
+        [data-theme="dark"] .bg-\[\#0B2B6A\]\/10 {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            color: #60a5fa !important;
+        }
+        [data-theme="dark"] .bg-amber-50 {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+        }
+        [data-theme="dark"] .bg-emerald-50 {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+        }
+        [data-theme="dark"] .bg-slate-900 {
+            background-color: var(--surface-2) !important;
+            border: 1px solid var(--border) !important;
+        }
+        [data-theme="dark"] .border-slate-100\/60 {
+            border-color: var(--border-soft) !important;
+        }
+        [data-theme="dark"] #attendanceBody tr:hover {
+            background-color: var(--surface-hover) !important;
+        }
+        [data-theme="dark"] #attendanceBody {
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] #attendanceBody .text-slate-900 {
+            color: var(--text-strong) !important;
+        }
+        [data-theme="dark"] #attendanceBody .text-slate-600 {
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] #attendanceBody .text-slate-500 {
+            color: var(--text-muted) !important;
+        }
+        [data-theme="dark"] #btnShowAllMatrix {
+            background-color: var(--surface-2) !important;
+            border-color: var(--border) !important;
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] #btnShowAllMatrix:hover {
+            background-color: var(--surface-hover) !important;
+        }
+        [data-theme="dark"] #topPerformersList .text-sm {
+            color: var(--text-strong) !important;
+        }
+        [data-theme="dark"] #topPerformersList .bg-slate-200 {
+            background-color: var(--surface-hover) !important;
+            color: var(--text-strong) !important;
+        }
+
+        /* Matrix dots & Activity bar in Dark Mode */
+        [data-theme="dark"] #attendanceBody .bg-\[\#0B2B6A\] {
+            background-color: #60a5fa !important;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.6) !important;
+        }
+        [data-theme="dark"] #attendanceBody div.h-full.bg-\[\#0B2B6A\] {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
+            box-shadow: none !important;
+        }
+        [data-theme="dark"] #attendanceBody .bg-slate-200 {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: none !important;
+        }
+        [data-theme="dark"] #attendanceBody .bg-slate-100 {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        [data-theme="dark"] #attendanceBody .border-white {
+            border-color: var(--border) !important;
+        }
+        [data-theme="dark"] #attendanceBody tr:hover .group-hover\:text-\[\#0B2B6A\] {
+            color: #60a5fa !important;
+        }
+        [data-theme="dark"] #loadingSpinner {
+            border-color: #60a5fa !important;
+            border-top-color: transparent !important;
+        }
+        [data-theme="dark"] .glass h3.text-\[\#0B2B6A\] {
+            color: #60a5fa !important;
+        }
+        [data-theme="dark"] #topPerformersList .bg-\[\#0B2B6A\] {
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4) !important;
+        }
+        [data-theme="dark"] .glass button.bg-slate-900 {
+            background-color: var(--surface-2) !important;
+            color: var(--text-strong) !important;
+            border: 1px solid var(--border) !important;
+        }
+        [data-theme="dark"] .glass button.bg-slate-900:hover {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -67,9 +207,9 @@
                     <span class="active-pulse"></span>
                     <span class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">Rekap Kehadiran Internship</span>
                 </div>
-                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">
-                    Presensi Internship
-                    <span class="text-[#0B2B6A] text-base align-middle" id="subtitleText">Live recap</span>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight flex items-baseline gap-3 flex-wrap">
+                    <span>Presensi Internship</span>
+                    <span class="text-[#0B2B6A] text-base font-semibold" id="subtitleText">Live recap</span>
                 </h1>
             </div>
             <div class="flex flex-col items-stretch gap-3">
@@ -516,10 +656,12 @@
                 });
                 return ids.size;
             });
+            const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+            const strokeColor = isDark ? "#60a5fa" : "#0B2B6A";
             const ctx = canvas.getContext("2d");
             const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, "rgba(11, 43, 106, 0.4)");
-            gradient.addColorStop(1, "rgba(11, 43, 106, 0)");
+            gradient.addColorStop(0, isDark ? "rgba(96, 165, 250, 0.35)" : "rgba(11, 43, 106, 0.4)");
+            gradient.addColorStop(1, isDark ? "rgba(96, 165, 250, 0)" : "rgba(11, 43, 106, 0)");
             if (eliteChartInstance) {
                 eliteChartInstance.destroy();
             }
@@ -531,10 +673,10 @@
                         {
                             label: "Kehadiran",
                             data: data,
-                            borderColor: "#0B2B6A",
+                            borderColor: strokeColor,
                             borderWidth: 4,
-                            pointBackgroundColor: "#fff",
-                            pointBorderColor: "#0B2B6A",
+                            pointBackgroundColor: isDark ? "#1e293b" : "#fff",
+                            pointBorderColor: strokeColor,
                             pointBorderWidth: 3,
                             pointRadius: 6,
                             fill: true,
@@ -548,7 +690,14 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { display: false, beginAtZero: true },
-                        x: { grid: { display: false }, border: { display: false } }
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: {
+                                color: isDark ? "#94a3b8" : "#64748b",
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }
+                            }
+                        }
                     }
                 }
             });

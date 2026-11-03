@@ -19,6 +19,12 @@ import {
   onSnapshot,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 export const INVENTORY_COLLECTION = "inventory";
 
@@ -216,3 +222,93 @@ export async function updateInventory(id, itemData) {
 export async function deleteInventory(id) {
   await deleteDoc(doc(db, INVENTORY_COLLECTION, id));
 }
+
+/**
+ * Export inventory data based on modal filter options.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportInventoryData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const snap = await getDocs(
+    query(collection(db, INVENTORY_COLLECTION), orderBy("created_at", "desc")),
+  );
+
+  const raw = [];
+  snap.forEach((d) => {
+    raw.push({ id: d.id, ...d.data() });
+  });
+
+  const filtered = raw.filter((item) => {
+    if (status && status !== "" && String(item.status || "").toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    if (start && end) {
+      const ts = extractTimestamp(item.tanggal_beli || item.created_at);
+      if (!ts) return false;
+      const itemDate = new Date(ts);
+      if (itemDate < start || itemDate > end) return false;
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Kode Barang", key: "idGenerated", width: 22 },
+    { header: "Nama Barang", key: "namaBarang", width: 28 },
+    { header: "Kategori", key: "kategori", width: 20 },
+    { header: "Lokasi", key: "lokasi", width: 20 },
+    { header: "Tanggal Pembelian", key: "tanggalBeli", width: 18 },
+    { header: "Tipe Pembelian", key: "tipePembelian", width: 16 },
+    { header: "Kondisi", key: "kondisi", width: 16 },
+    { header: "Jumlah (Qty)", key: "jumlah", width: 14 },
+    { header: "Status", key: "status", width: 16 },
+  ];
+
+  const rows = filtered.map((item, idx) => ({
+    no: idx + 1,
+    idGenerated: item.id_generated || "-",
+    namaBarang: item.nama_barang || "-",
+    kategori: item.kategori_label || KATEGORI_MAP[item.kategori_kode] || item.kategori_kode || "-",
+    lokasi: item.lokasi_label || LOKASI_MAP[item.lokasi_kode] || item.lokasi_kode || "-",
+    tanggalBeli: formatDateIndo(item.tanggal_beli) || "-",
+    tipePembelian: item.tipe_pembelian || "-",
+    kondisi: item.kondisi || "-",
+    jumlah: Number(item.jumlah || 1),
+    status: (item.status || "Available").toUpperCase(),
+  }));
+
+  const filename = `Data_Inventaris_Kantor_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Inventaris Kantor",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

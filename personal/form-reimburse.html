@@ -15,7 +15,9 @@
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link href="../assets/css/theme.css" rel="stylesheet" />
     <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="../assets/js/theme.js" defer></script>
     <style>
 
         .form-panel {
@@ -137,6 +139,66 @@
             background-color: #f0fdf4;
             color: #16a34a;
             border: 1px solid #bbf7d0;
+        }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .form-panel {
+            background-color: var(--surface);
+            box-shadow: var(--shadow-card);
+        }
+
+        [data-theme="dark"] .field-control {
+            background-color: var(--surface-toolbar);
+            color: var(--text-strong);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .field-control:focus {
+            background-color: var(--surface);
+            border-color: var(--dlg-blue);
+        }
+
+        [data-theme="dark"] .field-readonly {
+            background-color: var(--surface-hover);
+            color: var(--text-muted);
+        }
+
+        [data-theme="dark"] .proof-preview {
+            background-color: var(--surface-toolbar);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .history-card {
+            background-color: var(--surface-toolbar) !important;
+            border-color: var(--border) !important;
+        }
+
+        [data-theme="dark"] .history-title {
+            color: var(--text-strong) !important;
+        }
+
+        [data-theme="dark"] .status-requested {
+            background-color: rgba(217, 119, 6, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        [data-theme="dark"] .status-paid {
+            background-color: rgba(22, 163, 74, 0.15);
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+
+        [data-theme="dark"] .status-reviewing {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+
+        [data-theme="dark"] .status-rejected {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.3);
         }
 
         /* Fade Transition */
@@ -334,15 +396,15 @@
                             Belum ada riwayat pengajuan reimburse.
                         </div>
                         <div v-else class="d-flex flex-column gap-3" style="max-height: calc(100vh - 200px); overflow-y: auto;">
-                            <div v-for="expense in myExpenses" :key="expense.id" class="p-3 bg-light rounded-3 d-flex flex-column gap-2" style="border: 1px solid #e2e8f0;">
+                            <div v-for="expense in myExpenses" :key="expense.id" class="p-3 bg-light rounded-3 d-flex flex-column gap-2 history-card" style="border: 1px solid var(--border, #e2e8f0);">
                                 <div class="d-flex justify-content-between align-items-start gap-2">
-                                    <p class="fw-bold mb-0 text-dark" style="line-height: 1.2;">{{ expense.title }}</p>
+                                    <p class="fw-bold mb-0 text-dark history-title" style="line-height: 1.2;">{{ expense.title }}</p>
                                     <span :class="['status-badge', statusBadgeClass(expense.status)]">
                                         {{ displayStatus(expense.status) }}
                                     </span>
                                 </div>
                                 <div class="text-muted" style="font-size:0.75rem">
-                                    <i class="bi bi-calendar-event me-1"></i> {{ expense.formattedDate }} &bull; <span class="fw-bold mono text-dark">{{ formatCurrency(expense.amount) }} IDR</span>
+                                    <i class="bi bi-calendar-event me-1"></i> {{ expense.formattedDate }} &bull; <span class="fw-bold mono text-dark history-title">{{ formatCurrency(expense.amount) }} IDR</span>
                                 </div>
                                 <div v-if="(expense.status === 'paid' || expense.status === 'complete') && expense.transferProofUrl" class="mt-1 pt-2 border-top">
                                     <a :href="expense.transferProofUrl" target="_blank" class="text-decoration-none text-success fw-bold" style="font-size: 0.75rem;">
@@ -441,13 +503,21 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                 const myExpenses = ref([]);
                 const loadingHistory = ref(false);
 
+                const getTodayIso = () => {
+                    const today = new Date();
+                    const y = today.getFullYear();
+                    const m = String(today.getMonth() + 1).padStart(2, '0');
+                    const d = String(today.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                };
+
                 const createEmptyForm = () => ({
                     title: '',
                     category: 'reimburse', // Locked to reimburse
                     department: 'General',
                     requesterId: '',
                     requesterName: '',
-                    dueDate: '',
+                    dueDate: getTodayIso(),
                     amount: 0,
                     status: 'requested', // Initial status
                     beneficiaryName: '',
@@ -611,7 +681,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                             department: String(form.value.department || 'General').trim(),
                             requesterId: String(form.value.requesterId || '').trim(),
                             requesterName: String(form.value.requesterName || '').trim(),
-                            dueDate: String(form.value.dueDate || '').trim(),
+                            dueDate: String(form.value.dueDate || getTodayIso()).trim(),
                             amount: Number(form.value.amount) || 0,
                             status: 'requested', // Explicitly set to requested
                             beneficiaryName: String(form.value.beneficiaryName || '').trim(),

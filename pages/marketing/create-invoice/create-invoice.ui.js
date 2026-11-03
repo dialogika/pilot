@@ -3,6 +3,8 @@
  * Presentation and DOM Rendering Layer (Zero Firestore queries) for Create Invoice.
  */
 
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
+
 let invoiceExpiryTicker = null;
 
 // ==========================================
@@ -1100,3 +1102,16 @@ export function closeDiscountCalculatorModal() {
   const modal = document.getElementById("discountCalculatorModal");
   if (modal) modal.classList.add("hidden");
 }
+
+export function initInvoiceExportModal() {
+  return setupExportModalControls({
+    modalId: "exportInvoiceModal",
+    formatInputId: "exportInvoiceFormat",
+    rangeInputId: "exportInvoiceRange",
+    customDateContainerId: "exportInvoiceCustomDateContainer",
+    startDateInputId: "exportInvoiceStartDate",
+    endDateInputId: "exportInvoiceEndDate",
+    submitBtnId: "btnSubmitExportInvoice",
+  });
+}
+

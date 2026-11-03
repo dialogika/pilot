@@ -61,12 +61,15 @@ export function buildSidebarHTML(role, activePage) {
       return;
     }
 
+    const isDashboard = item.id === "dashboard";
+    const isActive = activePage ? activePage === item.id : isDashboard;
+
     if (item.toggle) {
       const submenuHtml = (item.submenu || [])
         .map((s) => `<a href="${s.href}" class="sidebar-submenu-link">${s.label}</a>`)
         .join("");
       navHtml += `
-        <a href="${item.href}" class="sidebar-link active" onclick="window.toggleDashboardMenu(this)"${gateAttr}>
+        <a href="${item.href}" class="sidebar-link${isActive ? " active" : ""}" onclick="window.toggleDashboardMenu(this)"${gateAttr}>
           <i class="bi ${item.icon}"></i> ${item.label}${badgeSpan}
           <span class="sidebar-badge"><i class="bi bi-arrow-left-square-fill" id="dashboardIcon"></i></span>
         </a>
@@ -74,7 +77,7 @@ export function buildSidebarHTML(role, activePage) {
       return;
     }
 
-    navHtml += `<a href="${item.href}" class="sidebar-link"${gateAttr}${devAttr}><i class="bi ${item.icon}"></i> ${item.label}${badgeSpan}</a>`;
+    navHtml += `<a href="${item.href}" class="sidebar-link${isActive ? " active" : ""}"${gateAttr}${devAttr}><i class="bi ${item.icon}"></i> ${item.label}${badgeSpan}</a>`;
   });
 
   return `

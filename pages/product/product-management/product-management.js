@@ -7,12 +7,14 @@
 import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
+import { alertDialog } from "../../../assets/js/ui.js";
 
 import {
   subscribeToProducts,
   fetchProducts,
   saveProduct,
   deleteProduct,
+  exportProductData,
   FALLBACK_PRODUCTS,
 } from "./product-management.repository.js";
 
@@ -36,6 +38,9 @@ import {
   addSpecificationItem,
   addOutcomeItem,
   executeRichCommand,
+  initProductExportModal,
+  initErdModalControls,
+  mountSidebarErdButton,
 } from "./product-management.ui.js";
 
 let allProducts = [];
@@ -52,6 +57,7 @@ async function initialize() {
     // Render shared app shell
     renderTopbar({ user, role });
     renderSidebar({ role, activePage: "product-management" });
+    mountSidebarErdButton();
 
     // Show table loading state
     renderLoading();
@@ -226,6 +232,32 @@ function setupEventListeners() {
   // Delete Modal Confirmation
   document.getElementById("btnCancelDelete")?.addEventListener("click", closeDeleteModal);
   document.getElementById("btnConfirmDelete")?.addEventListener("click", handleConfirmDelete);
+
+  // Standard Export Modal Controls
+  const productExportControls = initProductExportModal();
+  const productExportForm = document.getElementById("exportProductForm");
+  if (productExportForm && productExportControls) {
+    productExportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      productExportControls.setLoading(true);
+      try {
+        const formData = productExportControls.getFormData();
+        await exportProductData(formData);
+        const modalEl = document.getElementById("exportProductModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export product error:", err);
+        alertDialog("Gagal mengekspor data produk: " + err.message);
+      } finally {
+        productExportControls.setLoading(false);
+      }
+    });
+  }
+
+  // Database Mapping & ERD Modal Controls
+  initErdModalControls();
 }
 
 /**
@@ -237,12 +269,18 @@ async function handleSaveProduct(e) {
   const { isEdit, productId, data } = getFormData();
 
   if (!productId) {
-    alert("Product Unique ID is required.");
+    alertDialog("Product Unique ID is required.", {
+      title: "Peringatan",
+      type: "warning"
+    });
     return;
   }
 
   if (!isEdit && allProducts.some((p) => p.product_id === productId)) {
-    alert(`Product with ID '${productId}' already exists! Please use another ID.`);
+    alertDialog(`Product with ID '${productId}' already exists! Please use another ID.`, {
+      title: "Peringatan",
+      type: "warning"
+    });
     return;
   }
 
@@ -265,7 +303,10 @@ async function handleSaveProduct(e) {
     showToast(isEdit ? "Data Synced with Database" : "New Product Registered");
   } catch (error) {
     console.error("Gagal menyimpan produk:", error);
-    alert("Gagal menyimpan produk: " + (error.message || error));
+    alertDialog("Gagal menyimpan produk: " + (error.message || error), {
+      title: "Gagal",
+      type: "danger"
+    });
   } finally {
     setButtonLoading(submitBtn, false, isEdit ? "Push Changes" : "Register Product");
   }
@@ -292,7 +333,10 @@ async function handleConfirmDelete() {
     showToast("Product Deleted");
   } catch (error) {
     console.error("Gagal menghapus produk:", error);
-    alert("Gagal menghapus produk: " + (error.message || error));
+    alertDialog("Gagal menghapus produk: " + (error.message || error), {
+      title: "Gagal",
+      type: "danger"
+    });
   } finally {
     setButtonLoading(confirmBtn, false, "Delete Product");
   }

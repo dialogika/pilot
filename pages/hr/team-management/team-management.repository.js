@@ -288,3 +288,56 @@ export async function deleteTeamMember(id) {
   const docRef = doc(db, TEAM_COLLECTION, id);
   return await deleteDoc(docRef);
 }
+
+/**
+ * Export Team Members list to Excel or CSV.
+ * @param {Object} options
+ * @param {Array<Object>} options.members
+ * @param {string} options.format
+ * @param {string} options.periodLabel
+ */
+export async function exportTeamData({
+  members = [],
+  format = "xlsx",
+  periodLabel = "Semua_Data",
+}) {
+  const { downloadExportFile, formatDateIndo } = await import(
+    "../../../assets/js/utils/export-helper.js"
+  );
+
+  const columns = [
+    { header: "No", key: "no", width: 6 },
+    { header: "ID Anggota", key: "id", width: 22 },
+    { header: "Nama Lengkap", key: "name", width: 24 },
+    { header: "Divisi", key: "division", width: 20 },
+    { header: "Posisi / Role", key: "role", width: 20 },
+    { header: "Tipe Kontrak", key: "contractType", width: 16 },
+    { header: "Status", key: "status", width: 14 },
+    { header: "No. WhatsApp", key: "whatsapp", width: 18 },
+    { header: "Email", key: "email", width: 26 },
+    { header: "Tanggal Mulai", key: "startDate", width: 18 },
+    { header: "Tanggal Selesai", key: "endDate", width: 18 },
+  ];
+
+  const rowsData = members.map((item, idx) => ({
+    no: idx + 1,
+    id: item.id || "-",
+    name: item.name || "-",
+    division: item.division || "-",
+    role: item.role || item.position || "-",
+    contractType: item.contractType || "-",
+    status: item.status || "Active",
+    whatsapp: item.whatsapp || "-",
+    email: item.email || "-",
+    startDate: formatDateIndo(item.startDate || item.createdAt),
+    endDate: formatDateIndo(item.endDate),
+  }));
+
+  await downloadExportFile({
+    filename: `Team_Management_${periodLabel}`,
+    sheetName: "Team Members",
+    columns,
+    rowsData,
+    format,
+  });
+}

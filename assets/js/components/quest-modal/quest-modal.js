@@ -885,7 +885,14 @@ async function handleBulkDelete() {
     ? "Apakah Anda yakin ingin menghapus 1 task yang dipilih?"
     : `Apakah Anda yakin ingin menghapus ${count} task yang dipilih secara massal? Tindakan ini tidak dapat dibatalkan.`;
 
-  if (!confirm(msg)) return;
+  const ok = await ui.confirmAction({
+    title: "Hapus Task Terpilih",
+    message: msg,
+    confirmText: "Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (!ok) return;
 
   ui.setBulkDeleteButtonBusy(true);
   try {
@@ -1047,7 +1054,14 @@ async function handleQuestFormSubmit(e) {
 }
 
 async function confirmDeleteTask(taskId) {
-  if (confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+  const ok = await ui.confirmAction({
+    title: "Hapus Item",
+    message: "Apakah Anda yakin ingin menghapus item ini?",
+    confirmText: "Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
+  if (ok) {
     try {
       await repo.deleteTask(taskId);
       ui.notifySuccess("Item berhasil dihapus.");

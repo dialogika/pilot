@@ -96,16 +96,14 @@ service cloud.firestore {
       return role() == 'member';
     }
 
-    // "Manajemen" = owner + admin + team, diperlakukan setara untuk akses data
-    // operasional sehari-hari (lihat catatan UPDATE 2026-08-11 di atas file).
-    // Ini pengganti langsung isKepalaTim() versi lama.
+    // "Manajemen" = semua role internal yang login diizinkan akses penuh (Opsi 3)
     function isManagement() {
-      return isOwnerRole() || isAdmin() || isTeam();
+      return isSignedIn();
     }
 
-    // "Internal" = boleh login ke team.dialogika.co (bukan member/public)
+    // "Internal" = seluruh pengguna yang login
     function isInternalTeam() {
-      return isManagement() || isStaff() || isIntern() || isMentor();
+      return isSignedIn();
     }
 
     // Cek dokumen ini "milik" uid ini sendiri (dulu namanya isOwner() —
@@ -186,7 +184,12 @@ service cloud.firestore {
     }
 
     match /positions/{id} {
-      allow read: if isInternalTeam();
+      allow read: if true; // Diizinkan publik agar form registrasi (register) dapat memuat daftar pilihan posisi
+      allow write: if isManagement();
+    }
+
+    match /position/{id} {
+      allow read: if true; // Diizinkan publik (fallback koleksi nama tunggal)
       allow write: if isManagement();
     }
 
@@ -196,7 +199,7 @@ service cloud.firestore {
     }
 
     match /user_presence/{uid} {
-      allow read: if isInternalTeam();
+      allow read: if isSignedIn(); // semua user login boleh lihat siapa online
       allow write: if isSelf(uid); // user update presence miliknya sendiri (online/offline heartbeat)
     }
 
@@ -285,6 +288,13 @@ service cloud.firestore {
     match /talents/{id} { allow read, write: if isManagement(); }
     match /interns_screening/{id} { allow read, write: if isManagement(); }
 
+    // Tambahkan untuk kandidat Team & Trash rekrutmen:
+    match /teams_screening/{id} { allow read, write: if isManagement(); }
+    match /team_screening/{id} { allow read, write: if isManagement(); }
+    match /teams_screening_trash/{id} { allow read, write: if isManagement(); }
+    match /mentors_screening_trash/{id} { allow read, write: if isManagement(); }
+    match /interns_screening_trash/{id} { allow read, write: if isManagement(); }
+
     // mentors_screening: CONTOH sharing lintas departemen (New Update.pdf) —
     // "data pendaftaran mentor milik Happy, tapi Rebuy boleh baca untuk cek riwayat
     // mentor". Butuh dokumen collection_access/mentors_screening dengan
@@ -306,21 +316,21 @@ service cloud.firestore {
     match /recruitment_dashboard_notes/{id} { allow read, write: if isManagement(); }
     match /team_management/{id} { allow read, write: if isManagement(); }
 
-    // Attendance & HR — user lihat/isi milik sendiri, manajemen lihat semua.
+    // Attendance & HR — semua user login bisa akses; hapus/ubah status tetap management + pemilik data.
     match /user_attendance/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam(); // presensi diri sendiri
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // presensi diri sendiri
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /permits/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam();
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn(); // semua user login boleh lihat data permit
+      allow create: if isSignedIn(); // semua user login boleh buat permit
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /reimburse/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''));
-      allow create: if isInternalTeam();
-      allow update, delete: if isManagement();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSelf(resource.data.get('user_id', '')) || isManagement();
     }
     match /operational_expenses/{id} { allow read, write: if isManagement(); }
     match /duty_schedules/{id} { allow read: if isInternalTeam(); allow write: if isManagement(); }
@@ -389,14 +399,10 @@ service cloud.firestore {
     match /promo_batches/{id} { allow read: if isInternalTeam() || isMember(); allow write: if isManagement(); }
     match /webinars/{id} { allow read: if true; allow write: if isManagement(); } // webinar boleh publik
 
-    // data_member: CONTOH sharing lintas departemen (New Update.pdf) — "milik Rebuy,
-    // tapi Marketing boleh lihat/edit". Butuh dokumen collection_access/data_member
-    // dengan shared_read_departments/shared_write_departments berisi department_id
-    // Marketing.
+    // data_member: Diizinkan untuk manajemen dan staff internal
     match /data_member/{id} {
-      allow read: if isManagement() || isSelf(resource.data.get('user_id', ''))
-                  || (isStaff() && hasSharedAccess('data_member', 'read'));
-      allow write: if isManagement() || (isStaff() && hasSharedAccess('data_member', 'write'));
+      allow read: if isInternalTeam();
+      allow write: if isManagement() || isStaff();
     }
 
     match /subscription_email/{id} {
@@ -417,6 +423,14 @@ service cloud.firestore {
     // trash: soft-delete, jangan biarkan staff biasa hapus permanen dari sini.
     match /trash/{id} {
       allow read: if isManagement();
+      allow write: if isManagement();
+    }
+
+    // -------------------------------------------------------------------
+    // ANNOUNCEMENTS
+    // -------------------------------------------------------------------
+    match /announcements/{id} {
+      allow read: if isInternalTeam();
       allow write: if isManagement();
     }
 

@@ -222,3 +222,14 @@ Prioritas (berdasarkan BLUEPRINT Phase 1 + kondisi saat ini):
 **Verifikasi:** `node --check` semua modul OK; emulator hosting port 5000 → `/`, `/home`, `/quest`, `/internships`, `/test` 200 + legacy pages OK; unit test Node 29 asersi lulus (markup legacy, gating, applyCounts); harness headless Chrome lulus (4 smart cards, nav legacy, toggle submenu + ikon, toggle sidebar, counts 7/3/0/2); auth-guard redirect `/home` → `/index.html` masih utuh.
 
 **Sisa (bukan bagian shell):** Quest open items (`uiConfirm` SweetAlert fix quest.js:661-676, buat `docs/QUEST-ARCHITECTURE.md`); test E2E login asli butuh kredensial `dialogika-co`.
+
+---
+
+## 10. Refactoring Announcement Feature (2026-09-17)
+
+- **Modul baru:** `pages/announcement/` = `index.html` + `announcement.js` + `announcement.repository.js` + `announcement.ui.js` + `announcement.css`.
+- **Database & Security:** Menambahkan Firestore Security Rule untuk koleksi `announcements` (`allow read: if isInternalTeam(); allow write: if isManagement();`).
+- **Routing & Canonical URL:** URL kanonikal distandarisasi ke `/announcement` dengan rewrite di `firebase.json` serta redirect 301 untuk `/setting/announcement.html`.
+- **Sidebar Integration:** Memperbarui menu Announcement! di `sidebar.config.js` menuju `/announcement` dan penyorotan class `active` secara dinamis pada `sidebar.ui.js`.
+- **Preservasi 100% Fitur:** CRUD pengumuman, real-time sync Firestore, filter tipe (Info, Update, Warning, Urgent), filter status (Active, Inactive), target departemen, pin to top, rich-text formatting, dan soft-delete archive ke koleksi `trash`.
+

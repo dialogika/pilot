@@ -7,6 +7,8 @@
 //  - Handles DOM templates, rendering statistics, table rows, and details sub-modal.
 // =====================================================================
 
+import { toast, confirmDialog } from "../../ui.js";
+
 function escapeHtml(value) {
   return (value || "")
     .toString()
@@ -169,10 +171,15 @@ export function ensureReportModalDOM() {
                 <option value="60">60 / page</option>
               </select>
             </div>
-            <div id="dgReportActionBtnWrap">
-              <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn">
-                <i class="bi bi-check-all"></i> Approve all
+            <div class="dg-report-actions-wrap">
+              <button type="button" class="dg-report-btn-export" id="dgReportBtnExport" title="Export data laporan saat ini (Excel .xlsx)">
+                <i class="bi bi-file-earmark-spreadsheet"></i> <span>Export</span>
               </button>
+              <div id="dgReportActionBtnWrap">
+                <button type="button" class="dg-report-btn-approve-all" id="dgReportApproveAllBtn">
+                  <i class="bi bi-check-all"></i> Approve all
+                </button>
+              </div>
             </div>
           </div>
 
@@ -585,7 +592,7 @@ export function renderTable(reports, usersMap, callbacks = {}, bulkMode = false,
 
 export function openInNewTab(url, name) {
   if (!url || url === "#") {
-    alert("Tautan file tidak tersedia.");
+    toast("Tautan file tidak tersedia.", "warning");
     return;
   }
 
@@ -742,7 +749,7 @@ export function openAttachment(file) {
   }
 
   if (!rawUrl || rawUrl === "#") {
-    alert("Tautan file tidak tersedia atau rusak.");
+    toast("Tautan file tidak tersedia atau rusak.", "warning");
     return;
   }
 
@@ -896,17 +903,17 @@ export function openDetailModal(report, mode, usersMap) {
 
           if (isImage && rawUrl) {
             return `
-              <div class="dg-detail-file-card js-btn-open-file" data-file-idx="${idx}" onclick="window.dgOpenAttachmentByIndex && window.dgOpenAttachmentByIndex(${idx})" style="display:inline-flex;align-items:center;gap:0.6rem;padding:0.4rem 0.75rem;border:1px solid #cbd5e1;border-radius:0.5rem;background:#ffffff;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.15s ease;">
-                <img src="${escapeAttr(rawUrl)}" alt="${escapeAttr(name)}" style="width:34px;height:34px;object-fit:cover;border-radius:0.375rem;border:1px solid #e2e8f0;background:#f8fafc;" />
+              <div class="dg-detail-file-card js-btn-open-file" data-file-idx="${idx}" onclick="window.dgOpenAttachmentByIndex && window.dgOpenAttachmentByIndex(${idx})" style="display:inline-flex;align-items:center;gap:0.6rem;padding:0.4rem 0.75rem;border:1px solid var(--border, #cbd5e1);border-radius:0.5rem;background:var(--surface, #ffffff);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);transition:all 0.15s ease;">
+                <img src="${escapeAttr(rawUrl)}" alt="${escapeAttr(name)}" style="width:34px;height:34px;object-fit:cover;border-radius:0.375rem;border:1px solid var(--border, #e2e8f0);background:var(--surface-muted, #f8fafc);" />
                 <div style="display:flex;flex-direction:column;text-align:left;">
-                  <span style="font-size:0.8rem;font-weight:600;color:#1e293b;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</span>
-                  <span style="font-size:0.7rem;color:#0284c7;font-weight:500;"><i class="bi bi-eye"></i> Klik untuk preview</span>
+                  <span style="font-size:0.8rem;font-weight:600;color:var(--text, #1e293b);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</span>
+                  <span style="font-size:0.7rem;color:#38bdf8;font-weight:500;"><i class="bi bi-eye"></i> Klik untuk preview</span>
                 </div>
               </div>
             `;
           }
 
-          return `<button type="button" class="btn btn-sm btn-outline-secondary js-btn-open-file" data-file-idx="${idx}" onclick="window.dgOpenAttachmentByIndex && window.dgOpenAttachmentByIndex(${idx})" style="padding:0.4rem 0.85rem;font-size:0.8rem;border:1px solid #cbd5e1;border-radius:0.5rem;background:#ffffff;color:#1e293b;display:inline-flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all 0.15s ease;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+          return `<button type="button" class="btn btn-sm btn-outline-secondary js-btn-open-file" data-file-idx="${idx}" onclick="window.dgOpenAttachmentByIndex && window.dgOpenAttachmentByIndex(${idx})" style="padding:0.4rem 0.85rem;font-size:0.8rem;border:1px solid var(--border, #cbd5e1);border-radius:0.5rem;background:var(--surface, #ffffff);color:var(--text, #1e293b);display:inline-flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all 0.15s ease;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.1);">
             <i class="bi ${icon}"></i>
             <span>${escapeHtml(name)}</span>
           </button>`;
@@ -1005,6 +1012,22 @@ export function closeDetailModal() {
 export function getDetailFeedbackText() {
   const input = document.getElementById("dgDetailFeedbackInput");
   return input ? input.value.trim() : "";
+}
+
+export function notifySuccess(msg) {
+  toast(msg, "success");
+}
+
+export function notifyError(msg) {
+  toast(msg, "error");
+}
+
+export function notifyInfo(msg) {
+  toast(msg, "info");
+}
+
+export function confirmAction(opts) {
+  return confirmDialog(opts);
 }
 
 if (typeof window !== "undefined") {

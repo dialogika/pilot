@@ -24,9 +24,9 @@
 // =====================================================================
 
 export const NAV_ROLE_GATE = {
-  shortcut: ["owner", "admin", "team"],
-  pings: ["owner", "admin", "team"],
-  "system-settings": ["owner", "admin"],
+  shortcut: ["owner", "admin", "team", "staff", "intern", "mentor", "member"],
+  pings: ["owner", "admin", "team", "staff", "intern", "mentor", "member"],
+  "system-settings": ["owner", "admin", "team", "staff", "intern", "mentor", "member"],
 };
 
 /**
@@ -36,11 +36,7 @@ export const NAV_ROLE_GATE = {
  * @returns {boolean}
  */
 export function roleCanShow(gateKey, role) {
-  if (!gateKey) return true;
-  const allowed = NAV_ROLE_GATE[gateKey];
-  if (!allowed) return true;
-  if (!role) return false;
-  return allowed.includes(role);
+  return true;
 }
 
 /** Single legacy nav (same for every role; gated items are hidden). */
@@ -82,7 +78,7 @@ export const MENU = [
   {
     id: "announcement",
     label: "Announcement!",
-    href: "/setting/announcement.html",
+    href: "/announcement",
     icon: "bi-bell",
     badge: "hey",
   },
@@ -101,6 +97,12 @@ export const MENU = [
     icon: "bi-person-circle",
     badge: "my-stuff",
     underDevelopment: true,
+  },
+  {
+    id: "file-manager",
+    label: "File Manager",
+    href: "/file-manager",
+    icon: "bi-folder2-open",
   },
   { section: "System" },
   {

@@ -5,6 +5,7 @@
 // =====================================================================
 
 import { PUBLIC_URL_MAP } from "./product-management.repository.js";
+import { setupExportModalControls } from "../../../assets/js/utils/export-helper.js";
 
 function escapeHtml(str) {
   if (!str) return "";
@@ -804,3 +805,386 @@ export function setButtonLoading(button, isLoading, defaultHtml = "") {
     if (prev) button.innerHTML = prev;
   }
 }
+
+/**
+ * Initializes Standard Export Modal for Product Management.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ */
+export function initProductExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportProductModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+
+/**
+ * Initializes Database Mapping and ERD Schema Modal Controls.
+ */
+export function initErdModalControls() {
+  const tabVisualBtn = document.getElementById("tabBtnErdVisual");
+  const tabDictBtn = document.getElementById("tabBtnErdDict");
+  const tabSqlBtn = document.getElementById("tabBtnErdSql");
+
+  const panelVisual = document.getElementById("erdTabVisualContent");
+  const panelDict = document.getElementById("erdTabDictContent");
+  const panelSql = document.getElementById("erdTabSqlContent");
+
+  const allTabs = [
+    { btn: tabVisualBtn, panel: panelVisual },
+    { btn: tabDictBtn, panel: panelDict },
+    { btn: tabSqlBtn, panel: panelSql },
+  ];
+
+  allTabs.forEach(({ btn, panel }) => {
+    if (!btn || !panel) return;
+    btn.addEventListener("click", () => {
+      allTabs.forEach((t) => {
+        if (t.btn) t.btn.classList.remove("active");
+        if (t.panel) {
+          t.panel.classList.remove("active");
+          t.panel.style.display = "none";
+        }
+      });
+      btn.classList.add("active");
+      panel.classList.add("active");
+      panel.style.display = "block";
+    });
+  });
+
+  // Data Dictionary Search & Filter
+  const searchInput = document.getElementById("erdDictSearchInput");
+  const tableFilter = document.getElementById("erdDictTableFilter");
+  const countBadge = document.getElementById("erdDictCountBadge");
+  const rows = document.querySelectorAll("#erdDictTableBody tr");
+
+  function filterDictionaryRows() {
+    const q = (searchInput?.value || "").toLowerCase().trim();
+    const selectedTable = tableFilter?.value || "all";
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+      const rowTable = row.getAttribute("data-table");
+      const matchTable = selectedTable === "all" || rowTable === selectedTable;
+      const textContent = row.textContent.toLowerCase();
+      const matchSearch = !q || textContent.includes(q);
+
+      if (matchTable && matchSearch) {
+        row.style.display = "";
+        visibleCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    if (countBadge) {
+      countBadge.textContent = `${visibleCount} Kolom`;
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", filterDictionaryRows);
+  }
+  if (tableFilter) {
+    tableFilter.addEventListener("change", filterDictionaryRows);
+  }
+
+  // Copy SQL Script Button
+  const btnCopySql = document.getElementById("btnCopySqlScript");
+  const btnCopyText = document.getElementById("btnCopySqlText");
+  const sqlContent = document.getElementById("sqlScriptContent");
+
+  if (btnCopySql && sqlContent) {
+    btnCopySql.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(sqlContent.textContent || "");
+        if (btnCopyText) btnCopyText.textContent = "Tersalin!";
+        showToast("Script SQL DDL berhasil disalin ke clipboard!");
+        setTimeout(() => {
+          if (btnCopyText) btnCopyText.textContent = "Salin Script SQL";
+        }, 2500);
+      } catch (err) {
+        console.error("Gagal menyalin SQL:", err);
+      }
+    });
+  }
+
+  // Copy Obsidian Docs Path Button
+  const btnCopyDocs = document.getElementById("btnCopyDocsPath");
+  if (btnCopyDocs) {
+    btnCopyDocs.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("docs/PRODUCT-DATABASE-MAPPING.md");
+        showToast("Path docs/PRODUCT-DATABASE-MAPPING.md tersalin!");
+      } catch (e) {
+        console.error("Gagal menyalin path:", e);
+      }
+    });
+  }
+
+  // =====================================================================
+  // DYNAMIC SVG RELATIONS (LINES & ARROWS)
+  // =====================================================================
+  const wrapper = document.getElementById("erdDiagramWrapper");
+  const svgGroup = document.getElementById("erdPathsGroup");
+  const originAnchor = document.getElementById("erdOriginProductsId");
+
+  const relationConfigs = [
+    {
+      id: "curriculums",
+      targetAnchor: document.getElementById("erdTargetCurriculumsId"),
+      card: document.getElementById("cardCurriculums"),
+      color: "#10b981",
+      marker: "url(#erdArrowEmerald)",
+      label: "1 : N (product_id)",
+      y1Offset: -10,
+      tBadge: 0.35,
+    },
+    {
+      id: "features",
+      targetAnchor: document.getElementById("erdTargetFeaturesId"),
+      card: document.getElementById("cardFeatures"),
+      color: "#f59e0b",
+      marker: "url(#erdArrowAmber)",
+      label: "1 : N (product_id)",
+      y1Offset: -3,
+      tBadge: 0.58,
+    },
+    {
+      id: "outcomes",
+      targetAnchor: document.getElementById("erdTargetOutcomesId"),
+      card: document.getElementById("cardOutcomes"),
+      color: "#3b82f6",
+      marker: "url(#erdArrowBlue)",
+      label: "1 : N (product_id)",
+      y1Offset: 4,
+      tBadge: 0.42,
+    },
+    {
+      id: "specs",
+      targetAnchor: document.getElementById("erdTargetSpecsId"),
+      card: document.getElementById("cardSpecs"),
+      color: "#a855f7",
+      marker: "url(#erdArrowPurple)",
+      label: "1 : N (product_id)",
+      y1Offset: 11,
+      tBadge: 0.65,
+    },
+  ];
+
+  let currentActiveRel = "all";
+
+  function getBezierPoint(t, p0, p1, p2, p3) {
+    const mt = 1 - t;
+    const mt2 = mt * mt;
+    const mt3 = mt2 * mt;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return {
+      x: mt3 * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t3 * p3.x,
+      y: mt3 * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t3 * p3.y,
+    };
+  }
+
+  function drawErdRelations() {
+    if (!wrapper || !svgGroup || !originAnchor) return;
+
+    const wrapRect = wrapper.getBoundingClientRect();
+    if (wrapRect.width === 0 || wrapRect.height === 0) return;
+
+    if (window.innerWidth < 1024) {
+      svgGroup.innerHTML = "";
+      return;
+    }
+
+    const origRect = originAnchor.getBoundingClientRect();
+
+    // Origin point: Right edge center of products.id row
+    const x1 = origRect.right - wrapRect.left;
+    const y1 = origRect.top + origRect.height / 2 - wrapRect.top;
+
+    let svgHtml = "";
+
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.targetAnchor) return;
+      const tgtRect = cfg.targetAnchor.getBoundingClientRect();
+      if (tgtRect.width === 0) return;
+
+      const isSideBySide = tgtRect.left > origRect.left + 50;
+      let d = "";
+      let midX = 0;
+      let midY = 0;
+
+      if (isSideBySide) {
+        // Target: Left edge center of child product_id row
+        const x2 = tgtRect.left - wrapRect.left;
+        const y2 = tgtRect.top + tgtRect.height / 2 - wrapRect.top;
+        const startY = y1 + (cfg.y1Offset || 0);
+        const dx = Math.max(40, (x2 - x1) * 0.45);
+        d = `M ${x1} ${startY} C ${x1 + dx} ${startY}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        const p0 = { x: x1, y: startY };
+        const p1 = { x: x1 + dx, y: startY };
+        const p2 = { x: x2 - dx, y: y2 };
+        const p3 = { x: x2, y: y2 };
+        const badgePos = getBezierPoint(cfg.tBadge || 0.5, p0, p1, p2, p3);
+        midX = badgePos.x;
+        midY = badgePos.y;
+      } else {
+        // Stacked (Mobile view)
+        const x1B = origRect.left + origRect.width / 2 - wrapRect.left;
+        const y1B = origRect.bottom - wrapRect.top;
+        const x2T = tgtRect.left + tgtRect.width / 2 - wrapRect.left;
+        const y2T = tgtRect.top - wrapRect.top;
+        const dy = Math.max(25, (y2T - y1B) * 0.4);
+        d = `M ${x1B} ${y1B} C ${x1B} ${y1B + dy}, ${x2T} ${y2T - dy}, ${x2T} ${y2T}`;
+        midX = (x1B + x2T) / 2;
+        midY = (y1B + y2T) / 2;
+      }
+
+      const isCurrentActive = currentActiveRel === "all" || currentActiveRel === cfg.id;
+      const opacity = isCurrentActive ? 1 : 0.12;
+      const strokeWidth = isCurrentActive && currentActiveRel !== "all" ? 3 : 2;
+
+      svgHtml += `
+        <g class="erd-relation-path-group" data-rel-id="${cfg.id}" style="opacity: ${opacity};">
+          <!-- Glow halo -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="7" fill="none" opacity="0.18" stroke-linecap="round" />
+          <!-- Animated connecting line -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="${strokeWidth}" fill="none" 
+            marker-start="url(#erdDotStart)" marker-end="${cfg.marker}" 
+            stroke-dasharray="6 3" class="erd-relation-path" />
+          <!-- Center badge -->
+          <g transform="translate(${midX}, ${midY})">
+            <rect x="-34" y="-9" width="68" height="18" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+            <text x="0" y="3.5" text-anchor="middle" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" fill="${cfg.color}">
+              1 : N
+            </text>
+          </g>
+        </g>
+      `;
+    });
+
+    svgGroup.innerHTML = svgHtml;
+
+    // Attach click to each SVG path group
+    svgGroup.querySelectorAll(".erd-relation-path-group").forEach((grp) => {
+      grp.addEventListener("click", () => {
+        const relId = grp.getAttribute("data-rel-id");
+        if (relId) setActiveRelation(relId === currentActiveRel ? "all" : relId);
+      });
+    });
+  }
+
+  function setActiveRelation(relId) {
+    currentActiveRel = relId;
+
+    // Update Pills
+    document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+      const pRel = pill.getAttribute("data-rel");
+      if (pRel === relId) {
+        pill.classList.add("active");
+      } else {
+        pill.classList.remove("active");
+      }
+    });
+
+    // Update Card Highlight states
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.card) return;
+      if (relId === "all") {
+        cfg.card.classList.remove("relation-highlight", "relation-faded");
+      } else if (cfg.id === relId) {
+        cfg.card.classList.add("relation-highlight");
+        cfg.card.classList.remove("relation-faded");
+      } else {
+        cfg.card.classList.remove("relation-highlight");
+        cfg.card.classList.add("relation-faded");
+      }
+    });
+
+    drawErdRelations();
+  }
+
+  // Relation Filter Pills Click
+  document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const rel = pill.getAttribute("data-rel") || "all";
+      setActiveRelation(rel);
+    });
+  });
+
+  // Modal Shown Event Listener
+  const erdModalEl = document.getElementById("erdMappingModal");
+  if (erdModalEl) {
+    erdModalEl.addEventListener("shown.bs.modal", () => {
+      setTimeout(drawErdRelations, 80);
+    });
+  }
+
+  // Tab switch redraw
+  tabVisualBtn?.addEventListener("click", () => {
+    setTimeout(drawErdRelations, 80);
+  });
+
+  // Window resize redraw (debounced)
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawErdRelations, 100);
+  });
+
+  // Initial draw
+  setTimeout(drawErdRelations, 300);
+}
+
+/**
+ * Mounts the Database Mapping button exclusively to the sidebar
+ * when Product Management is active.
+ */
+export function mountSidebarErdButton() {
+  const sidebarWrapper = document.querySelector("#dg-sidebar-mount .sidebar-scroll-wrapper");
+  if (!sidebarWrapper) return;
+
+  // Prevent duplicate mounts
+  if (document.getElementById("sidebarBtnErd")) return;
+
+  const linkEl = document.createElement("a");
+  linkEl.href = "javascript:void(0)";
+  linkEl.className = "sidebar-link";
+  linkEl.id = "sidebarBtnErd";
+  linkEl.setAttribute("data-bs-toggle", "modal");
+  linkEl.setAttribute("data-bs-target", "#erdMappingModal");
+  linkEl.setAttribute("role", "button");
+  linkEl.innerHTML = `
+    <i class="bi bi-database text-indigo-600"></i>
+    <span>Database</span>
+    <span class="sidebar-badge">
+      <span class="badge bg-indigo-100 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">ERD</span>
+    </span>
+  `;
+
+  // Place inside MAIN NAVIGATION right after "My Stuff" (or right before "SYSTEM" category)
+  const links = Array.from(sidebarWrapper.querySelectorAll(".sidebar-link"));
+  const myStuffLink = links.find((link) => link.textContent.includes("My Stuff"));
+
+  if (myStuffLink) {
+    myStuffLink.insertAdjacentElement("afterend", linkEl);
+  } else {
+    const navCategories = Array.from(sidebarWrapper.querySelectorAll(".nav-category"));
+    const systemCategory = navCategories.find((cat) => cat.textContent.trim().toUpperCase() === "SYSTEM");
+    if (systemCategory) {
+      sidebarWrapper.insertBefore(linkEl, systemCategory);
+    } else {
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        sidebarWrapper.insertBefore(linkEl, logoutBtn);
+      } else {
+        sidebarWrapper.appendChild(linkEl);
+      }
+    }
+  }
+}
+
+

@@ -588,6 +588,103 @@ function handleOpenReimburseDetail(groupKey) {
   ui.openModal("reimburseDetailModal");
 }
 
+// --- Excel / CSV Export Orchestration ---
+let currentExportPeriodMode = "month";
+let currentExportFileFormat = "xlsx";
+
+function extractDateString(val) {
+  if (!val) return "";
+  if (typeof val === "object" && typeof val.toDate === "function") {
+    return ui.formatDateToYMD(val.toDate());
+  }
+  if (val instanceof Date) {
+    return ui.formatDateToYMD(val);
+  }
+  if (typeof val === "number") {
+    return ui.formatDateToYMD(new Date(val));
+  }
+  const str = String(val).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    return str.slice(0, 10);
+  }
+  const parsed = new Date(str);
+  if (!Number.isNaN(parsed.getTime())) {
+    return ui.formatDateToYMD(parsed);
+  }
+  return "";
+}
+
+function isDateInRange(dateVal, startStr, endStr) {
+  if (!startStr && !endStr) return true;
+  const targetStr = extractDateString(dateVal);
+  if (!targetStr) return false;
+  if (startStr && targetStr < startStr) return false;
+  if (endStr && targetStr > endStr) return false;
+  return true;
+}
+
+function handleOpenExportModal(defaultScope = "permit") {
+  const scopeSelect = document.getElementById("exportDataScope");
+  if (scopeSelect) {
+    scopeSelect.value = defaultScope;
+  }
+  currentExportFileFormat = "xlsx";
+  ui.setExportFileFormat("xlsx");
+  ui.updateExportStatusBoxVisibility(defaultScope);
+  ui.setExportPeriodMode("month");
+  currentExportPeriodMode = "month";
+  ui.openModal("exportExcelModal");
+}
+
+async function performExcelExport() {
+  const scopeSelect = document.getElementById("exportDataScope");
+  const scope = scopeSelect ? scopeSelect.value : "permit";
+  const statusFilterSelect = document.getElementById("exportStatusFilter");
+  const statusFilter = statusFilterSelect
+    ? String(statusFilterSelect.value || "").toLowerCase().trim()
+    : "all";
+
+  const monthInput = document.getElementById("exportMonthInput");
+  const monthVal = monthInput ? monthInput.value : "";
+  const weekStartInput = document.getElementById("exportWeekStart");
+  const weekEndInput = document.getElementById("exportWeekEnd");
+  const weekStart = weekStartInput ? weekStartInput.value : "";
+  const weekEnd = weekEndInput ? weekEndInput.value : "";
+
+  const submitBtn = document.getElementById("exportExcelModalSubmit");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengekspor...`;
+  }
+
+  try {
+    const result = await repo.exportPermitReimburseData({
+      scope,
+      format: currentExportFileFormat,
+      periodMode: currentExportPeriodMode,
+      statusFilter,
+      monthVal,
+      weekStart,
+      weekEnd,
+      allPermits,
+      allReimburse
+    });
+
+    ui.closeModal("exportExcelModal");
+    ui.showToast(`Berhasil mengekspor ${result.count || ""} data ke ${result.filename}!`);
+  } catch (error) {
+    console.error("[PermitExport] Export failed:", error);
+    ui.showToast(error.message || "Gagal mengekspor data.", "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      const submitText = document.getElementById("exportSubmitBtnText");
+      const currentText = submitText?.textContent || "Download Excel (.xlsx)";
+      submitBtn.innerHTML = `<i class="bi bi-download"></i> <span id="exportSubmitBtnText">${currentText}</span>`;
+    }
+  }
+}
+
 // --- Setup Global Listeners ---
 function setupEventListeners() {
   // Tab buttons
@@ -622,6 +719,13 @@ function setupEventListeners() {
       applyReimburseFilters();
     });
   }
+
+  // Export Buttons & Modal
+  document.getElementById("btnExportExcelPermit")?.addEventListener("click", () => handleOpenExportModal("permit"));
+  document.getElementById("btnExportExcelReimburse")?.addEventListener("click", () => handleOpenExportModal("reimburse"));
+  document.getElementById("exportExcelModalClose")?.addEventListener("click", () => ui.closeModal("exportExcelModal"));
+  document.getElementById("exportExcelModalCancel")?.addEventListener("click", () => ui.closeModal("exportExcelModal"));
+  document.getElementById("exportExcelModalSubmit")?.addEventListener("click", performExcelExport);
 
   // Modal Closures
   document.querySelectorAll(".modal-close-btn").forEach((btn) => {
@@ -663,6 +767,15 @@ async function init() {
     renderSidebar({ role, activePage: "permit-reimburse" });
 
     setupEventListeners();
+    ui.initExportModalUI(
+      (_scope) => {},
+      (mode) => {
+        currentExportPeriodMode = mode;
+      },
+      (format) => {
+        currentExportFileFormat = format;
+      }
+    );
 
     // Subscribe to Live Permits
     repo.subscribeToPermits(

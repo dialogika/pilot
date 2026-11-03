@@ -13,6 +13,7 @@ import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
 import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as ScoutingRepo from "./scouting.repository.js";
 import * as ScoutingUI from "./scouting.ui.js";
@@ -46,9 +47,12 @@ const state = {
 function getFilteredTalents() {
   let result = state.talents.slice();
 
-  // Filter out records without radar in history (matching legacy logic)
+  // Filter out records without radar in history or current status (matching legacy logic)
   result = result.filter((t) => {
     const recruitment = t.recruitment_status || {};
+    const current = (recruitment.current || t.status || t.stage || "").toString().toLowerCase();
+    if (current === "radar") return true;
+
     const history = Array.isArray(recruitment.history)
       ? recruitment.history
       : [];
@@ -161,10 +165,11 @@ function setViewMode(mode) {
 async function loadTalents() {
   try {
     state.talents = await ScoutingRepo.listTalents();
-    applyFiltersAndRender();
   } catch (error) {
     console.error("Failed to load talents:", error);
+    state.talents = [];
   }
+  applyFiltersAndRender();
 }
 
 /**
@@ -205,7 +210,7 @@ async function handleOpenEditModal(talentId) {
   try {
     const talent = await ScoutingRepo.getTalentById(talentId);
     if (!talent) {
-      alert("Data kandidat tidak ditemukan.");
+      await alertDialog("Data kandidat tidak ditemukan.", { type: "warning", title: "Data Tidak Ditemukan" });
       return;
     }
 
@@ -285,7 +290,7 @@ async function handleOpenEditModal(talentId) {
     if (state.modalInstance) state.modalInstance.show();
   } catch (error) {
     console.error("Failed to load talent for edit:", error);
-    alert("Gagal memuat data kandidat untuk diedit.");
+    await alertDialog("Gagal memuat data kandidat untuk diedit.", { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -299,7 +304,7 @@ async function handleSubmitCandidateForm(event) {
 
   const name = document.getElementById("candidateNameInput").value.trim();
   if (!name) {
-    alert("Nama kandidat wajib diisi.");
+    await alertDialog("Nama kandidat wajib diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -355,10 +360,10 @@ async function handleSubmitCandidateForm(event) {
 
     if (state.modalInstance) state.modalInstance.hide();
     await loadTalents();
-    alert(isEdit ? "Data kandidat berhasil diperbarui." : "Data kandidat berhasil disimpan.");
+    await alertDialog(isEdit ? "Data kandidat berhasil diperbarui." : "Data kandidat berhasil disimpan.", { type: "success", title: "Berhasil" });
   } catch (error) {
     console.error("Failed to save candidate:", error);
-    alert("Gagal menyimpan data kandidat: " + error.message);
+    await alertDialog("Gagal menyimpan data kandidat: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
     ScoutingUI.setPhotoState("error", "Gagal menyimpan foto");
   } finally {
     if (submitBtn) submitBtn.disabled = false;
@@ -371,7 +376,12 @@ async function handleSubmitCandidateForm(event) {
  */
 async function handleDeleteCandidate(talentId) {
   if (!talentId) return;
-  const ok = confirm("Hapus kandidat ini dari daftar scouting?");
+  const ok = await confirmDialog("Hapus kandidat ini dari daftar scouting?", {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
   if (!ok) return;
 
   try {
@@ -379,7 +389,7 @@ async function handleDeleteCandidate(talentId) {
     await loadTalents();
   } catch (error) {
     console.error("Failed to delete talent:", error);
-    alert("Gagal menghapus kandidat: " + error.message);
+    await alertDialog("Gagal menghapus kandidat: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -399,7 +409,7 @@ async function handleStatusChange(talentId, newStatus) {
     }
   } catch (error) {
     console.error("Failed to update status:", error);
-    alert("Gagal memperbarui status: " + error.message);
+    await alertDialog("Gagal memperbarui status: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -423,7 +433,128 @@ async function handleDueDateChange(talentId, dueIso) {
 }
 
 /**
- * Handle exporting scouting talents to Excel.
+ * Handle exporting scouting talents from the export modal form.
+ */
+async function handleExportSubmit(e) {
+  if (e) e.preventDefault();
+  ScoutingUI.setExportButtonLoading(true);
+
+  try {
+    const params = ScoutingUI.getExportFormData();
+    let startTimestamp = 0;
+    let endTimestamp = Number.MAX_SAFE_INTEGER;
+    let periodLabel = "Semua_Data";
+
+    if (params.rangeType === "month") {
+      const [yearStr, monthStr] = params.month.split("-");
+      const year = parseInt(yearStr, 10);
+      const monthIdx = parseInt(monthStr, 10) - 1;
+      const startDate = new Date(year, monthIdx, 1, 0, 0, 0, 0);
+      const endDate = new Date(year, monthIdx + 1, 0, 23, 59, 59, 999);
+      startTimestamp = startDate.getTime();
+      endTimestamp = endDate.getTime();
+      periodLabel = `${ScoutingUI.getMonthNameIndo(monthIdx)}_${year}`;
+    } else if (params.rangeType === "week") {
+      const [yearStr, monthStr] = params.weekMonth.split("-");
+      const year = parseInt(yearStr, 10);
+      const monthIdx = parseInt(monthStr, 10) - 1;
+      const weekVal = params.week;
+      const lastDayOfMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+      let startDay = 1;
+      let endDay = 7;
+      if (weekVal === 1) {
+        startDay = 1;
+        endDay = 7;
+      } else if (weekVal === 2) {
+        startDay = 8;
+        endDay = 14;
+      } else if (weekVal === 3) {
+        startDay = 15;
+        endDay = 21;
+      } else if (weekVal === 4) {
+        startDay = 22;
+        endDay = 28;
+      } else if (weekVal === 5) {
+        startDay = 29;
+        endDay = lastDayOfMonth;
+      }
+
+      const startDate = new Date(year, monthIdx, startDay, 0, 0, 0, 0);
+      const endDate = new Date(year, monthIdx, Math.min(endDay, lastDayOfMonth), 23, 59, 59, 999);
+      startTimestamp = startDate.getTime();
+      endTimestamp = endDate.getTime();
+      periodLabel = `Minggu_${weekVal}_${ScoutingUI.getMonthNameIndo(monthIdx)}_${year}`;
+    }
+
+    // Filter talents according to radar history, status filter, and date range
+    let exportTalents = state.talents.filter((t) => {
+      const recruitment = t.recruitment_status || {};
+      const history = Array.isArray(recruitment.history) ? recruitment.history : [];
+      const current = (recruitment.current || "radar").toString().toLowerCase().trim();
+      const hasRadarHistory =
+        current === "radar" ||
+        history.some((item) => {
+          const st = item?.status ? item.status.toString().toLowerCase() : "";
+          return st === "radar";
+        });
+      return hasRadarHistory;
+    });
+
+    // Filter status if specified
+    if (params.status && params.status !== "all") {
+      exportTalents = exportTalents.filter((t) => {
+        const recruitment = t.recruitment_status || {};
+        const current = (recruitment.current || "radar").toString().toLowerCase().trim();
+        const mapped = ScoutingUI.mapToFilterStatus(current);
+        const mappedSelected = ScoutingUI.mapToFilterStatus(params.status);
+        return current === params.status || mapped === mappedSelected;
+      });
+    }
+
+    // Filter by timestamp if range is not "all"
+    if (params.rangeType !== "all") {
+      exportTalents = exportTalents.filter((t) => {
+        const ts = ScoutingRepo.getTalentTimestamp(t);
+        if (ts === null) return true;
+        return ts >= startTimestamp && ts <= endTimestamp;
+      });
+    }
+
+    if (!exportTalents.length) {
+      await alertDialog(
+        "Tidak ada data kandidat scouting pada periode / status yang dipilih.",
+        { type: "info", title: "Data Tidak Ditemukan" }
+      );
+      return;
+    }
+
+    await ScoutingRepo.exportScoutingTalents({
+      talents: exportTalents,
+      format: params.format,
+      assignUsersMap: state.assignUsersMap,
+      periodLabel,
+    });
+
+    // Close export modal
+    const modalEl = document.getElementById("exportCandidateModal");
+    if (modalEl && window.bootstrap) {
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+    }
+  } catch (error) {
+    console.error("Export error:", error);
+    await alertDialog("Gagal mengekspor data: " + error.message, {
+      type: "error",
+      title: "Terjadi Kesalahan",
+    });
+  } finally {
+    ScoutingUI.setExportButtonLoading(false);
+  }
+}
+
+/**
+ * Handle exporting scouting talents to Excel directly (legacy trigger compatibility).
  */
 async function handleExportExcel() {
   const btn = document.getElementById("btnExportExcel");
@@ -435,10 +566,15 @@ async function handleExportExcel() {
 
   try {
     const filtered = getFilteredTalents();
-    await ScoutingRepo.exportScoutingToExcel(filtered, state.assignUsersMap);
+    await ScoutingRepo.exportScoutingTalents({
+      talents: filtered,
+      format: "xlsx",
+      assignUsersMap: state.assignUsersMap,
+      periodLabel: "Semua_Data",
+    });
   } catch (error) {
     console.error("Excel export error:", error);
-    alert("Gagal mengekspor data: " + error.message);
+    await alertDialog("Gagal mengekspor data: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     btn.disabled = false;
     btn.innerHTML = prevHtml;
@@ -498,7 +634,12 @@ function wireEvents() {
   const form = document.getElementById("candidateAddForm");
   if (form) form.addEventListener("submit", handleSubmitCandidateForm);
 
-  // Export Excel button
+  // Export Candidate Modal UI & Form submit
+  ScoutingUI.initExportModalUI();
+  const exportForm = document.getElementById("exportCandidateForm");
+  if (exportForm) exportForm.addEventListener("submit", handleExportSubmit);
+
+  // Legacy Export Excel button (if present)
   const exportBtn = document.getElementById("btnExportExcel");
   if (exportBtn) exportBtn.addEventListener("click", handleExportExcel);
 
@@ -512,7 +653,7 @@ function wireEvents() {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
       if (file.size > 5 * 1024 * 1024) {
-        alert("Ukuran file maksimal 5MB.");
+        await alertDialog("Ukuran file maksimal 5MB.", { type: "warning", title: "Ukuran File Terlalu Besar" });
         photoInput.value = "";
         ScoutingUI.setPhotoState("error", "Ukuran melebihi 5MB");
         return;
@@ -641,6 +782,8 @@ async function init() {
     // 3. Mount Shell Topbar & Sidebar
     renderTopbar({ user, role: role || "member" });
     renderSidebar({ role: role || "member", activePage: "scouting-candidate" });
+    ScoutingUI.mountSidebarScoutingErdButton();
+    ScoutingUI.initScoutingErdModalControls();
 
     // 4. Load Auxiliary Lookups
     const [assignUsers, roles, positions] = await Promise.all([

@@ -13,7 +13,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="../assets/css/theme.css" rel="stylesheet" />
     <link href="../assets/css/style.css" rel="stylesheet" />
+    <script src="../assets/js/theme.js" defer></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
@@ -171,7 +173,256 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         }
-    
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .permit-root {
+            background-color: var(--bg-body) !important;
+            color: var(--text) !important;
+        }
+
+        [data-theme="dark"] .permit-root header h1,
+        [data-theme="dark"] .permit-root h2,
+        [data-theme="dark"] .permit-root h3,
+        [data-theme="dark"] .permit-root h4 {
+            color: var(--text-strong) !important;
+        }
+
+        [data-theme="dark"] .permit-root hr {
+            border-color: var(--border) !important;
+            opacity: 0.3;
+        }
+
+        [data-theme="dark"] .permit-root p {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .bg-white {
+            background-color: var(--surface) !important;
+            border-color: var(--border) !important;
+            box-shadow: var(--shadow-card) !important;
+        }
+
+        [data-theme="dark"] .bg-slate-50 {
+            background-color: var(--surface-toolbar) !important;
+            color: var(--text-strong) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        [data-theme="dark"] .bg-slate-50\/50 {
+            background-color: rgba(30, 41, 59, 0.45) !important;
+            border-color: var(--border) !important;
+        }
+
+        [data-theme="dark"] input[type="text"],
+        [data-theme="dark"] input[type="time"],
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            color-scheme: dark;
+            background-color: var(--surface-toolbar) !important;
+            color: var(--text-strong) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        [data-theme="dark"] input[type="text"]:focus,
+        [data-theme="dark"] input[type="time"]:focus,
+        [data-theme="dark"] select:focus,
+        [data-theme="dark"] textarea:focus {
+            border-color: var(--dlg-blue) !important;
+            background-color: var(--surface) !important;
+        }
+
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--text-faint-2) !important;
+        }
+
+        [data-theme="dark"] .text-slate-900,
+        [data-theme="dark"] .text-slate-800,
+        [data-theme="dark"] .text-slate-700 {
+            color: var(--text-strong) !important;
+        }
+
+        [data-theme="dark"] .text-slate-600,
+        [data-theme="dark"] .text-slate-500,
+        [data-theme="dark"] .text-slate-400 {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .border-slate-50,
+        [data-theme="dark"] .border-slate-100,
+        [data-theme="dark"] .border-slate-200 {
+            border-color: var(--border) !important;
+        }
+
+        [data-theme="dark"] .divide-slate-50 > :not([hidden]) ~ :not([hidden]) {
+            border-color: var(--border) !important;
+        }
+
+        [data-theme="dark"] select option {
+            background-color: var(--surface);
+            color: var(--text-strong);
+        }
+
+        [data-theme="dark"] .hover\:bg-slate-50\/50:hover,
+        [data-theme="dark"] .hover\:bg-slate-50:hover,
+        [data-theme="dark"] #permitHistoryList > div:hover {
+            background-color: var(--surface-hover) !important;
+        }
+
+        [data-theme="dark"] .shadow-xl,
+        [data-theme="dark"] .shadow-slate-200\/60,
+        [data-theme="dark"] .shadow-indigo-100 {
+            box-shadow: var(--shadow-card) !important;
+        }
+
+        [data-theme="dark"] .text-indigo-600 {
+            color: #818cf8 !important;
+        }
+
+        /* Status badge styling in dark mode */
+        [data-theme="dark"] .bg-amber-100 {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border: 1px solid rgba(251, 191, 36, 0.3) !important;
+        }
+        [data-theme="dark"] .text-amber-700 {
+            color: #fbbf24 !important;
+        }
+        [data-theme="dark"] .bg-green-100 {
+            background-color: rgba(34, 197, 94, 0.15) !important;
+            border: 1px solid rgba(74, 222, 128, 0.3) !important;
+        }
+        [data-theme="dark"] .text-green-700 {
+            color: #4ade80 !important;
+        }
+        [data-theme="dark"] .bg-red-100 {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(248, 113, 113, 0.3) !important;
+        }
+        [data-theme="dark"] .text-red-700 {
+            color: #f87171 !important;
+        }
+
+        /* History icon box styling in dark mode */
+        [data-theme="dark"] .bg-amber-50 {
+            background-color: rgba(245, 158, 11, 0.12) !important;
+        }
+        [data-theme="dark"] .text-amber-600 {
+            color: #fbbf24 !important;
+        }
+        [data-theme="dark"] .bg-green-50 {
+            background-color: rgba(34, 197, 94, 0.12) !important;
+        }
+        [data-theme="dark"] .text-green-600 {
+            color: #4ade80 !important;
+        }
+        [data-theme="dark"] .bg-red-50 {
+            background-color: rgba(239, 68, 68, 0.12) !important;
+        }
+        [data-theme="dark"] .text-red-600 {
+            color: #f87171 !important;
+        }
+
+        /* Flatpickr Calendar in dark mode */
+        [data-theme="dark"] .flatpickr-calendar {
+            background: var(--surface, #1e293b) !important;
+            border: 1px solid var(--border, #334155) !important;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45) !important;
+            color: var(--text-strong, #f8fafc) !important;
+        }
+        [data-theme="dark"] .flatpickr-calendar.arrowTop:before,
+        [data-theme="dark"] .flatpickr-calendar.arrowTop:after {
+            border-bottom-color: var(--surface, #1e293b) !important;
+        }
+        [data-theme="dark"] .flatpickr-calendar.arrowBottom:before,
+        [data-theme="dark"] .flatpickr-calendar.arrowBottom:after {
+            border-top-color: var(--surface, #1e293b) !important;
+        }
+        [data-theme="dark"] .flatpickr-months {
+            background: transparent !important;
+            border-bottom: 1px solid var(--border, #334155) !important;
+        }
+        [data-theme="dark"] .flatpickr-months .flatpickr-month,
+        [data-theme="dark"] .flatpickr-current-month,
+        [data-theme="dark"] .flatpickr-current-month .cur-month,
+        [data-theme="dark"] .flatpickr-current-month select.cur-month,
+        [data-theme="dark"] .flatpickr-current-month .cur-year,
+        [data-theme="dark"] .flatpickr-current-month input.cur-year {
+            color: var(--text-strong, #f8fafc) !important;
+            fill: var(--text-strong, #f8fafc) !important;
+            font-weight: 700 !important;
+        }
+        [data-theme="dark"] .flatpickr-current-month .numInputWrapper span.arrowUp:after {
+            border-bottom-color: var(--text-muted, #94a3b8) !important;
+        }
+        [data-theme="dark"] .flatpickr-current-month .numInputWrapper span.arrowDown:after {
+            border-top-color: var(--text-muted, #94a3b8) !important;
+        }
+        [data-theme="dark"] .flatpickr-months .flatpickr-prev-month,
+        [data-theme="dark"] .flatpickr-months .flatpickr-next-month {
+            color: var(--text-muted, #94a3b8) !important;
+            fill: var(--text-muted, #94a3b8) !important;
+        }
+        [data-theme="dark"] .flatpickr-months .flatpickr-prev-month:hover svg,
+        [data-theme="dark"] .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: var(--text-strong, #ffffff) !important;
+        }
+        [data-theme="dark"] span.flatpickr-weekday {
+            background: transparent !important;
+            color: var(--text-muted, #94a3b8) !important;
+            font-weight: 600 !important;
+        }
+        [data-theme="dark"] .flatpickr-day {
+            color: var(--text, #e2e8f0) !important;
+            border-radius: 8px !important;
+            border-color: transparent !important;
+        }
+        [data-theme="dark"] .flatpickr-day:hover,
+        [data-theme="dark"] .flatpickr-day:focus {
+            background: var(--surface-hover, #334155) !important;
+            border-color: var(--border, #475569) !important;
+            color: var(--text-strong, #f8fafc) !important;
+        }
+        [data-theme="dark"] .flatpickr-day.prevMonthDay,
+        [data-theme="dark"] .flatpickr-day.nextMonthDay {
+            color: var(--text-faint, #64748b) !important;
+        }
+        [data-theme="dark"] .flatpickr-day.today {
+            border-color: var(--dlg-blue, #60a5fa) !important;
+        }
+        [data-theme="dark"] .flatpickr-day.selected,
+        [data-theme="dark"] .flatpickr-day.startRange,
+        [data-theme="dark"] .flatpickr-day.endRange {
+            background: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        [data-theme="dark"] .flatpickr-day.inRange {
+            background: rgba(59, 130, 246, 0.25) !important;
+            border-color: transparent !important;
+            color: var(--text-strong, #f8fafc) !important;
+            box-shadow: -5px 0 0 rgba(59, 130, 246, 0.25), 5px 0 0 rgba(59, 130, 246, 0.25) !important;
+        }
+        /* File upload preview in dark mode */
+        [data-theme="dark"] #fileUploadPreview {
+            background-color: var(--surface-hover, #334155) !important;
+            border-color: var(--border, #475569) !important;
+        }
+        [data-theme="dark"] #filePreviewName {
+            color: var(--text-strong, #f8fafc) !important;
+        }
+        [data-theme="dark"] #filePreviewIcon {
+            background-color: rgba(99, 102, 241, 0.2) !important;
+            color: #a5b4fc !important;
+        }
+        [data-theme="dark"] #btnRemoveFile {
+            background-color: var(--surface, #1e293b) !important;
+            color: var(--text-muted, #94a3b8) !important;
+        }
+        [data-theme="dark"] #btnRemoveFile:hover {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            color: #f87171 !important;
+        }
 </style>
 
     <!-- Centralized Auth Guard -->
@@ -187,7 +438,7 @@
         <div id="sidebarContainer"></div>
 
         <main class="main-content">
-            <div class="permit-root text-slate-900 py-4 sm:py-6" style="background-color: #f1f7fd;">
+            <div class="permit-root text-slate-900 py-4 sm:py-6" style="background-color: var(--bg-body, #f1f7fd);">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <header class="mb-8 md:mb-10 text-start md:text-left">
                         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mb-2">Form Izin Mandiri</h1>
@@ -255,10 +506,12 @@
                                         <label for="permitFile"
                                             class="text-sm font-semibold text-slate-700 ml-1">Dokumen Pendukung
                                             (Opsional)</label>
-                                        <div
-                                            class="p-6 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 text-center">
+                                        <div id="fileUploadDropzone"
+                                            class="p-6 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 text-center relative transition">
                                             <input type="file" id="permitFile" class="hidden" accept=".pdf,image/*">
-                                            <label for="permitFile" class="cursor-pointer block">
+                                            
+                                            <!-- Default prompt -->
+                                            <label for="permitFile" id="fileUploadPrompt" class="cursor-pointer block">
                                                 <svg class="w-8 h-8 text-indigo-500 mx-auto mb-2" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -267,9 +520,24 @@
                                                     </path>
                                                 </svg>
                                                 <p class="text-sm font-medium text-slate-600">Klik untuk upload</p>
-                                                <p class="text-xs text-slate-400 mt-1">Format gambar atau PDF (Maks 2MB)
-                                                </p>
+                                                <p class="text-xs text-slate-400 mt-1">Format gambar atau PDF (Maks 2MB)</p>
                                             </label>
+
+                                            <!-- File selected preview -->
+                                            <div id="fileUploadPreview" class="hidden flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-200 text-left">
+                                                <div class="flex items-center gap-3 overflow-hidden">
+                                                    <div id="filePreviewIcon" class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-xs uppercase">
+                                                        FILE
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <p id="filePreviewName" class="text-sm font-bold text-slate-800 truncate">nama_file</p>
+                                                        <p id="filePreviewSize" class="text-xs text-slate-400">0 KB</p>
+                                                    </div>
+                                                </div>
+                                                <button type="button" id="btnRemoveFile" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-500 flex items-center justify-center transition flex-shrink-0" title="Hapus file">
+                                                    <i class="bi bi-x-lg text-xs"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -305,6 +573,7 @@
     <script type="module">
         import { renderTopBar } from "../element/topbar.js";
         import { renderSidebar } from "../element/sidebar.js";
+        import { alertDialog, toast } from "../assets/js/ui.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { app, auth, db, storage } from "../assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -487,6 +756,18 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                     if (endLabel && endLabel !== startLabel) subtitleParts.push(endLabel);
                     if (jenisLabel) subtitleParts.push(jenisLabel);
                     const subtitle = subtitleParts.join(" • ");
+
+                    const attachmentUrl = data.attachment_url || "";
+                    let attachmentHtml = "";
+                    if (attachmentUrl) {
+                        attachmentHtml = `
+                            <a href="${attachmentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:underline mt-1" title="Lihat Dokumen Pendukung">
+                                <i class="bi bi-paperclip"></i>
+                                <span>Lihat Dokumen</span>
+                            </a>
+                        `;
+                    }
+
                     const itemHtml = `
                         <div class="p-6 flex items-center justify-between hover:bg-slate-50 transition">
                             <div class="flex items-center gap-4">
@@ -498,6 +779,7 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                                 <div>
                                     <p class="text-sm font-bold text-slate-800">${title}</p>
                                     <p class="text-xs text-slate-500">${subtitle}</p>
+                                    ${attachmentHtml}
                                 </div>
                             </div>
                             <span class="px-3 py-1 ${badgeClass} text-[10px] font-bold rounded-full uppercase">${statusText}</span>
@@ -609,12 +891,89 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
             });
         }
 
+        function formatBytes(bytes, decimals = 1) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function updateFilePreview(file) {
+            const promptEl = document.getElementById("fileUploadPrompt");
+            const previewEl = document.getElementById("fileUploadPreview");
+            const nameEl = document.getElementById("filePreviewName");
+            const sizeEl = document.getElementById("filePreviewSize");
+            const iconEl = document.getElementById("filePreviewIcon");
+            const fileInputEl = document.getElementById("permitFile");
+
+            if (!promptEl || !previewEl) return;
+
+            if (!file) {
+                promptEl.classList.remove("hidden");
+                previewEl.classList.add("hidden");
+                previewEl.classList.remove("flex");
+                if (fileInputEl) fileInputEl.value = "";
+                return;
+            }
+
+            promptEl.classList.add("hidden");
+            previewEl.classList.remove("hidden");
+            previewEl.classList.add("flex");
+
+            if (nameEl) nameEl.textContent = file.name;
+            if (sizeEl) sizeEl.textContent = formatBytes(file.size);
+
+            const ext = (file.name.split(".").pop() || "FILE").toUpperCase();
+            if (iconEl) {
+                iconEl.textContent = ext.slice(0, 4);
+            }
+        }
+
+        const permitFileInput = document.getElementById('permitFile');
+        const btnRemoveFile = document.getElementById('btnRemoveFile');
+
+        if (permitFileInput) {
+            permitFileInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        alertDialog({
+                            title: "Batas Ukuran File",
+                            message: "Ukuran dokumen pendukung maksimal 2MB.",
+                            type: "warning"
+                        });
+                        permitFileInput.value = "";
+                        updateFilePreview(null);
+                        return;
+                    }
+                    updateFilePreview(file);
+                } else {
+                    updateFilePreview(null);
+                }
+            });
+        }
+
+        if (btnRemoveFile) {
+            btnRemoveFile.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (permitFileInput) permitFileInput.value = "";
+                updateFilePreview(null);
+            });
+        }
+
         if (permitForm) {
             permitForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 if (!auth.currentUser) {
-                    alert("Silakan login terlebih dahulu.");
+                    await alertDialog({
+                        title: "Perlu Login",
+                        message: "Silakan login terlebih dahulu untuk mengajukan perizinan.",
+                        type: "warning"
+                    });
                     return;
                 }
 
@@ -628,18 +987,30 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                 const permitHoursValue = formatPermitHoursRange(permitStartHour ? permitStartHour.value : "", permitEndHour ? permitEndHour.value : "");
 
                 if (!type || !selectedStartDate || !selectedEndDate || !reason) {
-                    alert("Mohon lengkapi minimal jenis izin, tanggal, dan alasan.");
+                    await alertDialog({
+                        title: "Data Belum Lengkap",
+                        message: "Mohon lengkapi minimal jenis izin, tanggal, dan alasan perizinan Anda.",
+                        type: "warning"
+                    });
                     return;
                 }
 
                 if (normalizedType === "half-day" && !permitHoursValue) {
-                    alert("Mohon lengkapi jam mulai dan jam selesai untuk izin setengah hari.");
+                    await alertDialog({
+                        title: "Jam Izin Belum Lengkap",
+                        message: "Mohon lengkapi jam mulai dan jam selesai untuk izin setengah hari.",
+                        type: "warning"
+                    });
                     return;
                 }
 
                 if (fileInput && fileInput.files && fileInput.files[0]) {
                     if (fileInput.files[0].size > 2 * 1024 * 1024) {
-                        alert("Ukuran dokumen pendukung maksimal 2MB.");
+                        await alertDialog({
+                            title: "Batas Ukuran File",
+                            message: "Ukuran dokumen pendukung maksimal 2MB.",
+                            type: "warning"
+                        });
                         return;
                     }
                 }
@@ -681,13 +1052,14 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                         permit_start_hour: normalizedType === "half-day" ? (permitStartHour ? permitStartHour.value || "" : "") : null,
                         permit_end_hour: normalizedType === "half-day" ? (permitEndHour ? permitEndHour.value || "" : "") : null,
                         reason,
-                        // attachment_name: fileName || null,
+                        attachment_name: fileName || null,
                         attachment_url: fileUrl || null,
                         status: "pending",
                         created_at: serverTimestamp()
                     });
 
                     permitForm.reset();
+                    updateFilePreview(null);
                     selectedStartDate = "";
                     selectedEndDate = "";
                     if (hoursWrapper) {
@@ -696,11 +1068,27 @@ import { app, auth, db, storage } from "../assets/js/firebase-config.js";
                     }
                     if (permitStartHour) permitStartHour.required = false;
                     if (permitEndHour) permitEndHour.required = false;
-                    if (fp) fp.set("mode", "range");
-                    alert("Permohonan izin berhasil dikirim.");
+                    if (fp) {
+                        fp.clear();
+                        fp.set("mode", "range");
+                    }
+
+                    // Muat ulang riwayat izin otomatis tanpa perlu refresh browser
+                    await loadUserPermitHistory(auth.currentUser.uid, { all: false });
+
+                    await alertDialog({
+                        title: "Permohonan Terkirim",
+                        message: "Permohonan izin Anda berhasil dikirim dan sedang menunggu persetujuan.",
+                        type: "success",
+                        buttonText: "Oke, Mengerti"
+                    });
                 } catch (err) {
                     console.error("Gagal mengirim permohonan izin", err);
-                    alert("Gagal mengirim permohonan izin. Coba lagi nanti.");
+                    await alertDialog({
+                        title: "Gagal Mengirim",
+                        message: "Gagal mengirim permohonan izin. Silakan coba lagi nanti.",
+                        type: "danger"
+                    });
                 } finally {
                     if (submitBtn) {
                         submitBtn.disabled = false;

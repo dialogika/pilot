@@ -23,13 +23,20 @@ const DEFAULT_PHOTO = "https://i.pravatar.cc/300";
 export function buildTopbarHTML() {
   return `
     <nav class="top-bar">
-        <div class="d-flex align-items-center">
-            <button class="mobile-toggle me-3" type="button" onclick="window.toggleSidebar && window.toggleSidebar()" aria-label="Toggle sidebar">
+        <div class="d-flex align-items-center gap-2">
+            <button class="mobile-toggle me-2" type="button" onclick="window.toggleSidebar && window.toggleSidebar()" aria-label="Toggle sidebar">
                 <i class="bi bi-list"></i>
             </button>
+            <div class="topbar-search-wrapper d-none d-md-flex align-items-center">
+                <i class="bi bi-search text-muted me-2" style="font-size: 0.85rem;"></i>
+                <input type="text" class="topbar-search-input" placeholder="Search..." aria-label="Search">
+            </div>
         </div>
         <div class="logo-center">
-            <a href="/home"><img src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;"></a>
+            <a href="/home">
+                <img class="logo-light" src="https://www.dialogika.co/assets/img/logo.webp" alt="Dialogika Logo" style="height:35px;">
+                <img class="logo-dark" src="/assets/img/white-logo.webp" alt="Dialogika Logo" style="height:35px;">
+            </a>
         </div>
         <div class="d-flex align-items-center gap-3">
             <div class="text-end d-none d-lg-block lh-1">
@@ -37,7 +44,7 @@ export function buildTopbarHTML() {
                 <small id="user-role-display" class="text-muted" style="font-size:0.7rem">User</small>
             </div>
             <button class="btn btn-outline-secondary btn-sm theme-toggle" type="button" title="Toggle dark/light mode" aria-label="Toggle theme">
-                <i class="bi bi-moon-stars" data-icon-dark="bi bi-moon-stars" data-icon-light="bi bi-sun"></i>
+                <i class="bi bi-moon-stars" data-icon-dark="bi bi-sun" data-icon-light="bi bi-moon-stars"></i>
             </button>
             <div class="profile-dropdown-wrapper">
                 <div class="profile-img-container" id="profileDropdownToggle">

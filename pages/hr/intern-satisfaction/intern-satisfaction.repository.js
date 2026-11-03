@@ -12,6 +12,12 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "/assets/js/utils/export-helper.js";
 
 const COLLECTION_NAME = "internship_satisfaction_survey";
 
@@ -121,3 +127,94 @@ export async function getUserPhotos(userIds) {
 
   return photoMap;
 }
+
+/**
+ * Export survey responses based on modal filters.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportSurveyData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const surveys = await getSurveys();
+
+  const filtered = surveys.filter((item) => {
+    if (start && end) {
+      const ts = extractTimestamp(item.created_at || item.timestamp);
+      if (!ts) return false;
+      const itemDate = new Date(ts);
+      if (itemDate < start || itemDate > end) return false;
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Nama Responden", key: "nama", width: 26 },
+    { header: "Divisi", key: "divisi", width: 22 },
+    { header: "Email", key: "email", width: 26 },
+    { header: "Tanggal Survey", key: "tanggal", width: 20 },
+    { header: "Skor Rata-Rata (/5)", key: "skor", width: 20 },
+    { header: "Persentase Kepuasan", key: "persen", width: 22 },
+    { header: "Alasan Mengakhiri / Feedback", key: "feedback", width: 45 },
+  ];
+
+  const rows = filtered.map((s, idx) => {
+    const ri = s.respondent_info || {};
+    let totalScore = 0;
+    let countScore = 0;
+    SURVEY_CATEGORIES.forEach((cat) => {
+      cat.ratings.forEach((r) => {
+        const val = s[cat.id]?.[r.id] ?? s[r.id];
+        if (typeof val === "number" && !isNaN(val)) {
+          totalScore += val;
+          countScore += 1;
+        }
+      });
+    });
+    const avgScore = countScore > 0 ? (totalScore / countScore).toFixed(2) : "-";
+    const pct = countScore > 0 ? `${Math.round((totalScore / countScore) * 20)}%` : "-";
+
+    return {
+      no: idx + 1,
+      nama: ri.nama || s.name || "-",
+      divisi: ri.divisi || s.division || "-",
+      email: ri.email || s.email || "-",
+      tanggal: formatDateIndo(s.created_at || s.timestamp, true) || "-",
+      skor: avgScore,
+      persen: pct,
+      feedback: s.alasan_mengakhiri || s.feedback || s.saran || "-",
+    };
+  });
+
+  const filename = `Data_Survey_Kepuasan_Intern_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Survey Kepuasan",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

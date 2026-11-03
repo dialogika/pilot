@@ -1,0 +1,228 @@
+/* Leads Management Scoped Styles */
+
+.settings-card {
+  background: var(--surface, #ffffff);
+  border-radius: 20px;
+  border: 1px solid var(--border-strong, #e2e8f0);
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
+}
+
+.settings-card h5 {
+  font-weight: 800;
+  color: var(--text-strong, #0f172a);
+}
+
+.settings-card small {
+  color: var(--text-muted, #64748b);
+}
+
+.card-elite {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border-soft, #f1f5f9);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.02),
+    0 8px 10px -6px rgba(0, 0, 0, 0.02);
+}
+
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  border-bottom: 1px solid #f3f4f6;
+  padding: 20px 30px;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.modal-title {
+  font-weight: 800;
+  color: #111;
+  font-size: 1.5rem;
+}
+
+.form-label {
+  font-weight: 700;
+  color: var(--text, #334155);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.form-control,
+.form-select {
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--dlg-blue, #0b2b6a);
+  box-shadow: 0 0 0 3px rgba(11, 43, 106, 0.1);
+}
+
+.input-focus {
+  transition: all 0.2s;
+  border: 1.5px solid var(--border, #e2e8f0);
+}
+
+.input-focus:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.swipe-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  cursor: grab;
+}
+
+.swipe-scroll:active {
+  cursor: grabbing;
+}
+
+.next-payment-scroll table {
+  min-width: 900px;
+}
+
+.upload-proof-scroll table {
+  min-width: 1100px;
+}
+
+.next-payment-table th,
+.next-payment-table td {
+  vertical-align: middle;
+}
+
+.next-payment-table th:nth-child(1),
+.next-payment-table td:nth-child(1) {
+  width: 22%;
+  min-width: 180px;
+}
+
+.next-payment-table th:nth-child(2),
+.next-payment-table td:nth-child(2) {
+  width: 24%;
+  min-width: 200px;
+}
+
+.next-payment-table th:nth-child(3),
+.next-payment-table td:nth-child(3) {
+  width: 14%;
+  min-width: 120px;
+}
+
+.next-payment-table th:nth-child(4),
+.next-payment-table td:nth-child(4) {
+  width: 14%;
+  min-width: 140px;
+}
+
+.next-payment-table th:nth-child(5),
+.next-payment-table td:nth-child(5) {
+  width: 14%;
+  min-width: 140px;
+}
+
+.next-payment-table th:nth-child(6),
+.next-payment-table td:nth-child(6) {
+  width: 12%;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES — leads-management.css
+   ===================================================================== */
+[data-theme="dark"] .settings-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .settings-card:hover {
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+}
+[data-theme="dark"] .settings-card h5 {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .settings-card small {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .card-elite {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .modal-title {
+  color: var(--text-strong);
+}
+[data-theme="dark"] .modal-header {
+  border-color: var(--border);
+}
+[data-theme="dark"] .modal-body .form-label {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  border-color: var(--icon-blue);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+[data-theme="dark"] .input-focus {
+  border-color: var(--border);
+  background-color: var(--surface);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .input-focus:focus {
+  border-color: var(--icon-blue);
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+}
+
+/* Scrollable table wrappers */
+[data-theme="dark"] .swipe-scroll {
+  scrollbar-color: var(--border-strong) transparent;
+}
+[data-theme="dark"] .swipe-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+[data-theme="dark"] .swipe-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Table cells in dark mode */
+[data-theme="dark"] .next-payment-table th {
+  background-color: var(--surface-toolbar);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+[data-theme="dark"] .next-payment-table td {
+  color: var(--text);
+  border-color: var(--border-soft);
+}
+[data-theme="dark"] .next-payment-table tbody tr:hover td {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+/* Page-level text */
+[data-theme="dark"] .page-title {
+  color: var(--text-strong);
+}

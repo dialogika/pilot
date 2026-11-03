@@ -40,8 +40,12 @@
     <style>
       body {
         font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-        background-color: var(--surface-hover, #f8fafc);
+        background-color: var(--bg-body, #f1f7fd);
         color: var(--text-strong, #0f172a);
+      }
+      [data-theme="dark"] body {
+        background-color: var(--bg-body, #0b1220) !important;
+        color: var(--text) !important;
       }
     </style>
   </head>

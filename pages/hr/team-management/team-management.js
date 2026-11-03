@@ -13,6 +13,7 @@ import { requireAuth } from "../../../assets/js/auth-guard.js";
 import { renderTopbar } from "../../../assets/js/components/topbar/topbar.js";
 import { renderSidebar } from "../../../assets/js/components/sidebar/sidebar.js";
 import { renderRightbarRecruit } from "../../../element/rightbar-recruit.js?v=2.0.0";
+import { confirmDialog, alertDialog } from "../../../assets/js/ui.js";
 
 import * as TeamRepo from "./team-management.repository.js";
 import * as TeamUI from "./team-management.ui.js";
@@ -144,7 +145,7 @@ async function handleSaveMember(event) {
   const payload = TeamUI.collectFormData(state.activeDivision);
 
   if (!payload.name) {
-    alert("Nama wajib diisi.");
+    await alertDialog("Nama wajib diisi.", { type: "warning", title: "Validasi Form" });
     return;
   }
 
@@ -309,7 +310,7 @@ async function handleSaveMember(event) {
     if (state.modal) state.modal.hide();
   } catch (error) {
     console.error("Failed to save team member:", error);
-    alert("Gagal menyimpan anggota team: " + error.message);
+    await alertDialog("Gagal menyimpan anggota team: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   } finally {
     if (submitBtn) submitBtn.disabled = false;
   }
@@ -323,14 +324,19 @@ async function handleDeleteMember(id) {
   if (!id) return;
   const member = state.members.find((item) => item.id === id);
   const name = member && member.name ? member.name : "anggota ini";
-  const ok = confirm(`Hapus ${name} dari Team Management?`);
+  const ok = await confirmDialog(`Hapus ${name} dari Team Management?`, {
+    title: "Konfirmasi Hapus",
+    confirmText: "Ya, Hapus",
+    cancelText: "Batal",
+    danger: true,
+  });
   if (!ok) return;
 
   try {
     await TeamRepo.deleteTeamMember(id);
   } catch (error) {
     console.error("Failed to delete team member:", error);
-    alert("Gagal menghapus anggota team: " + error.message);
+    await alertDialog("Gagal menghapus anggota team: " + error.message, { type: "error", title: "Terjadi Kesalahan" });
   }
 }
 
@@ -421,6 +427,76 @@ function wireEvents() {
       }
       if (documentsBtn) {
         openDocumentsModal(documentsBtn.getAttribute("data-id") || "");
+      }
+    });
+  }
+
+  // Universal Export Modal Setup & Event Handling
+  const exportControls = TeamUI.initTeamExportModal();
+  const exportForm = document.getElementById("exportTeamForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const params = exportControls.getFormData();
+        const { calcDateRange, extractTimestamp } = await import(
+          "../../../assets/js/utils/export-helper.js"
+        );
+        const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+          params.rangeType,
+          params.month,
+          params.weekMonth,
+          params.week
+        );
+
+        let exportList = state.members.slice();
+
+        if (params.status) {
+          exportList = exportList.filter((m) => {
+            const rawStatus = (m.status || "").toLowerCase().trim();
+            return rawStatus === params.status;
+          });
+        }
+
+        if (params.rangeType !== "all") {
+          exportList = exportList.filter((m) => {
+            const ts =
+              extractTimestamp(m.startDate) ||
+              extractTimestamp(m.createdAt) ||
+              extractTimestamp(m.joined_at);
+            if (ts === null) return true;
+            return ts >= startTimestamp && ts <= endTimestamp;
+          });
+        }
+
+        if (!exportList.length) {
+          await alertDialog("Tidak ada data anggota tim pada periode/filter yang dipilih.", {
+            type: "info",
+            title: "Data Tidak Ditemukan",
+          });
+          return;
+        }
+
+        await TeamRepo.exportTeamData({
+          members: exportList,
+          format: params.format,
+          periodLabel,
+        });
+
+        exportControls.closeModal();
+        await alertDialog("Data tim berhasil diexport!", {
+          type: "success",
+          title: "Export Berhasil",
+        });
+      } catch (err) {
+        console.error("Export error:", err);
+        await alertDialog("Gagal mengekspor data: " + err.message, {
+          type: "error",
+          title: "Terjadi Kesalahan",
+        });
+      } finally {
+        exportControls.setLoading(false);
       }
     });
   }

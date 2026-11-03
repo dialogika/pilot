@@ -273,28 +273,56 @@ export function renderPositionOptions(positionsMap) {
 /* Public: populate filter role dropdown                                */
 /* ------------------------------------------------------------------ */
 
-export function renderFilterRoleOptions(rolesMap) {
+
+export function renderFilterRoleOptions(rolesMap = {}, users = []) {
   const select = $("um-filter-role");
   if (!select) return;
   const current = select.value;
   select.innerHTML = '<option value="">All Role</option>';
-  const roles = Object.values(rolesMap);
-  if (roles.length === 0) {
-    VALID_ROLES.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
-    });
-  } else {
-    roles.forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-      select.appendChild(opt);
+
+  const roleMap = new Map();
+
+  // Canonical system roles
+  VALID_ROLES.forEach((r) => {
+    roleMap.set(r.toLowerCase(), r.charAt(0).toUpperCase() + r.slice(1));
+  });
+
+  // Roles from rolesMap if available
+  if (rolesMap) {
+    Object.values(rolesMap).forEach((r) => {
+      if (typeof r === "string" && r.trim()) {
+        roleMap.set(r.trim().toLowerCase(), r.trim());
+      }
     });
   }
-  if (current) select.value = current;
+
+  // Any distinct roles present in loaded users
+  if (Array.isArray(users)) {
+    users.forEach((u) => {
+      if (u.role && typeof u.role === "string" && u.role.trim()) {
+        const val = u.role.trim().toLowerCase();
+        if (!roleMap.has(val)) {
+          const formatted = u.role
+            .trim()
+            .split(/\s+/)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+            .join(" ");
+          roleMap.set(val, formatted);
+        }
+      }
+    });
+  }
+
+  roleMap.forEach((label, val) => {
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = label;
+    select.appendChild(opt);
+  });
+
+  if (current && roleMap.has(current.toLowerCase())) {
+    select.value = current.toLowerCase();
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -381,12 +409,40 @@ export function setSearchInputHandler(callback) {
 
 export function setFiltersChangeHandler(callback) {
   const roleFilter = $("um-filter-role");
-  if (roleFilter) {
-    roleFilter.addEventListener("change", () => {
-      callback({ role: roleFilter.value });
+
+  const statusFilter = $("filterStatus");
+  const sortFilter = $("filterSort");
+  const datePreset = $("filterDatePreset");
+
+  const notifyChange = () => {
+    callback({
+      role: roleFilter ? roleFilter.value : "",
+      status: statusFilter ? statusFilter.value : "",
+      sort: sortFilter ? sortFilter.value : "recent",
+      datePreset: datePreset ? datePreset.value : "last90",
+    });
+  };
+
+  if (roleFilter) roleFilter.addEventListener("change", notifyChange);
+  if (statusFilter) statusFilter.addEventListener("change", notifyChange);
+  if (sortFilter) sortFilter.addEventListener("change", notifyChange);
+  if (datePreset) {
+    datePreset.addEventListener("change", () => {
+      if (datePreset.value === "custom") {
+        showModalOverlay("customRangeOverlay");
+      } else {
+        notifyChange();
+      }
     });
   }
-  // Legacy extras: also wire filterStatus / filterSort / filterDatePreset as role/trigger if needed (no-op for style parity)
+
+  const customApply = $("customRangeApply");
+  if (customApply) {
+    customApply.addEventListener("click", () => {
+      hideModalOverlay("customRangeOverlay");
+      notifyChange();
+    });
+  }
 }
 
 export function setAddUserClickHandler(callback) {
@@ -547,3 +603,625 @@ export function notifySuccess(message) {
 export function notifyError(message) {
   toast(message, "error");
 }
+/* ------------------------------------------------------------------ */
+/* Select all checkbox                                                */
+/* ------------------------------------------------------------------ */
+
+export function wireSelectAllCheckbox() {
+  const selectAll = $("selectAllCheckbox");
+  const tbody = $("um-tbody");
+  if (selectAll && tbody) {
+    selectAll.addEventListener("change", () => {
+      const checkboxes = tbody.querySelectorAll(".row-checkbox");
+      checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
+    });
+    tbody.addEventListener("change", (e) => {
+      if (e.target.classList.contains("row-checkbox")) {
+        const checkboxes = tbody.querySelectorAll(".row-checkbox");
+        const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+        selectAll.checked = checkboxes.length > 0 && allChecked;
+      }
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Export handlers & generators                                       */
+/* ------------------------------------------------------------------ */
+
+export function setExportHandlers({ onExportPdf, onExportExcel }) {
+  const btn = $("exportButton");
+  const menu = $("exportMenu");
+  const pdfBtn = $("exportPdfBtn");
+  const excelBtn = $("exportExcelBtn");
+
+  if (btn && menu) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("hidden");
+    });
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add("hidden");
+      }
+    });
+  }
+
+  if (pdfBtn && onExportPdf) {
+    pdfBtn.addEventListener("click", () => {
+      if (menu) menu.classList.add("hidden");
+      onExportPdf();
+    });
+  }
+
+  if (excelBtn && onExportExcel) {
+    excelBtn.addEventListener("click", () => {
+      if (menu) menu.classList.add("hidden");
+      onExportExcel();
+    });
+  }
+}
+
+export function exportToExcel(users, positionsMap) {
+  const headers = ["Name", "Email", "Position", "Role", "Status", "Phone", "Department"];
+  const rows = users.map((u) => {
+    let positionLabel = u.position || "-";
+    if (positionsMap && positionsMap[u.position]) {
+      positionLabel = positionsMap[u.position];
+    }
+    return [
+      `"${(u.name || u.displayName || "").replace(/"/g, '""')}"`,
+      `"${(u.email || "").replace(/"/g, '""')}"`,
+      `"${positionLabel.replace(/"/g, '""')}"`,
+      `"${(u.role || "").replace(/"/g, '""')}"`,
+      `"${(u.status || "Active").replace(/"/g, '""')}"`,
+      `"${(u.phone || u.phoneNumber || "").replace(/"/g, '""')}"`,
+      `"${(u.department || "").replace(/"/g, '""')}"`,
+    ];
+  });
+
+  const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `users-management_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function exportToPdf(users, positionsMap) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    window.print();
+    return;
+  }
+  const rowsHtml = users
+    .map((u) => {
+      let positionLabel = u.position || "-";
+      if (positionsMap && positionsMap[u.position]) {
+        positionLabel = positionsMap[u.position];
+      }
+      return `
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.name || u.displayName || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.email || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(positionLabel)}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.role || "-")}</td>
+          <td style="padding:8px; border:1px solid #ddd;">${escapeHtml(u.status || "Active")}</td>
+        </tr>`;
+    })
+    .join("");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Users Management - Export</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+          h2 { margin-bottom: 15px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+          th { background-color: #f3f4f6; padding: 8px; border: 1px solid #ddd; text-align: left; }
+        </style>
+      </head>
+      <body>
+        <h2>Users Management</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Position</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+  }, 300);
+}
+
+/**
+ * Initialize Users Management Export Modal UI controls.
+ */
+export function initUsersExportModal() {
+  const modalEl = $("exportUsersModal");
+  if (!modalEl) return null;
+
+  const currentYearMonth = new Date().toISOString().substring(0, 7);
+  const monthInput = modalEl.querySelector(".export-month-input");
+  const weekMonthInput = modalEl.querySelector(".export-week-month-input");
+
+  if (monthInput && !monthInput.value) monthInput.value = currentYearMonth;
+  if (weekMonthInput && !weekMonthInput.value) weekMonthInput.value = currentYearMonth;
+
+  let currentFormat = "xlsx";
+  let currentRange = "all";
+
+  const btnXlsx = modalEl.querySelector('[data-format="xlsx"]');
+  const btnCsv = modalEl.querySelector('[data-format="csv"]');
+  const downloadBtnText = modalEl.querySelector(".download-btn-text");
+  const helpMonthText = modalEl.querySelector(".export-help-month");
+  const helpWeekText = modalEl.querySelector(".export-help-week");
+
+  const setFormat = (fmt) => {
+    currentFormat = fmt === "csv" ? "csv" : "xlsx";
+    if (btnXlsx) btnXlsx.classList.toggle("active", currentFormat === "xlsx");
+    if (btnCsv) btnCsv.classList.toggle("active", currentFormat === "csv");
+    if (downloadBtnText) {
+      downloadBtnText.textContent =
+        currentFormat === "xlsx" ? "Download Excel (.xlsx)" : "Download CSV (.csv)";
+    }
+    if (helpMonthText) {
+      helpMonthText.textContent = `Semua user yang terdaftar pada bulan yang dipilih akan dimasukkan ke dalam file ${currentFormat.toUpperCase()}.`;
+    }
+    if (helpWeekText) {
+      helpWeekText.textContent = `Semua user yang terdaftar pada minggu yang dipilih akan dimasukkan ke dalam file ${currentFormat.toUpperCase()}.`;
+    }
+  };
+
+  const rangeBtnAll = modalEl.querySelector('[data-range="all"]');
+  const rangeBtnMonth = modalEl.querySelector('[data-range="month"]');
+  const rangeBtnWeek = modalEl.querySelector('[data-range="week"]');
+  const sectionAll = modalEl.querySelector(".section-all-picker");
+  const sectionMonth = modalEl.querySelector(".section-month-picker");
+  const sectionWeek = modalEl.querySelector(".section-week-picker");
+
+  const setRange = (rType) => {
+    currentRange = ["all", "month", "week"].includes(rType) ? rType : "all";
+    if (rangeBtnAll) rangeBtnAll.classList.toggle("active", currentRange === "all");
+    if (rangeBtnMonth) rangeBtnMonth.classList.toggle("active", currentRange === "month");
+    if (rangeBtnWeek) rangeBtnWeek.classList.toggle("active", currentRange === "week");
+
+    if (sectionAll) sectionAll.style.display = currentRange === "all" ? "block" : "none";
+    if (sectionMonth) sectionMonth.style.display = currentRange === "month" ? "block" : "none";
+    if (sectionWeek) sectionWeek.style.display = currentRange === "week" ? "block" : "none";
+  };
+
+  if (btnXlsx) btnXlsx.onclick = () => setFormat("xlsx");
+  if (btnCsv) btnCsv.onclick = () => setFormat("csv");
+  if (rangeBtnAll) rangeBtnAll.onclick = () => setRange("all");
+  if (rangeBtnMonth) rangeBtnMonth.onclick = () => setRange("month");
+  if (rangeBtnWeek) rangeBtnWeek.onclick = () => setRange("week");
+
+  setFormat("xlsx");
+  setRange("all");
+
+  return {
+    getFormData: () => {
+      const weekSelect = modalEl.querySelector(".export-week-select");
+      const statusFilter = modalEl.querySelector(".export-status-filter");
+      return {
+        format: currentFormat,
+        rangeType: currentRange,
+        month: monthInput?.value || currentYearMonth,
+        weekMonth: weekMonthInput?.value || currentYearMonth,
+        week: parseInt(weekSelect?.value || "1", 10),
+        status: (statusFilter?.value || "").toLowerCase().trim(),
+      };
+    },
+    setLoading: (loading) => {
+      const submitBtn = modalEl.querySelector('button[type="submit"]');
+      if (!submitBtn) return;
+      if (loading) {
+        submitBtn.disabled = true;
+        submitBtn.dataset.origHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML =
+          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
+      } else {
+        submitBtn.disabled = false;
+        if (submitBtn.dataset.origHtml) {
+          submitBtn.innerHTML = submitBtn.dataset.origHtml;
+        }
+      }
+    },
+    closeModal: () => {
+      if (window.bootstrap) {
+        const bsModal = bootstrap.Modal.getInstance(modalEl);
+        if (bsModal) bsModal.hide();
+      }
+    },
+  };
+}
+
+/**
+ * Mounts the Database Mapping button exclusively to the sidebar
+ * when Users Management is active.
+ */
+export function mountSidebarUsersManagementErdButton() {
+  const sidebarWrapper = document.querySelector("#dg-sidebar-mount .sidebar-scroll-wrapper");
+  if (!sidebarWrapper) return;
+
+  // Prevent duplicate mounts
+  if (document.getElementById("sidebarBtnUsersManagementErd")) return;
+
+  const linkEl = document.createElement("a");
+  linkEl.href = "javascript:void(0)";
+  linkEl.className = "sidebar-link";
+  linkEl.id = "sidebarBtnUsersManagementErd";
+  linkEl.setAttribute("data-bs-toggle", "modal");
+  linkEl.setAttribute("data-bs-target", "#usersManagementErdModal");
+  linkEl.setAttribute("role", "button");
+  linkEl.innerHTML = `
+    <i class="bi bi-database text-blue-600"></i>
+    <span>Database</span>
+    <span class="sidebar-badge">
+      <span class="badge bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">ERD</span>
+    </span>
+  `;
+
+  // Place inside MAIN NAVIGATION right after "My Stuff" (or right before "SYSTEM" category)
+  const links = Array.from(sidebarWrapper.querySelectorAll(".sidebar-link"));
+  const myStuffLink = links.find((link) => link.textContent.includes("My Stuff"));
+
+  if (myStuffLink) {
+    myStuffLink.insertAdjacentElement("afterend", linkEl);
+  } else {
+    const navCategories = Array.from(sidebarWrapper.querySelectorAll(".nav-category"));
+    const systemCategory = navCategories.find((cat) => cat.textContent.trim().toUpperCase() === "SYSTEM");
+    if (systemCategory) {
+      sidebarWrapper.insertBefore(linkEl, systemCategory);
+    } else {
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        sidebarWrapper.insertBefore(linkEl, logoutBtn);
+      } else {
+        sidebarWrapper.appendChild(linkEl);
+      }
+    }
+  }
+}
+
+/**
+ * Initializes Users Management ERD modal tabs, search, filters, SVG connectors & copy button.
+ */
+export function initUsersManagementErdModalControls() {
+  const modalEl = document.getElementById("usersManagementErdModal");
+  if (!modalEl) return;
+
+  // 1. Tab switching
+  const tabVisualBtn = document.getElementById("tabBtnUsersManagementErdVisual");
+  const tabDictBtn = document.getElementById("tabBtnUsersManagementErdDict");
+  const tabSqlBtn = document.getElementById("tabBtnUsersManagementErdSql");
+
+  const tabVisualContent = document.getElementById("usersManagementErdTabVisualContent");
+  const tabDictContent = document.getElementById("usersManagementErdTabDictContent");
+  const tabSqlContent = document.getElementById("usersManagementErdTabSqlContent");
+
+  const tabBtns = [tabVisualBtn, tabDictBtn, tabSqlBtn];
+
+  function switchTab(targetTab) {
+    tabBtns.forEach((btn) => {
+      if (!btn) return;
+      const t = btn.getAttribute("data-tab");
+      btn.classList.toggle("active", t === targetTab);
+    });
+
+    if (tabVisualContent) tabVisualContent.style.display = targetTab === "visual" ? "block" : "none";
+    if (tabDictContent) tabDictContent.style.display = targetTab === "dictionary" ? "block" : "none";
+    if (tabSqlContent) tabSqlContent.style.display = targetTab === "sql" ? "block" : "none";
+
+    if (targetTab === "visual") {
+      setTimeout(drawUsersManagementErdRelations, 60);
+    }
+  }
+
+  tabVisualBtn?.addEventListener("click", () => switchTab("visual"));
+  tabDictBtn?.addEventListener("click", () => switchTab("dictionary"));
+  tabSqlBtn?.addEventListener("click", () => switchTab("sql"));
+
+  // 2. Kamus Data Search & Filter
+  const searchInput = document.getElementById("usersManagementErdDictSearchInput");
+  const tableFilter = document.getElementById("usersManagementErdDictTableFilter");
+  const dictTableBody = document.getElementById("usersManagementErdDictTableBody");
+  const countBadge = document.getElementById("usersManagementErdDictCountBadge");
+
+  function filterDictionaryRows() {
+    if (!dictTableBody) return;
+    const q = (searchInput?.value || "").toLowerCase().trim();
+    const selectedTable = tableFilter?.value || "all";
+    const rows = dictTableBody.querySelectorAll("tr");
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+      const rowTable = row.getAttribute("data-table");
+      const text = row.textContent.toLowerCase();
+      const matchTable = selectedTable === "all" || rowTable === selectedTable;
+      const matchQuery = !q || text.includes(q);
+
+      if (matchTable && matchQuery) {
+        row.style.display = "";
+        visibleCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    if (countBadge) {
+      countBadge.textContent = `${visibleCount} Kolom`;
+    }
+  }
+
+  searchInput?.addEventListener("input", filterDictionaryRows);
+  tableFilter?.addEventListener("change", filterDictionaryRows);
+
+  // 3. Copy SQL Script
+  const copySqlBtn = document.getElementById("btnCopyUsersManagementSqlScript");
+  const copySqlText = document.getElementById("btnCopyUsersManagementSqlText");
+  const sqlContent = document.getElementById("usersManagementSqlScriptContent");
+
+  copySqlBtn?.addEventListener("click", () => {
+    if (!sqlContent) return;
+    const text = sqlContent.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      if (copySqlText) {
+        const originalText = copySqlText.textContent;
+        copySqlText.textContent = "Tersalin!";
+        setTimeout(() => {
+          copySqlText.textContent = originalText;
+        }, 2000);
+      }
+    }).catch((err) => {
+      console.warn("Clipboard copy failed:", err);
+    });
+  });
+
+  // 4. Copy Docs Path
+  const copyDocsBtn = document.getElementById("btnCopyUsersManagementDocsPath");
+  copyDocsBtn?.addEventListener("click", () => {
+    const docPath = "docs/USERS-DATABASE-MAPPING.md";
+    navigator.clipboard.writeText(docPath).then(() => {
+      const origHtml = copyDocsBtn.innerHTML;
+      copyDocsBtn.innerHTML = '<i class="bi bi-check-circle-fill text-emerald-600"></i> Path Tersalin!';
+      setTimeout(() => {
+        copyDocsBtn.innerHTML = origHtml;
+      }, 2000);
+    });
+  });
+
+  // 5. Dynamic SVG Bezier Relation Connector Lines
+  const wrapper = document.getElementById("usersManagementErdDiagramWrapper");
+  const svgGroup = document.getElementById("usersManagementErdPathsGroup");
+  const originAnchor = document.getElementById("erdOriginUsersManagementUsersId");
+
+  function getBezierPoint(t, p0, p1, p2, p3) {
+    const mt = 1 - t;
+    const mt2 = mt * mt;
+    const mt3 = mt2 * mt;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return {
+      x: mt3 * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t3 * p3.x,
+      y: mt3 * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t3 * p3.y,
+    };
+  }
+
+  const relationConfigs = [
+    {
+      id: "roles",
+      targetAnchor: document.getElementById("erdTargetUsersManagementRolesId"),
+      card: document.getElementById("cardUsersManagementRoles"),
+      color: "#10b981",
+      marker: "url(#usersManagementErdArrowEmerald)",
+      label: "1 : N (user_id)",
+      y1Offset: -10,
+      tBadge: 0.35,
+    },
+    {
+      id: "employment",
+      targetAnchor: document.getElementById("erdTargetUsersManagementEmploymentId"),
+      card: document.getElementById("cardUsersManagementEmployment"),
+      color: "#3b82f6",
+      marker: "url(#usersManagementErdArrowBlue)",
+      label: "1 : N (user_id)",
+      y1Offset: -3,
+      tBadge: 0.58,
+    },
+    {
+      id: "logs",
+      targetAnchor: document.getElementById("erdTargetUsersManagementLogsId"),
+      card: document.getElementById("cardUsersManagementLogs"),
+      color: "#f59e0b",
+      marker: "url(#usersManagementErdArrowAmber)",
+      label: "1 : N (user_id)",
+      y1Offset: 4,
+      tBadge: 0.42,
+    },
+    {
+      id: "security",
+      targetAnchor: document.getElementById("erdTargetUsersManagementSecurityId"),
+      card: document.getElementById("cardUsersManagementSecurity"),
+      color: "#8b5cf6",
+      marker: "url(#usersManagementErdArrowPurple)",
+      label: "1 : N (user_id)",
+      y1Offset: 11,
+      tBadge: 0.65,
+    },
+  ];
+
+  let currentActiveRel = "all";
+
+  function drawUsersManagementErdRelations() {
+    if (!wrapper || !svgGroup || !originAnchor) return;
+
+    const wrapRect = wrapper.getBoundingClientRect();
+    if (wrapRect.width === 0 || wrapRect.height === 0) return;
+
+    if (window.innerWidth < 1024) {
+      svgGroup.innerHTML = "";
+      return;
+    }
+
+    const origRect = originAnchor.getBoundingClientRect();
+
+    // Origin point: Right edge center of users.id row
+    const x1 = origRect.right - wrapRect.left;
+    const y1 = origRect.top + origRect.height / 2 - wrapRect.top;
+
+    let svgHtml = "";
+
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.targetAnchor) return;
+      const tgtRect = cfg.targetAnchor.getBoundingClientRect();
+      if (tgtRect.width === 0) return;
+
+      const isSideBySide = tgtRect.left > origRect.left + 50;
+      let d = "";
+      let midX = 0;
+      let midY = 0;
+
+      if (isSideBySide) {
+        // Target: Left edge center of child user_id row
+        const x2 = tgtRect.left - wrapRect.left;
+        const y2 = tgtRect.top + tgtRect.height / 2 - wrapRect.top;
+        const startY = y1 + (cfg.y1Offset || 0);
+        const dx = Math.max(40, (x2 - x1) * 0.45);
+        d = `M ${x1} ${startY} C ${x1 + dx} ${startY}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        const p0 = { x: x1, y: startY };
+        const p1 = { x: x1 + dx, y: startY };
+        const p2 = { x: x2 - dx, y: y2 };
+        const p3 = { x: x2, y: y2 };
+        const badgePos = getBezierPoint(cfg.tBadge || 0.5, p0, p1, p2, p3);
+        midX = badgePos.x;
+        midY = badgePos.y;
+      } else {
+        // Stacked (Mobile view)
+        const x1B = origRect.left + origRect.width / 2 - wrapRect.left;
+        const y1B = origRect.bottom - wrapRect.top;
+        const x2T = tgtRect.left + tgtRect.width / 2 - wrapRect.left;
+        const y2T = tgtRect.top - wrapRect.top;
+        const dy = Math.max(25, (y2T - y1B) * 0.4);
+        d = `M ${x1B} ${y1B} C ${x1B} ${y1B + dy}, ${x2T} ${y2T - dy}, ${x2T} ${y2T}`;
+        midX = (x1B + x2T) / 2;
+        midY = (y1B + y2T) / 2;
+      }
+
+      const isCurrentActive = currentActiveRel === "all" || currentActiveRel === cfg.id;
+      const opacity = isCurrentActive ? 1 : 0.12;
+      const strokeWidth = isCurrentActive && currentActiveRel !== "all" ? 3 : 2;
+
+      svgHtml += `
+        <g class="erd-relation-path-group" data-rel-id="${cfg.id}" style="opacity: ${opacity};">
+          <!-- Glow halo -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="7" fill="none" opacity="0.18" stroke-linecap="round" />
+          <!-- Animated connecting line -->
+          <path d="${d}" stroke="${cfg.color}" stroke-width="${strokeWidth}" fill="none" 
+            marker-start="url(#usersManagementErdDotStart)" marker-end="${cfg.marker}" 
+            stroke-dasharray="6 3" class="erd-relation-path" />
+          <!-- Center badge -->
+          <g transform="translate(${midX}, ${midY})">
+            <rect x="-34" y="-9" width="68" height="18" rx="6" fill="#ffffff" stroke="${cfg.color}" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+            <text x="0" y="3.5" text-anchor="middle" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700" fill="${cfg.color}">
+              1 : N
+            </text>
+          </g>
+        </g>
+      `;
+    });
+
+    svgGroup.innerHTML = svgHtml;
+
+    // Attach click to each SVG path group
+    svgGroup.querySelectorAll(".erd-relation-path-group").forEach((grp) => {
+      grp.addEventListener("click", () => {
+        const relId = grp.getAttribute("data-rel-id");
+        if (relId) setActiveRelation(relId === currentActiveRel ? "all" : relId);
+      });
+    });
+  }
+
+  function setActiveRelation(relId) {
+    currentActiveRel = relId;
+
+    // Update Pills
+    document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+      const pRel = pill.getAttribute("data-rel");
+      if (pRel === relId) {
+        pill.classList.add("active");
+      } else {
+        pill.classList.remove("active");
+      }
+    });
+
+    // Update Card Highlight states
+    relationConfigs.forEach((cfg) => {
+      if (!cfg.card) return;
+      if (relId === "all") {
+        cfg.card.classList.remove("relation-highlight", "relation-faded");
+      } else if (cfg.id === relId) {
+        cfg.card.classList.add("relation-highlight");
+        cfg.card.classList.remove("relation-faded");
+      } else {
+        cfg.card.classList.remove("relation-highlight");
+        cfg.card.classList.add("relation-faded");
+      }
+    });
+
+    drawUsersManagementErdRelations();
+  }
+
+  // Relation Filter Pills Click
+  document.querySelectorAll(".erd-rel-pill").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const rel = pill.getAttribute("data-rel") || "all";
+      setActiveRelation(rel);
+    });
+  });
+
+  // Modal Shown Event Listener
+  if (modalEl) {
+    modalEl.addEventListener("shown.bs.modal", () => {
+      setTimeout(drawUsersManagementErdRelations, 80);
+    });
+  }
+
+  // Tab switch redraw
+  tabVisualBtn?.addEventListener("click", () => {
+    setTimeout(drawUsersManagementErdRelations, 80);
+  });
+
+  // Window resize redraw (debounced)
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawUsersManagementErdRelations, 100);
+  });
+
+  // Initial draw
+  setTimeout(drawUsersManagementErdRelations, 300);
+}
+
+

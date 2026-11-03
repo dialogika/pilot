@@ -15,7 +15,11 @@ import {
     updateJoinedSeats,
     deleteClassBatch,
     moveToClassPlanning,
+refactor/marketing/class-availability
     addMultipleClassBatches,
+
+    exportClassData,
+ main
     FALLBACK_CLASSES
 } from "./class-availability.repository.js";
 import {
@@ -33,8 +37,12 @@ import {
     getSeatsLeft,
     getBatchStatus,
     showToast,
+refactor/marketing/class-availability
     parseSpreadsheetMatrix,
     renderImportPreview
+
+    initClassExportModal
+main
 } from "./class-availability.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -608,6 +616,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+refactor/marketing/class-availability
 
     // =========================================================================
     // IMPORT SPREADSHEET ORCHESTRATION
@@ -819,6 +828,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <i class="bi bi-cloud-check me-1"></i>
                     <span id="btnExecuteImportText">Import Data Kelas</span>
                 `;
+
+    // 14b. Export Data Controls
+    const exportControls = initClassExportModal();
+    const exportForm = document.getElementById("exportClassForm");
+    if (exportForm && exportControls) {
+        exportForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            exportControls.setLoading(true);
+            try {
+                const formData = exportControls.getFormData();
+                await exportClassData(formData);
+                const modalEl = document.getElementById("exportClassModal");
+                if (modalEl && window.bootstrap) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                }
+            } catch (err) {
+                console.error("Export class availability error:", err);
+                showToast("Gagal mengekspor data ketersediaan kelas: " + err.message, "danger");
+            } finally {
+                exportControls.setLoading(false);
+main
             }
         });
     }
@@ -837,7 +867,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             classesState = classes && classes.length > 0 ? classes : FALLBACK_CLASSES;
             productsState = products || [];
-            mentorsState = mentors || [];
+
+            // Gunakan daftar mentor resmi dari database jika ada; jika kosong, baru fallback dari data kelas
+            if (mentors && mentors.length > 0) {
+                mentorsState = mentors;
+            } else {
+                const mentorMap = new Map();
+                classesState.forEach(c => {
+                    if (c.mentor_name && c.mentor_name !== "Unknown" && c.mentor_name !== "-" && !mentorMap.has(c.mentor_name)) {
+                        mentorMap.set(c.mentor_name, { id: c.mentor_name, name: c.mentor_name });
+                    }
+                });
+                mentorsState = Array.from(mentorMap.values()).sort((a, b) => a.name.localeCompare(b.name, "id"));
+            }
 
             // Pre-populate Add Batch dropdowns
             populateProductDropdown(newBatchProductSelect, productsState, "", true);

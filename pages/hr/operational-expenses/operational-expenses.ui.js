@@ -5,6 +5,8 @@
 // Zero Firebase or Firestore operations.
 // =====================================================================
 
+import { setupExportModalControls } from "/assets/js/utils/export-helper.js";
+
 export const formatCurrency = (value) =>
   new Intl.NumberFormat("id-ID").format(Number(value || 0));
 
@@ -96,7 +98,15 @@ export function renderStats(stats) {
  */
 export function renderTable(
   items,
-  { sortKey = "", sortDirection = "asc", onOpenDetail, onMarkReviewing, onSendWhatsapp }
+  {
+    sortKey = "",
+    sortDirection = "asc",
+    activeDate = "",
+    onClearDate = null,
+    onOpenDetail = null,
+    onMarkReviewing = null,
+    onSendWhatsapp = null
+  } = {}
 ) {
   const tbody = document.getElementById("expenseTableBody");
   const counterEl = document.getElementById("visibleItemsCount");
@@ -121,7 +131,7 @@ export function renderTable(
   });
 
   if (!items.length) {
-    const hasDateFilter = !!options.activeDate;
+    const hasDateFilter = !!activeDate;
     tbody.innerHTML = `
       <tr>
         <td colspan="6">
@@ -145,8 +155,8 @@ export function renderTable(
       </tr>
     `;
     const resetBtn = document.getElementById("btnEmptyResetDate");
-    if (resetBtn && typeof options.onClearDate === "function") {
-      resetBtn.addEventListener("click", options.onClearDate);
+    if (resetBtn && typeof onClearDate === "function") {
+      resetBtn.addEventListener("click", onClearDate);
     }
     return;
   }
@@ -644,3 +654,18 @@ export function showToast(message) {
     toast.classList.remove("show");
   }, 3200);
 }
+
+/**
+ * Initializes Export Modal controls for Operational Expenses.
+ * @param {Function} [onFormatChange]
+ * @param {Function} [onRangeChange]
+ * @returns {Object} Modal control handles
+ */
+export function initExpensesExportModal(onFormatChange, onRangeChange) {
+  return setupExportModalControls({
+    modalId: "exportExpensesModal",
+    onFormatChange,
+    onRangeChange,
+  });
+}
+

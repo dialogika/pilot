@@ -27,6 +27,7 @@ import {
   fetchAllScreening,
   loadRecruitmentNotes,
   saveRecruitmentNotes,
+  exportRecruitmentData,
 } from "./recruitment-dashboard.repository.js";
 
 import {
@@ -45,6 +46,7 @@ import {
   renderPlatformJobposting,
   setCalendarText,
   updateFilterButtonStates,
+  initRecruitmentExportModal,
 } from "./recruitment-dashboard.ui.js";
 
 // ── State ───────────────────────────────────────────────────────────
@@ -676,6 +678,43 @@ async function initialize() {
     initializeSectionSwitcher();
     initializeInterviewTabs();
     initializeFlatpickr();
+
+    // 5b. Wire export modal
+    const exportControls = initRecruitmentExportModal();
+    const exportForm = document.getElementById("exportRecruitmentForm");
+    if (exportForm && exportControls) {
+      exportForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        exportControls.setLoading(true);
+        try {
+          const formData = exportControls.getFormData();
+          const dataType = document.getElementById("exportRecruitmentDataType")?.value || "pipeline";
+          const section = document.getElementById("exportRecruitmentSection")?.value || "all";
+
+          await exportRecruitmentData({
+            dataType,
+            section,
+            status: formData.status,
+            rangeType: formData.rangeType,
+            month: formData.month,
+            weekMonth: formData.weekMonth,
+            week: formData.week,
+            format: formData.format,
+          });
+
+          const modalEl = document.getElementById("exportRecruitmentModal");
+          if (modalEl && window.bootstrap) {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) inst.hide();
+          }
+        } catch (err) {
+          console.error("[RecruitmentDashboard] Export error:", err);
+          alert("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
+        } finally {
+          exportControls.setLoading(false);
+        }
+      });
+    }
 
     // 6. Initial data load
     await refreshDashboard();

@@ -481,3 +481,106 @@ export function setBusy(id, busy, label) {
 }
 
 export { hideModal };
+
+/**
+ * Initialize Internship Export Modal UI controls.
+ */
+export function initInternshipExportModal() {
+  const modalEl = el("exportInternshipModal");
+  if (!modalEl) return null;
+
+  const currentYearMonth = new Date().toISOString().substring(0, 7);
+  const monthInput = modalEl.querySelector(".export-month-input");
+  const weekMonthInput = modalEl.querySelector(".export-week-month-input");
+
+  if (monthInput && !monthInput.value) monthInput.value = currentYearMonth;
+  if (weekMonthInput && !weekMonthInput.value) weekMonthInput.value = currentYearMonth;
+
+  let currentFormat = "xlsx";
+  let currentRange = "all";
+
+  const btnXlsx = modalEl.querySelector('[data-format="xlsx"]');
+  const btnCsv = modalEl.querySelector('[data-format="csv"]');
+  const downloadBtnText = modalEl.querySelector(".download-btn-text");
+  const helpMonthText = modalEl.querySelector(".export-help-month");
+  const helpWeekText = modalEl.querySelector(".export-help-week");
+
+  const setFormat = (fmt) => {
+    currentFormat = fmt === "csv" ? "csv" : "xlsx";
+    if (btnXlsx) btnXlsx.classList.toggle("active", currentFormat === "xlsx");
+    if (btnCsv) btnCsv.classList.toggle("active", currentFormat === "csv");
+    if (downloadBtnText) {
+      downloadBtnText.textContent =
+        currentFormat === "xlsx" ? "Download Excel (.xlsx)" : "Download CSV (.csv)";
+    }
+    if (helpMonthText) {
+      helpMonthText.textContent = `Semua pengajuan pada bulan yang dipilih akan dimasukkan ke dalam file ${currentFormat.toUpperCase()}.`;
+    }
+    if (helpWeekText) {
+      helpWeekText.textContent = `Semua pengajuan pada minggu yang dipilih akan dimasukkan ke dalam file ${currentFormat.toUpperCase()}.`;
+    }
+  };
+
+  const rangeBtnAll = modalEl.querySelector('[data-range="all"]');
+  const rangeBtnMonth = modalEl.querySelector('[data-range="month"]');
+  const rangeBtnWeek = modalEl.querySelector('[data-range="week"]');
+  const sectionAll = modalEl.querySelector(".section-all-picker");
+  const sectionMonth = modalEl.querySelector(".section-month-picker");
+  const sectionWeek = modalEl.querySelector(".section-week-picker");
+
+  const setRange = (rType) => {
+    currentRange = ["all", "month", "week"].includes(rType) ? rType : "all";
+    if (rangeBtnAll) rangeBtnAll.classList.toggle("active", currentRange === "all");
+    if (rangeBtnMonth) rangeBtnMonth.classList.toggle("active", currentRange === "month");
+    if (rangeBtnWeek) rangeBtnWeek.classList.toggle("active", currentRange === "week");
+
+    if (sectionAll) sectionAll.style.display = currentRange === "all" ? "block" : "none";
+    if (sectionMonth) sectionMonth.style.display = currentRange === "month" ? "block" : "none";
+    if (sectionWeek) sectionWeek.style.display = currentRange === "week" ? "block" : "none";
+  };
+
+  if (btnXlsx) btnXlsx.onclick = () => setFormat("xlsx");
+  if (btnCsv) btnCsv.onclick = () => setFormat("csv");
+  if (rangeBtnAll) rangeBtnAll.onclick = () => setRange("all");
+  if (rangeBtnMonth) rangeBtnMonth.onclick = () => setRange("month");
+  if (rangeBtnWeek) rangeBtnWeek.onclick = () => setRange("week");
+
+  setFormat("xlsx");
+  setRange("all");
+
+  return {
+    getFormData: () => {
+      const weekSelect = modalEl.querySelector(".export-week-select");
+      const statusFilter = modalEl.querySelector(".export-status-filter");
+      return {
+        format: currentFormat,
+        rangeType: currentRange,
+        month: monthInput?.value || currentYearMonth,
+        weekMonth: weekMonthInput?.value || currentYearMonth,
+        week: parseInt(weekSelect?.value || "1", 10),
+        status: (statusFilter?.value || "").toLowerCase().trim(),
+      };
+    },
+    setLoading: (loading) => {
+      const submitBtn = modalEl.querySelector('button[type="submit"]');
+      if (!submitBtn) return;
+      if (loading) {
+        submitBtn.disabled = true;
+        submitBtn.dataset.origHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML =
+          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
+      } else {
+        submitBtn.disabled = false;
+        if (submitBtn.dataset.origHtml) {
+          submitBtn.innerHTML = submitBtn.dataset.origHtml;
+        }
+      }
+    },
+    closeModal: () => {
+      if (window.bootstrap) {
+        const bsModal = bootstrap.Modal.getInstance(modalEl);
+        if (bsModal) bsModal.hide();
+      }
+    },
+  };
+}

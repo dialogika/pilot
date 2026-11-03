@@ -6,6 +6,7 @@
 import { renderTopBar } from "/element/topbar.js";
 import { renderSidebar } from "/element/sidebar.js";
 import { requireAuth } from "/assets/js/auth-guard.js";
+import { confirmDialog, alertDialog } from "/assets/js/ui.js";
 import {
   fetchInvoices,
   saveInvoice,
@@ -20,10 +21,12 @@ import {
   saveReferrals,
   loadSettingsLocal,
   saveSettingsLocal,
+  exportInvoiceData,
 } from "./create-invoice.repository.js";
 import {
   switchTab,
   updateStats,
+  initInvoiceExportModal,
   populateClassDropdown,
   populateProductDropdown,
   populateReferralProductOptions,
@@ -401,7 +404,11 @@ function bindEventListeners() {
       if (deleteBtn) {
         const id = deleteBtn.getAttribute("data-id");
         if (!id) return;
-        if (!confirm("Hapus invoice ini secara permanen?")) return;
+        const confirmed = await confirmDialog("Hapus invoice ini secara permanen?", {
+          title: "Hapus Invoice",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         try {
           await deleteInvoice(id);
         } catch {
@@ -566,7 +573,10 @@ function bindEventListeners() {
       const holder = (holderField?.value || "").trim();
 
       if (!name || !number) {
-        alert("Nama bank dan nomor rekening wajib diisi.");
+        alertDialog("Nama bank dan nomor rekening wajib diisi.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
 
@@ -617,7 +627,11 @@ function bindEventListeners() {
       const deleteBtn = e.target.closest(".delete-bank");
       if (deleteBtn) {
         const id = deleteBtn.getAttribute("data-id");
-        if (!confirm("Hapus rekening ini?")) return;
+        const confirmed = await confirmDialog("Hapus rekening ini?", {
+          title: "Hapus Rekening",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         currentBanks = currentBanks.filter((b) => b.id !== id);
         await saveBanks(currentBanks);
         renderBanks(currentBanks);
@@ -737,11 +751,17 @@ function bindEventListeners() {
       });
 
       if (!selectedProductNames.length) {
-        alert("Pilih minimal 1 product untuk referral ini.");
+        alertDialog("Pilih minimal 1 product untuk referral ini.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
       if (!code || maxUsage <= 0) {
-        alert("Kode dan maksimal pemakaian wajib diisi.");
+        alertDialog("Kode dan maksimal pemakaian wajib diisi.", {
+          title: "Peringatan",
+          type: "warning"
+        });
         return;
       }
 
@@ -903,7 +923,11 @@ function bindEventListeners() {
       if (deleteBtn) {
         const idx = parseInt(deleteBtn.getAttribute("data-idx"), 10);
         if (isNaN(idx)) return;
-        if (!confirm("Hapus kode referral ini?")) return;
+        const confirmed = await confirmDialog("Hapus kode referral ini?", {
+          title: "Hapus Referral",
+          confirmText: "Ya, Hapus"
+        });
+        if (!confirmed) return;
         currentReferrals.splice(idx, 1);
         await saveReferrals(currentReferrals);
         updateReferralList();
@@ -937,6 +961,29 @@ function bindEventListeners() {
   if (invoiceViewModal) {
     invoiceViewModal.addEventListener("click", (e) => {
       if (e.target === invoiceViewModal) closeInvoiceViewModal();
+    });
+  }
+
+  // 13. Export Data Modal Controls
+  const exportControls = initInvoiceExportModal();
+  const exportForm = document.getElementById("exportInvoiceForm");
+  if (exportForm && exportControls) {
+    exportForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      exportControls.setLoading(true);
+      try {
+        const formData = exportControls.getFormData();
+        await exportInvoiceData(formData);
+        const modalEl = document.getElementById("exportInvoiceModal");
+        if (modalEl && window.bootstrap) {
+          bootstrap.Modal.getInstance(modalEl)?.hide();
+        }
+      } catch (err) {
+        console.error("Export invoice error:", err);
+        alertDialog("Gagal mengekspor data invoice: " + err.message, { title: "Export Gagal" });
+      } finally {
+        exportControls.setLoading(false);
+      }
     });
   }
   const discountCalculatorModal = document.getElementById("discountCalculatorModal");

@@ -22,6 +22,12 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMs } from "/assets/js/utils.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  extractTimestamp,
+  formatDateIndo,
+} from "/assets/js/utils/export-helper.js";
 
 export { auth };
 
@@ -320,3 +326,178 @@ export function getTrainingMetrics() {
     ],
   };
 }
+
+/**
+ * Export People Development data to Excel (.xlsx) or CSV (.csv).
+ * @param {Object} options
+ * @param {string} options.dataType - 'attendance' | 'survey' | 'leaderboard'
+ * @param {string} options.status - 'all' | 'ontime' | 'late' | 'permit' | 'sick' | 'absent'
+ * @param {string} options.rangeType - 'all' | 'month' | 'week'
+ * @param {string} options.month
+ * @param {string} options.weekMonth
+ * @param {number} options.week
+ * @param {string} options.format - 'xlsx' | 'csv'
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportPeopleDevData({
+  dataType = "attendance",
+  status = "all",
+  rangeType = "all",
+  month = "",
+  weekMonth = "",
+  week = 1,
+  format = "xlsx",
+}) {
+  const { startTimestamp, endTimestamp, periodLabel } = calcDateRange(
+    rangeType,
+    month,
+    weekMonth,
+    week
+  );
+
+  let columns = [];
+  let rows = [];
+  let sheetName = "People Development";
+
+  if (dataType === "survey") {
+    sheetName = "Survey Kepuasan";
+    columns = [
+      { header: "No", key: "no", width: 6 },
+      { header: "ID Survey", key: "id", width: 22 },
+      { header: "Nama Pengisi", key: "name", width: 26 },
+      { header: "Email", key: "email", width: 26 },
+      { header: "Rating (1-5)", key: "rating", width: 14 },
+      { header: "Feedback / Ulasan", key: "feedback", width: 36 },
+      { header: "Tanggal", key: "date", width: 18 },
+    ];
+
+    const surveyRef = collection(db, "satisfaction_surveys");
+    const snap = await getDocs(surveyRef);
+    let allSurveys = [];
+    snap.forEach((ds) => {
+      allSurveys.push({ id: ds.id, ...(ds.data() || {}) });
+    });
+
+    if (rangeType !== "all") {
+      allSurveys = allSurveys.filter((s) => {
+        const ts = extractTimestamp(s.created_at) || extractTimestamp(s.date);
+        if (ts === null) return true;
+        return ts >= startTimestamp && ts <= endTimestamp;
+      });
+    }
+
+    if (!allSurveys.length) {
+      throw new Error("Tidak ada data survey kepuasan pada periode yang dipilih.");
+    }
+
+    rows = allSurveys.map((s, idx) => ({
+      no: idx + 1,
+      id: s.id,
+      name: s.userName || s.name || "Anonymous",
+      email: s.userEmail || s.email || "-",
+      rating: s.rating || 5,
+      feedback: s.feedback || "-",
+      date: formatDateIndo(s.created_at || s.date, true),
+    }));
+  } else if (dataType === "leaderboard") {
+    sheetName = "Leaderboard XP";
+    columns = [
+      { header: "No", key: "no", width: 6 },
+      { header: "Peringkat", key: "rank", width: 12 },
+      { header: "Nama Lengkap", key: "name", width: 26 },
+      { header: "Total XP / Skor", key: "xp", width: 18 },
+      { header: "Tren", key: "trend", width: 14 },
+    ];
+
+    const data = await getLeaderboardData();
+    const list = data.monthly || data.weekly || [];
+    if (!list.length) {
+      throw new Error("Tidak ada data leaderboard ditemukan.");
+    }
+
+    rows = list.map((item, idx) => ({
+      no: idx + 1,
+      rank: item.rank || idx + 1,
+      name: item.name || "-",
+      xp: item.xp || 0,
+      trend: (item.trend || "neutral").toUpperCase(),
+    }));
+  } else {
+    // Attendance logs
+    sheetName = "Log Presensi";
+    columns = [
+      { header: "No", key: "no", width: 6 },
+      { header: "ID Presensi", key: "id", width: 22 },
+      { header: "Nama Intern", key: "name", width: 26 },
+      { header: "Tanggal", key: "date", width: 18 },
+      { header: "Jam Masuk", key: "time", width: 14 },
+      { header: "Status", key: "status", width: 16 },
+      { header: "Lokasi / Keterangan", key: "location", width: 30 },
+    ];
+
+    const attRef = collection(db, "user_attendance");
+    const snap = await getDocs(attRef);
+    let allLogs = [];
+    snap.forEach((ds) => {
+      allLogs.push({ id: ds.id, ...(ds.data() || {}) });
+    });
+
+    // Filter status
+    if (status && status !== "all") {
+      const sTerm = status.toLowerCase();
+      allLogs = allLogs.filter((log) => {
+        const raw = (log.status || log.type || "").toString().toLowerCase();
+        if (sTerm === "ontime") return raw.includes("ontime") || raw.includes("on-time") || raw.includes("hadir") || raw.includes("tepat");
+        if (sTerm === "late") return raw.includes("late") || raw.includes("telat");
+        if (sTerm === "permit") return raw.includes("izin") || raw.includes("permit") || raw.includes("leave");
+        if (sTerm === "sick") return raw.includes("sakit") || raw.includes("sick");
+        if (sTerm === "absent") return raw.includes("absen") || raw.includes("absent");
+        return raw.includes(sTerm);
+      });
+    }
+
+    // Filter date
+    if (rangeType !== "all") {
+      allLogs = allLogs.filter((log) => {
+        const ts = extractTimestamp(log.created_at) || extractTimestamp(log.date) || extractTimestamp(log.timestamp);
+        if (ts === null) return true;
+        return ts >= startTimestamp && ts <= endTimestamp;
+      });
+    }
+
+    if (!allLogs.length) {
+      throw new Error("Tidak ada data presensi pada periode / filter yang dipilih.");
+    }
+
+    rows = allLogs.map((log, idx) => {
+      const name = log.name || log.userName || log.user_name || "Intern";
+      const dateStr = log.date || (log.created_at ? formatDateIndo(log.created_at) : "-");
+      const timeStr = log.time || log.check_in || "-";
+      const stat = (log.status || log.type || "On-Time").toUpperCase();
+      const loc = log.location || log.keterangan || log.notes || "Office";
+
+      return {
+        no: idx + 1,
+        id: log.id,
+        name,
+        date: dateStr,
+        time: timeStr,
+        status: stat,
+        location: loc,
+      };
+    });
+  }
+
+  const filename = `People_Development_${dataType.toUpperCase()}_${periodLabel}`;
+
+  await downloadExportFile({
+    filename,
+    sheetName,
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <title>Branding Content Schedule - Team Dialogika</title>
+    <meta name="description" content="Atur timeline pembuatan konten, penulisan script, take video, editing, dan publikasi di Branding Division." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <!-- ExcelJS and SheetJS for Spreadsheet Export -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Shared Foundation Styles -->
+    <link rel="stylesheet" href="/assets/css/theme.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+
+    <!-- Feature-scoped Styles -->
+    <link rel="stylesheet" href="/pages/branding/content-schedule/content-schedule.css" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+
+    <!-- Centralized Auth Guard -->
+    <script type="module" src="/assets/js/auth-guard.js"></script>
+  </head>
+
+  <body>
+    <!-- Shared Shell Mount Points -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+
+      <!-- ── Breadcrumb Navigation ─────────────────────────────────── -->
+      <nav class="cs-breadcrumb" aria-label="Breadcrumb">
+        <a href="/home" title="Home"><i class="bi bi-house-fill"></i></a>
+        <span class="breadcrumb-separator">/</span>
+        <span>BRANDING DIVISION</span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">CONTENT SCHEDULE</span>
+      </nav>
+
+      <!-- ── Page Header ───────────────────────────────────────────── -->
+      <div class="cs-page-header">
+        <div>
+          <h1 class="cs-page-title">Branding Content Schedule</h1>
+          <p class="cs-page-subtitle">Atur timeline pembuatan konten, penulisan script, take video, editing, dan publikasi.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            id="btnOpenExportModal"
+            class="btn-export-green"
+            data-bs-toggle="modal"
+            data-bs-target="#exportContentScheduleModal"
+          >
+            <i class="bi bi-file-earmark-arrow-down"></i> Export
+          </button>
+          <button class="btn btn-dlg-purple rounded-pill px-4" id="addContentBtn">
+            <i class="bi bi-plus-lg me-2"></i>Tambah Konten
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Upcoming Deadlines Panel ──────────────────────────────── -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3 text-dark">
+            <i class="bi bi-bell-fill text-warning me-2"></i>Upcoming Deadlines
+          </h6>
+          <div class="row g-3" id="notificationPanelContainer">
+            <div class="col-12 text-center text-muted py-3">
+              <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+              Memuat deadline...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Calendar Card ─────────────────────────────────────────── -->
+      <div class="calendar-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold text-dark mb-0" id="currentMonthYear">Month Year</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calPrevBtn">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calTodayBtn">
+              Hari Ini
+            </button>
+            <button class="btn btn-sm btn-light border rounded-pill px-3" id="calNextBtn">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar Header Row -->
+        <div class="calendar-grid mb-3">
+          <div class="calendar-header-cell">Minggu</div>
+          <div class="calendar-header-cell">Senin</div>
+          <div class="calendar-header-cell">Selasa</div>
+          <div class="calendar-header-cell">Rabu</div>
+          <div class="calendar-header-cell">Kamis</div>
+          <div class="calendar-header-cell">Jumat</div>
+          <div class="calendar-header-cell">Sabtu</div>
+        </div>
+
+        <!-- Calendar Days Grid (rendered by JS) -->
+        <div class="calendar-grid" id="calendarDaysGrid"></div>
+      </div>
+
+      <!-- ── Selected Day Card ──────────────────────────────────────── -->
+      <div class="card border-0 shadow-sm rounded-4 d-none" id="selectedDayCard">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-dark mb-0" id="selectedDateTitle">Jadwal pada tanggal</h6>
+            <button class="btn-close" id="closeSelectedDayBtn" aria-label="Tutup"></button>
+          </div>
+          <div id="selectedDayList" class="d-flex flex-column gap-3"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── MODAL: Date Click Options ─────────────────────────────────── -->
+    <div class="modal fade" id="dateClickModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+          <div class="modal-header border-0 p-4 pb-2">
+            <h5 class="modal-title fw-bold text-dark" id="dateClickModalTitle">Pilih Aksi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <div id="dateClickDeadlinesSection" class="mb-4 d-none">
+              <h6 class="fw-bold text-dark mb-3">Daftar Deadline Hari Ini:</h6>
+              <div id="dateClickDeadlinesList" class="d-flex flex-column gap-2"></div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <button type="button" class="btn btn-dlg-purple rounded-pill py-2 w-100" id="addContentFromDateBtn">
+                <i class="bi bi-plus-lg me-2"></i>Tambah Rencana Konten Baru
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Add / Edit Content ─────────────────────────────────── -->
+    <div class="modal fade" id="contentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0">
+          <div class="modal-header border-0 p-4 pb-2">
+            <h5 class="modal-title fw-bold text-dark" id="modalTitle">Tambah Rencana Konten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <form id="contentForm" novalidate>
+              <input type="hidden" id="contentId" />
+
+              <!-- Judul Konten -->
+              <div class="mb-3">
+                <label class="form-label" for="contentTitle">Judul Konten</label>
+                <input
+                  type="text"
+                  id="contentTitle"
+                  class="form-control rounded-3"
+                  placeholder="Pilih atau ketik judul konten..."
+                  list="contentTitleList"
+                  required />
+                <datalist id="contentTitleList"></datalist>
+              </div>
+
+              <!-- Deskripsi -->
+              <div class="mb-4">
+                <label class="form-label" for="contentDesc">Deskripsi / Catatan Konten</label>
+                <textarea
+                  id="contentDesc"
+                  class="form-control rounded-3"
+                  rows="2"
+                  placeholder="Catatan opsional tentang konten..."></textarea>
+              </div>
+
+              <!-- Prioritas -->
+              <div class="mb-4">
+                <label class="form-label" for="contentPriority">Prioritas</label>
+                <select id="contentPriority" class="form-select rounded-3">
+                  <option value="normal">Normal</option>
+                  <option value="medium">Menengah</option>
+                  <option value="high">Tinggi</option>
+                </select>
+              </div>
+
+              <!-- Daftar Milestone / Deadline -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0 text-dark">Daftar Deadline</h6>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                  id="addMilestoneBtn">
+                  <i class="bi bi-plus-lg me-1"></i>Tambah Deadline
+                </button>
+              </div>
+
+              <div id="milestonesContainer" class="d-flex flex-column gap-2 mb-4">
+                <!-- Milestone rows rendered dynamically by JS -->
+              </div>
+
+              <!-- Form Actions -->
+              <div class="d-flex gap-3 justify-content-end pt-3 border-top">
+                <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+                  Batal
+                </button>
+                <button type="submit" class="btn btn-dlg-purple rounded-pill px-4">
+                  Simpan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Export Data -->
+    <div
+      class="modal fade"
+      id="exportContentScheduleModal"
+      tabindex="-1"
+      aria-labelledby="exportContentScheduleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered export-modal-dialog">
+        <div class="modal-content export-modal-content">
+          <div class="modal-body export-modal-body">
+            <!-- Header Modal -->
+            <div class="export-modal-header d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="export-header-icon bg-emerald-50 text-emerald-600">
+                  <i class="fa-solid fa-file-excel"></i>
+                </div>
+                <div>
+                  <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">Export Data Konten (Excel / CSV)</h5>
+                  <p class="text-muted small mb-0" style="font-size: 0.8rem;">Pilih format file, periode, dan filter status jadwal konten</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Form Export -->
+            <form id="exportContentScheduleForm" class="d-flex flex-column gap-3">
+              <!-- FORMAT FILE -->
+              <div>
+                <label class="export-section-label">FORMAT FILE</label>
+                <div class="export-segmented-control" id="formatFileSegmented">
+                  <button type="button" class="export-segmented-btn active" data-format="xlsx" id="btnFormatXlsx">
+                    <i class="bi bi-file-earmark-excel text-success"></i> Excel (.xlsx)
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-format="csv" id="btnFormatCsv">
+                    <i class="bi bi-file-earmark-text text-primary"></i> CSV (.csv)
+                  </button>
+                </div>
+              </div>
+
+              <!-- DATA YANG DIEXPORT -->
+              <div>
+                <label class="export-section-label">DATA YANG DIEXPORT</label>
+                <select class="form-select export-select shadow-none" id="exportDataType">
+                  <option value="all">Data Content Schedule</option>
+                </select>
+              </div>
+
+              <!-- PILIHAN RENTANG WAKTU -->
+              <div>
+                <label class="export-section-label">PILIHAN RENTANG WAKTU</label>
+                <div class="export-segmented-control" id="rangeTypeSegmented">
+                  <button type="button" class="export-segmented-btn active" data-range="all" id="btnRangeAll">
+                    <i class="bi bi-globe"></i> Semua Data
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="month" id="btnRangeMonth">
+                    <i class="bi bi-calendar3"></i> Per Bulan
+                  </button>
+                  <button type="button" class="export-segmented-btn" data-range="week" id="btnRangeWeek">
+                    <i class="bi bi-calendar-week"></i> Per Minggu
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECTION: SEMUA DATA -->
+              <div id="sectionAllPicker" style="display: block;">
+                <div class="p-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                  <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Ekspor Semua Jadwal Konten</span>
+                  </div>
+                  <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportAllHelpText">
+                    Semua data jadwal pembuatan konten dari awal hingga saat ini akan dimasukkan ke dalam file export.
+                  </small>
+                </div>
+              </div>
+
+              <!-- SECTION: PILIH BULAN -->
+              <div id="sectionMonthPicker" style="display: none;">
+                <label class="export-section-label" id="monthPickerLabel">PILIH BULAN &amp; TAHUN</label>
+                <input type="month" class="form-control export-input shadow-none w-100" id="exportMonthInput">
+                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportMonthHelpText">
+                  Semua jadwal konten pada bulan yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- SECTION: PILIH MINGGU -->
+              <div id="sectionWeekPicker" style="display: none;">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="export-section-label">BULAN &amp; TAHUN</label>
+                    <input type="month" class="form-control export-input shadow-none w-100" id="exportWeekMonthInput">
+                  </div>
+                  <div class="col-6">
+                    <label class="export-section-label">PILIH MINGGU</label>
+                    <select class="form-select export-select shadow-none" id="exportWeekSelect">
+                      <option value="1">Minggu 1 (Tgl 1 - 7)</option>
+                      <option value="2">Minggu 2 (Tgl 8 - 14)</option>
+                      <option value="3">Minggu 3 (Tgl 15 - 21)</option>
+                      <option value="4">Minggu 4 (Tgl 22 - 28)</option>
+                      <option value="5">Minggu 5 (Tgl 29 - Akhir Bulan)</option>
+                    </select>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="exportWeekHelpText">
+                  Semua jadwal konten pada minggu yang dipilih akan dimasukkan ke dalam file Excel.
+                </small>
+              </div>
+
+              <!-- FILTER STATUS KONTEN -->
+              <div>
+                <label class="export-section-label">FILTER STATUS KONTEN</label>
+                <select class="form-select export-select shadow-none" id="exportStatusFilter">
+                  <option value="">Semua Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In-Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex align-items-center justify-content-end gap-2 mt-2 pt-2 border-top">
+                <button type="button" class="btn btn-light rounded-xl px-4 py-2 text-xs font-semibold" data-bs-dismiss="modal">
+                  Batal
+                </button>
+                <button type="submit" class="btn-download-export" id="btnSubmitExportContentSchedule">
+                  <i class="bi bi-download"></i> Download Data
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 + Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Content Schedule Orchestrator -->
+    <script type="module" src="/pages/branding/content-schedule/content-schedule.js"></script>
+  </body>
+</html>

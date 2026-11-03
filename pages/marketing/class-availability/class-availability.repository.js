@@ -15,6 +15,12 @@ import {
     writeBatch,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    downloadExportFile,
+    calcDateRange,
+    formatDateIndo,
+    extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 export const FALLBACK_CLASSES = [
     {
@@ -179,15 +185,22 @@ export async function fetchProducts() {
  */
 export async function fetchMentors() {
     try {
-        const snap = await getDocs(collection(db, "mentor"));
+        let snap = await getDocs(collection(db, "mentors"));
+        if (snap.empty) {
+            snap = await getDocs(collection(db, "mentor"));
+        }
         const list = [];
+        const seenNames = new Set();
         snap.forEach((docSnap) => {
             const d = docSnap.data() || {};
             const id = docSnap.id;
-            if (d.fullName) {
+            const name = (d.fullName || d.name || d.nama_lengkap || d.mentor_name || d.displayName || "").trim();
+            const lower = name.toLowerCase();
+            if (name && name !== "Unknown" && !seenNames.has(lower)) {
+                seenNames.add(lower);
                 list.push({
                     id,
-                    name: d.fullName
+                    name
                 });
             }
         });
@@ -343,6 +356,7 @@ export async function moveToClassPlanning(classItem) {
 }
 
 /**
+refactor/marketing/class-availability
  * Adds multiple class batches to Firestore in atomic chunks using writeBatch.
  * @param {Array<Object>} batches
  * @returns {Promise<Array<string>>}
@@ -387,3 +401,94 @@ export async function addMultipleClassBatches(batches) {
 
     return createdIds;
 }
+
+ * Export class availability data based on modal filters.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter class type (Offline, Online, Private)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportClassData({
+    format = "xlsx",
+    rangeType = "all",
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+    status = "",
+}) {
+    const { start, end, label: periodLabel } = calcDateRange({
+        rangeType,
+        startDate,
+        endDate,
+        monthValue,
+        weekValue,
+    });
+
+    const classes = await fetchClassAvailability();
+
+    const filtered = classes.filter((item) => {
+        if (status && status !== "" && String(item.type || "").toLowerCase() !== status.toLowerCase()) {
+            return false;
+        }
+        if (start && end) {
+            const ts = extractTimestamp(item.start_date);
+            if (!ts) return false;
+            const itemDate = new Date(ts);
+            if (itemDate < start || itemDate > end) return false;
+        }
+        return true;
+    });
+
+    const columns = [
+        { header: "No", key: "no", width: 8 },
+        { header: "Nama Kelas", key: "name", width: 30 },
+        { header: "Tipe Kelas", key: "type", width: 16 },
+        { header: "Mentor", key: "mentor", width: 22 },
+        { header: "Program / Produk", key: "product", width: 24 },
+        { header: "Tanggal Mulai", key: "startDate", width: 18 },
+        { header: "Lokasi", key: "location", width: 22 },
+        { header: "Total Kursi", key: "maxSeat", width: 14 },
+        { header: "Kursi Terisi", key: "joined", width: 14 },
+        { header: "Kursi Sisa", key: "left", width: 14 },
+        { header: "Down Payment", key: "dp", width: 18 },
+        { header: "Status", key: "status", width: 16 },
+    ];
+
+    const rows = filtered.map((item, idx) => {
+        const left = Math.max(0, (item.max_seat || 0) - (item.current_joined || 0));
+        const isFull = left === 0;
+        return {
+            no: idx + 1,
+            name: item.name || "-",
+            type: item.type || "-",
+            mentor: item.mentor_name || "-",
+            product: item.product_name || "-",
+            startDate: item.start_date || "Flexible",
+            location: item.location || "-",
+            maxSeat: Number(item.max_seat || 0),
+            joined: Number(item.current_joined || 0),
+            left,
+            dp: item.down_payment ? `Rp ${Number(item.down_payment).toLocaleString("id-ID")}` : "Rp 0",
+            status: isFull ? "PENUH" : "TERSEDIA",
+        };
+    });
+
+    const filename = `Data_Ketersediaan_Kelas_${periodLabel}`;
+    await downloadExportFile({
+        filename,
+        sheetName: "Ketersediaan Kelas",
+        columns,
+        rows,
+        format,
+    });
+
+    return { count: rows.length, filename };
+}
+
+ main

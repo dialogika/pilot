@@ -15,6 +15,12 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  downloadExportFile,
+  calcDateRange,
+  formatDateIndo,
+  extractTimestamp,
+} from "../../../assets/js/utils/export-helper.js";
 
 const PRIMARY_COLLECTION = "mentors";
 const FALLBACK_COLLECTION = "mentor";
@@ -604,3 +610,95 @@ export async function getAvailableClasses() {
     },
   ];
 }
+
+/**
+ * Exports Mentor Management data to Excel or CSV.
+ * @param {Object} options
+ * @param {string} [options.format="xlsx"]
+ * @param {string} [options.rangeType="all"]
+ * @param {string} [options.startDate]
+ * @param {string} [options.endDate]
+ * @param {string} [options.monthValue]
+ * @param {string|number} [options.weekValue]
+ * @param {string} [options.status=""] - Filter mentor status (active, inactive, on_leave)
+ * @returns {Promise<{ count: number, filename: string }>}
+ */
+export async function exportMentorData({
+  format = "xlsx",
+  rangeType = "all",
+  startDate,
+  endDate,
+  monthValue,
+  weekValue,
+  status = "",
+}) {
+  const { start, end, label: periodLabel } = calcDateRange({
+    rangeType,
+    startDate,
+    endDate,
+    monthValue,
+    weekValue,
+  });
+
+  const mentors = await getMentors();
+
+  const filtered = mentors.filter((m) => {
+    if (status && status !== "" && String(m.status || "").toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    if (start && end) {
+      const ts = extractTimestamp(m.createdAt || m.contractEnd);
+      if (ts) {
+        const mDate = new Date(ts);
+        if (mDate < start || mDate > end) return false;
+      }
+    }
+    return true;
+  });
+
+  const columns = [
+    { header: "No", key: "no", width: 8 },
+    { header: "Nama Lengkap", key: "fullName", width: 28 },
+    { header: "Nama Panggilan", key: "nickName", width: 18 },
+    { header: "WhatsApp", key: "whatsapp", width: 18 },
+    { header: "Rating", key: "rating", width: 12 },
+    { header: "Kategori Mengajar", key: "teaching", width: 20 },
+    { header: "Tipe", key: "type", width: 16 },
+    { header: "Kelas Aktif", key: "activeClasses", width: 14 },
+    { header: "Total Kelas", key: "totalClasses", width: 14 },
+    { header: "Lokasi", key: "location", width: 20 },
+    { header: "Status", key: "status", width: 16 },
+    { header: "Akhir Kontrak", key: "contractEnd", width: 18 },
+    { header: "Attendance Rate (%)", key: "attendanceRate", width: 20 },
+    { header: "Completion Rate (%)", key: "completionRate", width: 20 },
+  ];
+
+  const rows = filtered.map((m, idx) => ({
+    no: idx + 1,
+    fullName: m.fullName || "-",
+    nickName: m.nickName || "-",
+    whatsapp: m.whatsappNumber || m.whatsapp || "-",
+    rating: typeof m.rating === "number" ? m.rating.toFixed(1) : "-",
+    teaching: m.teaching || "-",
+    type: m.type || "-",
+    activeClasses: m.activeClasses || 0,
+    totalClasses: m.totalClasses || 0,
+    location: m.location || "-",
+    status: (m.status || "active").toUpperCase(),
+    contractEnd: m.contractEnd ? formatDateIndo(m.contractEnd) : "-",
+    attendanceRate: typeof m.attendanceRate === "number" ? `${m.attendanceRate}%` : "-",
+    completionRate: typeof m.completionRate === "number" ? `${m.completionRate}%` : "-",
+  }));
+
+  const filename = `Data_Mentor_${periodLabel}`;
+  await downloadExportFile({
+    filename,
+    sheetName: "Data Mentor",
+    columns,
+    rows,
+    format,
+  });
+
+  return { count: rows.length, filename };
+}
+

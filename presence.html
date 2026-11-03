@@ -163,6 +163,7 @@ body[data-theme="dark"] { background-color: var(--bg-body-theme); color: var(--t
         .gold-text {
             background: linear-gradient(to right, #0B2B6A, #0163ea);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
         }
@@ -451,6 +452,11 @@ body[data-theme="dark"] { background-color: var(--bg-body-theme); color: var(--t
                 </div>
             </div>
 
+            <div id="nfcIndicatorBadge" class="hidden mb-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
+                    <i class="bi bi-broadcast"></i> Mode NFC Terdeteksi
+                </span>
+            </div>
             <div id="statusBadgeContainer" style="min-height: 28px;"></div>
             <p id="validationMessage" class="mt-2 mb-0 text-xs text-slate-500" style="min-height: 18px;"></p>
 
@@ -476,10 +482,10 @@ body[data-theme="dark"] { background-color: var(--bg-body-theme); color: var(--t
             </svg>
         </div>
         <h2 class="text-2xl font-semibold text-gray-800">Presensi Berhasil</h2>
-        <p id="confirmedType" class="text-sm font-semibold mt-1" style="color:#0B2B6A;"></p>
+        <p id="confirmedType" class="text-sm font-semibold mt-1" style="color:var(--dlg-blue);"></p>
         <p id="confirmedUser" class="text-gray-500 mt-2 font-light"></p>
         <p id="workDurationInfo" class="text-gray-500 mt-1 text-sm"></p>
-        <button onclick="location.reload()"
+        <button id="btnDismissSuccess"
             class="mt-12 px-8 py-3 rounded-full border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-all">Selesai</button>
     </div>
 
@@ -509,7 +515,23 @@ import { app, db } from "./assets/js/firebase-config.js";
 
         
 
+        const urlParams = new URLSearchParams(window.location.search);
+        let isNfcSource = urlParams.get('source') === 'nfc';
+        let hasAutoTriggeredNfc = false;
+
+        function cleanNfcUrlParam() {
+            if (window.history && window.history.replaceState) {
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                isNfcSource = false;
+            }
+        }
+
         const nameSelectEl = document.getElementById('nameSelect');
+        if (isNfcSource) {
+            const nfcBadge = document.getElementById('nfcIndicatorBadge');
+            if (nfcBadge) nfcBadge.classList.remove('hidden');
+        }
         let currentPresenceMode = 'login'; // 'login' or 'logout'
         let unsubscribeUsersListener = null;
         const validationMessageEl = document.getElementById('validationMessage');
@@ -563,19 +585,13 @@ import { app, db } from "./assets/js/firebase-config.js";
 
         function getDayPresenceRule(date = new Date()) {
             const day = date.getDay();
-            const logoutDeadlineSec = (18 * 3600);
-
-            if (day === 2 || day === 4) { // Selasa, Kamis
+            // Hari aktif presensi: Selasa (2), Kamis (4), Sabtu (6), Minggu (0)
+            if (day === 2 || day === 4 || day === 6 || day === 0) {
                 return {
-                    loginStartSec: (9 * 3600) + (45 * 60),
-                    logoutDeadlineSec
-                };
-            }
-
-            if (day === 6 || day === 0) { // Sabtu, Minggu
-                return {
-                    loginStartSec: (8 * 3600) + (45 * 60),
-                    logoutDeadlineSec
+                    loginStartSec: (8 * 3600),       // 08:00
+                    loginDeadlineSec: (13 * 3600),   // 13:00
+                    logoutStartSec: (13 * 3600),     // 13:00
+                    logoutDeadlineSec: (18 * 3600)   // 18:00
                 };
             }
 
@@ -594,18 +610,34 @@ import { app, db } from "./assets/js/firebase-config.js";
 
             const nowSec = getNowSeconds(date);
 
-            if (mode === 'login' && nowSec < rule.loginStartSec) {
-                return {
-                    valid: false,
-                    message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
-                };
+            if (mode === 'login') {
+                if (nowSec < rule.loginStartSec) {
+                    return {
+                        valid: false,
+                        message: `Clock In dibuka mulai ${formatClockHHMM(rule.loginStartSec)}.`
+                    };
+                }
+                if (rule.loginDeadlineSec && nowSec > rule.loginDeadlineSec) {
+                    return {
+                        valid: false,
+                        message: `Clock In sudah ditutup (batas maksimal ${formatClockHHMM(rule.loginDeadlineSec)}).`
+                    };
+                }
             }
 
-            if (mode === 'logout' && nowSec > rule.logoutDeadlineSec) {
-                return {
-                    valid: false,
-                    message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
-                };
+            if (mode === 'logout') {
+                if (rule.logoutStartSec && nowSec < rule.logoutStartSec) {
+                    return {
+                        valid: false,
+                        message: `Clock Out baru dibuka mulai ${formatClockHHMM(rule.logoutStartSec)}.`
+                    };
+                }
+                if (nowSec > rule.logoutDeadlineSec) {
+                    return {
+                        valid: false,
+                        message: `Clock Out sudah ditutup. Batas maksimal ${formatClockHHMM(rule.logoutDeadlineSec)}.`
+                    };
+                }
             }
 
             return { valid: true, message: "" };
@@ -742,7 +774,13 @@ import { app, db } from "./assets/js/firebase-config.js";
             );
 
             getDocs(q).then((snap) => {
-                const selectedUserId = select.value;
+                let savedUserId = null;
+                try {
+                    savedUserId = localStorage.getItem('dialogika_presence_user_id');
+                } catch (err) {
+                    console.warn("localStorage unaccessible", err);
+                }
+                const selectedUserId = select.value || savedUserId;
                 const users = [];
                 console.log('users snapshot size:', snap.size);
                 snap.forEach(docSnap => {
@@ -822,10 +860,14 @@ import { app, db } from "./assets/js/firebase-config.js";
                 }
 
                 if (selectedUserId && users.some(u => u.id === selectedUserId)) {
+                    select.value = selectedUserId;
                     onUserSelected();
                 } else {
                     applySelectedPhoto();
                     updateSliderMode('login');
+                    if (isNfcSource) {
+                        setValidationMessage('📡 Mode NFC Aktif: Silakan pilih nama Anda terlebih dahulu.', 'info');
+                    }
                 }
             }).catch((e) => {
                 console.error("Gagal memuat users", e);
@@ -931,6 +973,25 @@ import { app, db } from "./assets/js/firebase-config.js";
             }
         }
 
+        async function triggerAutoNfcAttendance() {
+            setSliderEnabled(false);
+            const actionText = currentPresenceMode === 'login' ? 'Clock In' : 'Clock Out';
+            setValidationMessage(`📡 Mode NFC: Memproses ${actionText} otomatis...`, 'info');
+
+            const handleEl = document.getElementById('sliderHandle');
+            const sliderTextEl = document.getElementById('sliderText');
+            const wrapperEl = document.getElementById('sliderWrapper');
+            const targetSlide = wrapperEl.offsetWidth - handleEl.offsetWidth - 10;
+
+            handleEl.style.transition = 'left 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
+            handleEl.style.left = (targetSlide + 5) + 'px';
+            sliderTextEl.style.transition = 'opacity 0.5s ease';
+            sliderTextEl.style.opacity = '0';
+
+            await new Promise(resolve => setTimeout(resolve, 750));
+            await completeAttendance();
+        }
+
         async function onUserSelected() {
             applySelectedPhoto();
             latestLocationValidation = null;
@@ -938,10 +999,16 @@ import { app, db } from "./assets/js/firebase-config.js";
             if (!option || !option.value) {
                 updateSliderMode('login');
                 setSliderEnabled(false);
-                setValidationMessage('', 'info');
+                setValidationMessage(isNfcSource ? '📡 Mode NFC Aktif: Silakan pilih nama Anda terlebih dahulu.' : '', 'info');
                 return;
             }
             const userId = option.value;
+            try {
+                localStorage.setItem('dialogika_presence_user_id', userId);
+            } catch (err) {
+                console.warn('LocalStorage not available', err);
+            }
+
             const { hasLogin, hasLogout } = await checkTodayAttendance(userId);
             const timeValidation = validatePresenceTime('logout');
             setValidationMessage('Memeriksa lokasi perangkat...', 'info');
@@ -959,26 +1026,51 @@ import { app, db } from "./assets/js/firebase-config.js";
                 }
             } else {
                 updateSliderMode('done');
-                setValidationMessage('', 'info');
+                setValidationMessage('Presensi hari ini selesai (sudah Clock In & Clock Out).', 'info');
                 return;
             }
+
+            // Reset slider handle position
+            const handle = document.getElementById('sliderHandle');
+            const sliderText = document.getElementById('sliderText');
+            handle.style.transition = 'all 0.3s ease';
+            handle.style.left = '5px';
+            sliderText.style.opacity = 1;
 
             const locationValidation = await validatePresenceLocation(true);
             if (locationValidation.ok) {
                 isLocationValid = true;
                 setValidationMessage(locationValidation.message, 'success');
                 setSliderEnabled(true);
+
+                // Auto clock-in / clock-out if opened via NFC and location is valid
+                if (isNfcSource && !hasAutoTriggeredNfc) {
+                    if (currentPresenceMode === 'login') {
+                        hasAutoTriggeredNfc = true;
+                        await triggerAutoNfcAttendance();
+                    } else if (currentPresenceMode === 'logout') {
+                        // Cooldown: Cegah auto clock-out instan jika baru saja Clock In (< 15 menit)
+                        const dateStr = getLocalDateString();
+                        const loginTime = await getTodayLatestLoginTime(userId, dateStr);
+                        const loginSec = parseTimeToSeconds(loginTime);
+                        const nowSec = getNowSeconds();
+                        const MIN_LOGOUT_COOLDOWN_SEC = 15 * 60; // 15 menit
+                        const hasPassedCooldown = loginSec === null || (nowSec - loginSec) >= MIN_LOGOUT_COOLDOWN_SEC;
+
+                        if (hasPassedCooldown) {
+                            hasAutoTriggeredNfc = true;
+                            await triggerAutoNfcAttendance();
+                        } else {
+                            cleanNfcUrlParam();
+                            setValidationMessage(`Anda baru saja Clock In (${loginTime || ''}). Selamat bekerja!`, 'info');
+                        }
+                    }
+                }
             } else {
                 isLocationValid = false;
                 setValidationMessage(locationValidation.message, 'error');
                 setSliderEnabled(false);
             }
-
-            // Reset slider handle position
-            const handle = document.getElementById('sliderHandle');
-            handle.style.transition = 'all 0.3s ease';
-            handle.style.left = '5px';
-            document.getElementById('sliderText').style.opacity = 1;
         }
 
         async function recordAttendance(locationValidation) {
@@ -1025,7 +1117,7 @@ import { app, db } from "./assets/js/firebase-config.js";
                     date: dateStr,
                     time: timeStr,
                     type: currentPresenceMode,
-                    source: "manual",
+                    source: isNfcSource ? "nfc" : "manual",
                     created_at: serverTimestamp()
                 };
 
@@ -1164,12 +1256,13 @@ import { app, db } from "./assets/js/firebase-config.js";
             }
 
             const confirmedType = document.getElementById('confirmedType');
+            const sourceBadge = isNfcSource ? " (NFC)" : "";
             if (currentPresenceMode === 'login') {
-                confirmedType.textContent = '? Clock In Berhasil';
+                confirmedType.textContent = `Clock In Berhasil${sourceBadge}`;
                 confirmedType.style.color = '#1e40af';
                 workDurationInfo.textContent = '';
             } else {
-                confirmedType.textContent = '? Clock Out Berhasil';
+                confirmedType.textContent = `Clock Out Berhasil${sourceBadge}`;
                 confirmedType.style.color = '#92400e';
                 workDurationInfo.textContent = '';
             }
@@ -1186,11 +1279,27 @@ import { app, db } from "./assets/js/firebase-config.js";
                 return;
             }
             setValidationMessage('', 'info');
+            cleanNfcUrlParam();
             successOverlay.style.display = 'flex';
             if (currentPresenceMode === 'logout' && attendanceResult.workDurationText) {
                 workDurationInfo.textContent = `Durasi kerja hari ini: ${attendanceResult.workDurationText}`;
             }
-            if (window.navigator.vibrate) window.navigator.vibrate(40);
+            if (window.navigator.vibrate) {
+                try {
+                    window.navigator.vibrate([60, 50, 60]);
+                } catch (e) {
+                    // Ignore if vibration is not permitted
+                }
+            }
+        }
+
+        const btnDismissSuccess = document.getElementById('btnDismissSuccess');
+        if (btnDismissSuccess) {
+            btnDismissSuccess.addEventListener('click', () => {
+                successOverlay.style.display = 'none';
+                cleanNfcUrlParam();
+                onUserSelected();
+            });
         }
 
         window.addEventListener('resize', () => {

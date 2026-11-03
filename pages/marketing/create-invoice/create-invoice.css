@@ -3,13 +3,6 @@
  * Feature-scoped styles for Create Invoice / Invoice Center
  */
 
-:root {
-  --surface-toolbar: #f8fafc;
-  --surface-active: #f1f5f9;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-}
-
 .glass-card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
@@ -90,4 +83,261 @@
 
 .custom-table-scroll::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES — create-invoice.css
+   ===================================================================== */
+
+/* Body background — match Dialogika standard dark theme */
+[data-theme="dark"] body {
+  background: var(--bg-body) !important;
+}
+
+/* Glass card */
+[data-theme="dark"] .glass-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+
+/* Active tab */
+[data-theme="dark"] .tab-active {
+  background: var(--surface) !important;
+  color: #60a5fa !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Inactive tab buttons */
+[data-theme="dark"] .tab-btn:not(.tab-active) {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .tab-btn:not(.tab-active):hover {
+  background-color: var(--surface-hover) !important;
+  color: var(--text) !important;
+}
+
+/* Tab bar wrapper (bg-slate-200/60) */
+[data-theme="dark"] .tab-btn:not(.tab-active) ~ *,
+[data-theme="dark"] .tab-btn ~ .tab-btn {
+  color: var(--text-muted);
+}
+
+/* Custom inputs — enhanced contrast against dark glass-card */
+[data-theme="dark"] .custom-input {
+  background-color: var(--surface-muted) !important;
+  color: var(--text-strong) !important;
+  border: 1px solid var(--border-strong) !important;
+}
+[data-theme="dark"] .custom-input:focus {
+  background-color: var(--surface) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+/* Custom select chevron for dark mode (replaces dark flaticon chevron) */
+[data-theme="dark"] select.custom-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-size: 16px !important;
+  background-position: right 1.25rem center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Form labels & titles */
+[data-theme="dark"] .glass-card h2.text-slate-800,
+[data-theme="dark"] .glass-card label.text-slate-700 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .glass-card label.text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+/* Stat Cards icon containers and badges */
+[data-theme="dark"] .glass-card .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  color: #c084fc !important;
+}
+[data-theme="dark"] .glass-card .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+}
+[data-theme="dark"] .glass-card .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #4ade80 !important;
+}
+[data-theme="dark"] .glass-card span.bg-slate-100 {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .glass-card span.bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+[data-theme="dark"] .glass-card span.bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+[data-theme="dark"] .glass-card h3.text-slate-800 {
+  color: var(--text-strong) !important;
+}
+[data-theme="dark"] .glass-card p.text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Buttons */
+[data-theme="dark"] .btn-dlg-blue {
+  background-color: #3b82f6;
+}
+[data-theme="dark"] .btn-dlg-blue:hover {
+  background-color: #2563eb;
+}
+
+/* Save button shadow fix */
+[data-theme="dark"] [class*="shadow-slate"] {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+
+/* --- Tab bar container --- */
+[data-theme="dark"] .bg-slate-200\/60 {
+  background-color: var(--surface-2) !important;
+}
+
+/* --- Search inputs inside toolbar --- */
+[data-theme="dark"] input.bg-slate-50 {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+/* --- Date range trigger buttons --- */
+[data-theme="dark"] #invoiceDateRangeBtn,
+[data-theme="dark"] #receiptDateRangeBtn {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* --- Date range popover --- */
+[data-theme="dark"] #invoiceDateRangePopover,
+[data-theme="dark"] #receiptDateRangePopover {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #invoiceDateRangePopover .text-\[10px\],
+[data-theme="dark"] #receiptDateRangePopover .text-\[10px\] {
+  color: var(--text-faint) !important;
+}
+
+/* --- Filter selects (bg-white) --- */
+[data-theme="dark"] #invoiceExpiryFilter,
+[data-theme="dark"] #invoicePageSize {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* --- Invoice list table --- */
+[data-theme="dark"] #invoiceTableBody {
+  background-color: var(--surface) !important;
+}
+[data-theme="dark"] #invoiceTableBody tr {
+  border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] #invoiceTableBody tr:hover td {
+  background-color: var(--surface-hover) !important;
+}
+[data-theme="dark"] thead.sticky {
+  background-color: var(--surface-toolbar) !important;
+}
+
+/* --- Referral filter buttons --- */
+[data-theme="dark"] .ref-filter-btn {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .ref-filter-btn.bg-white {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* --- Referral table --- */
+[data-theme="dark"] #refTableBody {
+  background-color: var(--surface) !important;
+}
+[data-theme="dark"] #refTableBody tr {
+  border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] #refTableBody tr:hover td {
+  background-color: var(--surface-hover) !important;
+}
+
+/* --- Referral table header row --- */
+[data-theme="dark"] .glass-card tr.bg-slate-50\/70 {
+  background-color: var(--surface-toolbar) !important;
+}
+[data-theme="dark"] .glass-card tr.border-b.border-slate-100 {
+  border-color: var(--border-soft) !important;
+}
+
+/* --- Referral table footer --- */
+[data-theme="dark"] .bg-slate-50\/50 {
+  background-color: var(--surface-muted) !important;
+}
+[data-theme="dark"] .border-t.border-slate-100 {
+  border-color: var(--border-soft) !important;
+}
+[data-theme="dark"] #refFooterSummary {
+  color: var(--text-faint) !important;
+}
+
+/* --- Referral product dropdown --- */
+[data-theme="dark"] #refProductOptions {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #refProductOptions p {
+  color: var(--text-faint) !important;
+}
+[data-theme="dark"] #refProductDropdown {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* --- Bank form gradient sections --- */
+[data-theme="dark"] .p-6.rounded-3xl.bg-gradient-to-br,
+[data-theme="dark"] div[class*="from-white"][class*="to-slate-50"] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+/* --- Bank table --- */
+[data-theme="dark"] #bankTableBody {
+  background-color: var(--surface) !important;
+}
+[data-theme="dark"] #bankTableBody tr {
+  border-color: var(--border-soft) !important;
+}
+
+/* --- Payment channels header border --- */
+[data-theme="dark"] .border-b.border-slate-100 {
+  border-color: var(--border-soft) !important;
+}
+
+/* --- Custom scrollbar (dark mode) --- */
+[data-theme="dark"] .custom-table-scroll::-webkit-scrollbar-track {
+  background: var(--surface-muted);
+  border-radius: 9999px;
+}
+[data-theme="dark"] .custom-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+[data-theme="dark"] .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
 }

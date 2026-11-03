@@ -76,9 +76,9 @@ export function buildOnJobTrainingMessage(options = {}) {
         category = "team"
     } = options;
 
-    const templateId = getTemplateIdForStageMode("on_job_training", mode, category);
+    const templateId = getTemplateIdForStageMode("on_job_test", mode, category) || getTemplateIdForStageMode("on_job_training", mode, category);
     if (!templateId) {
-        console.warn("No template found for On Job Training mode:", mode, "category:", category);
+        console.warn("No template found for On Job Test mode:", mode, "category:", category);
         return null;
     }
 
@@ -92,6 +92,8 @@ export function buildOnJobTrainingMessage(options = {}) {
 
     return buildMessageFromTemplate(templateId, tokens, category);
 }
+
+export const buildOnJobTestMessage = buildOnJobTrainingMessage;
 
 /**
  * Build micro teaching WhatsApp message (backward-compatible wrapper)
@@ -155,6 +157,7 @@ export function buildOnboardingMessage(options = {}) {
         onboardingDate = "-",
         onboardingTime = "-",
         onboardingLocation = "",
+        onboardingPicNames = "",
         category = "team"
     } = options;
 
@@ -162,7 +165,9 @@ export function buildOnboardingMessage(options = {}) {
         candidate_name: candidateName,
         onboarding_date: onboardingDate,
         onboarding_time: onboardingTime,
-        onboarding_location: onboardingLocation
+        onboarding_location: onboardingLocation,
+        onboarding_pic_names: onboardingPicNames,
+        pic_name: onboardingPicNames
     };
 
     return buildMessageFromTemplate("onboarding", tokens, category);

@@ -6,15 +6,9 @@
    ===================================================================== */
 
 .mm-page-wrapper {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 3rem 1rem;
-}
-
-@media (min-width: 640px) {
-  .mm-page-wrapper {
-    padding: 2rem 1.5rem 4rem 1.5rem;
-  }
+  width: 100%;
+  margin: 0;
+  padding: 0 0 2.5rem 0;
 }
 
 /* --- Status Badges --- */
@@ -174,3 +168,263 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* =====================================================================
+   DARK MODE OVERRIDES — mentor-management.css
+   ===================================================================== */
+[data-theme="dark"] .badge-status-active {
+  background: rgba(22, 163, 74, 0.15);
+  color: #4ade80;
+}
+[data-theme="dark"] .badge-status-inactive {
+  background: rgba(185, 28, 28, 0.15);
+  color: #f87171;
+}
+[data-theme="dark"] .badge-status-onleave {
+  background: rgba(180, 83, 9, 0.15);
+  color: #fbbf24;
+}
+
+/* table hover — use surface-hover for visible contrast */
+[data-theme="dark"] .table-sticky tbody tr:hover {
+  background-color: var(--surface-hover);
+}
+
+[data-theme="dark"] .modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+[data-theme="dark"] .tab-pill-active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+[data-theme="dark"] .tab-pill-inactive {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .tab-pill-inactive:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .pagination-btn {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-strong);
+}
+[data-theme="dark"] .pagination-btn.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* --- Table Headers, Dividers & Sticky Head in Dark Mode --- */
+[data-theme="dark"] thead.bg-slate-50,
+[data-theme="dark"] tr.bg-slate-50,
+[data-theme="dark"] .table-sticky th {
+  background-color: var(--surface-2) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] .table-sticky td {
+  border-bottom-color: var(--border) !important;
+}
+
+/* --- Detail Modal Inner Blocks & Search/Filter Inputs --- */
+[data-theme="dark"] .modal-card .bg-slate-50,
+[data-theme="dark"] #filterPanel.bg-slate-50\/80 {
+  background-color: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] #searchMentor.bg-slate-50,
+[data-theme="dark"] .modal-card input,
+[data-theme="dark"] .modal-card select,
+[data-theme="dark"] .modal-card textarea {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+/* =====================================================================
+   DATABASE MAPPING & ERD MODAL STYLES (MENTOR MANAGEMENT)
+   ===================================================================== */
+
+.erd-modal-dialog {
+  max-width: 1240px;
+}
+
+.erd-tab-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.erd-tab-btn:hover {
+  color: #1e293b;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.erd-tab-btn.active {
+  background: #ffffff;
+  color: #d97706;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.erd-table-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.erd-table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* Relation Filter / Highlight Pills */
+.erd-rel-pill {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #64748b;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.erd-rel-pill:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.erd-rel-pill.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* SVG Connector Lines & Paths */
+.erd-connector-svg {
+  overflow: visible !important;
+}
+
+@keyframes erdDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.erd-relation-path {
+  animation: erdDash 1.5s linear infinite;
+  transition: stroke-width 0.2s ease, stroke 0.2s ease;
+}
+
+.erd-relation-path-group {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.erd-relation-path-group:hover .erd-relation-path {
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+/* Interactive Card Highlights */
+.erd-table-card.relation-highlight {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2), 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.erd-table-card.relation-faded {
+  opacity: 0.35;
+  transform: scale(0.98);
+}
+
+/* Dark Mode Support for ERD Modal */
+[data-theme="dark"] .erd-modal-header,
+[data-theme="dark"] .erd-modal-footer {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .erd-modal-body {
+  background-color: var(--surface-muted) !important;
+}
+
+[data-theme="dark"] .erd-segmented-tabs {
+  background-color: var(--surface-2) !important;
+}
+
+[data-theme="dark"] .erd-tab-btn {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .erd-tab-btn.active {
+  background-color: var(--surface) !important;
+  color: #fcd34d !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .erd-table-card {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .erd-table-card .divide-y > * {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #mentorErdDictTable th {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #mentorErdDictTable td {
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] #mentorErdDictSearchInput,
+[data-theme="dark"] #mentorErdDictTableFilter {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .erd-rel-pill {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .erd-rel-pill:hover {
+  background-color: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border-sep);
+}
+
+[data-theme="dark"] .erd-rel-pill.active {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: #ffffff;
+}
+
