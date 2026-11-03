@@ -356,7 +356,6 @@ export async function moveToClassPlanning(classItem) {
 }
 
 /**
-refactor/marketing/class-availability
  * Adds multiple class batches to Firestore in atomic chunks using writeBatch.
  * @param {Array<Object>} batches
  * @returns {Promise<Array<string>>}
@@ -490,5 +489,3 @@ export async function exportClassData({
 
     return { count: rows.length, filename };
 }
-
- main

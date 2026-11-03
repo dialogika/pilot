@@ -606,7 +606,6 @@ export function showToast(message, type = "info") {
 }
 
 /**
- refactor/marketing/class-availability
  * Parses a 2D matrix (from SheetJS / CSV) into structured class batch objects.
  * @param {Array<Array>} matrix
  * @param {Object} options
@@ -927,5 +926,3 @@ export function initClassExportModal(onFormatChange, onRangeChange) {
         onRangeChange,
     });
 }
-
- main
