@@ -805,7 +805,8 @@ import { app, db } from "./assets/js/firebase-config.js";
                     const rawRole = rawRoleCandidates.find(v => v !== undefined && v !== null && v !== "");
                     const roleValue = rawRole ? String(rawRole).trim().toLowerCase() : "";
                     const isStatusOk = statusValue === undefined || statusValue === null || statusValue === "active";
-                    const isRoleOk = ["staff", "sub_team"].includes(roleValue);
+                    const allowedRoles = ["team", "sub_team", "staff", "intern", "internship", "admin", "owner"];
+                    const isRoleOk = allowedRoles.includes(roleValue);
 
                     console.log('user doc:', docSnap.id, {
                         statusValueRaw,
@@ -842,7 +843,7 @@ import { app, db } from "./assets/js/firebase-config.js";
                 users.sort((a, b) => a.name.localeCompare(b.name));
 
                 if (!users.length) {
-                    select.innerHTML = '<option value="" disabled selected>Tidak ada user (staff/sub_team)</option>';
+                    select.innerHTML = '<option value="" disabled selected>Tidak ada anggota aktif yang ditemukan</option>';
                 } else {
                     select.innerHTML = '<option value="" disabled selected>Pilih nama...</option>';
                     users.forEach(u => {
