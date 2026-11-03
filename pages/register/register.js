@@ -77,6 +77,7 @@ function bindEvents() {
 
 function bindCardInputs() {
   const name = document.getElementById("inputName");
+  const role = document.getElementById("inputRole");
   const pos = document.getElementById("inputPos");
   const pass = document.getElementById("inputPass");
   const birth = document.getElementById("inputBirth");
@@ -88,6 +89,7 @@ function bindCardInputs() {
   const refreshFront = () =>
     ui.updateCardFront({
       name: valueOf(name),
+      role: valueOf(role),
       pos: valueOf(pos),
       pass: valueOf(pass),
       birth: valueOf(birth),
@@ -101,6 +103,7 @@ function bindCardInputs() {
     });
 
   if (name) name.addEventListener("input", refreshFront);
+  if (role) role.addEventListener("change", refreshFront);
   if (pos) pos.addEventListener("change", refreshFront);
   if (pass) pass.addEventListener("input", refreshFront);
   if (birth) birth.addEventListener("input", refreshFront);
@@ -119,11 +122,12 @@ async function handleSubmit(event) {
 
   const email = valueOf(document.getElementById("inputEmail")).trim();
   const password = valueOf(document.getElementById("inputPass"));
+  const role = valueOf(document.getElementById("inputRole")).trim();
   const file = photoFile();
   const payload = buildPendingPayload(email);
 
-  if (!payload.name || !email || !password) {
-    ui.showMessage("Lengkapi data wajib terlebih dahulu.", "error");
+  if (!payload.name || !email || !password || !role) {
+    ui.showMessage("Lengkapi data wajib terlebih dahulu (Nama, Role, Email, Password).", "error");
     return;
   }
 
@@ -205,9 +209,16 @@ async function partialFailure(uid, step, error) {
 
 function buildPendingPayload(email) {
   const department = "";
-  return {
+  const selectedRole = (valueOf(document.getElementById("inputRole")) || "staff").trim().toLowerCase();
+  const isIntern = selectedRole === "intern";
+  const roleId = isIntern ? "intern" : "staff";
+  const levelOrder = isIntern ? 4 : 3;
+
+  const payload = {
     name: valueOf(document.getElementById("inputName")).trim(),
     email: email,
+    role: roleId,
+    role_id: roleId,
     birth: valueOf(document.getElementById("inputBirth")),
     phone: valueOf(document.getElementById("inputPhone")),
     photo: "",
@@ -221,12 +232,21 @@ function buildPendingPayload(email) {
       linkedin: valueOf(document.getElementById("inputLinked")).trim(),
     },
     access: {
-      role_id: "staff",
-      level_order: 3,
+      role_id: roleId,
+      level_order: levelOrder,
     },
     is_approved: false,
     registered_at: new Date(),
   };
+
+  if (isIntern) {
+    payload.category = "intern";
+    payload.internshipStatus = "Active";
+  } else {
+    payload.category = "staff";
+  }
+
+  return payload;
 }
 
 function photoFile() {
