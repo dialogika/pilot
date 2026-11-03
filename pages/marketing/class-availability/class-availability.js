@@ -39,17 +39,18 @@ import {
     initClassExportModal
 } from "./class-availability.ui.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function initializeClassAvailability() {
     // 1. Auth Guard
-    const user = await requireAuth();
-    if (!user) return;
+    const authResult = await requireAuth();
+    if (!authResult || !authResult.user) return;
+    const { user, role } = authResult;
 
     // 2. Mount Topbar and Sidebar
     const topbarMount = document.getElementById("dg-topbar-mount");
-    if (topbarMount) renderTopBar(topbarMount);
+    if (topbarMount) renderTopBar(topbarMount, { user, role });
 
     const sidebarMount = document.getElementById("dg-sidebar-mount");
-    if (sidebarMount) renderSidebar(sidebarMount);
+    if (sidebarMount) renderSidebar(sidebarMount, { role, activePage: "class-availability" });
 
     // 3. Local State
     let classesState = [];
@@ -889,5 +890,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    loadData();
-});
+    await loadData();
+}
+
+// Boot on DOM ready
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeClassAvailability);
+} else {
+    initializeClassAvailability();
+}
