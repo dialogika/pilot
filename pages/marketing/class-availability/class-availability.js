@@ -15,11 +15,8 @@ import {
     updateJoinedSeats,
     deleteClassBatch,
     moveToClassPlanning,
-refactor/marketing/class-availability
     addMultipleClassBatches,
-
     exportClassData,
- main
     FALLBACK_CLASSES
 } from "./class-availability.repository.js";
 import {
@@ -37,12 +34,9 @@ import {
     getSeatsLeft,
     getBatchStatus,
     showToast,
-refactor/marketing/class-availability
     parseSpreadsheetMatrix,
-    renderImportPreview
-
+    renderImportPreview,
     initClassExportModal
-main
 } from "./class-availability.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -616,8 +610,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-refactor/marketing/class-availability
-
     // =========================================================================
     // IMPORT SPREADSHEET ORCHESTRATION
     // =========================================================================
@@ -848,7 +840,6 @@ refactor/marketing/class-availability
                 showToast("Gagal mengekspor data ketersediaan kelas: " + err.message, "danger");
             } finally {
                 exportControls.setLoading(false);
-main
             }
         });
     }
