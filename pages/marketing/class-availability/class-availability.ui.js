@@ -606,6 +606,316 @@ export function showToast(message, type = "info") {
 }
 
 /**
+ refactor/marketing/class-availability
+ * Parses a 2D matrix (from SheetJS / CSV) into structured class batch objects.
+ * @param {Array<Array>} matrix
+ * @param {Object} options
+ * @returns {Array<Object>}
+ */
+export function parseSpreadsheetMatrix(matrix, options = {}) {
+    const {
+        defaultMaxSeatOffline = 7,
+        defaultMaxSeatOnline = 10,
+        defaultDpOffline = 500000,
+        defaultDpOnline = 300000,
+        appendLocationToName = true,
+        products = [],
+        mentors = []
+    } = options;
+
+    if (!matrix || matrix.length < 2) return [];
+
+    // 1. Locate header row
+    let headerRowIdx = -1;
+    for (let i = 0; i < Math.min(matrix.length, 10); i++) {
+        const rowStr = (matrix[i] || []).map(c => String(c || "").trim().toLowerCase()).join(" ");
+        if (rowStr.includes("nama kelas") || rowStr.includes("kelas") || rowStr.includes("class name")) {
+            headerRowIdx = i;
+            break;
+        }
+    }
+    if (headerRowIdx === -1) headerRowIdx = 0;
+
+    const headers = (matrix[headerRowIdx] || []).map(c => String(c || "").trim().toLowerCase());
+
+    const colMap = {
+        name: headers.findIndex(h => h.includes("nama") || h.includes("kelas") || h.includes("class")),
+        location: headers.findIndex(h => h.includes("lokasi") || h.includes("kota") || h.includes("location") || h.includes("city")),
+        startDate: headers.findIndex(h => h.includes("tanggal mulai") || h.includes("tgl mulai") || h.includes("start date") || h.includes("mulai")),
+        time: headers.findIndex(h => h.includes("waktu") || h.includes("jam") || h.includes("time")),
+        days: headers.findIndex(h => h.includes("hari") || h.includes("day")),
+        endDate: headers.findIndex(h => h.includes("tanggal selesai") || h.includes("tgl selesai") || h.includes("end date") || h.includes("selesai")),
+        member: headers.findIndex(h => h.includes("member") || h.includes("terisi") || h.includes("joined") || h.includes("peserta")),
+        mentor: headers.findIndex(h => h.includes("mentor") || h.includes("coach") || h.includes("trainer")),
+        status: headers.findIndex(h => h.includes("status")),
+        notes: headers.findIndex(h => h.includes("note") || h.includes("catatan") || h.includes("keterangan")),
+        maxSeat: headers.findIndex(h => h.includes("max") || h.includes("seat") || h.includes("kapasitas") || h.includes("kuota")),
+        dp: headers.findIndex(h => h.includes("dp") || h.includes("down payment") || h.includes("panjar"))
+    };
+
+    const results = [];
+
+    for (let r = headerRowIdx + 1; r < matrix.length; r++) {
+        const row = matrix[r] || [];
+        if (!row || row.length === 0) continue;
+
+        const rawName = colMap.name >= 0 ? String(row[colMap.name] || "").trim() : "";
+        if (!rawName) continue;
+
+        const lowerRaw = rawName.toLowerCase();
+        // Ignore summary lines or notes on the side/bottom
+        if (lowerRaw.startsWith("total") || lowerRaw.startsWith("offline:") || lowerRaw.startsWith("online:") || lowerRaw.includes("dewasa,") || lowerRaw === "dewasa") {
+            continue;
+        }
+
+        const rawLoc = colMap.location >= 0 ? String(row[colMap.location] || "").trim() : "";
+        const isOnline = rawLoc.toLowerCase() === "online" || lowerRaw.includes("online");
+
+        let type = isOnline ? "Online" : "Offline";
+        if (lowerRaw.includes("private")) {
+            type = "Private";
+        }
+
+        let location = rawLoc;
+        if (isOnline) {
+            location = "Online";
+        } else {
+            const locLow = rawLoc.toLowerCase();
+            if (locLow.includes("jakarta")) location = "Jakarta";
+            else if (locLow.includes("tangerang") || locLow.includes("tangsel")) location = "Tangsel";
+            else if (locLow.includes("jogja") || locLow.includes("yogyakarta")) location = "Yogyakarta";
+            else if (locLow.includes("surabaya")) location = "Surabaya";
+            else if (locLow.includes("pontianak")) location = "Pontianak";
+        }
+
+        let finalName = rawName;
+        if (appendLocationToName && location && location !== "Online") {
+            if (!finalName.toLowerCase().includes(location.toLowerCase()) && !finalName.toLowerCase().includes(rawLoc.toLowerCase())) {
+                finalName = `${rawName} - ${location}`;
+            }
+        } else if (appendLocationToName && isOnline && !finalName.toLowerCase().includes("online")) {
+            finalName = `${rawName} - Online`;
+        }
+
+        const rawStartDate = colMap.startDate >= 0 ? String(row[colMap.startDate] || "").trim() : "";
+        const rawTime = colMap.time >= 0 ? String(row[colMap.time] || "").trim() : "";
+
+        let startTime = "";
+        if (rawTime && rawTime !== "-") {
+            const timeMatch = rawTime.match(/(\d{1,2}:\d{2})/);
+            if (timeMatch) {
+                startTime = timeMatch[1].padStart(5, "0");
+            }
+        }
+
+        let startDate = "Flexible";
+        if (rawStartDate) {
+            if (startTime) {
+                startDate = `${rawStartDate}T${startTime}`;
+            } else {
+                startDate = rawStartDate;
+            }
+        }
+
+        const rawMember = colMap.member >= 0 ? String(row[colMap.member] || "").trim() : "";
+        const currentJoined = parseInt(rawMember, 10) || 0;
+
+        let maxSeat = 0;
+        if (colMap.maxSeat >= 0 && row[colMap.maxSeat]) {
+            maxSeat = parseInt(row[colMap.maxSeat], 10) || 0;
+        }
+        if (!maxSeat || maxSeat <= 0) {
+            maxSeat = type === "Online" ? defaultMaxSeatOnline : defaultMaxSeatOffline;
+        }
+        if (currentJoined > maxSeat) {
+            maxSeat = currentJoined;
+        }
+
+        const rawMentor = colMap.mentor >= 0 ? String(row[colMap.mentor] || "").trim() : "";
+        let mentorName = rawMentor && rawMentor !== "-" ? rawMentor : "Unknown";
+        // If matches existing mentor in mentors list (case-insensitive), use canonical casing
+        if (mentors && mentors.length > 0 && mentorName !== "Unknown") {
+            const mMatch = mentors.find(m => m.name && m.name.toLowerCase() === mentorName.toLowerCase());
+            if (mMatch) mentorName = mMatch.name;
+        }
+
+        // Product detection
+        let detectedProductId = "";
+        let detectedProductName = "";
+        const lowerName = finalName.toLowerCase();
+
+        if (lowerName.includes("first class")) {
+            detectedProductName = "First Class";
+            detectedProductId = type === "Online" ? "FC-ONL" : "FC-OFF";
+        } else if (lowerName.includes("first kids")) {
+            detectedProductName = "First Kids";
+            detectedProductId = type === "Online" ? "FK-ONL" : "FK-OFF";
+        } else if (lowerName.includes("first mc")) {
+            detectedProductName = "First MC";
+            detectedProductId = "FMC";
+        } else if (lowerName.includes("basic plus level 2") || lowerName.includes("basic plus lv 2")) {
+            detectedProductName = "Basic Plus Level 2";
+            detectedProductId = "BP-LVL-2";
+        } else if (lowerName.includes("kids plus level 2") || lowerName.includes("kids plus lv 2")) {
+            detectedProductName = "Kids Plus Level 2";
+            detectedProductId = "KP-LVL-2";
+        } else if (lowerName.includes("basic plus")) {
+            detectedProductName = "Basic Plus";
+            detectedProductId = type === "Online" ? "BP-ONL" : "BP-OFF";
+        } else if (lowerName.includes("kids plus")) {
+            detectedProductName = "Kids Plus";
+            detectedProductId = type === "Online" ? "KP-ONL" : "KP-OFF";
+        } else if (lowerName.includes("interview class")) {
+            detectedProductName = "Interview Class";
+            detectedProductId = "IC";
+        } else if (lowerName.includes("custom class")) {
+            detectedProductName = "Custom Class";
+            detectedProductId = "CC";
+        } else if (lowerName.includes("master class")) {
+            detectedProductName = "Master Class";
+            detectedProductId = "MC";
+        } else if (lowerName.includes("mc class")) {
+            detectedProductName = "MC Class";
+            detectedProductId = "MCC";
+        } else if (lowerName.includes("public speaking")) {
+            detectedProductName = "Public Speaking";
+            detectedProductId = "PS";
+        } else {
+            detectedProductName = rawName.split("#")[0].trim();
+            detectedProductId = detectedProductName.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        }
+
+        const matchedProduct = products.find(p =>
+            p.name && detectedProductName && p.name.toLowerCase().includes(detectedProductName.toLowerCase())
+        );
+        if (matchedProduct) {
+            detectedProductId = matchedProduct.productId || matchedProduct.id;
+            detectedProductName = matchedProduct.name;
+        }
+
+        let downPayment = 0;
+        if (colMap.dp >= 0 && row[colMap.dp]) {
+            downPayment = Number(String(row[colMap.dp]).replace(/[^0-9]/g, "")) || 0;
+        }
+        if (!downPayment) {
+            downPayment = type === "Online" ? defaultDpOnline : defaultDpOffline;
+        }
+
+        const days = colMap.days >= 0 ? String(row[colMap.days] || "").trim() : "";
+        const endDate = colMap.endDate >= 0 ? String(row[colMap.endDate] || "").trim() : "";
+        const status = colMap.status >= 0 ? String(row[colMap.status] || "").trim() : "Ready";
+        const notes = colMap.notes >= 0 ? String(row[colMap.notes] || "").trim() : "";
+
+        results.push({
+            name: finalName,
+            raw_name: rawName,
+            type,
+            max_seat: maxSeat,
+            current_joined: currentJoined,
+            start_date: startDate,
+            mentor_name: mentorName,
+            product_id: detectedProductId,
+            product_name: detectedProductName,
+            location,
+            down_payment: downPayment,
+            days,
+            end_date: endDate,
+            time: rawTime,
+            status,
+            notes,
+            is_planned: false
+        });
+    }
+
+    return results;
+}
+
+/**
+ * Renders the preview table for parsed spreadsheet batches.
+ * @param {Object} params
+ */
+export function renderImportPreview({ container, countBadge, items = [], onRemoveItem }) {
+    if (!container) return;
+    container.innerHTML = "";
+    if (countBadge) {
+        countBadge.textContent = `${items.length} Data Kelas`;
+    }
+
+    if (items.length === 0) {
+        container.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-slate-400">Tidak ada baris data kelas yang valid ditemukan dalam sheet.</td></tr>`;
+        return;
+    }
+
+    items.forEach((item, idx) => {
+        const tr = document.createElement("tr");
+
+        let typeBadge = item.type === "Online"
+            ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle">Online</span>`
+            : `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Offline</span>`;
+        if (item.type === "Private") {
+            typeBadge = `<span class="badge bg-purple-subtle text-purple border border-purple-subtle">Private</span>`;
+        }
+
+        const formattedDate = formatDate(item.start_date);
+        const seatsLeft = item.max_seat - item.current_joined;
+        let seatStatusBadge = "";
+        if (seatsLeft <= 0) {
+            seatStatusBadge = `<span class="badge bg-danger-subtle text-danger">Sold Out</span>`;
+        } else if (seatsLeft <= 2) {
+            seatStatusBadge = `<span class="badge bg-warning-subtle text-warning-emphasis">Sisa ${seatsLeft}</span>`;
+        } else {
+            seatStatusBadge = `<span class="badge bg-success-subtle text-success">Sisa ${seatsLeft}</span>`;
+        }
+
+        tr.innerHTML = `
+            <td class="text-slate-400 font-mono py-2 px-3">${idx + 1}</td>
+            <td>
+                <div class="font-bold text-slate-800">${escapeHtml(item.name)}</div>
+                ${item.notes ? `<div class="text-[11px] text-slate-400 italic">${escapeHtml(item.notes)}</div>` : ""}
+            </td>
+            <td>
+                <div class="flex items-center gap-1.5">
+                    ${typeBadge}
+                    <span class="text-slate-600 font-medium">${escapeHtml(item.location || "-")}</span>
+                </div>
+            </td>
+            <td>
+                <div class="text-slate-700 font-medium">${formattedDate}</div>
+            </td>
+            <td>
+                <div class="text-slate-600">${escapeHtml(item.time || "-")}</div>
+                ${item.days ? `<div class="text-[11px] text-slate-400">${escapeHtml(item.days)}</div>` : ""}
+            </td>
+            <td>
+                <div class="flex items-center gap-1">
+                    <span class="font-bold text-slate-800">${item.current_joined}</span>
+                    <span class="text-slate-400">/</span>
+                    <span class="text-slate-600">${item.max_seat}</span>
+                    <span class="ms-1">${seatStatusBadge}</span>
+                </div>
+            </td>
+            <td>
+                <span class="text-slate-700 font-medium">${escapeHtml(item.mentor_name || "Unknown")}</span>
+            </td>
+            <td>
+                <span class="badge bg-slate-100 text-slate-700 font-medium">${escapeHtml(item.product_name || item.product_id || "-")}</span>
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-lg btn-remove-preview" data-idx="${idx}" title="Hapus dari daftar import">
+                    <i class="bi bi-x-lg text-xs"></i>
+                </button>
+            </td>
+        `;
+
+        const btnRemove = tr.querySelector(".btn-remove-preview");
+        if (btnRemove && onRemoveItem) {
+            btnRemove.addEventListener("click", () => onRemoveItem(idx));
+        }
+
+        container.appendChild(tr);
+    });
+}
+
  * Initializes Standard Export Modal for Class Availability.
  * @param {Function} [onFormatChange]
  * @param {Function} [onRangeChange]
@@ -618,3 +928,4 @@ export function initClassExportModal(onFormatChange, onRangeChange) {
     });
 }
 
+ main

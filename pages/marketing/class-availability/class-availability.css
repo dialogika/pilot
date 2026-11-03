@@ -111,6 +111,26 @@
     border-color: #e2e8f0;
 }
 
+ refactor/marketing/class-availability
+/* Import Spreadsheet Modal Styles */
+#importDropzone {
+    border-style: dashed;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#importDropzone:hover {
+    border-color: #6366f1;
+    background-color: #f5f7ff;
+}
+
+#importPreviewSection table thead th {
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    background-color: #f8fafc;
+
 /* =====================================================================
    DARK MODE OVERRIDES — class-availability.css
    ===================================================================== */
@@ -260,4 +280,5 @@
     background: var(--surface-muted);
     border-color: var(--border);
     color: var(--text-faint);
+ main
 }
