@@ -4,8 +4,8 @@
  */
 
 import { requireAuth } from "../../../assets/js/auth-guard.js";
-import { renderTopBar } from "../../../element/topbar.js";
-import { renderSidebar } from "../../../element/sidebar.js";
+import { renderTopbar } from "/assets/js/components/topbar/topbar.js";
+import { renderSidebar } from "/assets/js/components/sidebar/sidebar.js";
 import {
     fetchClassAvailability,
     fetchProducts,
@@ -40,17 +40,26 @@ import {
 } from "./class-availability.ui.js";
 
 async function initializeClassAvailability() {
-    // 1. Auth Guard
-    const authResult = await requireAuth();
-    if (!authResult || !authResult.user) return;
-    const { user, role } = authResult;
+    // 1. Auth Guard & Shell Mounts
+    let user = null;
+    let role = "member";
+    try {
+        const authResult = await requireAuth();
+        if (authResult && authResult.user) {
+            user = authResult.user;
+            role = authResult.role || "member";
+        }
+    } catch (authErr) {
+        console.warn("Auth check warning:", authErr);
+    }
 
-    // 2. Mount Topbar and Sidebar
-    const topbarMount = document.getElementById("dg-topbar-mount");
-    if (topbarMount) renderTopBar(topbarMount, { user, role });
-
-    const sidebarMount = document.getElementById("dg-sidebar-mount");
-    if (sidebarMount) renderSidebar(sidebarMount, { role, activePage: "class-availability" });
+    // 2. Mount Topbar and Sidebar (consolidated shell)
+    try {
+        renderTopbar({ user, role });
+        renderSidebar({ role, activePage: "class-availability" });
+    } catch (shellErr) {
+        console.error("Failed to render shell:", shellErr);
+    }
 
     // 3. Local State
     let classesState = [];
@@ -854,16 +863,20 @@ async function initializeClassAvailability() {
         if (listContainer) listContainer.style.display = "none";
 
         try {
-            const [classes, products, mentors] = await Promise.all([
+            const fetchPromise = Promise.all([
                 fetchClassAvailability(),
                 fetchProducts(),
                 fetchMentors()
             ]);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout loading data from Firestore")), 5000)
+            );
+
+            const [classes, products, mentors] = await Promise.race([fetchPromise, timeoutPromise]);
 
             classesState = classes && classes.length > 0 ? classes : FALLBACK_CLASSES;
             productsState = products || [];
 
-            // Gunakan daftar mentor resmi dari database jika ada; jika kosong, baru fallback dari data kelas
             if (mentors && mentors.length > 0) {
                 mentorsState = mentors;
             } else {
@@ -876,13 +889,12 @@ async function initializeClassAvailability() {
                 mentorsState = Array.from(mentorMap.values()).sort((a, b) => a.name.localeCompare(b.name, "id"));
             }
 
-            // Pre-populate Add Batch dropdowns
             populateProductDropdown(newBatchProductSelect, productsState, "", true);
             populateMentorDropdown(newBatchMentorSelect, mentorsState, "Unknown");
         } catch (error) {
             console.error("Gagal memuat data Firestore, beralih ke Fallback:", error);
             classesState = FALLBACK_CLASSES;
-            showToast("Memuat data dalam mode offline", "info");
+            showToast("Memuat data dalam mode offline / fallback", "info");
         } finally {
             if (loadingState) loadingState.style.display = "none";
             if (listContainer) listContainer.style.display = "block";
