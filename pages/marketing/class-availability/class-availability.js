@@ -820,6 +820,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <i class="bi bi-cloud-check me-1"></i>
                     <span id="btnExecuteImportText">Import Data Kelas</span>
                 `;
+            }
+        });
+    }
 
     // 14b. Export Data Controls
     const exportControls = initClassExportModal();
