@@ -15,6 +15,7 @@ import {
     updateJoinedSeats,
     deleteClassBatch,
     moveToClassPlanning,
+    addMultipleClassBatches,
     FALLBACK_CLASSES
 } from "./class-availability.repository.js";
 import {
@@ -31,7 +32,9 @@ import {
     isBatchClosed,
     getSeatsLeft,
     getBatchStatus,
-    showToast
+    showToast,
+    parseSpreadsheetMatrix,
+    renderImportPreview
 } from "./class-availability.ui.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -602,6 +605,221 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             currentPage = 1;
             renderView();
+        });
+    }
+
+
+    // =========================================================================
+    // IMPORT SPREADSHEET ORCHESTRATION
+    // =========================================================================
+    let importedMatrixState = null;
+    let parsedBatchesState = [];
+
+    const importDropzone = document.getElementById("importDropzone");
+    const spreadsheetFileInput = document.getElementById("spreadsheetFileInput");
+    const selectedFileNameBadge = document.getElementById("selectedFileNameBadge");
+    const selectedFileNameText = document.getElementById("selectedFileNameText");
+    const cfgMaxSeatOffline = document.getElementById("cfgMaxSeatOffline");
+    const cfgMaxSeatOnline = document.getElementById("cfgMaxSeatOnline");
+    const cfgDpOffline = document.getElementById("cfgDpOffline");
+    const cfgDpOnline = document.getElementById("cfgDpOnline");
+    const cfgAppendLocationToName = document.getElementById("cfgAppendLocationToName");
+    const importPreviewSection = document.getElementById("importPreviewSection");
+    const importEmptyState = document.getElementById("importEmptyState");
+    const previewCountBadge = document.getElementById("previewCountBadge");
+    const importPreviewTbody = document.getElementById("importPreviewTbody");
+    const btnExecuteImport = document.getElementById("btnExecuteImport");
+    const btnExecuteImportText = document.getElementById("btnExecuteImportText");
+
+    function reevaluateImportData() {
+        if (!importedMatrixState) return;
+        const maxSeatOffline = Number(cfgMaxSeatOffline?.value) || 7;
+        const maxSeatOnline = Number(cfgMaxSeatOnline?.value) || 10;
+        const dpOffline = parseCurrency(cfgDpOffline?.value || "500.000");
+        const dpOnline = parseCurrency(cfgDpOnline?.value || "300.000");
+        const appendLocation = Boolean(cfgAppendLocationToName?.checked);
+
+        parsedBatchesState = parseSpreadsheetMatrix(importedMatrixState, {
+            defaultMaxSeatOffline: maxSeatOffline,
+            defaultMaxSeatOnline: maxSeatOnline,
+            defaultDpOffline: dpOffline,
+            defaultDpOnline: dpOnline,
+            appendLocationToName: appendLocation,
+            products: productsState,
+            mentors: mentorsState
+        });
+
+        if (parsedBatchesState.length > 0) {
+            if (importPreviewSection) importPreviewSection.classList.remove("hidden");
+            if (importEmptyState) importEmptyState.classList.add("hidden");
+            if (btnExecuteImport) {
+                btnExecuteImport.disabled = false;
+                btnExecuteImport.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+            if (btnExecuteImportText) {
+                btnExecuteImportText.textContent = `Import ${parsedBatchesState.length} Data Kelas`;
+            }
+        } else {
+            if (importPreviewSection) importPreviewSection.classList.add("hidden");
+            if (importEmptyState) {
+                importEmptyState.classList.remove("hidden");
+                importEmptyState.innerHTML = '<p class="mb-0 text-amber-600 font-medium">Tidak ada baris data kelas yang valid ditemukan dalam sheet.</p>';
+            }
+            if (btnExecuteImport) {
+                btnExecuteImport.disabled = true;
+                btnExecuteImport.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        }
+
+        renderImportPreview({
+            container: importPreviewTbody,
+            countBadge: previewCountBadge,
+            items: parsedBatchesState,
+            onRemoveItem: (removeIdx) => {
+                parsedBatchesState.splice(removeIdx, 1);
+                if (btnExecuteImportText) {
+                    btnExecuteImportText.textContent = `Import ${parsedBatchesState.length} Data Kelas`;
+                }
+                if (parsedBatchesState.length === 0 && btnExecuteImport) {
+                    btnExecuteImport.disabled = true;
+                    btnExecuteImport.classList.add("opacity-50", "cursor-not-allowed");
+                }
+                renderImportPreview({
+                    container: importPreviewTbody,
+                    countBadge: previewCountBadge,
+                    items: parsedBatchesState,
+                    onRemoveItem: (nextIdx) => {
+                        parsedBatchesState.splice(nextIdx, 1);
+                        reevaluateImportData();
+                    }
+                });
+            }
+        });
+    }
+
+    async function processSpreadsheetFile(file) {
+        if (!file) return;
+        const validExtensions = [".xlsx", ".xls", ".csv"];
+        const fileName = file.name.toLowerCase();
+        const hasValidExt = validExtensions.some(ext => fileName.endsWith(ext));
+        if (!hasValidExt) {
+            showToast("Hanya file .xlsx, .xls, atau .csv yang didukung!", "error");
+            return;
+        }
+
+        if (selectedFileNameBadge && selectedFileNameText) {
+            selectedFileNameText.textContent = file.name;
+            selectedFileNameBadge.classList.remove("hidden");
+        }
+
+        try {
+            if (typeof window.XLSX === "undefined") {
+                showToast("Library pembaca spreadsheet (XLSX) sedang dimuat, coba lagi...", "error");
+                return;
+            }
+
+            const data = await file.arrayBuffer();
+            const workbook = window.XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+
+            importedMatrixState = matrix;
+            reevaluateImportData();
+            showToast(`File ${file.name} berhasil dibaca (${parsedBatchesState.length} kelas ditemukan)`, "success");
+        } catch (err) {
+            console.error("Gagal membaca file spreadsheet:", err);
+            showToast("Gagal membaca file spreadsheet. Pastikan format file valid.", "error");
+        }
+    }
+
+    if (importDropzone && spreadsheetFileInput) {
+        importDropzone.addEventListener("click", () => spreadsheetFileInput.click());
+
+        spreadsheetFileInput.addEventListener("change", (e) => {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                processSpreadsheetFile(files[0]);
+            }
+        });
+
+        importDropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            importDropzone.classList.add("border-indigo-500", "bg-indigo-100/50");
+        });
+
+        importDropzone.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            importDropzone.classList.remove("border-indigo-500", "bg-indigo-100/50");
+        });
+
+        importDropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            importDropzone.classList.remove("border-indigo-500", "bg-indigo-100/50");
+            const files = e.dataTransfer?.files;
+            if (files && files.length > 0) {
+                processSpreadsheetFile(files[0]);
+            }
+        });
+    }
+
+    // Config inputs live change
+    [cfgMaxSeatOffline, cfgMaxSeatOnline, cfgDpOffline, cfgDpOnline, cfgAppendLocationToName].forEach(input => {
+        if (input) {
+            input.addEventListener("input", reevaluateImportData);
+            input.addEventListener("change", reevaluateImportData);
+        }
+    });
+
+    if (btnExecuteImport) {
+        btnExecuteImport.addEventListener("click", async () => {
+            if (!parsedBatchesState || parsedBatchesState.length === 0) {
+                showToast("Tidak ada batch yang dapat diimpor", "error");
+                return;
+            }
+
+            const total = parsedBatchesState.length;
+            btnExecuteImport.disabled = true;
+            btnExecuteImport.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <span>Menyimpan ${total} Batch ke Firebase...</span>
+            `;
+
+            try {
+                await addMultipleClassBatches(parsedBatchesState);
+                showToast(`Sukses! ${total} batch kelas berhasil ditambahkan ke Firebase`, "success");
+
+                // Refresh data from Firestore
+                try {
+                    const refreshed = await fetchClassAvailability();
+                    if (refreshed && refreshed.length > 0) {
+                        classesState = refreshed;
+                    }
+                } catch (loadErr) {
+                    console.warn("Gagal merefresh langsung dari Firestore:", loadErr);
+                }
+
+                currentPage = 1;
+                renderView();
+
+                // Close modal & reset state
+                closeModal("importSpreadsheetModal");
+                importedMatrixState = null;
+                parsedBatchesState = [];
+                if (spreadsheetFileInput) spreadsheetFileInput.value = "";
+                if (selectedFileNameBadge) selectedFileNameBadge.classList.add("hidden");
+                if (importPreviewSection) importPreviewSection.classList.add("hidden");
+                if (importEmptyState) importEmptyState.classList.remove("hidden");
+            } catch (err) {
+                console.error("Gagal mengimpor batch:", err);
+                showToast("Gagal menyimpan batch ke Firebase: " + (err.message || err), "error");
+            } finally {
+                btnExecuteImport.disabled = false;
+                btnExecuteImport.innerHTML = `
+                    <i class="bi bi-cloud-check me-1"></i>
+                    <span id="btnExecuteImportText">Import Data Kelas</span>
+                `;
+            }
         });
     }
 

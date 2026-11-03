@@ -12,6 +12,7 @@ import {
     deleteDoc,
     doc,
     updateDoc,
+    writeBatch,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -112,7 +113,12 @@ export function normalizeClassItem(docSnap, index = 1) {
         product_name: d.productName || d.product_name || null,
         location: d.location || "",
         down_payment: Number(d.down_payment || 0),
-        is_planned: Boolean(d.is_planned || false)
+        is_planned: Boolean(d.is_planned || false),
+        days: d.days || "",
+        end_date: d.end_date || "",
+        time: d.time || "",
+        status: d.status || "",
+        notes: d.notes || ""
     };
 }
 
@@ -334,4 +340,50 @@ export async function moveToClassPlanning(classItem) {
         console.error("moveToClassPlanning error:", error);
         throw error;
     }
+}
+
+/**
+ * Adds multiple class batches to Firestore in atomic chunks using writeBatch.
+ * @param {Array<Object>} batches
+ * @returns {Promise<Array<string>>}
+ */
+export async function addMultipleClassBatches(batches) {
+    if (!batches || batches.length === 0) return [];
+    const BATCH_SIZE = 400;
+    const createdIds = [];
+
+    for (let i = 0; i < batches.length; i += BATCH_SIZE) {
+        const chunk = batches.slice(i, i + BATCH_SIZE);
+        const batch = writeBatch(db);
+        const colRef = collection(db, "class_availability");
+
+        chunk.forEach((item) => {
+            const docRef = doc(colRef);
+            createdIds.push(docRef.id);
+            const payload = {
+                name: item.name || "Unnamed Class",
+                type: item.type || "Offline",
+                max_seat: Number(item.max_seat) || 1,
+                current_joined: Number(item.current_joined) || 0,
+                start_date: item.start_date || "Flexible",
+                mentor_name: item.mentor_name || "Unknown",
+                productId: item.product_id || item.productId || "",
+                productName: item.product_name || item.productName || "",
+                location: item.location || "",
+                down_payment: Number(item.down_payment) || 0,
+                days: item.days || "",
+                end_date: item.end_date || "",
+                time: item.time || "",
+                status: item.status || "",
+                notes: item.notes || "",
+                is_planned: false,
+                created_at: serverTimestamp()
+            };
+            batch.set(docRef, payload);
+        });
+
+        await batch.commit();
+    }
+
+    return createdIds;
 }
