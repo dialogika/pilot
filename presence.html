@@ -804,7 +804,11 @@ import { app, db } from "./assets/js/firebase-config.js";
                     ];
                     const rawRole = rawRoleCandidates.find(v => v !== undefined && v !== null && v !== "");
                     const roleValue = rawRole ? String(rawRole).trim().toLowerCase() : "";
-                    const isStatusOk = statusValue === undefined || statusValue === null || statusValue === "active";
+                    // Syarat mutlak: status utama akun WAJIB 'active' (tidak boleh Inactive/Alumni)
+                    const offboardedStatuses = ["resigned", "left", "graduate", "graduated", "alumni", "nonaktif"];
+                    const statusStr = typeof d.status === "string" ? d.status.trim().toLowerCase() : "";
+                    const internStatusStr = typeof d.internshipStatus === "string" ? d.internshipStatus.trim().toLowerCase() : "";
+                    const isStatusOk = statusStr === "active" && !offboardedStatuses.includes(internStatusStr);
                     const allowedRoles = ["team", "sub_team", "staff", "intern", "internship", "admin", "owner"];
                     const isRoleOk = allowedRoles.includes(roleValue);
 
