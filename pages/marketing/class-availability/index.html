@@ -363,7 +363,120 @@
         </div>
     </div>
 
-    <!-- Standard Export Modal for Class Availability -->
+        <!-- Modal: Import Spreadsheet -->
+    <div class="modal fade" id="importSpreadsheetModal" tabindex="-1" aria-labelledby="importSpreadsheetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-2xl rounded-2xl overflow-hidden">
+                <div class="modal-header border-b border-slate-100 py-4 px-6 bg-white">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                            <i class="bi bi-file-earmark-spreadsheet text-xl"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-extrabold text-slate-800 text-lg leading-tight" id="importSpreadsheetModalLabel">Import Spreadsheet Data Kelas</h5>
+                            <p class="text-xs text-slate-400 mb-0 font-medium">Unggah file jadwal &amp; ketersediaan kelas (.xlsx, .xls, .csv)</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-6 bg-slate-50/50">
+                    <!-- Dropzone Area -->
+                    <div id="importDropzone" class="border-2 border-dashed border-indigo-200 bg-white rounded-2xl p-6 text-center cursor-pointer transition hover:border-indigo-500 hover:bg-indigo-50/40 mb-4">
+                        <input type="file" id="spreadsheetFileInput" accept=".xlsx, .xls, .csv" class="hidden" />
+                        <div class="flex flex-col items-center justify-center gap-2">
+                            <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1">
+                                <i class="bi bi-cloud-arrow-up text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700 mb-0.5">Tarik &amp; letakkan file spreadsheet di sini, atau <span class="text-indigo-600 underline font-semibold">pilih file dari perangkat</span></p>
+                                <p class="text-xs text-slate-400 mb-0">Format yang didukung: Microsoft Excel (.xlsx, .xls) atau Comma Separated Values (.csv)</p>
+                            </div>
+                            <div id="selectedFileNameBadge" class="hidden mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+                                <i class="bi bi-file-earmark-check text-emerald-600"></i>
+                                <span id="selectedFileNameText">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Default Configurations -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 mb-4 shadow-sm">
+                        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <i class="bi bi-sliders text-indigo-600"></i>
+                            <span>Pengaturan Default (Jika Kolom di Spreadsheet Kosong)</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div>
+                                <label class="form-label text-xs font-semibold text-slate-600 mb-1" for="cfgMaxSeatOffline">Kuota Offline (Seat)</label>
+                                <input type="number" id="cfgMaxSeatOffline" class="form-control form-control-sm rounded-lg" value="7" min="1" />
+                            </div>
+                            <div>
+                                <label class="form-label text-xs font-semibold text-slate-600 mb-1" for="cfgMaxSeatOnline">Kuota Online (Seat)</label>
+                                <input type="number" id="cfgMaxSeatOnline" class="form-control form-control-sm rounded-lg" value="10" min="1" />
+                            </div>
+                            <div>
+                                <label class="form-label text-xs font-semibold text-slate-600 mb-1" for="cfgDpOffline">DP Offline (IDR)</label>
+                                <input type="text" id="cfgDpOffline" class="form-control form-control-sm rounded-lg" value="500.000" />
+                            </div>
+                            <div>
+                                <label class="form-label text-xs font-semibold text-slate-600 mb-1" for="cfgDpOnline">DP Online (IDR)</label>
+                                <input type="text" id="cfgDpOnline" class="form-control form-control-sm rounded-lg" value="300.000" />
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
+                            <input type="checkbox" id="cfgAppendLocationToName" class="form-check-input mt-0" checked />
+                            <label for="cfgAppendLocationToName" class="text-xs text-slate-600 font-medium cursor-pointer mb-0">
+                                Sertakan nama lokasi di akhir judul batch jika belum ada (contoh: <em>"First Kids - Jakarta"</em>)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="importEmptyState" class="py-10 text-center text-slate-400 bg-white border border-dashed border-slate-200 rounded-2xl">
+                        <i class="bi bi-table text-3xl mb-2 inline-block text-slate-300"></i>
+                        <p class="text-xs font-medium mb-0">Belum ada file yang diunggah. Silakan unggah file spreadsheet di atas untuk melihat preview data kelas.</p>
+                    </div>
+
+                    <!-- Preview Section (Initially hidden) -->
+                    <div id="importPreviewSection" class="hidden bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Preview Data Kelas Siap Impor</span>
+                                <span id="previewCountBadge" class="badge bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">0 Data Kelas</span>
+                            </div>
+                            <span class="text-[11px] text-slate-400">Periksa dan hapus baris yang tidak diinginkan dengan tombol hapus merah</span>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl overflow-x-auto max-h-80">
+                            <table class="table table-hover table-sm align-middle text-xs mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2.5 px-3">#</th>
+                                        <th>Nama Kelas</th>
+                                        <th>Tipe / Lokasi</th>
+                                        <th>Tanggal Mulai</th>
+                                        <th>Waktu / Hari</th>
+                                        <th>Peserta / Kuota</th>
+                                        <th>Mentor</th>
+                                        <th>Product</th>
+                                        <th class="text-center px-3">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importPreviewTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-100 bg-white px-6 py-3 flex items-center justify-between">
+                    <button type="button" class="btn btn-light rounded-xl font-bold text-slate-600 px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="btnExecuteImport" disabled class="btn btn-primary bg-indigo-600 hover:bg-indigo-700 border-none rounded-xl font-bold px-5 py-2 flex items-center gap-2 opacity-50 cursor-not-allowed text-white">
+                        <i class="bi bi-cloud-check text-base"></i>
+                        <span id="btnExecuteImportText">Import Data Kelas</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Standard Export Modal for Class Availability -->
     <div class="modal fade" id="exportClassModal" tabindex="-1" aria-labelledby="exportClassModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered export-modal-dialog">
         <div class="modal-content export-modal-content">
@@ -483,6 +596,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script type="module" src="/pages/marketing/class-availability/class-availability.js?v=20261103_5"></script>
+    <script type="module" src="/pages/marketing/class-availability/class-availability.js?v=20261104_1"></script>
 </body>
 </html>

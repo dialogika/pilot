@@ -663,7 +663,30 @@ async function initializeClassAvailability() {
         if (parsedBatchesState.length > 0) {
             if (importPreviewSection) importPreviewSection.classList.remove("hidden");
             if (importEmptyState) importEmptyState.classList.add("hidden");
+            
+    const importModalEl = document.getElementById("importSpreadsheetModal");
+    if (importModalEl) {
+        importModalEl.addEventListener("hidden.bs.modal", () => {
+            importedMatrixState = null;
+            parsedBatchesState = [];
+            if (spreadsheetFileInput) spreadsheetFileInput.value = "";
+            if (selectedFileNameBadge) selectedFileNameBadge.classList.add("hidden");
+            if (importPreviewSection) importPreviewSection.classList.add("hidden");
+            if (importEmptyState) {
+                importEmptyState.classList.remove("hidden");
+                importEmptyState.innerHTML = '<i class="bi bi-table text-3xl mb-2 inline-block text-slate-300"></i><p class="text-xs font-medium mb-0">Belum ada file yang diunggah. Silakan unggah file spreadsheet di atas untuk melihat preview data kelas.</p>';
+            }
             if (btnExecuteImport) {
+                btnExecuteImport.disabled = true;
+                btnExecuteImport.classList.add("opacity-50", "cursor-not-allowed");
+            }
+            if (btnExecuteImportText) {
+                btnExecuteImportText.textContent = "Import Data Kelas";
+            }
+        });
+    }
+    
+    if (btnExecuteImport) {
                 btnExecuteImport.disabled = false;
                 btnExecuteImport.classList.remove("opacity-50", "cursor-not-allowed");
             }
@@ -730,10 +753,10 @@ async function initializeClassAvailability() {
             }
 
             const data = await file.arrayBuffer();
-            const workbook = window.XLSX.read(data, { type: "array" });
+            const workbook = window.XLSX.read(data, { type: "array", cellDates: true });
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+            const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "", raw: false });
 
             importedMatrixState = matrix;
             reevaluateImportData();
