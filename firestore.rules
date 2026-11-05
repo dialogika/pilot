@@ -14,11 +14,7 @@ service cloud.firestore {
       return isSignedIn() ? request.auth.token.role : null;
     }
 
-    function isOwnerRole() { return role() == 'owner'; }
-    function isAdmin() { return role() == 'admin'; }
-    function isTeam() { return role() == 'team'; }
     function isStaff() { return role() == 'staff'; }
-    function isIntern() { return role() == 'intern'; }
     function isMentor() { return role() == 'mentor'; }
     function isMember() { return role() == 'member'; }
 
