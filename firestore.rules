@@ -269,7 +269,12 @@ service cloud.firestore {
 
     match /data_member/{id} {
       allow read: if true;
-      allow write: if isManagement() || isStaff();
+      allow create: if true; // Publik boleh mendaftarkan data member
+      allow update, delete: if isManagement() || isStaff();
+    }
+    match /pendaftaran_member/{id} {
+      allow create: if true; // Publik boleh submit pendaftaran member
+      allow read, update, delete: if isManagement() || isStaff();
     }
     match /member_attendance/{id} {
       allow read, create: if true;

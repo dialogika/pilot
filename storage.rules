@@ -2,9 +2,16 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Izin upload foto bukti transfer member
+    // Izin upload foto/pdf bukti transfer member dari form publik data-member.html
     match /member-proofs/{fileName} {
-      allow read, write: if request.auth != null;
+      allow create: if true; // Publik boleh mengunggah bukti transfer saat submit form
+      allow read, update, delete: if request.auth != null; // Hanya tim internal yang boleh melihat/mengelola
+    }
+    
+    // Izin upload bukti pendaftaran member dari form pendaftaran-member.html
+    match /pendaftaran-proofs/{fileName} {
+      allow create: if true; // Publik boleh mengunggah bukti transfer
+      allow read, update, delete: if request.auth != null; // Hanya tim internal yang boleh melihat/mengelola
     }
     
     // Aturan umum file lainnya untuk tim yang sudah login
