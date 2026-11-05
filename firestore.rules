@@ -386,10 +386,13 @@ service cloud.firestore {
       allow write: if isManagement() || isStaff();
     }
     match /mentors/{id} {
-      // Data mentor INTERNAL (fee/kontrak) — jangan expose ke member/publik.
-      // Untuk publik pakai koleksi terpisah mentors_public (lihat bagian CMS).
-      allow read: if isInternalTeam() || (isMentor() && isSelf(resource.data.get('user_id', '')));
+      // Data mentor aktif diizinkan dibaca publik untuk form (remedial, booking, catalog)
+      allow read: if true;
       allow write: if isManagement() || (isMentor() && isSelf(resource.data.get('user_id', ''))); // mentor update profil sendiri
+    }
+    match /mentor/{id} {
+      allow read: if true; // Fallback koleksi singular mentor
+      allow write: if isManagement();
     }
     match /schedule_logs/{id} {
       allow read: if isInternalTeam();
@@ -409,6 +412,13 @@ service cloud.firestore {
       allow read: if isManagement();
       allow create: if true; // form subscribe publik
       allow update, delete: if isManagement();
+    }
+
+    // remedial_reports: form pengajuan remedial dari dialogika.co/remedial.html
+    match /remedial_reports/{id} {
+      allow create: if true; // siswa publik boleh submit pengajuan remedial
+      allow read: if isInternalTeam(); // hanya tim internal yang membaca/mengelola
+      allow update, delete: if isManagement() || isStaff();
     }
 
     // -------------------------------------------------------------------
