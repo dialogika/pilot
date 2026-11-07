@@ -248,7 +248,7 @@ service cloud.firestore {
       allow write: if isManagement() || isStaff();
     }
     match /class_availability/{id} {
-      allow read: if isInternalTeam() || isMember();
+      allow read: if true; // Diizinkan baca publik agar tabel ketersediaan kelas menampilkan data asli real-time
       allow write: if isManagement() || isStaff();
     }
     match /mentors/{id} {
