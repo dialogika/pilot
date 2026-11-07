@@ -400,7 +400,7 @@ export async function addMultipleClassBatches(batches) {
 
     return createdIds;
 }
-
+/**
  * Export class availability data based on modal filters.
  * @param {Object} options
  * @param {string} [options.format="xlsx"]

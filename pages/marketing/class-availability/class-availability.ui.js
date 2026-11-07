@@ -638,18 +638,18 @@ export function parseSpreadsheetMatrix(matrix, options = {}) {
     const headers = (matrix[headerRowIdx] || []).map(c => String(c || "").trim().toLowerCase());
 
     const colMap = {
-        name: headers.findIndex(h => h.includes("nama") || h.includes("kelas") || h.includes("class")),
-        location: headers.findIndex(h => h.includes("lokasi") || h.includes("kota") || h.includes("location") || h.includes("city")),
-        startDate: headers.findIndex(h => h.includes("tanggal mulai") || h.includes("tgl mulai") || h.includes("start date") || h.includes("mulai")),
-        time: headers.findIndex(h => h.includes("waktu") || h.includes("jam") || h.includes("time")),
-        days: headers.findIndex(h => h.includes("hari") || h.includes("day")),
+        mentor: headers.findIndex(h => h.includes("mentor") || h.includes("coach") || h.includes("trainer") || h.includes("pengajar")),
+        name: headers.findIndex(h => !h.includes("mentor") && !h.includes("coach") && !h.includes("trainer") && (h.includes("nama") || h.includes("kelas") || h.includes("class") || h.includes("batch"))),
+        location: headers.findIndex(h => h.includes("lokasi") || h.includes("kota") || h.includes("location") || h.includes("city") || h.includes("cabang")),
         endDate: headers.findIndex(h => h.includes("tanggal selesai") || h.includes("tgl selesai") || h.includes("end date") || h.includes("selesai")),
-        member: headers.findIndex(h => h.includes("member") || h.includes("terisi") || h.includes("joined") || h.includes("peserta")),
-        mentor: headers.findIndex(h => h.includes("mentor") || h.includes("coach") || h.includes("trainer")),
+        startDate: headers.findIndex(h => !h.includes("selesai") && !h.includes("end") && (h.includes("tanggal") || h.includes("tgl") || h.includes("start") || h.includes("mulai") || h.includes("date"))),
+        time: headers.findIndex(h => h.includes("waktu") || h.includes("jam") || h.includes("time") || h.includes("pukul")),
+        days: headers.findIndex(h => h.includes("hari") || h.includes("day") || h.includes("jadwal")),
+        member: headers.findIndex(h => h.includes("member") || h.includes("terisi") || h.includes("joined") || h.includes("peserta") || h.includes("siswa")),
         status: headers.findIndex(h => h.includes("status")),
         notes: headers.findIndex(h => h.includes("note") || h.includes("catatan") || h.includes("keterangan")),
-        maxSeat: headers.findIndex(h => h.includes("max") || h.includes("seat") || h.includes("kapasitas") || h.includes("kuota")),
-        dp: headers.findIndex(h => h.includes("dp") || h.includes("down payment") || h.includes("panjar"))
+        maxSeat: headers.findIndex(h => h.includes("max") || h.includes("seat") || h.includes("kapasitas") || h.includes("kuota") || h.includes("target")),
+        dp: headers.findIndex(h => h.includes("dp") || h.includes("down payment") || h.includes("panjar") || h.includes("uang muka"))
     };
 
     const results = [];
@@ -709,10 +709,18 @@ export function parseSpreadsheetMatrix(matrix, options = {}) {
 
         let startDate = "Flexible";
         if (rawStartDate) {
+            let formattedStart = rawStartDate;
+            const dmyMatch = rawStartDate.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+            if (dmyMatch) {
+                const day = dmyMatch[1].padStart(2, "0");
+                const month = dmyMatch[2].padStart(2, "0");
+                const year = dmyMatch[3];
+                formattedStart = `${year}-${month}-${day}`;
+            }
             if (startTime) {
-                startDate = `${rawStartDate}T${startTime}`;
+                startDate = `${formattedStart}T${startTime}`;
             } else {
-                startDate = rawStartDate;
+                startDate = formattedStart;
             }
         }
 
@@ -914,7 +922,7 @@ export function renderImportPreview({ container, countBadge, items = [], onRemov
         container.appendChild(tr);
     });
 }
-
+/**
  * Initializes Standard Export Modal for Class Availability.
  * @param {Function} [onFormatChange]
  * @param {Function} [onRangeChange]

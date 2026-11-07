@@ -4,8 +4,8 @@
  */
 
 import { requireAuth } from "../../../assets/js/auth-guard.js";
-import { renderTopBar } from "../../../element/topbar.js";
-import { renderSidebar } from "../../../element/sidebar.js";
+import { renderTopbar } from "/assets/js/components/topbar/topbar.js";
+import { renderSidebar } from "/assets/js/components/sidebar/sidebar.js";
 import {
     fetchClassAvailability,
     fetchProducts,
@@ -39,17 +39,27 @@ import {
     initClassExportModal
 } from "./class-availability.ui.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Auth Guard
-    const user = await requireAuth();
-    if (!user) return;
+async function initializeClassAvailability() {
+    // 1. Auth Guard & Shell Mounts
+    let user = null;
+    let role = "member";
+    try {
+        const authResult = await requireAuth();
+        if (authResult && authResult.user) {
+            user = authResult.user;
+            role = authResult.role || "member";
+        }
+    } catch (authErr) {
+        console.warn("Auth check warning:", authErr);
+    }
 
-    // 2. Mount Topbar and Sidebar
-    const topbarMount = document.getElementById("dg-topbar-mount");
-    if (topbarMount) renderTopBar(topbarMount);
-
-    const sidebarMount = document.getElementById("dg-sidebar-mount");
-    if (sidebarMount) renderSidebar(sidebarMount);
+    // 2. Mount Topbar and Sidebar (consolidated shell)
+    try {
+        renderTopbar({ user, role });
+        renderSidebar({ role, activePage: "class-availability" });
+    } catch (shellErr) {
+        console.error("Failed to render shell:", shellErr);
+    }
 
     // 3. Local State
     let classesState = [];
@@ -653,7 +663,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (parsedBatchesState.length > 0) {
             if (importPreviewSection) importPreviewSection.classList.remove("hidden");
             if (importEmptyState) importEmptyState.classList.add("hidden");
+            
+    const importModalEl = document.getElementById("importSpreadsheetModal");
+    if (importModalEl) {
+        importModalEl.addEventListener("hidden.bs.modal", () => {
+            importedMatrixState = null;
+            parsedBatchesState = [];
+            if (spreadsheetFileInput) spreadsheetFileInput.value = "";
+            if (selectedFileNameBadge) selectedFileNameBadge.classList.add("hidden");
+            if (importPreviewSection) importPreviewSection.classList.add("hidden");
+            if (importEmptyState) {
+                importEmptyState.classList.remove("hidden");
+                importEmptyState.innerHTML = '<i class="bi bi-table text-3xl mb-2 inline-block text-slate-300"></i><p class="text-xs font-medium mb-0">Belum ada file yang diunggah. Silakan unggah file spreadsheet di atas untuk melihat preview data kelas.</p>';
+            }
             if (btnExecuteImport) {
+                btnExecuteImport.disabled = true;
+                btnExecuteImport.classList.add("opacity-50", "cursor-not-allowed");
+            }
+            if (btnExecuteImportText) {
+                btnExecuteImportText.textContent = "Import Data Kelas";
+            }
+        });
+    }
+    
+    if (btnExecuteImport) {
                 btnExecuteImport.disabled = false;
                 btnExecuteImport.classList.remove("opacity-50", "cursor-not-allowed");
             }
@@ -720,10 +753,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const data = await file.arrayBuffer();
-            const workbook = window.XLSX.read(data, { type: "array" });
+            const workbook = window.XLSX.read(data, { type: "array", cellDates: true });
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+            const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "", raw: false });
 
             importedMatrixState = matrix;
             reevaluateImportData();
@@ -853,16 +886,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (listContainer) listContainer.style.display = "none";
 
         try {
-            const [classes, products, mentors] = await Promise.all([
+            const fetchPromise = Promise.all([
                 fetchClassAvailability(),
                 fetchProducts(),
                 fetchMentors()
             ]);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout loading data from Firestore")), 5000)
+            );
+
+            const [classes, products, mentors] = await Promise.race([fetchPromise, timeoutPromise]);
 
             classesState = classes && classes.length > 0 ? classes : FALLBACK_CLASSES;
             productsState = products || [];
 
-            // Gunakan daftar mentor resmi dari database jika ada; jika kosong, baru fallback dari data kelas
             if (mentors && mentors.length > 0) {
                 mentorsState = mentors;
             } else {
@@ -875,13 +912,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 mentorsState = Array.from(mentorMap.values()).sort((a, b) => a.name.localeCompare(b.name, "id"));
             }
 
-            // Pre-populate Add Batch dropdowns
             populateProductDropdown(newBatchProductSelect, productsState, "", true);
             populateMentorDropdown(newBatchMentorSelect, mentorsState, "Unknown");
         } catch (error) {
             console.error("Gagal memuat data Firestore, beralih ke Fallback:", error);
             classesState = FALLBACK_CLASSES;
-            showToast("Memuat data dalam mode offline", "info");
+            showToast("Memuat data dalam mode offline / fallback", "info");
         } finally {
             if (loadingState) loadingState.style.display = "none";
             if (listContainer) listContainer.style.display = "block";
@@ -889,5 +925,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    loadData();
-});
+    await loadData();
+}
+
+// Boot on DOM ready
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeClassAvailability);
+} else {
+    initializeClassAvailability();
+}
