@@ -14,14 +14,7 @@ service cloud.firestore {
       return isSignedIn() ? request.auth.token.role : null;
     }
 
- refactor/marketing/class-availability
     function isStaff() { return role() == 'staff'; }
-    function isOwnerRole() { return role() == 'owner'; }
-    function isAdmin() { return role() == 'admin'; }
-    function isTeam() { return role() == 'team'; }
-    function isStaff() { return role() == 'staff'; }
-    function isIntern() { return role() == 'intern'; }
- main
     function isMentor() { return role() == 'mentor'; }
     function isMember() { return role() == 'member'; }
 
@@ -259,17 +252,12 @@ service cloud.firestore {
       allow write: if isManagement() || isStaff();
     }
     match /mentors/{id} {
- refactor/marketing/class-availability
-      allow read: if true; // Diubah jadi true agar form remedial & katalog publik bisa baca mentor
+      allow read: if true; // Diizinkan publik agar form remedial & katalog luar bisa baca mentor
       allow write: if isManagement() || (isMentor() && isSelf(resource.data.get('user_id', '')));
     }
     match /mentor/{id} {
       allow read: if true; // Fallback koleksi nama tunggal
       allow write: if isManagement();
-
-      allow read: if isInternalTeam() || (isMentor() && isSelf(resource.data.get('user_id', '')));
-      allow write: if isManagement() || (isMentor() && isSelf(resource.data.get('user_id', '')));
-main
     }
     match /schedule_logs/{id} {
       allow read: if isInternalTeam();
@@ -281,8 +269,7 @@ main
 
     match /data_member/{id} {
       allow read: if true;
-refactor/marketing/class-availability
-      allow create: if true; // Publik boleh mendaftarkan data member
+      allow create: if true; // Publik boleh mendaftarkan data member dari form
       allow update, delete: if isManagement() || isStaff();
     }
     match /pendaftaran_member/{id} {
@@ -297,18 +284,6 @@ refactor/marketing/class-availability
       allow read, create, update: if true;
       allow delete: if isManagement() || isStaff();
     }
-
-      allow write: if isManagement() || isStaff();
-    }
-    match /member_attendance/{id} {
-      allow read, create: if true;
-      allow update, delete: if isManagement() || isStaff();
-    }
-    match /certificate_logs/{id} {
-      allow read, create, update: if true;
-      allow delete: if isManagement() || isStaff();
-    }
- main
     match /subscription_email/{id} {
       allow read: if isManagement();
       allow create: if true;
@@ -317,8 +292,8 @@ refactor/marketing/class-availability
 
     // remedial_reports: form pengajuan remedial dari dialogika.co/remedial.html
     match /remedial_reports/{id} {
-      allow create: if true; // siswa publik boleh submit pengajuan remedial
-      allow read: if isInternalTeam(); // hanya tim internal yang membaca/mengelola
+      allow create: if true; // Siswa publik boleh submit pengajuan remedial
+      allow read: if isInternalTeam(); // Hanya tim internal yang membaca/mengelola
       allow update, delete: if isManagement() || isStaff();
     }
 
