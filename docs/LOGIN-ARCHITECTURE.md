@@ -24,6 +24,7 @@ Login lets an existing team member enter the app:
 - distinguish **pending approval** (`pending_users/{uid}` exists) from
   **missing profile**, with distinct messages;
 - send a **password reset email** from a Bootstrap modal;
+- direct quick-navigation to public attendance kiosk via **Presensi Kehadiran** (`/presence`);
 - bounce already-authenticated visitors (session + cached profile) straight to
   `/home`.
 
