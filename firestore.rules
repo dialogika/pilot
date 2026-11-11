@@ -99,13 +99,18 @@ service cloud.firestore {
       allow write: if isManagement();
     }
 
+    match /department/{id} {
+      allow read: if isInternalTeam(); // Fallback koleksi nama tunggal
+      allow write: if isManagement();
+    }
+
     match /user_presence/{uid} {
       allow read: if isSignedIn();
       allow write: if isSelf(uid);
     }
 
     // -------------------------------------------------------------------
-    // QUEST SYSTEM
+    // QUEST & TASK SYSTEM
     // -------------------------------------------------------------------
     match /quests/{questId} {
       allow read: if isManagement()
@@ -125,6 +130,10 @@ service cloud.firestore {
                     || (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/quests/$(questId)).data.get('assign_to', []));
         allow write: if false;
       }
+    }
+
+    match /tasks/{taskId} {
+      allow read, write: if isInternalTeam();
     }
 
     match /recurrence_templates/{id} {
@@ -147,7 +156,8 @@ service cloud.firestore {
       allow write: if isManagement()
                    || (isSignedIn() && request.auth.uid in resource.data.get('members', []));
 
-      match /{subcollection}/{docId} {
+      // Menggunakan recursive wildcard agar mencakup komentar pesan dan komentar file yang bertingkat
+      match /{allSubcollections=**} {
         allow read, write: if isManagement()
                             || (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/projects/$(projectId)).data.get('members', []));
       }
@@ -210,13 +220,34 @@ service cloud.firestore {
     }
 
     // -------------------------------------------------------------------
-    // DAILY REPORT
+    // DAILY REPORT & INTERN QUIZ
     // -------------------------------------------------------------------
     match /intern_dailyreport/{id} {
       allow read: if isManagement() || (isInternalTeam() && isSelf(resource.data.get('user_id', '')));
       allow create: if isInternalTeam() && (isSelf(request.resource.data.get('user_id', '')) || isManagement());
       allow update: if isManagement() || (isInternalTeam() && isSelf(resource.data.get('user_id', '')) && resource.data.get('status', '') == 'Pending Review');
       allow delete: if isManagement();
+    }
+
+    match /intern_quizz/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    match /quiz_results/{id} {
+      allow read: if isManagement() || (isInternalTeam() && isSelf(resource.data.get('user_id', '')));
+      allow create: if isInternalTeam();
+      allow update, delete: if isManagement();
+    }
+
+    match /quiz_settings/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
+    }
+
+    match /settings/{id} {
+      allow read: if isInternalTeam();
+      allow write: if isManagement();
     }
 
     // -------------------------------------------------------------------
