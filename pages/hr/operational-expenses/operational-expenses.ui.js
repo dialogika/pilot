@@ -77,9 +77,9 @@ export const isImageUrl = (url) =>
   /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(String(url || ""));
 
 /**
- * Updates the 5 stat cards with aggregate numbers.
+ * Updates the 5 stat cards with aggregate numbers and active card indicator.
  */
-export function renderStats(stats) {
+export function renderStats(stats, activeCard = "") {
   const totalEl = document.getElementById("statTotal");
   const pendingEl = document.getElementById("statPending");
   const overdueEl = document.getElementById("statOverdue");
@@ -91,6 +91,47 @@ export function renderStats(stats) {
   if (overdueEl) overdueEl.textContent = stats.overdue ?? 0;
   if (paidEl) paidEl.textContent = stats.paid ?? 0;
   if (amountEl) amountEl.textContent = `Rp ${formatCurrency(stats.amount ?? 0)}`;
+
+  renderActiveStatCard(activeCard);
+}
+
+/**
+ * Updates active styles and badge pill on stat cards.
+ */
+export function renderActiveStatCard(activeCard) {
+  const cardMap = {
+    all: { card: "cardStatTotal", badge: "badgeStatTotal" },
+    need_action: { card: "cardStatPending", badge: "badgeStatPending" },
+    overdue: { card: "cardStatOverdue", badge: "badgeStatOverdue" },
+    paid: { card: "cardStatPaid", badge: "badgeStatPaid" },
+    amount: { card: "cardStatAmount", badge: "badgeStatAmount" }
+  };
+
+  const rowEl = document.querySelector(".stat-cards-row");
+  if (rowEl) {
+    if (activeCard && cardMap[activeCard]) {
+      rowEl.classList.add("has-active");
+    } else {
+      rowEl.classList.remove("has-active");
+    }
+  }
+
+  Object.entries(cardMap).forEach(([key, ids]) => {
+    const cardEl = document.getElementById(ids.card);
+    const badgeEl = document.getElementById(ids.badge);
+    const isActive = activeCard === key;
+
+    if (cardEl) {
+      if (isActive) {
+        cardEl.classList.add("is-active");
+      } else {
+        cardEl.classList.remove("is-active");
+      }
+    }
+    if (badgeEl) {
+      badgeEl.style.display = isActive ? "inline-flex" : "none";
+    }
+  });
 }
 
 /**
@@ -111,7 +152,7 @@ export function renderTable(
   const tbody = document.getElementById("expenseTableBody");
   const counterEl = document.getElementById("visibleItemsCount");
   if (counterEl) {
-    counterEl.textContent = `${items.length} item terlihat`;
+    counterEl.textContent = `${items.length} ITEM TERLIHAT`;
   }
   if (!tbody) return;
 
@@ -179,9 +220,9 @@ export function renderTable(
         : `<span class="text-xs font-bold text-slate-300">Belum ada bukti transfer</span>`;
 
       const reimburseDocLink = expense.reimburseProofUrl
-        ? `<div class="note-box mt-2">
-             <div class="text-[10px] uppercase tracking-[0.16em] font-black text-slate-400 mb-1">Dokumen Pendukung</div>
-             <div class="text-xs">
+        ? `<div class="note-box">
+             <div class="note-title">Dokumen Pendukung</div>
+             <div class="note-body">
                <a href="${expense.reimburseProofUrl}" target="_blank" class="font-bold text-blue-600 hover:text-blue-800 text-decoration-none">
                  <i class="bi bi-file-earmark-text"></i> Lihat Dokumen
                </a>
@@ -191,9 +232,9 @@ export function renderTable(
 
       const waLink =
         expense.status === "complete" && expense.whatsappLink
-          ? `<div class="text-xs mt-1">
+          ? `<div class="text-xs mt-0.5">
                <a href="${expense.whatsappLink}" target="_blank" class="font-bold text-emerald-600 hover:text-emerald-700 text-decoration-none">
-                 <i class="bi bi-whatsapp"></i> Buka WA Mentor
+                 <i class="bi bi-whatsapp"></i> Buka WhatsApp Mentor
                </a>
              </div>`
           : "";
@@ -201,13 +242,13 @@ export function renderTable(
       return `
         <tr data-expense-id="${expense.id}">
           <td>
-            <div class="d-flex flex-column gap-1.5" style="max-width: 320px;">
+            <div class="d-flex flex-column gap-2" style="max-width: 384px;">
               <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="text-sm font-black text-slate-900">${expense.title || "-"}</span>
                 <span class="badge-pill ${badgeCls}">${statusText}</span>
               </div>
-              <div class="text-[11px] text-slate-500 uppercase tracking-wider font-bold">
-                ${formatCategory(expense.category)} • ${expense.department || "General"}
+              <div class="text-[11px] text-slate-500 uppercase tracking-[0.16em] font-black">
+                ${formatCategory(expense.category).toUpperCase()} • ${(expense.department || "General").toUpperCase()}
               </div>
               <div class="text-xs text-slate-600">
                 PIC: <span class="font-bold text-slate-800">${expense.requesterName || "-"}</span>
@@ -223,15 +264,15 @@ export function renderTable(
             </div>
           </td>
           <td>
-            <div class="d-flex flex-column gap-1" style="max-width: 240px;">
+            <div class="d-flex flex-column gap-2" style="max-width: 280px;">
               <div class="text-sm font-bold text-slate-800">${expense.beneficiaryName || "-"}</div>
               <div class="text-xs text-slate-500 font-medium">${expense.bankName || "-"}</div>
               <div class="mono text-xs text-slate-700">${expense.accountNumber || "-"}</div>
-              <div class="mt-1">${proofLink}</div>
+              <div>${proofLink}</div>
             </div>
           </td>
           <td>
-            <div class="d-flex flex-column gap-1">
+            <div class="d-flex flex-column gap-2">
               <div class="text-base font-black text-slate-900">Rp ${formatCurrency(expense.amount)}</div>
               <div class="text-xs text-slate-500">Due: ${formatDateLabel(expense.dueDate)}</div>
               ${
@@ -242,25 +283,21 @@ export function renderTable(
             </div>
           </td>
           <td>
-            <div class="d-flex flex-column gap-2" style="max-width: 300px;">
+            <div class="d-flex flex-column gap-3" style="max-width: 384px;">
               <div class="note-box">
-                <div class="text-[10px] uppercase tracking-wider font-black text-slate-400 mb-1">Notes / Penjelasan</div>
-                <div class="text-xs text-slate-600 leading-normal">${expense.notes || "Belum ada penjelasan tambahan."}</div>
+                <div class="note-title">Notes / Penjelasan</div>
+                <div class="note-body">${expense.notes || "Belum ada penjelasan tambahan."}</div>
               </div>
-              ${
-                expense.paymentNotes
-                  ? `<div class="note-box">
-                       <div class="text-[10px] uppercase tracking-wider font-black text-slate-400 mb-1">Treasurer Note</div>
-                       <div class="text-xs text-slate-600 leading-normal">${expense.paymentNotes}</div>
-                     </div>`
-                  : ""
-              }
+              <div class="note-box">
+                <div class="note-title">Treasurer Note</div>
+                <div class="note-body">${expense.paymentNotes || "Belum ada catatan pembayaran."}</div>
+              </div>
               ${reimburseDocLink}
             </div>
           </td>
           <td>
-            <div class="d-flex flex-column gap-1.5">
-              <span class="badge-pill ${badgeCls}">${statusText}</span>
+            <div class="d-flex flex-column gap-2">
+              <div><span class="badge-pill ${badgeCls}">${statusText}</span></div>
               <div class="text-xs text-slate-500 font-medium">${expense.paymentMethod || "Transfer Bank"}</div>
               ${waLink}
               <div class="text-xs text-slate-400">Updated: ${formatDateTimeLabel(expense.updatedAtMs)}</div>
@@ -270,7 +307,7 @@ export function renderTable(
             <div class="d-flex flex-column gap-2 align-items-end">
               <button
                 type="button"
-                class="btn btn-sm btn-dark text-xs font-bold rounded-3 px-3 py-1.5 action-open-detail"
+                class="btn-action-detail action-open-detail"
                 data-id="${expense.id}"
               >
                 Open Detail
@@ -279,7 +316,7 @@ export function renderTable(
                 canReview
                   ? `<button
                        type="button"
-                       class="btn btn-sm btn-outline-warning text-xs font-bold rounded-3 px-3 py-1.5 action-mark-reviewing"
+                       class="btn-action-review action-mark-reviewing"
                        data-id="${expense.id}"
                      >
                        Mark Reviewing
@@ -290,7 +327,7 @@ export function renderTable(
                 canSendWa
                   ? `<button
                        type="button"
-                       class="btn btn-sm btn-outline-success text-xs font-bold rounded-3 px-3 py-1.5 action-send-wa"
+                       class="btn-action-wa action-send-wa"
                        data-id="${expense.id}"
                      >
                        Kirim Bukti ke Mentor
