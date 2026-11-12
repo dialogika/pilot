@@ -22,6 +22,8 @@ import {
 
 /**
  * Checks if a user data object represents an intern.
+ * Prioritizes modern access hierarchy (level_order <= 3 and official staff/team roles)
+ * over residual legacy fields (e.g. past internshipStatus on promoted staff).
  * @param {Object} d
  * @returns {boolean}
  */
@@ -30,13 +32,54 @@ export function isInternUser(d) {
   const access = d.access || {};
   const employment = d.employment || {};
 
+  // 1. PRIMARY AUTHORITATIVE OVERRIDE: Level Order & Official Staff/Management Roles
+  // Level 1: Super Admin / CEO, Level 2: Head / Manager, Level 3: Staff / Team
+  const rawLevel = access.level_order !== undefined ? access.level_order : d.level_order;
+  const levelOrder =
+    rawLevel !== undefined && rawLevel !== null && rawLevel !== ""
+      ? Number(rawLevel)
+      : NaN;
+
+  const roleId = String(access.role_id || d.role_id || "").toLowerCase().trim();
+  const rootRole = String(d.role || "").toLowerCase().trim();
+  const accessRole = String(access.role || "").toLowerCase().trim();
+
+  const STAFF_ROLES = [
+    "staff",
+    "team",
+    "sub_team",
+    "management",
+    "admin",
+    "owner",
+    "mentor",
+  ];
+
+  // If user is explicitly Staff, Team, Management, or Mentor (Level <= 3) -> GUARANTEED NOT INTERN
+  if (
+    (!isNaN(levelOrder) && levelOrder > 0 && levelOrder <= 3) ||
+    STAFF_ROLES.includes(roleId) ||
+    STAFF_ROLES.includes(accessRole) ||
+    rootRole === "staff" ||
+    rootRole === "team"
+  ) {
+    return false;
+  }
+
+  // 2. EXPLICIT INTERN LEVEL ORDER OR ROLE
+  if (
+    levelOrder === 4 ||
+    roleId === "intern" ||
+    roleId === "internship" ||
+    roleId === "magang" ||
+    accessRole === "intern" ||
+    accessRole === "internship"
+  ) {
+    return true;
+  }
+
+  // 3. LEGACY FALLBACK (Only for older documents lacking modern access hierarchy)
   const checkValues = [
-    d.role_id,
-    access.role_id,
-    d.role,
-    access.role,
-    d.roleId,
-    access.roleId,
+    rootRole,
     d.role_name,
     access.role_name,
     d.roleName,
@@ -55,7 +98,6 @@ export function isInternUser(d) {
     d.category,
     d.type,
     d.user_type,
-    d.name,
   ]
     .filter((v) => v !== undefined && v !== null && v !== "")
     .map((v) => String(v).trim().toLowerCase());
