@@ -1,0 +1,7253 @@
+[
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Aditya Diah",
+    "fields": {
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "fullName": {
+        "stringValue": "Aditya Diah"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:37:25.411Z"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "location": {
+        "stringValue": "Kalimantan"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Adit"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "accountHolderName": {
+        "stringValue": "Aditya Diah"
+      },
+      "contractEnd": {
+        "stringValue": "2027-04-20"
+      },
+      "bankName": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628315464711"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": ""
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-07-28T03:44:58.130Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Anak Agung Ari",
+    "fields": {
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:38:00.791Z"
+      },
+      "accountNumber": {
+        "stringValue": "7700260580"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285288968989"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-20"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Anak Agung Ari"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "accountHolderName": {
+        "stringValue": "Anak Agung Ari"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "nickName": {
+        "stringValue": "Ari"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-04T07:35:06.334Z"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Andre Octavianus",
+    "fields": {
+      "status": {
+        "stringValue": "active"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "10:00 - 14:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 14:00"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "10:00 - 14:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 14:00"
+                  },
+                  "day": {
+                    "stringValue": "Kamis"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "10:00 - 14:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "feeOffline": {
+        "integerValue": "75"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/62817118394"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "4980283599"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-27"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T03:35:56.167Z"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Andre Octavianus"
+      },
+      "fullName": {
+        "stringValue": "Andre Octavianus"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:03:35.496Z"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Andre"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "location": {
+        "stringValue": "Jakarta Barat"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": "Tidak bisa dihari Minggu pagi - siang"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Ariani Suryaningsih",
+    "fields": {
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "accountNumber": {
+        "stringValue": "7735335791"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T04:24:40.435Z"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285725052004"
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:11:24.581Z"
+      },
+      "location": {
+        "stringValue": "Solo"
+      },
+      "accountHolderName": {
+        "stringValue": "Ariani Suryaningsih"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "nickName": {
+        "stringValue": "Aya"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "fullName": {
+        "stringValue": "Ariani Suryaningsih"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Bani Firdaus",
+    "fields": {
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Senin"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Jumat"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "fullName": {
+        "stringValue": "Bani Firdaus"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Bani Firdaus"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-27"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T03:36:07.872Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "location": {
+        "stringValue": "Surabaya"
+      },
+      "rating": {
+        "integerValue": "5"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Bani"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:08:57.134Z"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628175280777"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "7880749123"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "avgFeedback": {
+        "integerValue": "5"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Daniel Ari",
+    "fields": {
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Daniel Ari"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628978142741"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T04:26:39.276Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "fullName": {
+        "stringValue": "Daniel Ari"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:05:49.420Z"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "accountNumber": {
+        "stringValue": "0153792515"
+      },
+      "nickName": {
+        "stringValue": "Daniel"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-05-18"
+      },
+      "location": {
+        "stringValue": "Solo"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Dhinar Arga Dumadi",
+    "fields": {
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-01T06:59:25.664Z"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6287839015088"
+      },
+      "bankName": {
+        "stringValue": "MANDIRI"
+      },
+      "accountHolderName": {
+        "stringValue": "Dhinar Arga"
+      },
+      "accountNumber": {
+        "stringValue": "1370010387476"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "fullName": {
+        "stringValue": "Dhinar Arga Dumadi"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:02:31.706Z"
+      },
+      "contractEnd": {
+        "stringValue": "2027-03-26"
+      },
+      "feeOffline": {
+        "integerValue": "75"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "nickName": {
+        "stringValue": "Arga"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Diah Nadiatul Jannah",
+    "fields": {
+      "accountNumber": {
+        "stringValue": "586401009666535"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:52:51.843Z"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-02-28"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Diah Nadiatul Jannah"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "rating": {
+        "doubleValue": 4.5
+      },
+      "bankName": {
+        "stringValue": "BRI"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/62895382843177"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "avgFeedback": {
+        "doubleValue": 4.5
+      },
+      "location": {
+        "stringValue": "Makassar"
+      },
+      "nickName": {
+        "stringValue": "Diah"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-08-30T04:28:52.462Z"
+      },
+      "fullName": {
+        "stringValue": "Diah Nadiatul Jannah"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Dr. Lukmanul Hafiz",
+    "fields": {
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:12:01.699Z"
+      },
+      "accountHolderName": {
+        "stringValue": "Dr. Lukmanul Hafiz"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628111441992"
+      },
+      "feeOffline": {
+        "integerValue": "75"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "nickName": {
+        "stringValue": "Hafiz"
+      },
+      "location": {
+        "stringValue": "Jakarta Selatan"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "5465007009"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-20T08:41:06.641Z"
+      },
+      "fullName": {
+        "stringValue": "Dr. Lukmanul Hafiz"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Fanny Carolina",
+    "fields": {
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "accountNumber": {
+        "stringValue": "24701072280507"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T04:34:40.951Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Fanny Carolina"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6282136306322"
+      },
+      "bankName": {
+        "stringValue": "BRI"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "feeOffline": {
+        "integerValue": "75"
+      },
+      "contractNotes": {
+        "stringValue": "Payment kelas setelah sesi 01"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Fanny"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Fanny Carolina"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:01:39.253Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Ghassani Salsabila",
+    "fields": {
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "accountHolderName": {
+        "stringValue": "Ghassani Salsabila"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Ghassani Salsabila"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "3010033623"
+      },
+      "location": {
+        "stringValue": "Jakarta Pusat"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:05:53.472Z"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Salbi"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-07-19"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Senin"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 12:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 12:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628119207394"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T04:14:00.470Z"
+      },
+      "contractNotes": {
+        "stringValue": "Perlu dikonfirm ulang karena mentor slowrespon"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Giomelando Eurichi",
+    "fields": {
+      "contractEnd": {
+        "stringValue": "2026-10-27"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "accountNumber": {
+        "stringValue": "2740164557"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Tangsel"
+      },
+      "nickName": {
+        "stringValue": "Richi"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "fullName": {
+        "stringValue": "Giomelando Eurichi"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:38:27.690Z"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Giomelando Eurichi"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:07:52.237Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Rabu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Jumat"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285211610400"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Haryanto Saputra",
+    "fields": {
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "fullName": {
+        "stringValue": "Haryanto Saputra"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-08-23T08:28:50.522Z"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "1030005829904"
+      },
+      "contractEnd": {
+        "stringValue": "2026-07-18"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "location": {
+        "stringValue": "Tangsel"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Haryanto"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "bankName": {
+        "stringValue": "Mandiri"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285669169482"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Haryanto Saputra"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:08:00.846Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Holmes Heriyanto Silalahi",
+    "fields": {
+      "type": {
+        "stringValue": "Both"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "fullName": {
+        "stringValue": "Holmes Heriyanto Silalahi"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "accountHolderName": {
+        "stringValue": "Holmes Heriyanto Silalahi"
+      },
+      "nickName": {
+        "stringValue": "Holmes"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Jakarta Selatan"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0373719053"
+      },
+      "createdAt": {
+        "timestampValue": "2026-07-18T05:24:58.394Z"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 17:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 17:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 17:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 17:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 22:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 13:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285725806526"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-09-15T06:48:14.682Z"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Husnul Fatiya",
+    "fields": {
+      "contractEnd": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-15T09:01:07.840Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 10:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BLU by BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6289624528147"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "008930119927"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:00:52.178Z"
+      },
+      "nickName": {
+        "stringValue": "Tiya"
+      },
+      "accountHolderName": {
+        "stringValue": "Husnul Fatiya"
+      },
+      "location": {
+        "stringValue": "Jambi"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "fullName": {
+        "stringValue": "Husnul Fatiya"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/IOZ1hjdCBAyq0zvylLlT",
+    "fields": {
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": ""
+      },
+      "createdAt": {
+        "timestampValue": "2026-10-11T06:27:44.970Z"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "ISNINA JULIANTI"
+      },
+      "source_collection": {
+        "stringValue": "mentors_screening"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": ""
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "instagram": {
+        "stringValue": "https://instagram.com/isnina.julianti"
+      },
+      "campus": {
+        "stringValue": ""
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "email": {
+        "stringValue": "isnina.julianti@gmail.com"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "ISNINA"
+      },
+      "type": {
+        "stringValue": ""
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "location": {
+        "stringValue": "Ciputat, Tangerang Selatan"
+      },
+      "avatar_url": {
+        "stringValue": "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/mentor-avatars%2F1791700058928-022c27ac-e46d-4831-affa-5bdc0a318953.jpeg?alt=media&token=dd10d106-bf15-404d-89e0-8fd49cb1cadd"
+      },
+      "address": {
+        "stringValue": "Ciputat, Tangerang Selatan"
+      },
+      "copied_to_mentor_at": {
+        "stringValue": "2026-10-18T06:22:49.934Z"
+      },
+      "major": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281906294450"
+      },
+      "bankName": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "accountHolderName": {
+        "stringValue": "ISNINA JULIANTI"
+      },
+      "source_candidate_id": {
+        "stringValue": "IOZ1hjdCBAyq0zvylLlT"
+      },
+      "linkedin": {
+        "stringValue": "https://www.linkedin.com/in/www.linkedin.com"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "nullValue": null
+      }
+    },
+    "createTime": "2026-10-31T09:35:51.511276Z",
+    "updateTime": "2026-10-31T09:35:51.511276Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Ibnu Fanhar",
+    "fields": {
+      "rating": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T05:29:44.521Z"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "location": {
+        "stringValue": "Surabaya"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "nickName": {
+        "stringValue": "Ibnu"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "fullName": {
+        "stringValue": "Ibnu Fanhar"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "1410010755254"
+      },
+      "contractEnd": {
+        "stringValue": "2027-05-25"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:07:42.670Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "bankName": {
+        "stringValue": "Mandiri"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285163619299"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Ibnu Fanhar"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Kusuma Sukma",
+    "fields": {
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628111448998"
+      },
+      "accountHolderName": {
+        "stringValue": "Kusuma Sukma"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-10-27"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:38:49.749Z"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "accountNumber": {
+        "stringValue": "0152971123"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Kusuma Sukma"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:09:58.641Z"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Senin"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "location": {
+        "stringValue": "Denpasar"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Kusuma"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Leila Karina",
+    "fields": {
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "feeOffline": {
+        "integerValue": "70000"
+      },
+      "accountHolderName": {
+        "stringValue": "Leila Karina"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-01T07:00:51.200Z"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6288806068136"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0373044170"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "fullName": {
+        "stringValue": "Leila Karina"
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "contractEnd": {
+        "stringValue": "2027-03-26"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:01:46.579Z"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Ella"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Lucia Darujati",
+    "fields": {
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-06-16T04:03:01.396Z"
+      },
+      "contractNotes": {
+        "stringValue": "Agustus udah mulai kelas profesi lagi"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Lucia Darujati"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "nickName": {
+        "stringValue": "Lucia"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-12-26"
+      },
+      "location": {
+        "stringValue": "Jl. Affandi, Sleman, DIY"
+      },
+      "accountHolderName": {
+        "stringValue": "Lucia Darujati"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "4452236676"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281931419974"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-01T07:00:00.581Z"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/M. Rendra",
+    "fields": {
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contract_end": {
+        "stringValue": ""
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "total_class": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:11:13.486Z"
+      },
+      "Score": {
+        "stringValue": "1.00"
+      },
+      "catatan_khusus": {
+        "stringValue": ""
+      },
+      "rating": {
+        "stringValue": "0.0"
+      },
+      "fullName": {
+        "stringValue": "M. Rendra"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "nama_lengkap": {
+        "stringValue": "M. Rendra"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Rendra"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "location": {
+        "stringValue": "Jakarta"
+      },
+      "nama_panggilan": {
+        "stringValue": "Rendra"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "whatsapp_number": {
+        "stringValue": "6285156262948"
+      },
+      "id_mentor": {
+        "stringValue": "mentor_017"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "nomor_rekening": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285156262948"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "updatedAt": {
+        "timestampValue": "2026-04-02T07:11:13.486Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "ratingNumeric": {
+        "integerValue": "0"
+      },
+      "Bank": {
+        "stringValue": ""
+      },
+      "active_class": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Maria Saraswati Kinasih Hapsari",
+    "fields": {
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-03-26"
+      },
+      "accountNumber": {
+        "stringValue": "0941250903"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281224881008"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-01T07:00:17.221Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "accountHolderName": {
+        "stringValue": "Maria Saraswati Kinasih Hapsari"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "fullName": {
+        "stringValue": "Maria Saraswati Kinasih Hapsari"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-06-28T04:05:40.166Z"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Maria"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 15:30"
+                  },
+                  "day": {
+                    "stringValue": "Senin"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 15:30"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 15:30"
+                  },
+                  "day": {
+                    "stringValue": "Rabu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 15:30"
+                  },
+                  "day": {
+                    "stringValue": "Sabtu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "10:00 - 15:30"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "location": {
+        "stringValue": "Bantul, Yogyakarta"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Mariska Estelita",
+    "fields": {
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:04:58.594Z"
+      },
+      "total_class": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285782580767"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "active_class": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "Score": {
+        "stringValue": "1.00"
+      },
+      "ratingNumeric": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "nomor_rekening": {
+        "stringValue": ""
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "location": {
+        "stringValue": "Jakarta Pusat"
+      },
+      "nickName": {
+        "stringValue": "Mariska"
+      },
+      "rating": {
+        "stringValue": "0.0"
+      },
+      "id_mentor": {
+        "stringValue": "mentor_018"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "nama_panggilan": {
+        "stringValue": "Mariska"
+      },
+      "contract_end": {
+        "stringValue": ""
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Mariska Estelita"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-04-02T07:04:58.594Z"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "Bank": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "whatsapp_number": {
+        "stringValue": "6285782580767"
+      },
+      "catatan_khusus": {
+        "stringValue": ""
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "nama_lengkap": {
+        "stringValue": "Mariska Estelita"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Muhammad Rio",
+    "fields": {
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "bankName": {
+        "stringValue": "BLU BY BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285207874587"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Muhammad Rio"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "updatedAt": {
+        "timestampValue": "2026-04-18T08:12:00.718Z"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "6463958773"
+      },
+      "fullName": {
+        "stringValue": "Muhammad Rio"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:10:45.793Z"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Bandung"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Rio"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Nabila Putri Manda",
+    "fields": {
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281285160306"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:00:51.471Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "8330302004"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Nabila Putri Manda"
+      },
+      "avgFeedback": {
+        "doubleValue": 4.5
+      },
+      "fullName": {
+        "stringValue": "Nabila Putri Manda"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "location": {
+        "stringValue": "Malang"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "contractEnd": {
+        "stringValue": "2027-02-28"
+      },
+      "nickName": {
+        "stringValue": "Nabila"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-08-30T04:29:00.909Z"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "rating": {
+        "doubleValue": 4.5
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Naufal Dzaky",
+    "fields": {
+      "contractEnd": {
+        "stringValue": "2027-05-25"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:08:18.080Z"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "accountHolderName": {
+        "stringValue": "Naufal Dzaky"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281273082644"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0988889418"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Dzaky"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T05:37:20.886Z"
+      },
+      "fullName": {
+        "stringValue": "Naufal Dzaky"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "rating": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Nicho Finsya",
+    "fields": {
+      "nama_panggilan": {
+        "stringValue": "Nicho"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628123831375"
+      },
+      "nama_lengkap": {
+        "stringValue": "Nicho Finsya"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:11:38.964Z"
+      },
+      "Bank": {
+        "stringValue": ""
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "catatan_khusus": {
+        "stringValue": ""
+      },
+      "ratingNumeric": {
+        "integerValue": "0"
+      },
+      "total_class": {
+        "integerValue": "0"
+      },
+      "contract_end": {
+        "stringValue": ""
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "active_class": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "Score": {
+        "stringValue": "1.00"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "fullName": {
+        "stringValue": "Nicho Finsya"
+      },
+      "id_mentor": {
+        "stringValue": "mentor_022"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "nomor_rekening": {
+        "stringValue": ""
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "whatsapp_number": {
+        "stringValue": "628123831375"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Solo"
+      },
+      "rating": {
+        "stringValue": "0.0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "nickName": {
+        "stringValue": "Nicho"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "updatedAt": {
+        "timestampValue": "2026-04-02T07:11:38.964Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Nur Lailatul Izzah",
+    "fields": {
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-09-26T11:07:31.010Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "location": {
+        "stringValue": ""
+      },
+      "nickName": {
+        "stringValue": "Nur"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Nur Lailatul Izzah"
+      },
+      "accountHolderName": {
+        "stringValue": "A.N Nur Lailatul Izzah"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "2001087250"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-09-26T11:00:14.268Z"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/085257215038"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Oip30oVnmUTGMjJSfcVQ",
+    "fields": {
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": ""
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "instagram": {
+        "stringValue": "https://instagram.com/s.o.o.t.h.e"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "campus": {
+        "stringValue": ""
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Bagus"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "avatar_url": {
+        "stringValue": "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/mentor-avatars%2F1792826795930-IMG_2464.jpeg?alt=media&token=a096394e-14e6-4d2b-badf-73bdf675e395"
+      },
+      "location": {
+        "stringValue": "Jakarta Selatan"
+      },
+      "major": {
+        "stringValue": ""
+      },
+      "teaching": {
+        "stringValue": ""
+      },
+      "source_collection": {
+        "stringValue": "mentors_screening"
+      },
+      "createdAt": {
+        "timestampValue": "2026-10-24T07:26:42.526Z"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Bagus Gede Karma Amandangi"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": ""
+      },
+      "email": {
+        "stringValue": "bagusgedekarmaamandangi@gmail.com"
+      },
+      "copied_to_mentor_at": {
+        "stringValue": "2026-11-12T05:04:48.770Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "linkedin": {
+        "stringValue": "https://www.linkedin.com/in/bagusgedekarmaamandangi"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Bagus Gede Karma Amandangi"
+      },
+      "address": {
+        "stringValue": "Jakarta Selatan"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "source_candidate_id": {
+        "stringValue": "Oip30oVnmUTGMjJSfcVQ"
+      },
+      "bankName": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285793338683"
+      }
+    },
+    "createTime": "2026-11-12T05:04:48.343455Z",
+    "updateTime": "2026-11-12T05:04:48.343455Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Puspita Wijayati",
+    "fields": {
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "createdAt": {
+        "timestampValue": "2026-07-07T07:04:29.571Z"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "Mandiri"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6287711711992"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-04-20"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "nickName": {
+        "stringValue": "Puspita"
+      },
+      "accountHolderName": {
+        "stringValue": "Puspita Wijayati"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "accountNumber": {
+        "stringValue": "1370017628427"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:39:28.562Z"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "fullName": {
+        "stringValue": "Puspita Wijayati"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Rafellino Ovaldo",
+    "fields": {
+      "accountHolderName": {
+        "stringValue": "Rafellino Ovaldo"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "accountNumber": {
+        "stringValue": "6042593261"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:09:07.920Z"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/62817300098"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "fullName": {
+        "stringValue": "Rafellino Ovaldo"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Rafellino"
+      },
+      "location": {
+        "stringValue": "Jakarta"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-20T08:41:55.136Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Regina Nahsya",
+    "fields": {
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/62882009244348"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:54:24.972Z"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "accountHolderName": {
+        "stringValue": "Regina Nahsya"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Regina"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-08-30T04:28:33.545Z"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "location": {
+        "stringValue": "Surabaya"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-02-28"
+      },
+      "accountNumber": {
+        "stringValue": "6750736392"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Regina Nahsya"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Rhinto Setyawan",
+    "fields": {
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "7660224755"
+      },
+      "contractEnd": {
+        "stringValue": "2027-04-20"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628159800846"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:04:05.322Z"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "fullName": {
+        "stringValue": "Rhinto Setyawan"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "avgFeedback": {
+        "doubleValue": 3.8
+      },
+      "rating": {
+        "doubleValue": 3.8
+      },
+      "accountHolderName": {
+        "stringValue": "Rhinto Setyawan"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 19:00"
+                  },
+                  "day": {
+                    "stringValue": "Sabtu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 19:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Bekasi"
+      },
+      "nickName": {
+        "stringValue": "Rhinto"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:41:24.503Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Ricardo Yacob",
+    "fields": {
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0120285505"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T05:44:01.839Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Ricardo Yacob"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285921297000"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:02:20.199Z"
+      },
+      "nickName": {
+        "stringValue": "Ricardo"
+      },
+      "contractNotes": {
+        "stringValue": "Terlalu sibuk"
+      },
+      "location": {
+        "stringValue": "Jakarta Barat"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "contractEnd": {
+        "stringValue": "2026-12-11"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Ricardo Yacob"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Ridho Mahendra",
+    "fields": {
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "7220739451"
+      },
+      "fullName": {
+        "stringValue": "Ridho Mahendra"
+      },
+      "avgFeedback": {
+        "integerValue": "3"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Ridho"
+      },
+      "location": {
+        "stringValue": "Pontianak"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:03:12.089Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "bankName": {
+        "stringValue": "BSI"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6289673610877"
+      },
+      "accountHolderName": {
+        "stringValue": "Ridho Mahendra"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:41:54.166Z"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "contractEnd": {
+        "stringValue": "2026-10-27"
+      },
+      "rating": {
+        "integerValue": "3"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 17:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "09:00 - 17:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Rini Yunita Khusuharyanti",
+    "fields": {
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "nickName": {
+        "stringValue": "Riri"
+      },
+      "location": {
+        "stringValue": "Jakarta Pusat"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:53:32.348Z"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Rini Yunita Khusuharyanti"
+      },
+      "accountNumber": {
+        "stringValue": "0941671739"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Rini Yunita Khusuharyanti"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-18T05:46:37.675Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/62885799991496"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Salsabila Astari",
+    "fields": {
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-20T08:43:29.942Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285700115098"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "bankName": {
+        "stringValue": "BLU BCA"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Salsa"
+      },
+      "location": {
+        "stringValue": "Kalimantan"
+      },
+      "accountHolderName": {
+        "stringValue": "Salsabila Astari"
+      },
+      "accountNumber": {
+        "stringValue": "008560842659"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:10:46.632Z"
+      },
+      "fullName": {
+        "stringValue": "Salsabila Astari"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Sandra Nova Raharjo",
+    "fields": {
+      "fullName": {
+        "stringValue": "Sandra Nova Raharjo"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Senin"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Kamis"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Jumat"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Sabtu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "nickName": {
+        "stringValue": "Sandra"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "location": {
+        "stringValue": "Tangsel"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:07:31.901Z"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "bankName": {
+        "stringValue": "BSI"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281325753726"
+      },
+      "accountHolderName": {
+        "stringValue": "Sandra Nova Raharjo"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T03:37:14.425Z"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "7213071787"
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-27"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Sasmitaningtyas",
+    "fields": {
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Dewasa"
+      },
+      "fullName": {
+        "stringValue": "Sasmitaningtyas"
+      },
+      "accountHolderName": {
+        "stringValue": "Sasmitaningtyas"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-20T08:40:00.323Z"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "location": {
+        "stringValue": "Surabaya"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "nickName": {
+        "stringValue": "Sasimita"
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6288975321277"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "2630930301"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:57:26.054Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Selvi Susanti",
+    "fields": {
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0461821293"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-10-25T04:42:22.144Z"
+      },
+      "contractEnd": {
+        "stringValue": "2027-04-20"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Cempaka Putih, Jakarta Pusat"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Selvi"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "fullName": {
+        "stringValue": "Selvi Susanti"
+      },
+      "accountHolderName": {
+        "stringValue": "Selvi Susanti"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "createdAt": {
+        "timestampValue": "2026-07-28T07:44:19.620Z"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/628381981207"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-11-01T08:39:30.708857Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Septyani Dwi Hastati",
+    "fields": {
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "accountNumber": {
+        "stringValue": "6821580312"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T03:37:27.657Z"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285697768946"
+      },
+      "accountHolderName": {
+        "stringValue": "Septyani Dwi Hastati"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:09:39.962Z"
+      },
+      "nickName": {
+        "stringValue": "Septyani"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Jumat"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "08:00 - 20:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "location": {
+        "stringValue": "Bogor"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-27"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "fullName": {
+        "stringValue": "Septyani Dwi Hastati"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Syifa Nabilah",
+    "fields": {
+      "rating": {
+        "integerValue": "0"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285719706406"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:10:14.792Z"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Selasa"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Rabu"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "19:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "time": {
+                    "stringValue": "18:00 - 21:00"
+                  },
+                  "day": {
+                    "stringValue": "Minggu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "accountHolderName": {
+        "stringValue": "Syifa Nabilah"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "contractEnd": {
+        "stringValue": "2027-01-27"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-28T03:37:40.571Z"
+      },
+      "fullName": {
+        "stringValue": "Syifa Nabilah"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "7112218168"
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Syifa"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Jakarta Barat"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Vebri Aldiansyah",
+    "fields": {
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "nickName": {
+        "stringValue": "Vebri"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:51:25.169Z"
+      },
+      "fullName": {
+        "stringValue": "Vebri Aldiansyah"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "contractNotes": {
+        "stringValue": "Masih perlu di brief"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-14T07:39:18.712Z"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-24"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BRI"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285923335935"
+      },
+      "accountHolderName": {
+        "stringValue": "Vebri Aldiansyah"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Selasa"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Kamis"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "18:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "07:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "07:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "177901002391500"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Vika Safitri",
+    "fields": {
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-08-30T04:29:15.323Z"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "fullName": {
+        "stringValue": "Vika Safitri"
+      },
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "Vika"
+      },
+      "accountNumber": {
+        "stringValue": "8467034566"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "10:00 - 17:30"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "10:00 - 17:30"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "accountHolderName": {
+        "stringValue": "Vika Safitri"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6282285281424"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "stringValue": "2027-02-28"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:27:23.778Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Waode Zalfa",
+    "fields": {
+      "whatsapp": {
+        "stringValue": "https://wa.me/6282137307941"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "type": {
+        "stringValue": "Offline"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "Waode Zalfa"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "09:30 - 15:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "09:30 - 15:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T07:04:51.514Z"
+      },
+      "contractEnd": {
+        "stringValue": "2026-05-14"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Waode Zalfa"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "updatedAt": {
+        "timestampValue": "2026-05-16T05:49:44.101Z"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "6630763523"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "inactive"
+      },
+      "nickName": {
+        "stringValue": "Waode"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "rating": {
+        "integerValue": "0"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/Wening Soca",
+    "fields": {
+      "teaching": {
+        "stringValue": "Anak"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "createdAt": {
+        "timestampValue": "2026-04-02T06:53:42.973Z"
+      },
+      "contractEnd": {
+        "stringValue": "2026-11-23"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "fullName": {
+        "stringValue": "Wening Soca"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "50000"
+      },
+      "nickName": {
+        "stringValue": "Wening"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "Yogyakarta"
+      },
+      "availability": {
+        "arrayValue": {
+          "values": [
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Sabtu"
+                  },
+                  "time": {
+                    "stringValue": "07:00 - 15:30"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Minggu"
+                  },
+                  "time": {
+                    "stringValue": "07:00 - 15:30"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Senin"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Rabu"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            },
+            {
+              "mapValue": {
+                "fields": {
+                  "day": {
+                    "stringValue": "Jumat"
+                  },
+                  "time": {
+                    "stringValue": "15:00 - 20:00"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "avgFeedback": {
+        "integerValue": "4"
+      },
+      "rating": {
+        "integerValue": "4"
+      },
+      "accountHolderName": {
+        "stringValue": "Wening Soca"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "75000"
+      },
+      "type": {
+        "stringValue": "Both"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6281222875026"
+      },
+      "bankName": {
+        "stringValue": "BCA"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "updatedAt": {
+        "timestampValue": "2026-06-20T08:42:35.476Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "accountNumber": {
+        "stringValue": "0375292322"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/qtEHOrqx3UWOIAW4vbml",
+    "fields": {
+      "avatar_url": {
+        "stringValue": "https://firebasestorage.googleapis.com/v0/b/pre-dialogika.firebasestorage.app/o/mentor-avatars%2F1781922886720-CompressJPEG.Online_img(500x500).jpg?alt=media&token=e93ade7d-1472-4922-b726-9a9317ee2989"
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "avgFeedback": {
+        "integerValue": "0"
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "David Testing"
+      },
+      "bankName": {
+        "stringValue": ""
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/6285875179866"
+      },
+      "copied_to_mentor_at": {
+        "stringValue": "2026-06-20T02:56:25.272Z"
+      },
+      "createdAt": {
+        "timestampValue": "2026-06-20T02:34:52.862Z"
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "email": {
+        "stringValue": "davidchristianok@gmail.com"
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "source_candidate_id": {
+        "stringValue": "qtEHOrqx3UWOIAW4vbml"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "instagram": {
+        "stringValue": "https://instagram.com/dvdchrstn_"
+      },
+      "address": {
+        "stringValue": "slmn"
+      },
+      "linkedin": {
+        "stringValue": "https://www.linkedin.com/in/david-christiano"
+      },
+      "source_collection": {
+        "stringValue": "mentors_screening"
+      },
+      "major": {
+        "stringValue": ""
+      },
+      "teaching": {
+        "stringValue": ""
+      },
+      "rating": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "campus": {
+        "stringValue": ""
+      },
+      "fullName": {
+        "stringValue": "David Testing"
+      },
+      "type": {
+        "stringValue": ""
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "location": {
+        "stringValue": "slmn"
+      },
+      "accountNumber": {
+        "stringValue": ""
+      },
+      "nickName": {
+        "stringValue": "David"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  },
+  {
+    "name": "projects/dialogika-co/databases/(default)/documents/mentor/test dhama",
+    "fields": {
+      "bankName": {
+        "stringValue": "bCa"
+      },
+      "whatsapp": {
+        "stringValue": "https://wa.me/0123456778834"
+      },
+      "createdAt": {
+        "timestampValue": "2026-07-16T05:30:07.530Z"
+      },
+      "totalEarning": {
+        "integerValue": "0"
+      },
+      "complaintCount": {
+        "integerValue": "0"
+      },
+      "accountHolderName": {
+        "stringValue": "yuan"
+      },
+      "classHistory": {
+        "arrayValue": {}
+      },
+      "feeOffline": {
+        "integerValue": "0"
+      },
+      "type": {
+        "stringValue": "Online"
+      },
+      "feeOnline": {
+        "integerValue": "0"
+      },
+      "totalClasses": {
+        "integerValue": "0"
+      },
+      "contractEnd": {
+        "nullValue": null
+      },
+      "contractNotes": {
+        "stringValue": ""
+      },
+      "fullName": {
+        "stringValue": "test dhama"
+      },
+      "availability": {
+        "arrayValue": {}
+      },
+      "attendanceRate": {
+        "integerValue": "0"
+      },
+      "contractDurationMonths": {
+        "nullValue": null
+      },
+      "completionRate": {
+        "integerValue": "0"
+      },
+      "teaching": {
+        "stringValue": "Both"
+      },
+      "lastActiveDays": {
+        "integerValue": "0"
+      },
+      "pendingPayment": {
+        "integerValue": "0"
+      },
+      "avgFeedback": {
+        "integerValue": "5"
+      },
+      "accountNumber": {
+        "stringValue": "0987654321"
+      },
+      "location": {
+        "stringValue": "test location"
+      },
+      "activeClasses": {
+        "integerValue": "0"
+      },
+      "nickName": {
+        "stringValue": "dhama"
+      },
+      "rating": {
+        "integerValue": "5"
+      },
+      "status": {
+        "stringValue": "active"
+      },
+      "updatedAt": {
+        "timestampValue": "2026-07-16T05:32:29.305Z"
+      }
+    },
+    "createTime": "2026-09-29T04:04:51.693600Z",
+    "updateTime": "2026-09-29T04:04:51.693600Z"
+  }
+]

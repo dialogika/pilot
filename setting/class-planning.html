@@ -752,7 +752,10 @@ import { app, db } from "../assets/js/firebase-config.js";
 
         async function loadMentorsForPlanning() {
             try {
-                const snap = await getDocs(collection(db, "mentor"));
+                let snap = await getDocs(collection(db, "mentors"));
+                if (snap.empty) {
+                    snap = await getDocs(collection(db, "mentor"));
+                }
                 mentorsState = [];
                 snap.forEach((docSnap) => {
                     const d = docSnap.data() || {};

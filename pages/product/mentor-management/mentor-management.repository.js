@@ -347,140 +347,179 @@ const BENCHMARK_MENTORS = [
  */
 export async function getMentors() {
   try {
-    let snap = await getDocs(collection(db, PRIMARY_COLLECTION));
-    if (snap.empty) {
-      snap = await getDocs(collection(db, FALLBACK_COLLECTION));
-    }
-    if (!snap.empty) {
-      const mentors = [];
+    let snap = await getDocs(collection(db, PRIMARY_COLLECTION)).catch(() => null);
+    let fallbackSnap = await getDocs(collection(db, FALLBACK_COLLECTION)).catch(() => null);
+
+    const mapDocToMentor = (docSnap) => {
+      const d = docSnap.data() || {};
+      const ratingValue = parseNumberish(d.rating);
+      const avgRatingValue = parseNumberish(d.avgRating);
+      return {
+        id: docSnap.id,
+        fullName: d.fullName || d.nama_lengkap || docSnap.id,
+        nickName: d.nickName || d.nama_panggilan || "",
+        whatsapp: d.whatsapp || d.phone || d.no_wa || "",
+        whatsappNumber: extractWhatsappNumber(
+          d.whatsapp || d.phone || d.no_wa || ""
+        ),
+        rating:
+          ratingValue !== null
+            ? ratingValue
+            : avgRatingValue !== null
+            ? avgRatingValue
+            : 0,
+        teaching: d.teaching || d.teachingType || d.teaching_type || "-",
+        type: d.type || d.deliveryType || d.mode || "-",
+        activeClasses:
+          parseIntegerish(d.activeClasses) !== null
+            ? parseIntegerish(d.activeClasses)
+            : parseIntegerish(d.active_class) !== null
+            ? parseIntegerish(d.active_class)
+            : 0,
+        totalClasses:
+          parseIntegerish(d.totalClasses) !== null
+            ? parseIntegerish(d.totalClasses)
+            : parseIntegerish(d.total_class) !== null
+            ? parseIntegerish(d.total_class)
+            : 0,
+        location: d.location || d.city || "-",
+        status: (d.status || "active").toLowerCase(),
+        contractEnd: d.contractEnd || d.contract_end || null,
+        contractDurationMonths:
+          parseIntegerish(d.contractDurationMonths) !== null
+            ? parseIntegerish(d.contractDurationMonths)
+            : parseIntegerish(d.contract_duration_months) !== null
+            ? parseIntegerish(d.contract_duration_months)
+            : null,
+        lastActiveDays:
+          parseIntegerish(d.lastActiveDays) !== null
+            ? parseIntegerish(d.lastActiveDays)
+            : parseIntegerish(d.last_active_days) !== null
+            ? parseIntegerish(d.last_active_days)
+            : 0,
+        completionRate:
+          parseNumberish(d.completionRate) !== null
+            ? parseNumberish(d.completionRate)
+            : parseNumberish(d.completion_rate) !== null
+            ? parseNumberish(d.completion_rate)
+            : 0,
+        attendanceRate:
+          parseNumberish(d.attendanceRate) !== null
+            ? parseNumberish(d.attendanceRate)
+            : parseNumberish(d.attendance_rate) !== null
+            ? parseNumberish(d.attendance_rate)
+            : 0,
+        complaintCount:
+          parseIntegerish(d.complaintCount) !== null
+            ? parseIntegerish(d.complaintCount)
+            : parseIntegerish(d.complaints) !== null
+            ? parseIntegerish(d.complaints)
+            : 0,
+        avgFeedback:
+          parseNumberish(d.avgFeedback) !== null
+            ? parseNumberish(d.avgFeedback)
+            : parseNumberish(d.avg_feedback) !== null
+            ? parseNumberish(d.avg_feedback)
+            : ratingValue !== null
+            ? ratingValue
+            : 0,
+        totalEarning:
+          parseNumberish(d.totalEarning) !== null
+            ? parseNumberish(d.totalEarning)
+            : parseNumberish(d.total_earning) !== null
+            ? parseNumberish(d.total_earning)
+            : 0,
+        pendingPayment:
+          parseNumberish(d.pendingPayment) !== null
+            ? parseNumberish(d.pendingPayment)
+            : parseNumberish(d.pending_payment) !== null
+            ? parseNumberish(d.pending_payment)
+            : 0,
+        feeOnline:
+          parseNumberish(d.feeOnline) !== null
+            ? parseNumberish(d.feeOnline)
+            : parseNumberish(d.fee_online) !== null
+            ? parseNumberish(d.fee_online)
+            : 0,
+        feeOffline:
+          parseNumberish(d.feeOffline) !== null
+            ? parseNumberish(d.feeOffline)
+            : parseNumberish(d.fee_offline) !== null
+            ? parseNumberish(d.fee_offline)
+            : 0,
+        availability: normalizeAvailabilityList(
+          Array.isArray(d.availability)
+            ? d.availability
+            : Array.isArray(d.ketersediaan)
+            ? d.ketersediaan
+            : []
+        ),
+        classHistory: Array.isArray(d.classHistory) ? d.classHistory : [],
+        contractNotes:
+          d.contractNotes || d.contract_notes || d.catatan_khusus || "",
+        bankName: d.bankName || d.bank_name || d.namaBank || "",
+        accountNumber:
+          d.accountNumber ||
+          d.account_number ||
+          d.noRekening ||
+          d.no_rekening ||
+          "",
+        accountHolderName:
+          d.accountHolderName ||
+          d.beneficiaryName ||
+          d.nama_rekening ||
+          d.namaPemilikRekening ||
+          "",
+      };
+    };
+
+    const mentors = [];
+    const seenNames = new Set();
+    const missingToSync = [];
+
+    if (snap && !snap.empty) {
       snap.forEach((docSnap) => {
-        const d = docSnap.data() || {};
-        const ratingValue = parseNumberish(d.rating);
-        const avgRatingValue = parseNumberish(d.avgRating);
-        const mentor = {
-          id: docSnap.id,
-          fullName: d.fullName || d.nama_lengkap || docSnap.id,
-          nickName: d.nickName || d.nama_panggilan || "",
-          whatsapp: d.whatsapp || d.phone || d.no_wa || "",
-          whatsappNumber: extractWhatsappNumber(
-            d.whatsapp || d.phone || d.no_wa || ""
-          ),
-          rating:
-            ratingValue !== null
-              ? ratingValue
-              : avgRatingValue !== null
-              ? avgRatingValue
-              : 0,
-          teaching: d.teaching || d.teachingType || d.teaching_type || "-",
-          type: d.type || d.deliveryType || d.mode || "-",
-          activeClasses:
-            parseIntegerish(d.activeClasses) !== null
-              ? parseIntegerish(d.activeClasses)
-              : parseIntegerish(d.active_class) !== null
-              ? parseIntegerish(d.active_class)
-              : 0,
-          totalClasses:
-            parseIntegerish(d.totalClasses) !== null
-              ? parseIntegerish(d.totalClasses)
-              : parseIntegerish(d.total_class) !== null
-              ? parseIntegerish(d.total_class)
-              : 0,
-          location: d.location || d.city || "-",
-          status: (d.status || "active").toLowerCase(),
-          contractEnd: d.contractEnd || d.contract_end || null,
-          contractDurationMonths:
-            parseIntegerish(d.contractDurationMonths) !== null
-              ? parseIntegerish(d.contractDurationMonths)
-              : parseIntegerish(d.contract_duration_months) !== null
-              ? parseIntegerish(d.contract_duration_months)
-              : null,
-          lastActiveDays:
-            parseIntegerish(d.lastActiveDays) !== null
-              ? parseIntegerish(d.lastActiveDays)
-              : parseIntegerish(d.last_active_days) !== null
-              ? parseIntegerish(d.last_active_days)
-              : 0,
-          completionRate:
-            parseNumberish(d.completionRate) !== null
-              ? parseNumberish(d.completionRate)
-              : parseNumberish(d.completion_rate) !== null
-              ? parseNumberish(d.completion_rate)
-              : 0,
-          attendanceRate:
-            parseNumberish(d.attendanceRate) !== null
-              ? parseNumberish(d.attendanceRate)
-              : parseNumberish(d.attendance_rate) !== null
-              ? parseNumberish(d.attendance_rate)
-              : 0,
-          complaintCount:
-            parseIntegerish(d.complaintCount) !== null
-              ? parseIntegerish(d.complaintCount)
-              : parseIntegerish(d.complaints) !== null
-              ? parseIntegerish(d.complaints)
-              : 0,
-          avgFeedback:
-            parseNumberish(d.avgFeedback) !== null
-              ? parseNumberish(d.avgFeedback)
-              : parseNumberish(d.avg_feedback) !== null
-              ? parseNumberish(d.avg_feedback)
-              : ratingValue !== null
-              ? ratingValue
-              : 0,
-          totalEarning:
-            parseNumberish(d.totalEarning) !== null
-              ? parseNumberish(d.totalEarning)
-              : parseNumberish(d.total_earning) !== null
-              ? parseNumberish(d.total_earning)
-              : 0,
-          pendingPayment:
-            parseNumberish(d.pendingPayment) !== null
-              ? parseNumberish(d.pendingPayment)
-              : parseNumberish(d.pending_payment) !== null
-              ? parseNumberish(d.pending_payment)
-              : 0,
-          feeOnline:
-            parseNumberish(d.feeOnline) !== null
-              ? parseNumberish(d.feeOnline)
-              : parseNumberish(d.fee_online) !== null
-              ? parseNumberish(d.fee_online)
-              : 0,
-          feeOffline:
-            parseNumberish(d.feeOffline) !== null
-              ? parseNumberish(d.feeOffline)
-              : parseNumberish(d.fee_offline) !== null
-              ? parseNumberish(d.fee_offline)
-              : 0,
-          availability: normalizeAvailabilityList(
-            Array.isArray(d.availability)
-              ? d.availability
-              : Array.isArray(d.ketersediaan)
-              ? d.ketersediaan
-              : []
-          ),
-          classHistory: Array.isArray(d.classHistory) ? d.classHistory : [],
-          contractNotes:
-            d.contractNotes || d.contract_notes || d.catatan_khusus || "",
-          bankName: d.bankName || d.bank_name || d.namaBank || "",
-          accountNumber:
-            d.accountNumber ||
-            d.account_number ||
-            d.noRekening ||
-            d.no_rekening ||
-            "",
-          accountHolderName:
-            d.accountHolderName ||
-            d.beneficiaryName ||
-            d.nama_rekening ||
-            d.namaPemilikRekening ||
-            "",
-        };
+        const mentor = mapDocToMentor(docSnap);
+        const norm = (mentor.fullName || mentor.id).trim().toLowerCase();
+        seenNames.add(norm);
         mentors.push(mentor);
       });
+    }
+
+    if (fallbackSnap && !fallbackSnap.empty) {
+      fallbackSnap.forEach((docSnap) => {
+        const d = docSnap.data() || {};
+        const fullName = (d.fullName || d.nama_lengkap || d.name || docSnap.id).trim();
+        const norm = fullName.toLowerCase();
+        if (!seenNames.has(norm)) {
+          seenNames.add(norm);
+          const mentor = mapDocToMentor(docSnap);
+          mentors.push(mentor);
+          missingToSync.push({ docId: fullName, data: d });
+        }
+      });
+    }
+
+    // Auto-migrate missing mentors into PRIMARY_COLLECTION (mentors) seamlessly
+    if (missingToSync.length > 0) {
+      setTimeout(async () => {
+        for (const item of missingToSync) {
+          try {
+            await setDoc(doc(db, PRIMARY_COLLECTION, item.docId), item.data, { merge: true });
+            console.log("[AutoMigration] Synced mentor from legacy to mentors:", item.docId);
+          } catch (syncErr) {
+            console.warn("[AutoMigration] Sync skipped for:", item.docId, syncErr);
+          }
+        }
+      }, 1000);
+    }
+
+    if (mentors.length > 0) {
       return mentors;
     }
   } catch (err) {
     console.warn(
-      "[MentorRepo] Firestore collection 'mentor' read exception:",
+      "[MentorRepo] Firestore collection 'mentors' read exception:",
       err?.message || err
     );
   }
