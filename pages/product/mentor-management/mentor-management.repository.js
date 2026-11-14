@@ -347,8 +347,7 @@ const BENCHMARK_MENTORS = [
  */
 export async function getMentors() {
   try {
-    let snap = await getDocs(collection(db, PRIMARY_COLLECTION)).catch(() => null);
-    let fallbackSnap = await getDocs(collection(db, FALLBACK_COLLECTION)).catch(() => null);
+    const snap = await getDocs(collection(db, PRIMARY_COLLECTION)).catch(() => null);
 
     const mapDocToMentor = (docSnap) => {
       const d = docSnap.data() || {};
@@ -474,44 +473,10 @@ export async function getMentors() {
     };
 
     const mentors = [];
-    const seenNames = new Set();
-    const missingToSync = [];
-
     if (snap && !snap.empty) {
       snap.forEach((docSnap) => {
-        const mentor = mapDocToMentor(docSnap);
-        const norm = (mentor.fullName || mentor.id).trim().toLowerCase();
-        seenNames.add(norm);
-        mentors.push(mentor);
+        mentors.push(mapDocToMentor(docSnap));
       });
-    }
-
-    if (fallbackSnap && !fallbackSnap.empty) {
-      fallbackSnap.forEach((docSnap) => {
-        const d = docSnap.data() || {};
-        const fullName = (d.fullName || d.nama_lengkap || d.name || docSnap.id).trim();
-        const norm = fullName.toLowerCase();
-        if (!seenNames.has(norm)) {
-          seenNames.add(norm);
-          const mentor = mapDocToMentor(docSnap);
-          mentors.push(mentor);
-          missingToSync.push({ docId: fullName, data: d });
-        }
-      });
-    }
-
-    // Auto-migrate missing mentors into PRIMARY_COLLECTION (mentors) seamlessly
-    if (missingToSync.length > 0) {
-      setTimeout(async () => {
-        for (const item of missingToSync) {
-          try {
-            await setDoc(doc(db, PRIMARY_COLLECTION, item.docId), item.data, { merge: true });
-            console.log("[AutoMigration] Synced mentor from legacy to mentors:", item.docId);
-          } catch (syncErr) {
-            console.warn("[AutoMigration] Sync skipped for:", item.docId, syncErr);
-          }
-        }
-      }, 1000);
     }
 
     if (mentors.length > 0) {
