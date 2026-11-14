@@ -546,11 +546,17 @@ async function deleteSyncedCandidateData(cat, talentId) {
   const cfg = TAB_CONFIG[cat];
   try {
     if (cfg.hasMentorSync) {
+      const mentorsRef = doc(db, "mentors", talentId);
+      const mentorsSnap = await getDoc(mentorsRef);
+      if (mentorsSnap.exists()) {
+        await deleteDoc(mentorsRef);
+        console.log("[Cancel Sync] Deleted mentors doc:", talentId);
+      }
       const mentorRef = doc(db, "mentor", talentId);
       const mentorSnap = await getDoc(mentorRef);
       if (mentorSnap.exists()) {
         await deleteDoc(mentorRef);
-        console.log("[Cancel Sync] Deleted mentor doc:", talentId);
+        console.log("[Cancel Sync] Deleted legacy mentor doc:", talentId);
       }
     }
     if (cfg.hasTeamSync) {
@@ -649,8 +655,9 @@ async function syncAcceptedMentorFromScreening(candidateId) {
       copied_to_mentor_at: new Date().toISOString(),
       createdAt: sourceData.created_at || sourceData.createdAt || serverTimestamp()
     };
+    await setDoc(doc(db, "mentors", candidateId), mentorPayload, { merge: true });
     await setDoc(doc(db, "mentor", candidateId), mentorPayload, { merge: true });
-    console.log("[Mentor Sync] Candidate", candidateId, "synced to mentor collection.");
+    console.log("[Mentor Sync] Candidate", candidateId, "synced to mentors & mentor collections.");
   } catch (e) {
     console.error("[Mentor Sync] Failed to sync candidate to mentor collection:", e);
   }

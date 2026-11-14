@@ -424,7 +424,10 @@ export async function fetchClasses() {
 export async function fetchMentors() {
   if (!db) return [];
   try {
-    const mentorSnap = await getDocs(collection(db, "mentor"));
+    let mentorSnap = await getDocs(collection(db, "mentors"));
+    if (mentorSnap.empty) {
+      mentorSnap = await getDocs(collection(db, "mentor"));
+    }
     return mentorSnap.docs.map((docSnap) => ({
       id: docSnap.id,
       data: docSnap.data() || {},

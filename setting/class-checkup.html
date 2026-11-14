@@ -1616,7 +1616,10 @@ import { app, db } from "../assets/js/firebase-config.js";
 
         async function loadMentorsForDropdown() {
             try {
-                const snap = await getDocs(collection(db, "mentor"));
+                let snap = await getDocs(collection(db, "mentors"));
+                if (snap.empty) {
+                    snap = await getDocs(collection(db, "mentor"));
+                }
                 mentorsState = [];
                 snap.forEach((docSnap) => {
                     mentorsState.push(mapMentorDocToOption(docSnap));
@@ -2048,7 +2051,10 @@ import { app, db } from "../assets/js/firebase-config.js";
         async function findMentorDocByName(mentorName) {
             if (!mentorName) return null;
             try {
-                const snap = await getDocs(collection(db, "mentor"));
+                let snap = await getDocs(collection(db, "mentors"));
+                if (snap.empty) {
+                    snap = await getDocs(collection(db, "mentor"));
+                }
                 let found = null;
                 snap.forEach((docSnap) => {
                     if (found) return;

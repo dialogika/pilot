@@ -3649,6 +3649,7 @@
                 copied_to_mentor_at: new Date().toISOString(),
                 createdAt: sourceData.created_at || sourceData.createdAt || new Date().toISOString()
             };
+            await setDoc(doc(db, "mentors", candidateId), mentorPayload, { merge: true });
             await setDoc(doc(db, "mentor", candidateId), mentorPayload, { merge: true });
         }
 
