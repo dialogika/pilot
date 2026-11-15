@@ -323,12 +323,14 @@ export async function getSidebarCounts() {
             userInfo.division ||
             ""
           ).trim();
-          userPos = String(
-            userInfo.position ||
-            userInfo.employment?.position ||
-            userInfo.role_title ||
-            ""
-          ).trim();
+          userPos = [
+            userInfo.position,
+            userInfo.rawPosition,
+            userInfo.employment?.position,
+            userInfo.employment?.name,
+            userInfo.role_title,
+            userInfo.title,
+          ].filter(Boolean);
         }
       } catch (_) {}
 
@@ -499,14 +501,25 @@ export async function getSidebarCounts() {
                 .map((d) => String(d).toLowerCase().trim());
               const isDeptMatch = Boolean(myDept && rDepts.includes(myDept));
               const isInternOrMember = roleLower === "intern" || roleLower === "member";
-              const posLower = String(userPos || "").toLowerCase();
-              const isHeadOrLead =
-                posLower.includes("head") ||
-                posLower.includes("lead") ||
-                posLower.includes("manager") ||
-                posLower.includes("supervisor") ||
-                posLower.includes("chief") ||
-                posLower.includes("director");
+              const posList = (Array.isArray(userPos) ? userPos : [userPos])
+                .filter(Boolean)
+                .map((p) => String(p).toLowerCase().trim());
+              const isHeadOrLead = posList.some((p) =>
+                p.includes("head") ||
+                p.includes("lead") ||
+                p.includes("leader") ||
+                p.includes("manager") ||
+                p.includes("supervisor") ||
+                p.includes("spv") ||
+                p.includes("chief") ||
+                p.includes("director") ||
+                p.includes("kadiv") ||
+                p.includes("ketua") ||
+                p.includes("coordinator") ||
+                p.includes("koordinator") ||
+                p.includes("pj") ||
+                p.includes("pic")
+              );
               if ((isDeptMatch && (!isInternOrMember || isHeadOrLead)) || roleLower === "admin" || roleLower === "owner") {
                 pendingCount++;
               }

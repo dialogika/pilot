@@ -60,6 +60,21 @@ function normalizeDateString(v, fallback) {
  */
 export async function loadUsersMap() {
   const map = {};
+  const posMap = {};
+  for (const colName of ["positions", "position"]) {
+    try {
+      const posSnap = await getDocs(collection(db, colName));
+      posSnap.forEach((pDoc) => {
+        const pData = pDoc.data() || {};
+        const pName = pData.name || pData.title || pData.label || pData.position || "";
+        if (pName) {
+          posMap[pDoc.id] = pName;
+          if (pData.id) posMap[pData.id] = pName;
+        }
+      });
+    } catch (_) {}
+  }
+
   try {
     const snap = await getDocs(collection(db, "users"));
     snap.forEach((docSnap) => {
@@ -83,6 +98,9 @@ export async function loadUsersMap() {
         )
       );
 
+      const rawPos = u.position || u.employment?.position || u.role_title || "";
+      const pos = posMap[rawPos] || rawPos;
+
       const userData = {
         uid: authUid,
         docId: docSnap.id,
@@ -92,7 +110,9 @@ export async function loadUsersMap() {
         photo: String(photo || "").trim(),
         allAliases: allAliases,
         department: u.department || u.employment?.department || u.division || "",
-        position: u.position || u.employment?.position || "",
+        position: pos,
+        rawPosition: rawPos,
+        role: u.role || (u.access && u.access.role_id) || "",
       };
 
       allAliases.forEach((alias) => {

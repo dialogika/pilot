@@ -47,7 +47,9 @@ function isReportVisibleToUser(r, myAliases, userRole, userDept, userPos) {
   if (!myAliases || !myAliases.length) return true;
   const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
   const roleNorm = String(userRole || "").toLowerCase().trim();
-  const posNorm = String(userPos || "").toLowerCase().trim();
+  const posList = (Array.isArray(userPos) ? userPos : [userPos])
+    .filter(Boolean)
+    .map((p) => String(p).toLowerCase().trim());
 
   // 1. Author/Assignee
   const authorId = String(r.authorId || "").toLowerCase().trim();
@@ -76,13 +78,22 @@ function isReportVisibleToUser(r, myAliases, userRole, userDept, userPos) {
 
   if (myDept && rDepts.includes(myDept)) {
     const isInternOrMember = roleNorm === "intern" || roleNorm === "member";
-    const isHeadOrLead =
-      posNorm.includes("head") ||
-      posNorm.includes("lead") ||
-      posNorm.includes("manager") ||
-      posNorm.includes("supervisor") ||
-      posNorm.includes("chief") ||
-      posNorm.includes("director");
+    const isHeadOrLead = posList.some((p) =>
+      p.includes("head") ||
+      p.includes("lead") ||
+      p.includes("leader") ||
+      p.includes("manager") ||
+      p.includes("supervisor") ||
+      p.includes("spv") ||
+      p.includes("chief") ||
+      p.includes("director") ||
+      p.includes("kadiv") ||
+      p.includes("ketua") ||
+      p.includes("coordinator") ||
+      p.includes("koordinator") ||
+      p.includes("pj") ||
+      p.includes("pic")
+    );
     if (!isInternOrMember || isHeadOrLead) {
       return true;
     }
@@ -325,11 +336,14 @@ async function refreshReportsData() {
             : uInfo.departments[0])
         : "") ||
       "";
-    userPos =
-      uInfo.position ||
-      uInfo.employment?.position ||
-      uInfo.role_title ||
-      "";
+    userPos = [
+      uInfo.position,
+      uInfo.rawPosition,
+      uInfo.employment?.position,
+      uInfo.employment?.name,
+      uInfo.role_title,
+      uInfo.title,
+    ].filter(Boolean);
     myAliases = [
       user.uid,
       user.email,

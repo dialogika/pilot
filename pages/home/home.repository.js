@@ -258,7 +258,9 @@ function isReportTargetedToUser(data, myAliases, userRole, userDept, userPos = "
   if (!myAliases || !myAliases.length) return false;
   const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
   const roleNorm = String(userRole || "").toLowerCase().trim();
-  const posNorm = String(userPos || "").toLowerCase().trim();
+  const posList = (Array.isArray(userPos) ? userPos : [userPos])
+    .filter(Boolean)
+    .map((p) => String(p).toLowerCase().trim());
 
   // Extract all report_to identifiers from root doc and its tasks
   const reportList = extractUserIdentifiers(data.report_to || data.reportTo);
@@ -298,13 +300,22 @@ function isReportTargetedToUser(data, myAliases, userRole, userDept, userPos = "
 
   if (isDeptMatch) {
     const isInternOrMember = roleNorm === "intern" || roleNorm === "member";
-    const isHeadOrLead =
-      posNorm.includes("head") ||
-      posNorm.includes("lead") ||
-      posNorm.includes("manager") ||
-      posNorm.includes("supervisor") ||
-      posNorm.includes("chief") ||
-      posNorm.includes("director");
+    const isHeadOrLead = posList.some((p) =>
+      p.includes("head") ||
+      p.includes("lead") ||
+      p.includes("leader") ||
+      p.includes("manager") ||
+      p.includes("supervisor") ||
+      p.includes("spv") ||
+      p.includes("chief") ||
+      p.includes("director") ||
+      p.includes("kadiv") ||
+      p.includes("ketua") ||
+      p.includes("coordinator") ||
+      p.includes("koordinator") ||
+      p.includes("pj") ||
+      p.includes("pic")
+    );
     // Allowed if not a basic intern/member, or if position signifies head/lead
     if (!isInternOrMember || isHeadOrLead) {
       return true;

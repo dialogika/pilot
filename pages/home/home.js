@@ -42,30 +42,47 @@ async function initializeHome() {
     // 3. User data.
     const userData = await repo.getUserDoc(user.uid);
     const displayName = userData?.name || user.displayName || user.email || "";
-    const position =
+    let position =
       userData?.position || userData?.employment?.position || userData?.employment?.name || "Member";
-    ui.renderWelcome(displayName, role, position);
+    let readablePosition = position;
 
     // Resolve a readable position name when it looks like an id.
-    if (
-      userData?.position &&
-      String(userData.position).trim().length >= 10 &&
-      !String(userData.position).includes(" ")
-    ) {
-      const readable = await repo.resolvePositionName(userData.position);
-      if (readable) ui.renderWelcome(displayName, role, readable);
+    const rawPosId =
+      (userData?.position && String(userData.position).trim().length >= 10 && !String(userData.position).includes(" ") ? userData.position : "") ||
+      (userData?.employment?.position && String(userData.employment.position).trim().length >= 10 && !String(userData.employment.position).includes(" ") ? userData.employment.position : "");
+
+    if (rawPosId) {
+      const readable = await repo.resolvePositionName(rawPosId);
+      if (readable) {
+        readablePosition = readable;
+        position = readable;
+      }
     }
+    ui.renderWelcome(displayName, role, readablePosition);
 
     const userDept =
       userData?.employment?.department ||
       userData?.department ||
       userData?.division ||
+      userData?.employment?.division ||
       (Array.isArray(userData?.departments) && userData.departments.length > 0
         ? (typeof userData.departments[0] === "object"
             ? userData.departments[0].name || userData.departments[0].id
             : userData.departments[0])
         : "") ||
       "";
+
+    const userPositions = [
+      position,
+      readablePosition,
+      rawPosId,
+      userData?.position,
+      userData?.position_name,
+      userData?.employment?.position,
+      userData?.employment?.name,
+      userData?.role_title,
+      userData?.title,
+    ].filter(Boolean);
 
     // 4. Presence: write own marker + listen for online users.
     repo.updatePresence({ uid: user.uid, name: displayName, photo: userData?.photo || "" });
@@ -114,7 +131,7 @@ async function initializeHome() {
         },
         role,
         myAliases,
-        position,
+        userPositions,
       ),
     );
 
