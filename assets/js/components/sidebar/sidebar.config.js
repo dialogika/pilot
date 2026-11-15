@@ -98,6 +98,12 @@ export const MENU = [
     badge: "my-stuff",
     underDevelopment: true,
   },
+  {
+    id: "file-manager",
+    label: "File Manager",
+    href: "/file-manager",
+    icon: "bi-folder2-open",
+  },
   { section: "System" },
   {
     id: "system-settings",

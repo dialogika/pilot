@@ -155,6 +155,58 @@ main.main-content-wrapper {
   border: 1px solid #ffcdd2;
 }
 
+/* --- LOGIN DIVIDER & PRESENCE BUTTON --- */
+.login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0 14px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.login-divider span {
+  padding: 0 10px;
+  font-size: 12px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-presence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  background-color: #f0f7ff;
+  color: #0b2b6a;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  margin-bottom: 15px;
+}
+
+.btn-presence i {
+  font-size: 17px;
+}
+
+.btn-presence:hover {
+  background-color: #0b2b6a;
+  color: #ffffff;
+  border-color: #0b2b6a;
+  box-shadow: 0 4px 12px rgba(11, 43, 106, 0.15);
+}
+
 .auth-links {
   display: flex;
   justify-content: space-between;
@@ -294,4 +346,22 @@ footer {
   background-color: rgba(239, 68, 68, 0.15);
   color: #f87171;
   border-color: rgba(239, 68, 68, 0.3);
+}
+[data-theme="dark"] .login-divider::before,
+[data-theme="dark"] .login-divider::after {
+  border-color: var(--border);
+}
+[data-theme="dark"] .login-divider span {
+  color: var(--text-muted);
+}
+[data-theme="dark"] .btn-presence {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+[data-theme="dark"] .btn-presence:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }

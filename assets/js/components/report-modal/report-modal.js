@@ -43,26 +43,66 @@ function extractUserIdentifiers(raw) {
   return list;
 }
 
-function isReportVisibleToUser(r, myAliases, userRole) {
+function isReportVisibleToUser(r, myAliases, userRole, userDept, userPos) {
   if (!myAliases || !myAliases.length) return true;
+  const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
+  const roleNorm = String(userRole || "").toLowerCase().trim();
+  const posList = (Array.isArray(userPos) ? userPos : [userPos])
+    .filter(Boolean)
+    .map((p) => String(p).toLowerCase().trim());
 
   // 1. Author/Assignee
   const authorId = String(r.authorId || "").toLowerCase().trim();
-  if (authorId && myAliases.includes(authorId)) return true;
+  if (authorId && myAliasSet.has(authorId)) return true;
   const assignees = extractUserIdentifiers(r.assignees);
-  if (assignees.some((u) => myAliases.includes(u))) return true;
+  if (assignees.some((u) => myAliasSet.has(u))) return true;
 
   // 2. Creator
   const creators = extractUserIdentifiers(r.createdBy);
-  if (creators.some((u) => myAliases.includes(u))) return true;
+  if (creators.some((u) => myAliasSet.has(u))) return true;
 
   // 3. Report To (Target Supervisor)
   const reportToList = extractUserIdentifiers(r.reportTo);
   if (reportToList.length > 0) {
-    return reportToList.some((u) => myAliases.includes(u));
+    if (reportToList.some((u) => myAliasSet.has(u))) return true;
+    if (roleNorm === "admin" || roleNorm === "owner") return true;
+    return false;
   }
 
-  // If report has no explicit report_to, only author/assignee and creator can see it
+  // 4. Fallback for reports without explicit report_to (General Daily Reports):
+  // Check department match
+  const myDept = String(userDept || "").toLowerCase().trim();
+  const rDepts = (Array.isArray(r.departments) ? r.departments : [r.departments])
+    .filter(Boolean)
+    .map((d) => String(d).toLowerCase().trim());
+
+  if (myDept && rDepts.includes(myDept)) {
+    const isInternOrMember = roleNorm === "intern" || roleNorm === "member";
+    const isHeadOrLead = posList.some((p) =>
+      p.includes("head") ||
+      p.includes("lead") ||
+      p.includes("leader") ||
+      p.includes("manager") ||
+      p.includes("supervisor") ||
+      p.includes("spv") ||
+      p.includes("chief") ||
+      p.includes("director") ||
+      p.includes("kadiv") ||
+      p.includes("ketua") ||
+      p.includes("coordinator") ||
+      p.includes("koordinator") ||
+      p.includes("pj") ||
+      p.includes("pic")
+    );
+    if (!isInternOrMember || isHeadOrLead) {
+      return true;
+    }
+  }
+
+  if (roleNorm === "admin" || roleNorm === "owner") {
+    return true;
+  }
+
   return false;
 }
 
@@ -280,21 +320,42 @@ async function refreshReportsData() {
   const user = auth.currentUser;
   let myAliases = [];
   let userRole = "";
+  let userDept = "";
+  let userPos = "";
   if (user) {
     userRole = await getCurrentRole();
     const uInfo =
       usersMap[user.uid] || usersMap[String(user.uid).toLowerCase()] || {};
+    userDept =
+      uInfo.department ||
+      uInfo.employment?.department ||
+      uInfo.division ||
+      (Array.isArray(uInfo.departments) && uInfo.departments.length > 0
+        ? (typeof uInfo.departments[0] === "object"
+            ? uInfo.departments[0].name || uInfo.departments[0].id
+            : uInfo.departments[0])
+        : "") ||
+      "";
+    userPos = [
+      uInfo.position,
+      uInfo.rawPosition,
+      uInfo.employment?.position,
+      uInfo.employment?.name,
+      uInfo.role_title,
+      uInfo.title,
+    ].filter(Boolean);
     myAliases = [
       user.uid,
       user.email,
       user.displayName,
       uInfo.name,
+      ...(Array.isArray(uInfo.allAliases) ? uInfo.allAliases : []),
     ]
       .filter(Boolean)
       .map((s) => String(s).toLowerCase().trim());
   }
   allReports = rawReports.filter((r) =>
-    isReportVisibleToUser(r, myAliases, userRole),
+    isReportVisibleToUser(r, myAliases, userRole, userDept, userPos),
   );
   updateStatsAndBadges();
   applyFiltersAndRender();

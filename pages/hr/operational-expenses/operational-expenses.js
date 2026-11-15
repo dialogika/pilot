@@ -26,6 +26,7 @@ let classOptions = [];
 const filterState = {
   searchQuery: "",
   filterStatus: "all",
+  activeCard: "all",
   filterCategory: "all",
   filterDate: "",
   filterDateStart: "",
@@ -211,13 +212,60 @@ function handleClearDate() {
   applyFiltersAndRender();
 }
 
+function handleCardFilter(cardType) {
+  filterState.activeCard = cardType;
+
+  if (cardType === "amount") {
+    filterState.filterStatus = "all";
+    sortState.key = "amount";
+    sortState.direction = "desc";
+  } else {
+    filterState.filterStatus = cardType;
+    if (sortState.key === "amount") {
+      sortState.key = "";
+    }
+  }
+
+  // Synchronize Status Filter dropdown
+  const statusSelect = document.getElementById("filterStatus");
+  if (statusSelect) {
+    statusSelect.value = filterState.filterStatus;
+  }
+
+  // Clear specific date filters so entire data under this card is immediately visible
+  filterState.filterDate = "";
+  filterState.filterDateStart = "";
+  filterState.filterDateEnd = "";
+  const startInput = document.getElementById("filterDateStart");
+  const endInput = document.getElementById("filterDateEnd");
+  if (startInput) startInput.value = "";
+  if (endInput) endInput.value = "";
+  updateDatePills();
+
+  paginationState.currentPage = 1;
+  applyFiltersAndRender();
+}
+
 function applyFiltersAndRender() {
   const q = filterState.searchQuery.trim().toLowerCase();
 
   const filtered = allExpenses.filter((expense) => {
     const currentStatus = ui.displayStatus(expense);
-    const matchStatus =
-      filterState.filterStatus === "all" || currentStatus === filterState.filterStatus;
+    let matchStatus = false;
+    if (filterState.filterStatus === "all") {
+      matchStatus = true;
+    } else if (filterState.filterStatus === "need_action") {
+      matchStatus = currentStatus === "requested" || currentStatus === "reviewing";
+    } else if (filterState.filterStatus === "paid") {
+      matchStatus =
+        currentStatus === "paid" ||
+        currentStatus === "complete" ||
+        expense.status === "paid" ||
+        expense.status === "complete";
+    } else {
+      matchStatus = currentStatus === filterState.filterStatus;
+    }
+
     const matchCategory =
       filterState.filterCategory === "all" || expense.category === filterState.filterCategory;
 
@@ -269,7 +317,7 @@ function applyFiltersAndRender() {
   }
 
   // Update Stats
-  ui.renderStats(calculateStats(allExpenses));
+  ui.renderStats(calculateStats(allExpenses), filterState.activeCard);
 
   // Pagination Slice
   paginationState.totalItems = filtered.length;
@@ -818,8 +866,13 @@ function setupEventListeners() {
   const statusSelect = document.getElementById("filterStatus");
   if (statusSelect) {
     statusSelect.addEventListener("change", (e) => {
-      filterState.filterStatus = e.target.value;
-      if (filterState.filterStatus === "overdue") {
+      const val = e.target.value;
+      filterState.filterStatus = val;
+
+      if (val === "need_action") {
+        filterState.activeCard = "need_action";
+      } else if (val === "overdue") {
+        filterState.activeCard = "overdue";
         filterState.searchQuery = "";
         filterState.filterCategory = "all";
         filterState.filterDate = "";
@@ -833,9 +886,71 @@ function setupEventListeners() {
         const endInp = document.getElementById("filterDateEnd");
         if (endInp) endInp.value = "";
         updateDatePills();
+      } else if (val === "paid" || val === "complete") {
+        filterState.activeCard = "paid";
+      } else if (val === "all") {
+        if (filterState.activeCard !== "amount") {
+          filterState.activeCard = "all";
+        }
+      } else {
+        filterState.activeCard = "";
       }
+
       paginationState.currentPage = 1;
       applyFiltersAndRender();
+    });
+  }
+
+  // 5 Stat Cards Interactive Clicks
+  const cardTotal = document.getElementById("cardStatTotal");
+  const cardPending = document.getElementById("cardStatPending");
+  const cardOverdue = document.getElementById("cardStatOverdue");
+  const cardPaid = document.getElementById("cardStatPaid");
+  const cardAmount = document.getElementById("cardStatAmount");
+
+  if (cardTotal) {
+    cardTotal.addEventListener("click", () => handleCardFilter("all"));
+    cardTotal.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardFilter("all");
+      }
+    });
+  }
+  if (cardPending) {
+    cardPending.addEventListener("click", () => handleCardFilter("need_action"));
+    cardPending.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardFilter("need_action");
+      }
+    });
+  }
+  if (cardOverdue) {
+    cardOverdue.addEventListener("click", () => handleCardFilter("overdue"));
+    cardOverdue.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardFilter("overdue");
+      }
+    });
+  }
+  if (cardPaid) {
+    cardPaid.addEventListener("click", () => handleCardFilter("paid"));
+    cardPaid.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardFilter("paid");
+      }
+    });
+  }
+  if (cardAmount) {
+    cardAmount.addEventListener("click", () => handleCardFilter("amount"));
+    cardAmount.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardFilter("amount");
+      }
     });
   }
 

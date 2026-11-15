@@ -106,6 +106,17 @@
               <i class="bi bi-file-earmark-arrow-down"></i> Export
             </button>
 
+            <!-- Database Mapping / ERD Trigger Button -->
+            <button
+              type="button"
+              id="btnOpenScoutingErdModal"
+              class="btn btn-outline-secondary d-inline-flex align-items-center gap-1.5 rounded-xl text-xs font-semibold px-3 py-2"
+              data-bs-toggle="modal"
+              data-bs-target="#scoutingErdModal"
+            >
+              <i class="bi bi-diagram-3 text-blue-600"></i> Database
+            </button>
+
             <!-- Add Candidate Button -->
             <button
               type="button"
@@ -496,6 +507,1050 @@
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL: DATABASE MAPPING & ERD SCHEMA (SCOUTING CANDIDATE)
+         ===================================================================== -->
+    <div
+      class="modal fade"
+      id="scoutingErdModal"
+      tabindex="-1"
+      aria-labelledby="scoutingErdModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable erd-modal-dialog">
+        <div class="modal-content erd-modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+          <!-- Header Modal -->
+          <div class="erd-modal-header px-6 py-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="font-bold text-slate-800 text-lg mb-0" id="scoutingErdModalLabel">Database Mapping &amp; Schema ERD</h5>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider">Relasional</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-0">Struktur relasi tabel talent hunting &amp; kamus data kolom Scouting Candidate Dialogika</p>
+              </div>
+            </div>
+
+            <!-- Tab Segmented Control -->
+            <div class="flex items-center gap-2">
+              <div class="erd-segmented-tabs flex items-center bg-slate-100 p-1 rounded-xl">
+                <button type="button" class="erd-tab-btn active" data-tab="visual" id="tabBtnScoutingErdVisual">
+                  <i class="bi bi-diagram-3"></i> Visual ERD
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="dictionary" id="tabBtnScoutingErdDict">
+                  <i class="bi bi-table"></i> Kamus Data
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="sql" id="tabBtnScoutingErdSql">
+                  <i class="bi bi-code-slash"></i> SQL DDL
+                </button>
+              </div>
+              <button type="button" class="btn-close shadow-none ml-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Body Modal -->
+          <div class="modal-body erd-modal-body p-6 bg-slate-50">
+            <!-- ========================================== -->
+            <!-- TAB 1: VISUAL ERD CANVAS                  -->
+            <!-- ========================================== -->
+            <div id="scoutingErdTabVisualContent" class="erd-tab-panel active">
+              <!-- Info Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div class="text-xs text-slate-600">
+                    <span class="font-bold text-slate-800">5 Tabel Normalisasi:</span> 
+                    Tabel induk <code class="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">scouting_talents</code> berelasi 
+                    <span class="font-semibold text-slate-700">One-to-Many (1 : N)</span> ke 4 tabel operasional melalui 
+                    <code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">talent_id</code>.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" id="btnCopyScoutingDocsPath" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Buka file docs/SCOUTING-DATABASE-MAPPING.md">
+                    <i class="bi bi-journal-text text-blue-600"></i> docs/SCOUTING-DATABASE-MAPPING.md
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relation Highlight / Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2 mb-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <i class="bi bi-bezier2 text-emerald-600 mr-1"></i>Relasi Tabel:
+                </span>
+                <button type="button" class="erd-rel-pill active" data-rel="all">
+                  Semua Relasi (4)
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="assignees">
+                  <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span>
+                  scouting_talents ➔ scouting_talent_assignees
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="history">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span>
+                  scouting_talents ➔ scouting_status_history
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="logs">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span>
+                  scouting_talents ➔ scouting_talent_logs
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="evaluations">
+                  <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span>
+                  scouting_talents ➔ scouting_talent_evaluations
+                </button>
+              </div>
+
+              <!-- Interactive ERD Grid with Dynamic SVG Connectors -->
+              <div class="erd-diagram-wrapper relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6" id="scoutingErdDiagramWrapper">
+                <!-- SVG CONNECTOR OVERLAY (Lines & Arrows) -->
+                <svg id="scoutingErdConnectorSvg" class="erd-connector-svg absolute inset-0 w-full h-full pointer-events-none" style="z-index: 15; overflow: visible; min-height: 100%;">
+                  <defs>
+                    <!-- Arrowheads -->
+                    <marker id="scoutingErdArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="scoutingErdArrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+                    </marker>
+                    <marker id="scoutingErdArrowEmerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
+                    </marker>
+                    <marker id="scoutingErdArrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#a855f7" />
+                    </marker>
+                    <!-- Start Point Dots -->
+                    <marker id="scoutingErdDotStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                      <circle cx="5" cy="5" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+                    </marker>
+                  </defs>
+                  <g id="scoutingErdPathsGroup"></g>
+                </svg>
+
+                <!-- LEFT: Parent Table (scouting_talents) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border-2 border-blue-200 shadow-md overflow-hidden erd-table-card parent-card relative z-10" id="cardScoutingTalents">
+                  <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-table text-blue-200 text-sm"></i>
+                      <span class="font-bold text-sm tracking-wide">dialogika.scouting_talents</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/50 text-white uppercase tracking-wider">
+                      Parent (1)
+                    </span>
+                  </div>
+                  <div class="p-3 text-xs bg-blue-50/40 border-b border-blue-100 text-blue-900 flex items-center justify-between">
+                    <span><i class="bi bi-info-circle mr-1"></i> Data Inti Profil &amp; Target Penjaringan Talenta</span>
+                    <span class="font-bold mono text-[11px] text-blue-700">19 Kolom</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 text-xs">
+                    <!-- PRIMARY KEY ORIGIN ANCHOR -->
+                    <div id="erdOriginScoutingId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50/40 font-semibold hover:bg-amber-100/50 transition cursor-pointer" title="Primary Key: Kunci utama yang dirujuk oleh semua tabel anak">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-key-fill text-amber-500 text-xs" title="Primary Key"></i>
+                        <span class="mono font-bold text-slate-800">id</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                          <i class="bi bi-arrow-right"></i> Relasi
+                        </span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">full_name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">role_id</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50) ➔ roles.id</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">role_name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">position_id</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50) ➔ positions.id</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">position_name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">channel_type</span>
+                      <span class="mono text-[11px] text-slate-500">enum('instagram','linkedin',...)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">channel_url</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(500)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">avatar_url</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(500)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">current_status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('radar','contacted',...)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">interview_due</span>
+                      <span class="mono text-[11px] text-slate-500">datetime</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">score_fit</span>
+                      <span class="mono text-[11px] text-slate-500">decimal(3,1)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">priority</span>
+                      <span class="mono text-[11px] text-slate-500">enum('low','medium','high')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">phone_whatsapp</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(25)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">email</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">domicile_city</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">record_status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('active','archived','trash')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">created_at</span>
+                      <span class="mono text-[11px] text-slate-500">timestamp</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">updated_at</span>
+                      <span class="mono text-[11px] text-slate-500">timestamp</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: 4 Child Operational Tables -->
+                <div class="lg:col-span-7 flex flex-col gap-6 relative z-10">
+                  <!-- Child 1: scouting_talent_assignees -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card" id="cardScoutingAssignees">
+                    <div class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-people-fill text-blue-200 text-sm"></i>
+                        <span class="font-bold text-xs tracking-wide">dialogika.scouting_talent_assignees</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-white/20 text-white uppercase tracking-wider">
+                        Child (N)
+                      </span>
+                    </div>
+                    <div class="p-2.5 text-xs bg-slate-50 border-b border-slate-100 text-slate-600 flex items-center justify-between">
+                      <span>Penugasan Anggota Tim (PIC HR Multi-Assign)</span>
+                      <span class="font-bold mono text-[10px] text-blue-600">5 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono font-semibold text-slate-700">id</span>
+                        <span class="mono text-[10px] text-slate-500">int(11) <span class="px-1 py-0.2 bg-amber-100 text-amber-800 rounded font-bold">PK AI</span></span>
+                      </div>
+                      <!-- FK TARGET ANCHOR -->
+                      <div id="erdTargetAssigneesId" class="px-4 py-2 flex items-center justify-between bg-blue-50/50 font-semibold border-l-4 border-blue-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-blue-600 text-sm"></i>
+                          <span class="mono text-blue-800 font-bold">talent_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-800">FK ➔ scouting_talents.id</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">user_id</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50) <span class="text-blue-600">FK ➔ users.id</span></span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">assigned_at</span>
+                        <span class="mono text-[10px] text-slate-500">timestamp</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">assigned_by</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 2: scouting_status_history -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card" id="cardScoutingHistory">
+                    <div class="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-clock-history text-amber-200 text-sm"></i>
+                        <span class="font-bold text-xs tracking-wide">dialogika.scouting_status_history</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-white/20 text-white uppercase tracking-wider">
+                        Child (N)
+                      </span>
+                    </div>
+                    <div class="p-2.5 text-xs bg-slate-50 border-b border-slate-100 text-slate-600 flex items-center justify-between">
+                      <span>Jejak Audit Perpindahan Status Seleksi Pipeline</span>
+                      <span class="font-bold mono text-[10px] text-amber-600">7 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono font-semibold text-slate-700">id</span>
+                        <span class="mono text-[10px] text-slate-500">int(11) <span class="px-1 py-0.2 bg-amber-100 text-amber-800 rounded font-bold">PK AI</span></span>
+                      </div>
+                      <!-- FK TARGET ANCHOR -->
+                      <div id="erdTargetHistoryId" class="px-4 py-2 flex items-center justify-between bg-amber-50/50 font-semibold border-l-4 border-amber-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-amber-600 text-sm"></i>
+                          <span class="mono text-amber-800 font-bold">talent_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">FK ➔ scouting_talents.id</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">from_status</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">to_status</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">changed_by_user_id</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50) <span class="text-blue-600">FK ➔ users.id</span></span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">actor_name</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(100)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">created_at</span>
+                        <span class="mono text-[10px] text-slate-500">timestamp</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 3: scouting_talent_logs -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card" id="cardScoutingLogs">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-journal-code text-emerald-200 text-sm"></i>
+                        <span class="font-bold text-xs tracking-wide">dialogika.scouting_talent_logs</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-white/20 text-white uppercase tracking-wider">
+                        Child (N)
+                      </span>
+                    </div>
+                    <div class="p-2.5 text-xs bg-slate-50 border-b border-slate-100 text-slate-600 flex items-center justify-between">
+                      <span>Rekam Jejak Aktivitas &amp; Penjadwalan Interview</span>
+                      <span class="font-bold mono text-[10px] text-emerald-600">6 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono font-semibold text-slate-700">id</span>
+                        <span class="mono text-[10px] text-slate-500">int(11) <span class="px-1 py-0.2 bg-amber-100 text-amber-800 rounded font-bold">PK AI</span></span>
+                      </div>
+                      <!-- FK TARGET ANCHOR -->
+                      <div id="erdTargetLogsId" class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 font-semibold border-l-4 border-emerald-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-emerald-600 text-sm"></i>
+                          <span class="mono text-emerald-800 font-bold">talent_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">FK ➔ scouting_talents.id</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">action_type</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">actor_name</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(100)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">log_payload</span>
+                        <span class="mono text-[10px] text-slate-500">json</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">created_at</span>
+                        <span class="mono text-[10px] text-slate-500">timestamp</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 4: scouting_talent_evaluations -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card" id="cardScoutingEvaluations">
+                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-card-checklist text-purple-200 text-sm"></i>
+                        <span class="font-bold text-xs tracking-wide">dialogika.scouting_talent_evaluations</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-white/20 text-white uppercase tracking-wider">
+                        Child (N)
+                      </span>
+                    </div>
+                    <div class="p-2.5 text-xs bg-slate-50 border-b border-slate-100 text-slate-600 flex items-center justify-between">
+                      <span>Catatan Hasil Tanya Jawab, Review Portofolio &amp; Perangkat</span>
+                      <span class="font-bold mono text-[10px] text-purple-600">8 Kolom</span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono font-semibold text-slate-700">id</span>
+                        <span class="mono text-[10px] text-slate-500">int(11) <span class="px-1 py-0.2 bg-amber-100 text-amber-800 rounded font-bold">PK AI</span></span>
+                      </div>
+                      <!-- FK TARGET ANCHOR -->
+                      <div id="erdTargetEvaluationsId" class="px-4 py-2 flex items-center justify-between bg-purple-50/50 font-semibold border-l-4 border-purple-500">
+                        <div class="flex items-center gap-2">
+                          <i class="bi bi-link-45deg text-purple-600 text-sm"></i>
+                          <span class="mono text-purple-800 font-bold">talent_id</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="mono text-[10px] text-slate-500">varchar(50)</span>
+                          <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-100 text-purple-800">FK ➔ scouting_talents.id</span>
+                        </div>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">evaluator_user_id</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(50) <span class="text-blue-600">FK ➔ users.id</span></span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">evaluator_name</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(100)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">interview_notes</span>
+                        <span class="mono text-[10px] text-slate-500">text</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">portfolio_review</span>
+                        <span class="mono text-[10px] text-slate-500">text</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">devices_info</span>
+                        <span class="mono text-[10px] text-slate-500">varchar(255)</span>
+                      </div>
+                      <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50">
+                        <span class="mono text-slate-700">created_at</span>
+                        <span class="mono text-[10px] text-slate-500">timestamp</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matriks Detail Relasi Antar Tabel -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 erd-matrix-card">
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="bi bi-diagram-3 text-blue-600 text-base"></i>
+                  <h6 class="font-bold text-slate-800 text-xs mb-0">Rincian Relasi Kunci Antar Tabel (Foreign Key Integrity)</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle text-xs mb-0 erd-matrix-table">
+                    <thead class="bg-slate-50 text-slate-600 font-bold text-[10px] uppercase">
+                      <tr>
+                        <th>Tabel Induk (Parent)</th>
+                        <th>Kardinalitas</th>
+                        <th>Tabel Anak (Child)</th>
+                        <th>Kunci Penghubung</th>
+                        <th>Aksi Delete / Update</th>
+                        <th>Deskripsi Hubungan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">scouting_talents (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-blue-700 font-bold">scouting_talent_assignees</code></td>
+                        <td><code>talent_id ➔ scouting_talents.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 talenta dapat ditugaskan ke beberapa personil tim (multi-assign PIC HR penanggung jawab outreach).</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">scouting_talents (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-amber-700 font-bold">scouting_status_history</code></td>
+                        <td><code>talent_id ➔ scouting_talents.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 talenta memiliki linimasa riwayat perpindahan tahapan status seleksi pipeline (Radar ➔ Final).</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">scouting_talents (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-emerald-700 font-bold">scouting_talent_logs</code></td>
+                        <td><code>talent_id ➔ scouting_talents.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 talenta memiliki riwayat audit jejak aktivitas (perubahan jadwal wawancara, catatan DM, aksi admin).</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">scouting_talents (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-purple-700 font-bold">scouting_talent_evaluations</code></td>
+                        <td><code>talent_id ➔ scouting_talents.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 talenta dapat memiliki ulasan penilaian wawancara awal, review portofolio, dan kelayakan perangkat.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KAMUS DATA (DATA DICTIONARY)       -->
+            <!-- ========================================== -->
+            <div id="scoutingErdTabDictContent" class="erd-tab-panel" style="display: none;">
+              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <i class="bi bi-search text-slate-400"></i>
+                    <input
+                      type="text"
+                      id="scoutingErdDictSearchInput"
+                      class="form-control form-control-sm border-0 shadow-none text-xs"
+                      placeholder="Cari nama kolom, tipe data, atau deskripsi..."
+                    />
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <select id="scoutingErdDictTableFilter" class="form-select form-select-sm text-xs rounded-lg border-slate-200 shadow-none">
+                      <option value="all">Semua Tabel (5)</option>
+                      <option value="scouting_talents">scouting_talents (Parent)</option>
+                      <option value="scouting_talent_assignees">scouting_talent_assignees</option>
+                      <option value="scouting_status_history">scouting_status_history</option>
+                      <option value="scouting_talent_logs">scouting_talent_logs</option>
+                      <option value="scouting_talent_evaluations">scouting_talent_evaluations</option>
+                    </select>
+                    <span id="scoutingErdDictCountBadge" class="badge bg-slate-100 text-slate-600 border border-slate-200 text-xs px-2.5 py-1.5 font-bold">
+                      45 Kolom
+                    </span>
+                  </div>
+                </div>
+
+                <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                  <table class="table table-hover align-middle mb-0 text-xs erd-dict-table">
+                    <thead class="sticky top-0 bg-slate-50 text-slate-600 border-b border-slate-200 z-10">
+                      <tr>
+                        <th class="px-4 py-2.5">Tabel</th>
+                        <th class="px-4 py-2.5">Nama Kolom</th>
+                        <th class="px-4 py-2.5">Tipe Data</th>
+                        <th class="px-4 py-2.5">Deskripsi / Penjelasan</th>
+                        <th class="px-4 py-2.5">Contoh Nilai</th>
+                        <th class="px-4 py-2.5">Relasi / Key</th>
+                      </tr>
+                    </thead>
+                    <tbody id="scoutingErdDictTableBody" class="divide-y divide-slate-100">
+                      <!-- scouting_talents -->
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key unik calon talenta scouting</td>
+                        <td class="px-4 py-2.5 text-slate-700">"TLNT-2026-0012"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-900 font-bold">PK</span></td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">full_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap kandidat / nama akun media sosial</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Jasmin Azzahra"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">role_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-blue-700">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID referensi sub team / role kerja target</td>
+                        <td class="px-4 py-2.5 text-slate-700">"ROL-SUBTEAM-01"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ roles.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">role_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Snapshot nama role untuk performa render cepat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Sub Team"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">position_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-blue-700">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID referensi posisi / formasi formasi jabatan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"POS-BRANDING-02"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ positions.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">position_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Snapshot label posisi formasi jabatan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Branding Team"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">channel_type</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kanal platform media sosial asal pencarian</td>
+                        <td class="px-4 py-2.5 text-slate-700">'instagram', 'linkedin', 'tiktok'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">channel_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(500)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tautan langsung URL profil atau postingan konten</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://instagram.com/jasmin_az"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">avatar_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(500)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tautan gambar foto profil kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://storage.googleapis.com/.../photo.webp"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">current_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status tahapan scouting aktif saat ini</td>
+                        <td class="px-4 py-2.5 text-slate-700">'radar', 'contacted', 'interview'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">interview_due</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DATETIME</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Batas waktu tindak lanjut atau jadwal interview</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-10 14:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">score_fit</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DECIMAL(3,1)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Skor kesesuaian kualifikasi (0.0 - 10.0)</td>
+                        <td class="px-4 py-2.5 text-slate-700">8.5</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">priority</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Skala prioritas pendekatan kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">'low', 'medium', 'high'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">phone_whatsapp</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(25)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nomor kontak WhatsApp aktif kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"+6281234567890"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">email</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Alamat surel resmi kandidat bila ada</td>
+                        <td class="px-4 py-2.5 text-slate-700">"jasmin.azzahra@gmail.com"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">domicile_city</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kota tempat tinggal / domisili kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Yogyakarta"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">record_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status keberadaan data ('active', 'trash')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'active'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu awal talenta ditambahkan</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 14:20:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talents">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>scouting_talents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">updated_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan data terakhir</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 14:50:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- scouting_talent_assignees -->
+                      <tr data-table="scouting_talent_assignees">
+                        <td class="px-4 py-2.5 font-bold text-cyan-700"><code>scouting_talent_assignees</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Auto Increment Primary Key penugasan</td>
+                        <td class="px-4 py-2.5 text-slate-700">1</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-900 font-bold">PK AI</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_assignees">
+                        <td class="px-4 py-2.5 font-bold text-cyan-700"><code>scouting_talent_assignees</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">talent_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-blue-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID talenta yang ditugaskan ke personil</td>
+                        <td class="px-4 py-2.5 text-slate-700">"TLNT-2026-0012"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ scouting_talents.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_assignees">
+                        <td class="px-4 py-2.5 font-bold text-cyan-700"><code>scouting_talent_assignees</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">user_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-blue-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">UID akun personil tim/HR penanggung jawab</td>
+                        <td class="px-4 py-2.5 text-slate-700">"USR-AFRA-01"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ users.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_assignees">
+                        <td class="px-4 py-2.5 font-bold text-cyan-700"><code>scouting_talent_assignees</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">assigned_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu saat penugasan dibuat</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 14:25:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_assignees">
+                        <td class="px-4 py-2.5 font-bold text-cyan-700"><code>scouting_talent_assignees</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">assigned_by</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">UID pembuat penugasan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"USR-ADMIN-01"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- scouting_status_history -->
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Auto Increment Primary Key log status</td>
+                        <td class="px-4 py-2.5 text-slate-700">1</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-900 font-bold">PK AI</span></td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">talent_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID talenta pemilik riwayat tahapan kontak</td>
+                        <td class="px-4 py-2.5 text-slate-700">"TLNT-2026-0012"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-800 font-bold">FK ➔ scouting_talents.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">from_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status awal sebelum transisi</td>
+                        <td class="px-4 py-2.5 text-slate-700">"radar"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">to_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status baru tahapan kontak</td>
+                        <td class="px-4 py-2.5 text-slate-700">"contacted"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">changed_by_user_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">UID eksekutor pengubah status</td>
+                        <td class="px-4 py-2.5 text-slate-700">"USR-AFRA-01"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ users.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">actor_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama display aktor pengubah status</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Afra Habibi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>scouting_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu transisi status dicatat</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 14:30:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- scouting_talent_logs -->
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Auto Increment Primary Key entri log</td>
+                        <td class="px-4 py-2.5 text-slate-700">1</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-900 font-bold">PK AI</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">talent_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID talenta pemilik catatan log aktivitas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"TLNT-2026-0012"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-emerald-100 text-emerald-800 font-bold">FK ➔ scouting_talents.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">action_type</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Jenis aksi ('due_set', 'status_change', 'dm')</td>
+                        <td class="px-4 py-2.5 text-slate-700">"due_set"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">actor_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama personil pelaksana tindakan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Afra Habibi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">log_payload</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">JSON</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Data payload detail tindakan</td>
+                        <td class="px-4 py-2.5 text-slate-700">{"due": "2026-10-10T14:00"}</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_logs">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>scouting_talent_logs</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu log disimpan</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 14:35:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- scouting_talent_evaluations -->
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-amber-700 font-bold">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Auto Increment Primary Key evaluasi</td>
+                        <td class="px-4 py-2.5 text-slate-700">1</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-900 font-bold">PK AI</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">talent_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-purple-700 font-bold">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID talenta yang dievaluasi</td>
+                        <td class="px-4 py-2.5 text-slate-700">"TLNT-2026-0012"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-purple-100 text-purple-800 font-bold">FK ➔ scouting_talents.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">evaluator_user_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">UID interviewer / evaluator</td>
+                        <td class="px-4 py-2.5 text-slate-700">"USR-DWI-02"</td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800 font-bold">FK ➔ users.id</span></td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">evaluator_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama evaluator wawancara awal</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Dwi Prasetio, M.Psi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">interview_notes</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TEXT</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Catatan hasil tanya jawab dan screening awal</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Antusias tinggi, bersedia WFO 3 hari."</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">portfolio_review</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TEXT</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Review kualitas konten / feed media sosial</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Tone visual cocok dengan brand persona."</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">devices_info</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kesiapan perangkat kerja kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"MacBook M2, Ringlight, Mikrofon Rode"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="scouting_talent_evaluations">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>scouting_talent_evaluations</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu catatan evaluasi diunggah</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-10 15:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SQL DDL SCRIPT                     -->
+            <!-- ========================================== -->
+            <div id="scoutingErdTabSqlContent" class="erd-tab-panel" style="display: none;">
+              <div class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm mb-4">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-file-earmark-code text-blue-600 text-lg"></i>
+                  <div>
+                    <h6 class="font-bold text-slate-800 mb-0 text-xs">MySQL DDL Script (Production Ready)</h6>
+                    <p class="text-[11px] text-slate-500 mb-0">Script CREATE TABLE lengkap dengan Foreign Key &amp; ON DELETE CASCADE</p>
+                  </div>
+                </div>
+                <button type="button" id="btnCopyScoutingSqlScript" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-2 shadow-sm">
+                  <i class="bi bi-clipboard"></i>
+                  <span id="btnCopyScoutingSqlText">Salin Script SQL</span>
+                </button>
+              </div>
+
+              <div class="bg-slate-900 rounded-2xl p-4 overflow-x-auto shadow-inner text-slate-200 text-xs font-mono border border-slate-800">
+                <pre class="mb-0"><code id="scoutingSqlScriptContent">-- =====================================================================
+-- DIALOGIKA SCOUTING CANDIDATE RELATIONAL SCHEMA (MySQL 8.0 / InnoDB)
+-- =====================================================================
+
+-- 1. TABEL UTAMA: scouting_talents
+CREATE TABLE IF NOT EXISTS `scouting_talents` (
+  `id` VARCHAR(50) NOT NULL,
+  `full_name` VARCHAR(150) NOT NULL,
+  `role_id` VARCHAR(50) NULL,
+  `role_name` VARCHAR(100) NULL,
+  `position_id` VARCHAR(50) NULL,
+  `position_name` VARCHAR(150) NULL,
+  `channel_type` ENUM('instagram', 'linkedin', 'tiktok', 'facebook', 'other') NOT NULL DEFAULT 'instagram',
+  `channel_url` VARCHAR(500) NULL,
+  `avatar_url` VARCHAR(500) NULL,
+  `current_status` ENUM('radar', 'contacted', 'followup', 'replied', 'interview', 'ojt', 'decision', 'accepted', 'rejected') NOT NULL DEFAULT 'radar',
+  `interview_due` DATETIME NULL,
+  `score_fit` DECIMAL(3,1) NULL,
+  `priority` ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
+  `phone_whatsapp` VARCHAR(25) NULL,
+  `email` VARCHAR(100) NULL,
+  `domicile_city` VARCHAR(100) NULL,
+  `record_status` ENUM('active', 'archived', 'trash') NOT NULL DEFAULT 'active',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_scouting_status` (`current_status`, `record_status`),
+  INDEX `idx_scouting_role_pos` (`role_id`, `position_id`),
+  INDEX `idx_scouting_created` (`created_at`),
+  INDEX `idx_scouting_due` (`interview_due`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. TABEL PENUGASAN PERSONIL: scouting_talent_assignees
+CREATE TABLE IF NOT EXISTS `scouting_talent_assignees` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `talent_id` VARCHAR(50) NOT NULL,
+  `user_id` VARCHAR(50) NOT NULL,
+  `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `assigned_by` VARCHAR(50) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_talent_user` (`talent_id`, `user_id`),
+  INDEX `idx_assignees_talent` (`talent_id`),
+  INDEX `idx_assignees_user` (`user_id`),
+  CONSTRAINT `fk_scout_assignees_talent` FOREIGN KEY (`talent_id`)
+    REFERENCES `scouting_talents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. TABEL LOG PERUBAHAN STATUS: scouting_status_history
+CREATE TABLE IF NOT EXISTS `scouting_status_history` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `talent_id` VARCHAR(50) NOT NULL,
+  `from_status` VARCHAR(50) NULL,
+  `to_status` VARCHAR(50) NOT NULL,
+  `changed_by_user_id` VARCHAR(50) NULL,
+  `actor_name` VARCHAR(100) NULL,
+  `notes` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_scout_history_talent` (`talent_id`),
+  INDEX `idx_scout_history_created` (`created_at`),
+  CONSTRAINT `fk_scout_history_talent` FOREIGN KEY (`talent_id`)
+    REFERENCES `scouting_talents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. TABEL AUDIT JEJAK AKTIVITAS: scouting_talent_logs
+CREATE TABLE IF NOT EXISTS `scouting_talent_logs` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `talent_id` VARCHAR(50) NOT NULL,
+  `action_type` VARCHAR(50) NOT NULL,
+  `actor_name` VARCHAR(100) NULL,
+  `log_payload` JSON NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_scout_logs_talent` (`talent_id`),
+  INDEX `idx_scout_logs_action` (`action_type`),
+  CONSTRAINT `fk_scout_logs_talent` FOREIGN KEY (`talent_id`)
+    REFERENCES `scouting_talents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. TABEL EVALUASI & WAWANCARA: scouting_talent_evaluations
+CREATE TABLE IF NOT EXISTS `scouting_talent_evaluations` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `talent_id` VARCHAR(50) NOT NULL,
+  `evaluator_user_id` VARCHAR(50) NULL,
+  `evaluator_name` VARCHAR(100) NULL,
+  `interview_notes` TEXT NULL,
+  `portfolio_review` TEXT NULL,
+  `devices_info` VARCHAR(255) NULL,
+  `evaluation_date` DATETIME NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_scout_eval_talent` (`talent_id`),
+  CONSTRAINT `fk_scout_eval_talent` FOREIGN KEY (`talent_id`)
+    REFERENCES `scouting_talents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="erd-modal-footer px-6 py-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-shield-check text-emerald-600"></i>
+              <span>Schema integrity: 1 Parent &bull; 4 Child &bull; Cascade Enabled</span>
+            </div>
+            <button type="button" class="btn btn-light rounded-xl px-4 py-2 font-semibold text-slate-700" data-bs-dismiss="modal">
+              Tutup
+            </button>
           </div>
         </div>
       </div>

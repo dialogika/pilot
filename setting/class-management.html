@@ -2644,7 +2644,10 @@ import { app, db } from "../assets/js/firebase-config.js";
           console.error("Gagal memuat data class_planning:", e);
         }
         try {
-          const mentorSnap = await getDocs(collection(db, "mentor"));
+          let mentorSnap = await getDocs(collection(db, "mentors"));
+          if (mentorSnap.empty) {
+            mentorSnap = await getDocs(collection(db, "mentor"));
+          }
           mentorsData = mentorSnap.docs.map((docSnap) => ({
             id: docSnap.id,
             data: docSnap.data() || {},

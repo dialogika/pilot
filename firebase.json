@@ -322,6 +322,10 @@
     ],
     "rewrites": [
       {
+        "source": "/file-manager",
+        "destination": "/pages/file-manager/index.html"
+      },
+      {
         "source": "/announcement",
         "destination": "/pages/announcement/index.html"
       },

@@ -65,3 +65,227 @@ body[style*="overflow: hidden"] { overscroll-behavior: contain; }
 @media (max-width: 640px) {
   .overflow-x-auto table { min-width: 800px; }
 }
+
+/* =====================================================================
+   DATABASE MAPPING & ERD SCHEMA MODAL STYLES (USERS MANAGEMENT)
+   ===================================================================== */
+.erd-modal-dialog {
+  max-width: 1180px;
+}
+
+.erd-tab-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.erd-tab-btn:hover {
+  color: #334155;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.erd-tab-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.erd-table-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.erd-table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.erd-table-card.parent-card {
+  border-color: #bfdbfe;
+}
+
+.erd-table-card.parent-card:hover {
+  border-color: #3b82f6;
+}
+
+.erd-dict-table th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #f8fafc;
+}
+
+.erd-dict-table td {
+  vertical-align: middle;
+}
+
+/* Relation Filter / Highlight Pills */
+.erd-rel-pill {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #64748b;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.erd-rel-pill:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.erd-rel-pill.active {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* SVG Connector Lines & Paths */
+.erd-connector-svg {
+  overflow: visible !important;
+}
+
+@keyframes usersManagementErdDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.erd-relation-path {
+  animation: usersManagementErdDash 1.5s linear infinite;
+  transition: stroke-width 0.2s ease, stroke 0.2s ease;
+}
+
+.erd-relation-path-group {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.erd-relation-path-group:hover .erd-relation-path {
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.6));
+}
+
+/* Interactive Card Highlights */
+.erd-table-card.relation-highlight {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.erd-table-card.relation-faded {
+  opacity: 0.35;
+  transform: scale(0.98);
+}
+
+/* Dark Mode Support for Users Management ERD Modal */
+[data-theme="dark"] .erd-modal-header,
+[data-theme="dark"] .erd-modal-footer {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .erd-modal-body {
+  background-color: var(--surface-muted) !important;
+}
+
+[data-theme="dark"] .erd-segmented-tabs {
+  background-color: var(--surface-2) !important;
+}
+
+[data-theme="dark"] .erd-tab-btn {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .erd-tab-btn.active {
+  background-color: var(--surface) !important;
+  color: #93c5fd !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .erd-table-card {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .erd-table-card .divide-y > * {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #usersManagementErdDictTable th,
+[data-theme="dark"] .erd-dict-table th {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #usersManagementErdDictTable td,
+[data-theme="dark"] .erd-dict-table td {
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] #usersManagementErdDictTable.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="dark"] #usersManagementErdDictSearchInput,
+[data-theme="dark"] #usersManagementErdDictTableFilter {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-strong) !important;
+}
+
+[data-theme="dark"] .erd-rel-pill {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .erd-rel-pill:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+[data-theme="dark"] .erd-rel-pill.active {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+/* Dark mode for Foreign Key Matrix Table in Users Management ERD */
+[data-theme="dark"] #usersManagementErdModal .table-bordered {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #usersManagementErdModal .table-bordered th,
+[data-theme="dark"] #usersManagementErdModal .table-bordered td {
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] #usersManagementErdModal .table-bordered thead th {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] #usersManagementErdModal .bg-white.rounded-2xl {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+

@@ -77,38 +77,63 @@
       </div>
 
       <!-- 5 Stat Metrics Cards -->
-      <div class="row g-3 mb-4">
+      <div class="row g-3 mb-4 stat-cards-row has-active">
         <div class="col-12 col-sm-6 col-xl">
-          <div class="stat-card stat-slate">
-            <div class="stat-card-title">Total Request</div>
+          <div class="stat-card stat-slate" id="cardStatTotal" role="button" tabindex="0" title="Klik untuk melihat semua request">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="stat-card-title">Total Request</div>
+              <span class="stat-card-badge" id="badgeStatTotal" style="display: none;">
+                <span class="badge-dot"></span> Aktif
+              </span>
+            </div>
             <div class="stat-card-value" id="statTotal">0</div>
             <div class="stat-card-desc">Semua request terdaftar</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl">
-          <div class="stat-card stat-amber">
-            <div class="stat-card-title">Need Action</div>
+          <div class="stat-card stat-amber" id="cardStatPending" role="button" tabindex="0" title="Klik untuk melihat request butuh tindakan (requested / reviewing)">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="stat-card-title">Need Action</div>
+              <span class="stat-card-badge" id="badgeStatPending" style="display: none;">
+                <span class="badge-dot"></span> Aktif
+              </span>
+            </div>
             <div class="stat-card-value" id="statPending">0</div>
             <div class="stat-card-desc">Status requested / reviewing</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl">
-          <div class="stat-card stat-rose">
-            <div class="stat-card-title">Overdue</div>
+          <div class="stat-card stat-rose" id="cardStatOverdue" role="button" tabindex="0" title="Klik untuk melihat request yang melewati due date">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="stat-card-title">Overdue</div>
+              <span class="stat-card-badge" id="badgeStatOverdue" style="display: none;">
+                <span class="badge-dot"></span> Aktif
+              </span>
+            </div>
             <div class="stat-card-value" id="statOverdue">0</div>
             <div class="stat-card-desc">Melewati due date bayar</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-xl">
-          <div class="stat-card stat-emerald">
-            <div class="stat-card-title">Paid</div>
+          <div class="stat-card stat-emerald" id="cardStatPaid" role="button" tabindex="0" title="Klik untuk melihat request yang sudah lunas (paid & complete)">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="stat-card-title">Paid</div>
+              <span class="stat-card-badge" id="badgeStatPaid" style="display: none;">
+                <span class="badge-dot"></span> Aktif
+              </span>
+            </div>
             <div class="stat-card-value" id="statPaid">0</div>
             <div class="stat-card-desc">Lunas & ada bukti transfer</div>
           </div>
         </div>
         <div class="col-12 col-sm-12 col-xl">
-          <div class="stat-card stat-indigo">
-            <div class="stat-card-title">Total Amount</div>
+          <div class="stat-card stat-indigo" id="cardStatAmount" role="button" tabindex="0" title="Klik untuk melihat seluruh request akumulasi (diurutkan nominal tertinggi)">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="stat-card-title">Total Amount</div>
+              <span class="stat-card-badge" id="badgeStatAmount" style="display: none;">
+                <span class="badge-dot"></span> Aktif
+              </span>
+            </div>
             <div class="stat-card-value" id="statAmount" style="font-size: 1.75rem;">Rp 0</div>
             <div class="stat-card-desc">Akumulasi nominal seluruh request</div>
           </div>
@@ -127,11 +152,12 @@
             <label class="field-label" for="filterStatus">Status Filter</label>
             <select id="filterStatus" class="field-control field-control-compact">
               <option value="all">Semua Status</option>
+              <option value="need_action">Need Action (Requested & Reviewing)</option>
               <option value="requested">Requested</option>
               <option value="reviewing">Reviewing</option>
               <option value="overdue">Overdue</option>
-              <option value="paid">Paid</option>
-              <option value="complete">Complete</option>
+              <option value="paid">Paid & Complete</option>
+              <option value="complete">Complete (WhatsApp Terkirim)</option>
               <option value="rejected">Rejected</option>
             </select>
           </div>
@@ -150,12 +176,12 @@
         </div>
 
         <div class="row g-3 mt-1 align-items-end">
-          <div class="col-12 col-md-6">
+          <div class="col-12 col-md-4">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <label class="field-label mb-0">Filter Tanggal (Quick)</label>
+              <label class="field-label mb-0">Filter Tanggal</label>
               <button id="btnClearDateFilter" type="button"
                 class="btn btn-link p-0 text-xs font-bold uppercase text-decoration-none text-muted">
-                Clear Date
+                Clear
               </button>
             </div>
             <div class="date-filter">
@@ -170,11 +196,11 @@
               </button>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-4">
             <label class="field-label text-[10px]" for="filterDateStart">Start Date</label>
             <input id="filterDateStart" type="date" class="field-control field-control-compact" />
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-4">
             <label class="field-label text-[10px]" for="filterDateEnd">End Date</label>
             <input id="filterDateEnd" type="date" class="field-control field-control-compact" />
           </div>
@@ -184,15 +210,15 @@
       <!-- Expense Ledger Table Card -->
       <div class="expense-card">
         <div
-          class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 px-4 pt-4 pb-3">
+          class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 px-4 px-md-5 pt-4 pb-3">
           <div>
-            <h2 class="text-base font-black text-slate-900 mb-1">Expense Ledger</h2>
-            <p class="text-xs text-muted mb-0">
-              Treasurer dapat memeriksa rekening penerima, mengunggah bukti transfer, dan menandai status lunas.
+            <h2 class="text-lg font-black text-slate-900 mb-1">Expense Ledger</h2>
+            <p class="text-sm text-slate-500 mb-0">
+              Treasurer cukup buka item, cek tujuan transfer, upload bukti, lalu ubah status menjadi paid.
             </p>
           </div>
-          <div id="visibleItemsCount" class="text-xs font-bold uppercase tracking-wider text-muted">
-            0 item terlihat
+          <div id="visibleItemsCount" class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+            0 ITEM TERLIHAT
           </div>
         </div>
 

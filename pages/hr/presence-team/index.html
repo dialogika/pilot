@@ -751,6 +751,986 @@
       </div>
     </div>
 
+    <!-- =====================================================================
+         MODAL: DATABASE MAPPING & ERD SCHEMA (PRESENCE TEAM)
+         ===================================================================== -->
+    <div
+      class="modal fade"
+      id="presenceTeamErdModal"
+      tabindex="-1"
+      aria-labelledby="presenceTeamErdModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable erd-modal-dialog">
+        <div class="modal-content erd-modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+          <!-- Header Modal -->
+          <div class="erd-modal-header px-6 py-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="font-bold text-slate-800 text-lg mb-0" id="presenceTeamErdModalLabel">Database Mapping &amp; Schema ERD</h5>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider">Relasional</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-0">Struktur relasi tabel presensi tim, rekap kehadiran, perizinan &amp; kamus data kolom Dialogika</p>
+              </div>
+            </div>
+
+            <!-- Tab Segmented Control -->
+            <div class="flex items-center gap-2">
+              <div class="erd-segmented-tabs flex items-center bg-slate-100 p-1 rounded-xl">
+                <button type="button" class="erd-tab-btn active" data-tab="visual" id="tabBtnPresenceTeamErdVisual">
+                  <i class="bi bi-diagram-3"></i> Visual ERD
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="dictionary" id="tabBtnPresenceTeamErdDict">
+                  <i class="bi bi-table"></i> Kamus Data
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="sql" id="tabBtnPresenceTeamErdSql">
+                  <i class="bi bi-code-slash"></i> SQL DDL
+                </button>
+              </div>
+              <button type="button" class="btn-close shadow-none ml-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Body Modal -->
+          <div class="modal-body erd-modal-body p-6 bg-slate-50">
+            <!-- ========================================== -->
+            <!-- TAB 1: VISUAL ERD CANVAS                  -->
+            <!-- ========================================== -->
+            <div id="presenceTeamErdTabVisualContent" class="erd-tab-panel active">
+              <!-- Info Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div class="text-xs text-slate-600">
+                    <span class="font-bold text-slate-800">5 Tabel Normalisasi:</span> 
+                    Tabel induk <code class="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">users</code> berelasi 
+                    <span class="font-semibold text-slate-700">One-to-Many (1 : N)</span> ke 4 tabel anak melalui 
+                    <code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">user_id</code>.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" id="btnCopyPresenceTeamDocsPath" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Salin path docs/PRESENCE-TEAM-DATABASE-MAPPING.md">
+                    <i class="bi bi-journal-text text-blue-600"></i> docs/PRESENCE-TEAM-DATABASE-MAPPING.md
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relation Highlight / Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2 mb-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <i class="bi bi-bezier2 text-blue-600 mr-1"></i>Relasi Tabel:
+                </span>
+                <button type="button" class="erd-rel-pill active" data-rel="all">
+                  Semua Relasi (4)
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="attendances">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span>
+                  users ➔ user_attendances
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="monthly">
+                  <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span>
+                  users ➔ attendance_monthly_recaps
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="gamification">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span>
+                  users ➔ attendance_gamifications
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="permits">
+                  <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span>
+                  users ➔ attendance_permits
+                </button>
+              </div>
+
+              <!-- Interactive ERD Grid with Dynamic SVG Connectors -->
+              <div class="erd-diagram-wrapper relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6" id="presenceTeamErdDiagramWrapper">
+                <!-- SVG CONNECTOR OVERLAY (Lines & Arrows) -->
+                <svg id="presenceTeamErdConnectorSvg" class="erd-connector-svg absolute inset-0 w-full h-full pointer-events-none" style="z-index: 15; overflow: visible; min-height: 100%;">
+                  <defs>
+                    <!-- Arrowheads -->
+                    <marker id="presenceTeamErdArrowEmerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
+                    </marker>
+                    <marker id="presenceTeamErdArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="presenceTeamErdArrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+                    </marker>
+                    <marker id="presenceTeamErdArrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#8b5cf6" />
+                    </marker>
+                    <!-- Start Point Dots -->
+                    <marker id="presenceTeamErdDotStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                      <circle cx="5" cy="5" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+                    </marker>
+                  </defs>
+                  <g id="presenceTeamErdPathsGroup"></g>
+                </svg>
+
+                <!-- LEFT / CENTER: Parent Table (users) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border-2 border-blue-200 shadow-md overflow-hidden erd-table-card parent-card relative z-10" id="cardPresenceTeamUsers">
+                  <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-people-fill text-blue-200 text-sm"></i>
+                      <span class="font-bold text-sm tracking-wide">dialogika.users</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/50 text-white uppercase tracking-wider">
+                      Parent (1)
+                    </span>
+                  </div>
+                  <div class="p-3 text-xs bg-blue-50/40 border-b border-blue-100 text-blue-900 flex items-center justify-between">
+                    <span><i class="bi bi-info-circle mr-1"></i> Data Inti Karyawan &amp; Anggota Tim</span>
+                    <span class="font-bold mono text-[11px] text-blue-700">10 Kolom</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 text-xs">
+                    <!-- PRIMARY KEY ORIGIN ANCHOR -->
+                    <div id="erdOriginPresenceUsersId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50/40 font-semibold hover:bg-amber-100/50 transition cursor-pointer" title="Primary Key: Kunci utama yang dirujuk oleh seluruh log presensi dan rekap">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-key-fill text-amber-500 text-xs" title="Primary Key"></i>
+                        <span class="mono font-bold text-slate-800">id</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                          <i class="bi bi-arrow-right"></i> Relasi
+                        </span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">email</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">role</span>
+                      <span class="mono text-[11px] text-slate-500">enum('Internship','Team','Mentor','Admin')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">division</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">position_title</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">category</span>
+                      <span class="mono text-[11px] text-slate-500">enum('team','intern')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">photo_url</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(255)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('active','alumni','resigned')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition bg-blue-50/20">
+                      <span class="mono font-semibold text-blue-700">updated_at</span>
+                      <span class="mono text-[11px] text-blue-600">timestamp (auto-update)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: 4 Child Tables (One-to-Many Relational) -->
+                <div class="lg:col-span-7 flex flex-col gap-5 relative z-10">
+                  <!-- Child 1: user_attendances -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardPresenceTeamAttendance">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-clock-history text-emerald-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">user_attendances</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        1 : N via user_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 1 -->
+                      <div id="erdTargetPresenceAttendanceId" class="px-3.5 py-1.5 flex items-center justify-between bg-emerald-50 font-bold border-l-4 border-emerald-500">
+                        <span class="mono text-emerald-800"><i class="bi bi-link-45deg text-emerald-600 mr-1"></i>user_id</span>
+                        <span class="mono text-[10px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ users.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">attendance_date</span>
+                        <span class="mono text-[10px] text-slate-400">date (YYYY-MM-DD)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">check_in_time / check_out_time</span>
+                        <span class="mono text-[10px] text-slate-400">time</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">work_duration_seconds</span>
+                        <span class="mono text-[10px] text-slate-400">int(11)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">status</span>
+                        <span class="mono text-[10px] text-slate-400">enum('ontime','late','pending_logout','permit','absent')</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">late_minutes / schedule_target</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) / varchar(50)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 2: attendance_monthly_recaps -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardPresenceTeamMonthly">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-calendar-month text-blue-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">attendance_monthly_recaps</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        1 : N via user_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 2 -->
+                      <div id="erdTargetPresenceMonthlyId" class="px-3.5 py-1.5 flex items-center justify-between bg-blue-50 font-bold border-l-4 border-blue-500">
+                        <span class="mono text-blue-800"><i class="bi bi-link-45deg text-blue-600 mr-1"></i>user_id</span>
+                        <span class="mono text-[10px] text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ users.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">month_period</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(7) [YYYY-MM]</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">total_present_days</span>
+                        <span class="mono text-[10px] text-slate-400">int(11)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">total_late_minutes</span>
+                        <span class="mono text-[10px] text-slate-400">int(11)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">total_work_hours / average_daily_hours</span>
+                        <span class="mono text-[10px] text-slate-400">decimal(10,2)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 3 & 4 Grid: gamifications & permits -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Child 3: attendance_gamifications -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardPresenceTeamGamification">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <i class="bi bi-trophy-fill text-amber-400 text-xs"></i>
+                          <span class="font-bold text-[11px] tracking-wide">attendance_gamifications</span>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-500/20 text-amber-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between bg-slate-50/80">
+                          <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                          <span class="mono text-[9px] text-slate-400">int(11) [PK, AI]</span>
+                        </div>
+                        <!-- TARGET ANCHOR 3 -->
+                        <div id="erdTargetPresenceGamificationId" class="px-3 py-1 flex items-center justify-between bg-amber-50 font-bold border-l-4 border-amber-500">
+                          <span class="mono text-amber-800"><i class="bi bi-link-45deg text-amber-600 mr-1"></i>user_id</span>
+                          <span class="mono text-[9px] text-amber-800 bg-amber-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">current_streak_days</span>
+                          <span class="mono text-[9px] text-slate-400">int(11)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">xp_score / total_punctual</span>
+                          <span class="mono text-[9px] text-slate-400">int(11)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">badge_tier</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">leaderboard_rank</span>
+                          <span class="mono text-[9px] text-slate-400">int(11)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Child 4: attendance_permits -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardPresenceTeamPermits">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <i class="bi bi-file-earmark-medical-fill text-purple-400 text-xs"></i>
+                          <span class="font-bold text-[11px] tracking-wide">attendance_permits</span>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-purple-500/20 text-purple-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between bg-slate-50/80">
+                          <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                          <span class="mono text-[9px] text-slate-400">int(11) [PK, AI]</span>
+                        </div>
+                        <!-- TARGET ANCHOR 4 -->
+                        <div id="erdTargetPresencePermitsId" class="px-3 py-1 flex items-center justify-between bg-purple-50 font-bold border-l-4 border-purple-500">
+                          <span class="mono text-purple-800"><i class="bi bi-link-45deg text-purple-600 mr-1"></i>user_id</span>
+                          <span class="mono text-[9px] text-purple-800 bg-purple-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">permit_type</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">start_date / end_date</span>
+                          <span class="mono text-[9px] text-slate-400">date</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">approval_status</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">approved_by</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(50)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matriks Detail Relasi Antar Tabel -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="bi bi-diagram-3 text-indigo-600 text-base"></i>
+                  <h6 class="font-bold text-slate-800 text-xs mb-0">Rincian Relasi Kunci Antar Tabel (Foreign Key Integrity)</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle text-xs mb-0">
+                    <thead class="bg-slate-50 text-slate-600 font-bold text-[10px] uppercase">
+                      <tr>
+                        <th>Tabel Induk (Parent)</th>
+                        <th>Kardinalitas</th>
+                        <th>Tabel Anak (Child)</th>
+                        <th>Kunci Penghubung</th>
+                        <th>Aksi Delete / Update</th>
+                        <th>Deskripsi Hubungan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-emerald-700 font-bold">user_attendances</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 user memiliki banyak catatan log presensi harian.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-blue-700 font-bold">attendance_monthly_recaps</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 user memiliki banyak ringkasan rekapitulasi bulanan.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-amber-700 font-bold">attendance_gamifications</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 user memiliki catatan progres gamifikasi presensi.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-purple-700 font-bold">attendance_permits</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 user dapat mengajukan banyak perizinan &amp; cuti.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KAMUS DATA (DATA DICTIONARY)       -->
+            <!-- ========================================== -->
+            <div id="presenceTeamErdTabDictContent" class="erd-tab-panel" style="display: none;">
+              <!-- Search & Filter Controls -->
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                <div class="relative w-full sm:w-80">
+                  <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                  <input
+                    type="text"
+                    id="presenceTeamErdDictSearchInput"
+                    placeholder="Cari kolom atau tipe data..."
+                    class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                  <select
+                    id="presenceTeamErdDictTableFilter"
+                    class="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                  >
+                    <option value="all">Semua Tabel (5 Tabel)</option>
+                    <option value="users">dialogika.users (Parent)</option>
+                    <option value="user_attendances">user_attendances (Log Harian)</option>
+                    <option value="attendance_monthly_recaps">attendance_monthly_recaps (Rekap Bln)</option>
+                    <option value="attendance_gamifications">attendance_gamifications (Gamifikasi)</option>
+                    <option value="attendance_permits">attendance_permits (Izin &amp; Cuti)</option>
+                  </select>
+                  <span id="presenceTeamErdDictCountBadge" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 shrink-0">
+                    47 Kolom
+                  </span>
+                </div>
+              </div>
+
+              <!-- Dictionary Table Container -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="max-h-[500px] overflow-y-auto">
+                  <table class="w-full text-left text-xs border-collapse erd-dict-table" id="presenceTeamErdDictTable">
+                    <thead class="sticky top-0 z-10 border-b border-slate-200 shadow-sm bg-slate-50">
+                      <tr>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Tabel</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Nama Kolom</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Tipe Data</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Kunci / Atribut</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Nullable</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Default</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Deskripsi Bisnis</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="presenceTeamErdDictTableBody">
+                      <!-- users -->
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Identifier unik akun personil / Auth UID</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">name</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(150)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap resmi personil</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">email</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(100)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Unique</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Email resmi akun Dialogika</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">role</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'Team'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Role akses: 'Internship', 'Team', 'Mentor', 'Admin'</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">division</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Divisi kerja (HR, Marketing, Product, Branding)</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">position_title</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(100)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama jabatan / posisi struktural</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">category</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'team'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kategori personil: 'team' (karyawan) atau 'intern' (magang)</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">photo_url</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(255)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Avatar / URL foto profil resmi</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">status</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'active'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status akun: 'active', 'alumni', 'resigned'</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">updated_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan profil terakhir</td>
+                      </tr>
+
+                      <!-- user_attendances -->
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key unik catatan kehadiran harian</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-emerald-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Merujuk ke users.id pemilik presensi</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">attendance_date</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">date</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal pelaksanaan presensi (YYYY-MM-DD)</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">check_in_time</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">time</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu jam masuk realtime (clock in)</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">check_out_time</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">time</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu jam keluar realtime (clock out)</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">work_duration_seconds</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Total durasi waktu kerja dalam hitungan detik</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">status</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'absent'</td>
+                        <td class="px-4 py-2.5 text-slate-600">'ontime', 'late', 'pending_logout', 'permit', 'absent'</td>
+                      </tr>
+                      <tr data-table="user_attendances" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_attendances</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">late_minutes</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Total menit keterlambatan terhadap target jadwal</td>
+                      </tr>
+
+                      <!-- attendance_monthly_recaps -->
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key rekapitulasi bulanan</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-blue-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Merujuk ke users.id personil</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">month_period</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(7)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Periode bulan kalender (format YYYY-MM)</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">total_present_days</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Total hari personil hadir kerja di bulan tersebut</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">total_late_minutes</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Akumulasi durasi keterlambatan dalam menit</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">total_work_hours</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">decimal(10,2)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0.00</td>
+                        <td class="px-4 py-2.5 text-slate-600">Total akumulasi jam kerja efektif dalam desimal</td>
+                      </tr>
+                      <tr data-table="attendance_monthly_recaps" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">attendance_monthly_recaps</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">average_daily_hours</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">decimal(5,2)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0.00</td>
+                        <td class="px-4 py-2.5 text-slate-600">Rata-rata jam kerja per hari kehadiran</td>
+                      </tr>
+
+                      <!-- attendance_gamifications -->
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key catatan status gamifikasi</td>
+                      </tr>
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-amber-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Merujuk ke users.id pemilik streak &amp; poin</td>
+                      </tr>
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">current_streak_days</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Jumlah hari aktif beruntun saat ini tanpa putus</td>
+                      </tr>
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">max_streak_days</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Rekor streak tertinggi sepanjang masa</td>
+                      </tr>
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">xp_score</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Total perolehan poin pengalaman presensi</td>
+                      </tr>
+                      <tr data-table="attendance_gamifications" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">attendance_gamifications</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">badge_tier</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'bronze'</td>
+                        <td class="px-4 py-2.5 text-slate-600">'bronze', 'silver', 'gold', 'platinum', 'master'</td>
+                      </tr>
+
+                      <!-- attendance_permits -->
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">Primary Key pengajuan surat perizinan</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-purple-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Merujuk ke users.id pemohon izin</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">permit_type</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'personal_leave'</td>
+                        <td class="px-4 py-2.5 text-slate-600">'sick', 'personal_leave', 'half_day', 'dispensation'</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">start_date</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">date</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal awal izin mulai berlaku</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">end_date</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">date</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal akhir izin berlaku</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">reason</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">text</td>
+                        <td class="px-4 py-2.5">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Keterangan / alasan pengajuan izin kerja</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">approval_status</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Index</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'pending'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status verifikasi HR: 'pending', 'approved', 'rejected'</td>
+                      </tr>
+                      <tr data-table="attendance_permits" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">attendance_permits</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">approved_by</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">User ID pejabat HR yang memberi persetujuan</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SQL DDL                            -->
+            <!-- ========================================== -->
+            <div id="presenceTeamErdTabSqlContent" class="erd-tab-panel" style="display: none;">
+              <div class="flex items-center justify-between gap-3 bg-slate-900 text-slate-200 px-5 py-3 rounded-t-2xl border-b border-slate-800">
+                <div class="flex items-center gap-2 text-xs">
+                  <i class="bi bi-filetype-sql text-blue-400 text-base"></i>
+                  <span class="font-bold text-white">schema-presence-team.sql</span>
+                  <span class="text-slate-400 text-[11px]">(MySQL 8.0+ / MariaDB / PostgreSQL Ready)</span>
+                </div>
+                <button
+                  type="button"
+                  id="btnCopyPresenceTeamSqlScript"
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <i class="bi bi-clipboard"></i>
+                  <span id="btnCopyPresenceTeamSqlText">Salin Script SQL</span>
+                </button>
+              </div>
+              <div class="bg-slate-950 p-4 rounded-b-2xl overflow-x-auto max-h-[520px] text-xs font-mono border border-slate-900 text-emerald-400">
+                <pre id="presenceTeamSqlScriptContent" class="mb-0 leading-relaxed"><code>-- =====================================================================
+-- DIALOGIKA PILOT: TEAM PRESENCE SCHEMA DDL
+-- 5 Normalisasi Tabel Relasional (3NF) - Engine: InnoDB (MySQL/MariaDB)
+-- =====================================================================
+
+-- 1. TABEL INDUK: users
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` VARCHAR(50) NOT NULL COMMENT 'UID Karyawan / Auth UID',
+  `name` VARCHAR(150) NOT NULL COMMENT 'Nama Lengkap Resmi',
+  `email` VARCHAR(100) NOT NULL COMMENT 'Email Resmi Akun',
+  `role` ENUM('Internship', 'Team', 'Mentor', 'Admin') NOT NULL DEFAULT 'Team',
+  `division` VARCHAR(50) DEFAULT NULL COMMENT 'Divisi Kerja',
+  `position_title` VARCHAR(100) DEFAULT NULL COMMENT 'Nama Jabatan',
+  `category` ENUM('team', 'intern') NOT NULL DEFAULT 'team' COMMENT 'Kategori Personil',
+  `photo_url` VARCHAR(255) DEFAULT NULL COMMENT 'Avatar Profil',
+  `status` ENUM('active', 'alumni', 'resigned') NOT NULL DEFAULT 'active',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_users_email` (`email`),
+  KEY `idx_users_category` (`category`),
+  KEY `idx_users_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Data Induk Karyawan & Intern Dialogika';
+
+-- 2. TABEL LOG PRESENSI HARIAN: user_attendances
+CREATE TABLE IF NOT EXISTS `user_attendances` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `attendance_date` DATE NOT NULL COMMENT 'Tanggal Presensi',
+  `check_in_time` TIME DEFAULT NULL COMMENT 'Jam Masuk Realtime',
+  `check_out_time` TIME DEFAULT NULL COMMENT 'Jam Keluar Realtime',
+  `work_duration_seconds` INT(11) NOT NULL DEFAULT 0 COMMENT 'Durasi Kerja Detik',
+  `status` ENUM('ontime', 'late', 'pending_logout', 'permit', 'absent') NOT NULL DEFAULT 'absent',
+  `late_minutes` INT(11) NOT NULL DEFAULT 0 COMMENT 'Durasi Keterlambatan',
+  `schedule_target` VARCHAR(50) DEFAULT NULL COMMENT 'Jam Target Jadwal',
+  `source` VARCHAR(50) NOT NULL DEFAULT 'web' COMMENT 'Metode Presensi',
+  `location_notes` VARCHAR(150) DEFAULT NULL COMMENT 'Lokasi / Keterangan',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_attendances_user_id` (`user_id`),
+  KEY `idx_attendances_date` (`attendance_date`),
+  KEY `idx_attendances_status` (`status`),
+  UNIQUE KEY `uq_user_attendance_daily` (`user_id`, `attendance_date`),
+  CONSTRAINT `fk_attendances_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Log Presensi Harian Personil';
+
+-- 3. TABEL REKAP BULANAN: attendance_monthly_recaps
+CREATE TABLE IF NOT EXISTS `attendance_monthly_recaps` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `month_period` VARCHAR(7) NOT NULL COMMENT 'Format YYYY-MM',
+  `total_present_days` INT(11) NOT NULL DEFAULT 0,
+  `total_late_minutes` INT(11) NOT NULL DEFAULT 0,
+  `total_work_hours` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `average_daily_hours` DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  `total_permits` INT(11) NOT NULL DEFAULT 0,
+  `total_absent` INT(11) NOT NULL DEFAULT 0,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_monthly_user_id` (`user_id`),
+  KEY `idx_monthly_period` (`month_period`),
+  UNIQUE KEY `uq_user_month_recap` (`user_id`, `month_period`),
+  CONSTRAINT `fk_monthly_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ringkasan Performa Presensi Bulanan';
+
+-- 4. TABEL GAMIFIKASI & STREAK: attendance_gamifications
+CREATE TABLE IF NOT EXISTS `attendance_gamifications` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `current_streak_days` INT(11) NOT NULL DEFAULT 0,
+  `max_streak_days` INT(11) NOT NULL DEFAULT 0,
+  `total_punctual_days` INT(11) NOT NULL DEFAULT 0,
+  `xp_score` INT(11) NOT NULL DEFAULT 0,
+  `badge_tier` ENUM('bronze', 'silver', 'gold', 'platinum', 'master') NOT NULL DEFAULT 'bronze',
+  `leaderboard_rank` INT(11) DEFAULT NULL,
+  `last_active_date` DATE DEFAULT NULL,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_gamification_user_id` (`user_id`),
+  KEY `idx_gamification_xp` (`xp_score` DESC),
+  CONSTRAINT `fk_gamification_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gamifikasi & Streak Presensi Dialogika';
+
+-- 5. TABEL PERIZINAN & CUTI: attendance_permits
+CREATE TABLE IF NOT EXISTS `attendance_permits` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `permit_type` ENUM('sick', 'personal_leave', 'half_day', 'dispensation') NOT NULL DEFAULT 'personal_leave',
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NOT NULL,
+  `start_hour` TIME DEFAULT NULL,
+  `end_hour` TIME DEFAULT NULL,
+  `reason` TEXT NOT NULL,
+  `attachment_url` VARCHAR(500) DEFAULT NULL,
+  `approval_status` ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  `approved_by` VARCHAR(50) DEFAULT NULL COMMENT 'Relasi ke users.id penyetuju',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_permits_user_id` (`user_id`),
+  KEY `idx_permits_status` (`approval_status`),
+  KEY `idx_permits_dates` (`start_date`, `end_date`),
+  CONSTRAINT `fk_permits_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_permits_approver` FOREIGN KEY (`approved_by`) 
+    REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Surat Izin, Cuti & Dispensasi Presensi';</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="erd-modal-footer px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
+            <div class="text-[11px] text-slate-500 flex items-center gap-2">
+              <i class="bi bi-shield-check text-emerald-600"></i>
+              <span>Schema Integrity: <strong>1 Parent - 4 Child - Cascade Enabled</strong></span>
+            </div>
+            <button type="button" class="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition" data-bs-dismiss="modal">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Dependencies: Bootstrap JS & SheetJS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>

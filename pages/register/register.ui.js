@@ -61,7 +61,8 @@ export function resetCard() {
  */
 export function updateCardFront(v) {
   setText("cardName", v.name || "FULL NAME");
-  setText("cardPosDisplay", v.pos || "POSITION");
+  const posText = v.pos || (v.role ? v.role.toUpperCase() : "POSITION");
+  setText("cardPosDisplay", posText);
   setText("cardPassDisplay", (v.pass ? "*".repeat(v.pass.length) : "") || "****");
 
   if (v.birth) {

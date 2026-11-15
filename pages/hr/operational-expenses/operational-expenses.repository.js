@@ -206,15 +206,31 @@ export async function loadRequesterOptions() {
 
 /**
  * Loads mentor options for mentor salary category autocomplete.
+ * Priority: reads 'mentors' (primary collection used by Mentor Management),
+ * and supplements with 'mentor' (legacy collection) for backwards compatibility.
  * @returns {Promise<Array>}
  */
 export async function loadMentorOptions() {
   try {
-    const snap = await withTimeout(getDocs(collection(db, "mentor")), 8000);
+    let snap = await withTimeout(getDocs(collection(db, "mentors")), 8000).catch(() => null);
+    let fallbackSnap = null;
+
+    if (!snap || snap.empty) {
+      fallbackSnap = await withTimeout(getDocs(collection(db, "mentor")), 8000).catch(() => null);
+    } else {
+      fallbackSnap = await withTimeout(getDocs(collection(db, "mentor")), 5000).catch(() => null);
+    }
+
     const list = [];
-    snap.forEach((docSnap) => {
+    const seenNames = new Set();
+
+    const processDoc = (docSnap) => {
       const d = docSnap.data() || {};
-      const name = firstFilled(d.fullName, d.nama_lengkap, d.name, d.displayName, docSnap.id);
+      const name = firstFilled(d.fullName, d.nama_lengkap, d.name, d.displayName, docSnap.id).trim();
+      const normName = name.toLowerCase();
+      if (!name || seenNames.has(normName)) return;
+      seenNames.add(normName);
+
       const bankInfo = extractMentorBankInfo(d);
       const metaParts = [bankInfo.bankName, bankInfo.accountNumber].filter(Boolean);
       const rawWa = extractMentorWhatsapp(d);
@@ -227,7 +243,15 @@ export async function loadMentorOptions() {
         whatsappNumber: normalizeWhatsappNumber(rawWa),
         search: [name, bankInfo.bankName, bankInfo.accountNumber].filter(Boolean).join(" ").toLowerCase()
       });
-    });
+    };
+
+    if (snap && !snap.empty) {
+      snap.forEach(processDoc);
+    }
+    if (fallbackSnap && !fallbackSnap.empty) {
+      fallbackSnap.forEach(processDoc);
+    }
+
     return list.sort((a, b) => a.name.localeCompare(b.name, "id"));
   } catch (error) {
     console.error("[OperationalExpensesRepo] Gagal memuat mentor:", error);

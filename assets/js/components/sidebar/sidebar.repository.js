@@ -284,6 +284,7 @@ export async function getSidebarCounts() {
     let myAliases = [];
     let roleLower = "";
     let userDept = "";
+    let userPos = "";
 
     const user = auth.currentUser;
     if (user) {
@@ -316,7 +317,20 @@ export async function getSidebarCounts() {
           if (userInfo.full_name) myAliases.push(String(userInfo.full_name).toLowerCase().trim());
           if (userInfo.username) myAliases.push(String(userInfo.username).toLowerCase().trim());
           if (!roleLower && userInfo.role) roleLower = String(userInfo.role).toLowerCase();
-          userDept = String(userInfo.department || "").trim();
+          userDept = String(
+            userInfo.department ||
+            userInfo.employment?.department ||
+            userInfo.division ||
+            ""
+          ).trim();
+          userPos = [
+            userInfo.position,
+            userInfo.rawPosition,
+            userInfo.employment?.position,
+            userInfo.employment?.name,
+            userInfo.role_title,
+            userInfo.title,
+          ].filter(Boolean);
         }
       } catch (_) {}
 
@@ -473,6 +487,42 @@ export async function getSidebarCounts() {
           if (reportToList.length > 0) {
             if (reportToList.some((u) => myAliases.includes(u))) {
               pendingCount++;
+            } else if (roleLower === "admin" || roleLower === "owner") {
+              pendingCount++;
+            }
+          } else {
+            // General daily report without explicit report_to
+            const authorId = String(r.authorId || "").toLowerCase().trim();
+            const isSelf = authorId && myAliases.includes(authorId);
+            if (!isSelf || roleLower === "admin" || roleLower === "owner") {
+              const myDept = String(userDept || "").toLowerCase().trim();
+              const rDepts = (Array.isArray(r.departments) ? r.departments : [r.departments])
+                .filter(Boolean)
+                .map((d) => String(d).toLowerCase().trim());
+              const isDeptMatch = Boolean(myDept && rDepts.includes(myDept));
+              const isInternOrMember = roleLower === "intern" || roleLower === "member";
+              const posList = (Array.isArray(userPos) ? userPos : [userPos])
+                .filter(Boolean)
+                .map((p) => String(p).toLowerCase().trim());
+              const isHeadOrLead = posList.some((p) =>
+                p.includes("head") ||
+                p.includes("lead") ||
+                p.includes("leader") ||
+                p.includes("manager") ||
+                p.includes("supervisor") ||
+                p.includes("spv") ||
+                p.includes("chief") ||
+                p.includes("director") ||
+                p.includes("kadiv") ||
+                p.includes("ketua") ||
+                p.includes("coordinator") ||
+                p.includes("koordinator") ||
+                p.includes("pj") ||
+                p.includes("pic")
+              );
+              if ((isDeptMatch && (!isInternOrMember || isHeadOrLead)) || roleLower === "admin" || roleLower === "owner") {
+                pendingCount++;
+              }
             }
           }
         }

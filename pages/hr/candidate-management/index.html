@@ -898,6 +898,958 @@
       </div>
     </div>
 
+    <!-- =====================================================================
+         MODAL: DATABASE MAPPING & ERD SCHEMA (CANDIDATE MANAGEMENT)
+         ===================================================================== -->
+    <div
+      class="modal fade"
+      id="candidateErdModal"
+      tabindex="-1"
+      aria-labelledby="candidateErdModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable erd-modal-dialog">
+        <div class="modal-content erd-modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+          <!-- Header Modal -->
+          <div class="erd-modal-header px-6 py-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="font-bold text-slate-800 text-lg mb-0" id="candidateErdModalLabel">Database Mapping &amp; Schema ERD</h5>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider">Relasional</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-0">Struktur relasi tabel rekrutmen kandidat &amp; kamus data kolom HR Dialogika</p>
+              </div>
+            </div>
+
+            <!-- Tab Segmented Control -->
+            <div class="flex items-center gap-2">
+              <div class="erd-segmented-tabs flex items-center bg-slate-100 p-1 rounded-xl">
+                <button type="button" class="erd-tab-btn active" data-tab="visual" id="tabBtnCandidateErdVisual">
+                  <i class="bi bi-diagram-3"></i> Visual ERD
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="dictionary" id="tabBtnCandidateErdDict">
+                  <i class="bi bi-table"></i> Kamus Data
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="sql" id="tabBtnCandidateErdSql">
+                  <i class="bi bi-code-slash"></i> SQL DDL
+                </button>
+              </div>
+              <button type="button" class="btn-close shadow-none ml-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Body Modal -->
+          <div class="modal-body erd-modal-body p-6 bg-slate-50">
+            <!-- ========================================== -->
+            <!-- TAB 1: VISUAL ERD CANVAS                  -->
+            <!-- ========================================== -->
+            <div id="candidateErdTabVisualContent" class="erd-tab-panel active">
+              <!-- Info Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div class="text-xs text-slate-600">
+                    <span class="font-bold text-slate-800">5 Tabel Normalisasi:</span> 
+                    Tabel induk <code class="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">candidates</code> berelasi 
+                    <span class="font-semibold text-slate-700">One-to-Many (1 : N)</span> ke 4 tabel operasional melalui 
+                    <code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">candidate_id</code>.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" id="btnCopyCandidateDocsPath" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Buka file docs/CANDIDATE-DATABASE-MAPPING.md di Obsidian">
+                    <i class="bi bi-journal-text text-blue-600"></i> docs/CANDIDATE-DATABASE-MAPPING.md
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relation Highlight / Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2 mb-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <i class="bi bi-bezier2 text-emerald-600 mr-1"></i>Relasi Tabel:
+                </span>
+                <button type="button" class="erd-rel-pill active" data-rel="all">
+                  Semua Relasi (4)
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="interviews">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span>
+                  candidates ➔ candidate_interviews
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="history">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span>
+                  candidates ➔ candidate_status_history
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="interviewers">
+                  <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span>
+                  candidates ➔ candidate_interviewers
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="docs">
+                  <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span>
+                  candidates ➔ candidate_documents
+                </button>
+              </div>
+
+              <!-- Interactive ERD Grid with Dynamic SVG Connectors -->
+              <div class="erd-diagram-wrapper relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6" id="candidateErdDiagramWrapper">
+                <!-- SVG CONNECTOR OVERLAY (Lines & Arrows) -->
+                <svg id="candidateErdConnectorSvg" class="erd-connector-svg absolute inset-0 w-full h-full pointer-events-none" style="z-index: 15; overflow: visible; min-height: 100%;">
+                  <defs>
+                    <!-- Arrowheads -->
+                    <marker id="candidateErdArrowEmerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
+                    </marker>
+                    <marker id="candidateErdArrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+                    </marker>
+                    <marker id="candidateErdArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="candidateErdArrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#a855f7" />
+                    </marker>
+                    <!-- Start Point Dots -->
+                    <marker id="candidateErdDotStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                      <circle cx="5" cy="5" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+                    </marker>
+                  </defs>
+                  <g id="candidateErdPathsGroup"></g>
+                </svg>
+
+                <!-- LEFT: Parent Table (candidates) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border-2 border-blue-200 shadow-md overflow-hidden erd-table-card parent-card relative z-10" id="cardCandidates">
+                  <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-table text-blue-200 text-sm"></i>
+                      <span class="font-bold text-sm tracking-wide">dialogika.candidates</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/50 text-white uppercase tracking-wider">
+                      Parent (1)
+                    </span>
+                  </div>
+                  <div class="p-3 text-xs bg-blue-50/40 border-b border-blue-100 text-blue-900 flex items-center justify-between">
+                    <span><i class="bi bi-info-circle mr-1"></i> Data Inti Profil &amp; Status Rekrutmen Kandidat</span>
+                    <span class="font-bold mono text-[11px] text-blue-700">16 Kolom</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 text-xs">
+                    <!-- PRIMARY KEY ORIGIN ANCHOR -->
+                    <div id="erdOriginCandidatesId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50/40 font-semibold hover:bg-amber-100/50 transition cursor-pointer" title="Primary Key: Kunci utama yang dirujuk oleh semua tabel anak">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-key-fill text-amber-500 text-xs" title="Primary Key"></i>
+                        <span class="mono font-bold text-slate-800">id</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                          <i class="bi bi-arrow-right"></i> Relasi
+                        </span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">candidate_type</span>
+                      <span class="mono text-[11px] text-slate-500">enum('team','mentor','internship')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">full_name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">nickname</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">email</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">phone_whatsapp</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(20)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">domicile_city</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">campus_university</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">major_study</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">position_name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">work_mode</span>
+                      <span class="mono text-[11px] text-slate-500">enum('WFO','WFH','Hybrid')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">current_status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('screening','interview',...)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">avatar_url</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(255)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">record_status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('active','inactive','trash')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">created_at</span>
+                      <span class="mono text-[11px] text-slate-500">timestamp</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition bg-blue-50/20">
+                      <span class="mono font-semibold text-blue-700">updated_at</span>
+                      <span class="mono text-[11px] text-blue-600">timestamp (auto-update)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: 4 Child Tables (One-to-Many Relational) -->
+                <div class="lg:col-span-7 flex flex-col gap-5 relative z-10">
+                  <!-- Child 1: candidate_interviews -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardCandidateInterviews">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-calendar-event text-emerald-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">candidate_interviews</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        1 : N via candidate_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 1 -->
+                      <div id="erdTargetInterviewsId" class="px-3.5 py-1.5 flex items-center justify-between bg-emerald-50 font-bold border-l-4 border-emerald-500">
+                        <span class="mono text-emerald-800"><i class="bi bi-link-45deg text-emerald-600 mr-1"></i>candidate_id</span>
+                        <span class="mono text-[10px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ candidates.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">interview_stage</span>
+                        <span class="mono text-[10px] text-slate-400">enum('Screening','User',...)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">schedule_datetime</span>
+                        <span class="mono text-[10px] text-slate-400">datetime</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">meeting_url</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(255)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">status</span>
+                        <span class="mono text-[10px] text-slate-400">enum('scheduled','completed',...)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">interviewer_notes</span>
+                        <span class="mono text-[10px] text-slate-400">text</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 2: candidate_status_history -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardCandidateHistory">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-clock-history text-amber-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">candidate_status_history</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        1 : N via candidate_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 2 -->
+                      <div id="erdTargetHistoryId" class="px-3.5 py-1.5 flex items-center justify-between bg-amber-50 font-bold border-l-4 border-amber-500">
+                        <span class="mono text-amber-900"><i class="bi bi-link-45deg text-amber-600 mr-1"></i>candidate_id</span>
+                        <span class="mono text-[10px] text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ candidates.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">from_status</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(50)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">to_status</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(50)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">actor_name</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(100)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">notes</span>
+                        <span class="mono text-[10px] text-slate-400">text</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 3 & 4 Grid: candidate_interviewers & candidate_documents -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- candidate_interviewers -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardCandidateInterviewers">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <span class="font-bold text-[11px] tracking-wide">candidate_interviewers</span>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/20 text-blue-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-700">id</span>
+                          <span class="mono text-[9px] text-slate-400">int PK</span>
+                        </div>
+                        <!-- TARGET ANCHOR 3 -->
+                        <div id="erdTargetInterviewersId" class="px-3 py-1 flex items-center justify-between bg-blue-50 font-bold border-l-4 border-blue-500">
+                          <span class="mono text-blue-800">candidate_id</span>
+                          <span class="mono text-[9px] text-blue-800 bg-blue-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">user_id</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(50)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">interviewer_name</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(100)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">specialization</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(100)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- candidate_documents -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardCandidateDocs">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <span class="font-bold text-[11px] tracking-wide">candidate_documents</span>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-purple-500/20 text-purple-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-700">id</span>
+                          <span class="mono text-[9px] text-slate-400">int PK</span>
+                        </div>
+                        <!-- TARGET ANCHOR 4 -->
+                        <div id="erdTargetDocsId" class="px-3 py-1 flex items-center justify-between bg-purple-50 font-bold border-l-4 border-purple-500">
+                          <span class="mono text-purple-800">candidate_id</span>
+                          <span class="mono text-[9px] text-purple-800 bg-purple-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">document_type</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">document_name</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(255)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">file_url</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(500)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matriks Detail Relasi Antar Tabel -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="bi bi-diagram-3 text-blue-600 text-base"></i>
+                  <h6 class="font-bold text-slate-800 text-xs mb-0">Rincian Relasi Kunci Antar Tabel (Foreign Key Integrity)</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle text-xs mb-0">
+                    <thead class="bg-slate-50 text-slate-600 font-bold text-[10px] uppercase">
+                      <tr>
+                        <th>Tabel Induk (Parent)</th>
+                        <th>Kardinalitas</th>
+                        <th>Tabel Anak (Child)</th>
+                        <th>Kunci Penghubung</th>
+                        <th>Aksi Delete / Update</th>
+                        <th>Deskripsi Hubungan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">candidates (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-emerald-700 font-bold">candidate_interviews</code></td>
+                        <td><code>candidate_id ➔ candidates.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 kandidat dapat melalui beberapa jadwal wawancara (Screening, User, MT).</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">candidates (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-amber-700 font-bold">candidate_status_history</code></td>
+                        <td><code>candidate_id ➔ candidates.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 kandidat memiliki riwayat perpindahan tahapan seleksi lengkap dengan audit log.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">candidates (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-blue-700 font-bold">candidate_interviewers</code></td>
+                        <td><code>candidate_id ➔ candidates.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 kandidat dapat ditugaskan ke beberapa pewawancara/evaluator tim HR.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-blue-700 font-bold">candidates (id)</code></td>
+                        <td><span class="badge bg-blue-100 text-blue-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-purple-700 font-bold">candidate_documents</code></td>
+                        <td><code>candidate_id ➔ candidates.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 kandidat memiliki banyak file berkas lamaran (CV/Resume, Portfolio, Sertifikat).</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KAMUS DATA (DATA DICTIONARY)       -->
+            <!-- ========================================== -->
+            <div id="candidateErdTabDictContent" class="erd-tab-panel" style="display: none;">
+              <!-- Toolbar Filter & Search -->
+              <div class="flex flex-col md:flex-row gap-3 items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm mb-4">
+                <div class="relative w-full md:w-80">
+                  <input
+                    id="candidateErdDictSearchInput"
+                    type="text"
+                    placeholder="Cari kolom, tipe data, penjelasan..."
+                    class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <i class="bi bi-search absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                  <select id="candidateErdDictTableFilter" class="form-select text-xs py-2 bg-slate-50 border border-slate-200 rounded-xl shadow-none">
+                    <option value="all">Semua Tabel (5 Tabel / 43 Kolom)</option>
+                    <option value="candidates">candidates (16 Kolom)</option>
+                    <option value="candidate_interviews">candidate_interviews (8 Kolom)</option>
+                    <option value="candidate_status_history">candidate_status_history (7 Kolom)</option>
+                    <option value="candidate_interviewers">candidate_interviewers (6 Kolom)</option>
+                    <option value="candidate_documents">candidate_documents (6 Kolom)</option>
+                  </select>
+                  <span id="candidateErdDictCountBadge" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 whitespace-nowrap">
+                    43 Kolom
+                  </span>
+                </div>
+              </div>
+
+              <!-- Table Data Dictionary -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0 text-xs" id="candidateErdDictTable">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-bold text-[10px]">
+                      <tr>
+                        <th class="py-3 px-4">Tabel</th>
+                        <th class="py-3 px-4">Nama Kolom (Field)</th>
+                        <th class="py-3 px-4">Tipe Data</th>
+                        <th class="py-3 px-4" style="min-width: 220px;">Penjelasan Kolom</th>
+                        <th class="py-3 px-4" style="min-width: 180px;">Contoh Isi Data</th>
+                        <th class="py-3 px-4">Relasi / Arah Panah</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="candidateErdDictTableBody">
+                      <!-- 1. candidates -->
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kode unik identifikasi kandidat (Talent UID)</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CND-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800">➔ Semua Tabel Anak</span></td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">candidate_type</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Jalur lamaran kandidat ('team','mentor','internship')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'team'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">full_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap kandidat sesuai identitas resmi</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Belva Shanna Azzahra"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">nickname</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama panggilan akrab kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Belva"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">email</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Alamat email aktif untuk korespondensi rekrutmen</td>
+                        <td class="px-4 py-2.5 text-slate-700">"belva.shanna@email.com"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">phone_whatsapp</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(20)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nomor WhatsApp aktif untuk koordinasi jadwal interview</td>
+                        <td class="px-4 py-2.5 text-slate-700">"+6281234567890"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">domicile_city</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Kota tempat tinggal/domisili kandidat saat ini</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Yogyakarta"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">campus_university</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama asal universitas / institusi pendidikan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Universitas Gadjah Mada"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">major_study</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Program studi / jurusan kuliah kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Ilmu Komunikasi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">position_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(150)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama posisi atau jabatan yang dilamar</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Marketing Specialist"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">work_mode</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Preferensi mode kerja ('WFO','WFH','Hybrid')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'Hybrid'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">current_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status tahapan aktif rekrutmen</td>
+                        <td class="px-4 py-2.5 text-slate-700">'screening', 'interview'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">avatar_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tautan gambar foto profil kandidat</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://.../belva.webp"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">record_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status keaktifan dokumen ('active','inactive','trash')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'active'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu saat berkas lamaran pertama kali masuk</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 09:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidates">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidates</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-blue-700">updated_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-blue-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu data kandidat terakhir diperbarui</td>
+                        <td class="px-4 py-2.5 text-blue-700 font-semibold">2026-10-04 10:15:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 2. candidate_interviews -->
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik sesi wawancara (Auto Increment)</td>
+                        <td class="px-4 py-2.5 text-slate-700">1, 2, 3</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-emerald-700">candidate_id</span> <span class="badge bg-emerald-100 text-emerald-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kandidat pemilik sesi wawancara ini</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CND-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-emerald-100 text-emerald-800">➔ Merujuk ke candidates.id</span></td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">interview_stage</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Tahap interview ('Screening','User','MT','OJT')</td>
+                        <td class="px-4 py-2.5 text-slate-700">'User Interview'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">schedule_datetime</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">DATETIME</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Jadwal tanggal dan waktu wawancara</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-06 14:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">meeting_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Link ruang panggilan Google Meet / Zoom</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://meet.google.com/..."</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status jadwal ('scheduled','completed',...)</td>
+                        <td class="px-4 py-2.5 text-slate-700">'scheduled'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">interviewer_notes</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TEXT</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Catatan umpan balik dan evaluasi hasil wawancara</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Kandidat percaya diri dan menguasai tools..."</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviews">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700"><code>candidate_interviews</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu pembuatan agenda wawancara</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 10:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 3. candidate_status_history -->
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID log status perpindahan (Auto Increment)</td>
+                        <td class="px-4 py-2.5 text-slate-700">1, 2</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-amber-700">candidate_id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kandidat pemilik riwayat status ini</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CND-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-amber-100 text-amber-800">➔ Merujuk ke candidates.id</span></td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">from_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status awal sebelum dilakukan perubahan</td>
+                        <td class="px-4 py-2.5 text-slate-700">"screening"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">to_status</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Status baru hasil pembaruan tahap</td>
+                        <td class="px-4 py-2.5 text-slate-700">"interview"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">actor_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama administrator / recruiter pengubah status</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Nabila HR Lead"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">notes</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TEXT</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Catatan alasan lolos / gugur / mundur</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Lolos seleksi berkas administrasi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_status_history">
+                        <td class="px-4 py-2.5 font-bold text-amber-700"><code>candidate_status_history</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">created_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan status dieksekusi</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 09:30:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 4. candidate_interviewers -->
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID penugasan pewawancara (Auto Increment)</td>
+                        <td class="px-4 py-2.5 text-slate-700">1, 2</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-blue-700">candidate_id</span> <span class="badge bg-blue-100 text-blue-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kandidat yang dievaluasi</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CND-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-blue-100 text-blue-800">➔ Merujuk ke candidates.id</span></td>
+                      </tr>
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">user_id</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID akun user pewawancara internal</td>
+                        <td class="px-4 py-2.5 text-slate-700">"USR-9921"</td>
+                        <td class="px-4 py-2.5 text-slate-400">➔ Merujuk ke users.id</td>
+                      </tr>
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">interviewer_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap evaluator wawancara</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Dwi Prasetio, M.Psi"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">specialization</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(100)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Bidang keahlian pewawancara</td>
+                        <td class="px-4 py-2.5 text-slate-700">"Psychology & Culture Lead"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_interviewers">
+                        <td class="px-4 py-2.5 font-bold text-blue-700"><code>candidate_interviewers</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">assigned_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu penugasan pewawancara diinput</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 10:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+
+                      <!-- 5. candidate_documents -->
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">id</span> <span class="badge bg-amber-100 text-amber-800 ml-1">PK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">INT(11)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik record berkas (Auto Increment)</td>
+                        <td class="px-4 py-2.5 text-slate-700">1, 2</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-purple-700">candidate_id</span> <span class="badge bg-purple-100 text-purple-800 ml-1">FK</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(50)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">ID kandidat pemilik file lampiran ini</td>
+                        <td class="px-4 py-2.5"><code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">"CND-2026-0042"</code></td>
+                        <td class="px-4 py-2.5"><span class="badge bg-purple-100 text-purple-800">➔ Merujuk ke candidates.id</span></td>
+                      </tr>
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">document_type</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">ENUM</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Jenis berkas ('CV/Resume','Portfolio','Cover Letter',...)</td>
+                        <td class="px-4 py-2.5 text-slate-700">'CV/Resume'</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">document_name</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(255)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama label atau nama file berkas</td>
+                        <td class="px-4 py-2.5 text-slate-700">"CV_Belva_Shanna_2026.pdf"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">file_url</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">VARCHAR(500)</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">URL unduhan berkas dokumen cloud</td>
+                        <td class="px-4 py-2.5 text-slate-700">"https://storage.googleapis.com/.../cv.pdf"</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                      <tr data-table="candidate_documents">
+                        <td class="px-4 py-2.5 font-bold text-purple-700"><code>candidate_documents</code></td>
+                        <td class="px-4 py-2.5"><span class="mono font-bold text-slate-800">uploaded_at</span></td>
+                        <td class="px-4 py-2.5"><code class="text-slate-600">TIMESTAMP</code></td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu saat berkas diunggah</td>
+                        <td class="px-4 py-2.5 text-slate-700">2026-10-04 09:00:00</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SQL DDL SCRIPT                     -->
+            <!-- ========================================== -->
+            <div id="candidateErdTabSqlContent" class="erd-tab-panel" style="display: none;">
+              <div class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm mb-4">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-file-earmark-code text-blue-600 text-lg"></i>
+                  <div>
+                    <h6 class="font-bold text-slate-800 mb-0 text-xs">MySQL DDL Script (Production Ready)</h6>
+                    <p class="text-[11px] text-slate-500 mb-0">Script CREATE TABLE lengkap dengan Foreign Key &amp; ON DELETE CASCADE</p>
+                  </div>
+                </div>
+                <button type="button" id="btnCopyCandidateSqlScript" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-2 shadow-sm">
+                  <i class="bi bi-clipboard"></i>
+                  <span id="btnCopyCandidateSqlText">Salin Script SQL</span>
+                </button>
+              </div>
+
+              <div class="bg-slate-900 rounded-2xl p-4 overflow-x-auto shadow-inner text-slate-200 text-xs font-mono border border-slate-800">
+                <pre class="mb-0"><code id="candidateSqlScriptContent">-- 1. TABEL UTAMA: candidates
+CREATE TABLE IF NOT EXISTS `candidates` (
+  `id` VARCHAR(50) NOT NULL,
+  `candidate_type` ENUM('team', 'mentor', 'internship') NOT NULL DEFAULT 'team',
+  `full_name` VARCHAR(150) NOT NULL,
+  `nickname` VARCHAR(50) NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `phone_whatsapp` VARCHAR(20) NULL,
+  `domicile_city` VARCHAR(100) NULL,
+  `campus_university` VARCHAR(150) NULL,
+  `major_study` VARCHAR(100) NULL,
+  `position_name` VARCHAR(150) NOT NULL,
+  `work_mode` ENUM('WFO', 'WFH', 'Hybrid') NOT NULL DEFAULT 'Hybrid',
+  `current_status` ENUM('screening', 'interview', 'follow_up', 'on_job_test', 'micro_teaching', 'accepted', 'onboarding', 'rejected', 'canceled') NOT NULL DEFAULT 'screening',
+  `avatar_url` VARCHAR(255) NULL,
+  `record_status` ENUM('active', 'inactive', 'trash') NOT NULL DEFAULT 'active',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_candidates_type_status` (`candidate_type`, `current_status`),
+  INDEX `idx_candidates_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. TABEL SESI WAWANCARA: candidate_interviews
+CREATE TABLE IF NOT EXISTS `candidate_interviews` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `candidate_id` VARCHAR(50) NOT NULL,
+  `interview_stage` ENUM('Screening', 'User Interview', 'Micro Teaching', 'OJT Review') NOT NULL DEFAULT 'Screening',
+  `schedule_datetime` DATETIME NOT NULL,
+  `meeting_url` VARCHAR(255) NULL,
+  `status` ENUM('scheduled', 'completed', 'rescheduled', 'canceled') NOT NULL DEFAULT 'scheduled',
+  `interviewer_notes` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_interviews_candidate` (`candidate_id`),
+  INDEX `idx_interviews_schedule` (`schedule_datetime`),
+  CONSTRAINT `fk_interviews_candidate` FOREIGN KEY (`candidate_id`) 
+    REFERENCES `candidates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. TABEL RIWAYAT STATUS: candidate_status_history
+CREATE TABLE IF NOT EXISTS `candidate_status_history` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `candidate_id` VARCHAR(50) NOT NULL,
+  `from_status` VARCHAR(50) NOT NULL,
+  `to_status` VARCHAR(50) NOT NULL,
+  `actor_name` VARCHAR(100) NULL,
+  `notes` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_history_candidate` (`candidate_id`),
+  CONSTRAINT `fk_history_candidate` FOREIGN KEY (`candidate_id`) 
+    REFERENCES `candidates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 4. TABEL PENUGASAN PEWAWANCARA: candidate_interviewers
+CREATE TABLE IF NOT EXISTS `candidate_interviewers` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `candidate_id` VARCHAR(50) NOT NULL,
+  `user_id` VARCHAR(50) NOT NULL,
+  `interviewer_name` VARCHAR(100) NOT NULL,
+  `specialization` VARCHAR(100) NULL,
+  `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_interviewers_candidate` (`candidate_id`),
+  INDEX `idx_interviewers_user` (`user_id`),
+  CONSTRAINT `fk_interviewers_candidate` FOREIGN KEY (`candidate_id`) 
+    REFERENCES `candidates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 5. TABEL BERKAS LAMPIRAN: candidate_documents
+CREATE TABLE IF NOT EXISTS `candidate_documents` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `candidate_id` VARCHAR(50) NOT NULL,
+  `document_type` ENUM('CV/Resume', 'Portfolio', 'Cover Letter', 'Certificate', 'KTP') NOT NULL DEFAULT 'CV/Resume',
+  `document_name` VARCHAR(255) NOT NULL,
+  `file_url` VARCHAR(500) NOT NULL,
+  `uploaded_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_docs_candidate` (`candidate_id`),
+  CONSTRAINT `fk_docs_candidate` FOREIGN KEY (`candidate_id`) 
+    REFERENCES `candidates` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="erd-modal-footer px-6 py-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-shield-check text-emerald-600"></i>
+              <span>Schema integrity: 1 Parent &bull; 4 Child &bull; Cascade Enabled</span>
+            </div>
+            <button type="button" class="btn btn-light rounded-xl px-4 py-2 font-semibold text-slate-700" data-bs-dismiss="modal">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

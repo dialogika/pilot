@@ -506,6 +506,992 @@
       </div>
     </div>
 
+    <!-- =====================================================================
+         MODAL: DATABASE MAPPING & ERD SCHEMA (USERS MANAGEMENT)
+         ===================================================================== -->
+    <div
+      class="modal fade"
+      id="usersManagementErdModal"
+      tabindex="-1"
+      aria-labelledby="usersManagementErdModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable erd-modal-dialog">
+        <div class="modal-content erd-modal-content rounded-3xl border-0 shadow-2xl overflow-hidden">
+          <!-- Header Modal -->
+          <div class="erd-modal-header px-6 py-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="font-bold text-slate-800 text-lg mb-0" id="usersManagementErdModalLabel">Database Mapping &amp; Schema ERD</h5>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider">Relasional</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-0">Struktur relasi tabel direktori user, otorisasi role, kepegawaian, audit log &amp; kamus data Dialogika</p>
+              </div>
+            </div>
+
+            <!-- Tab Segmented Control -->
+            <div class="flex items-center gap-2">
+              <div class="erd-segmented-tabs flex items-center bg-slate-100 p-1 rounded-xl">
+                <button type="button" class="erd-tab-btn active" data-tab="visual" id="tabBtnUsersManagementErdVisual">
+                  <i class="bi bi-diagram-3"></i> Visual ERD
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="dictionary" id="tabBtnUsersManagementErdDict">
+                  <i class="bi bi-table"></i> Kamus Data
+                </button>
+                <button type="button" class="erd-tab-btn" data-tab="sql" id="tabBtnUsersManagementErdSql">
+                  <i class="bi bi-code-slash"></i> SQL DDL
+                </button>
+              </div>
+              <button type="button" class="btn-close shadow-none ml-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Body Modal -->
+          <div class="modal-body erd-modal-body p-6 bg-slate-50">
+            <!-- ========================================== -->
+            <!-- TAB 1: VISUAL ERD CANVAS                  -->
+            <!-- ========================================== -->
+            <div id="usersManagementErdTabVisualContent" class="erd-tab-panel active">
+              <!-- Info Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div class="text-xs text-slate-600">
+                    <span class="font-bold text-slate-800">5 Tabel Normalisasi:</span> 
+                    Tabel induk <code class="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">users</code> berelasi 
+                    <span class="font-semibold text-slate-700">One-to-Many (1 : N)</span> ke 4 tabel anak melalui 
+                    <code class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">user_id</code>.
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <button type="button" id="btnCopyUsersManagementDocsPath" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Salin path docs/USERS-DATABASE-MAPPING.md">
+                    <i class="bi bi-journal-text text-blue-600"></i> docs/USERS-DATABASE-MAPPING.md
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relation Highlight / Filter Pills -->
+              <div class="flex flex-wrap items-center gap-2 mb-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <i class="bi bi-bezier2 text-blue-600 mr-1"></i>Relasi Tabel:
+                </span>
+                <button type="button" class="erd-rel-pill active" data-rel="all">
+                  Semua Relasi (4)
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="roles">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span>
+                  users ➔ user_role_assignments
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="employment">
+                  <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span>
+                  users ➔ user_employment_profiles
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="logs">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span>
+                  users ➔ user_activity_logs
+                </button>
+                <button type="button" class="erd-rel-pill" data-rel="security">
+                  <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span>
+                  users ➔ user_security_settings
+                </button>
+              </div>
+
+              <!-- Interactive ERD Grid with Dynamic SVG Connectors -->
+              <div class="erd-diagram-wrapper relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6" id="usersManagementErdDiagramWrapper">
+                <!-- SVG CONNECTOR OVERLAY (Lines & Arrows) -->
+                <svg id="usersManagementErdConnectorSvg" class="erd-connector-svg absolute inset-0 w-full h-full pointer-events-none" style="z-index: 15; overflow: visible; min-height: 100%;">
+                  <defs>
+                    <!-- Arrowheads -->
+                    <marker id="usersManagementErdArrowEmerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
+                    </marker>
+                    <marker id="usersManagementErdArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="usersManagementErdArrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+                    </marker>
+                    <marker id="usersManagementErdArrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#8b5cf6" />
+                    </marker>
+                    <!-- Start Point Dots -->
+                    <marker id="usersManagementErdDotStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                      <circle cx="5" cy="5" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+                    </marker>
+                  </defs>
+                  <g id="usersManagementErdPathsGroup"></g>
+                </svg>
+
+                <!-- LEFT / CENTER: Parent Table (users) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border-2 border-blue-200 shadow-md overflow-hidden erd-table-card parent-card relative z-10" id="cardUsersManagementUsers">
+                  <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-people-fill text-blue-200 text-sm"></i>
+                      <span class="font-bold text-sm tracking-wide">dialogika.users</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/50 text-white uppercase tracking-wider">
+                      Parent (1)
+                    </span>
+                  </div>
+                  <div class="p-3 text-xs bg-blue-50/40 border-b border-blue-100 text-blue-900 flex items-center justify-between">
+                    <span><i class="bi bi-info-circle mr-1"></i> Data Induk Akun Pengguna &amp; Profil</span>
+                    <span class="font-bold mono text-[11px] text-blue-700">12 Kolom</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 text-xs">
+                    <!-- PRIMARY KEY ORIGIN ANCHOR -->
+                    <div id="erdOriginUsersManagementUsersId" class="px-4 py-2.5 flex items-center justify-between bg-amber-50/40 font-semibold hover:bg-amber-100/50 transition cursor-pointer" title="Primary Key: Kunci utama akun yang dirujuk oleh seluruh modul anak">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-key-fill text-amber-500 text-xs" title="Primary Key"></i>
+                        <span class="mono font-bold text-slate-800">id</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200 text-amber-900">PK (1)</span>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                          <i class="bi bi-arrow-right"></i> Relasi
+                        </span>
+                      </div>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">name</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(150)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">nickname</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">email</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(100) [UQ]</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">phone</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(25)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">role</span>
+                      <span class="mono text-[11px] text-slate-500">enum('owner','admin','team','intern'...)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">position_id</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">department</span>
+                      <span class="mono text-[11px] text-slate-500">varchar(50)</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition">
+                      <span class="mono text-slate-700">status</span>
+                      <span class="mono text-[11px] text-slate-500">enum('Active','Inactive','Pending')</span>
+                    </div>
+                    <div class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 transition bg-blue-50/20">
+                      <span class="mono font-semibold text-blue-700">updated_at</span>
+                      <span class="mono text-[11px] text-blue-600">timestamp (auto-update)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: 4 Child Tables (One-to-Many Relational) -->
+                <div class="lg:col-span-7 flex flex-col gap-5 relative z-10">
+                  <!-- Child 1: user_role_assignments -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardUsersManagementRoles">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-shield-lock-fill text-emerald-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">user_role_assignments</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        1 : N via user_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 1 -->
+                      <div id="erdTargetUsersManagementRolesId" class="px-3.5 py-1.5 flex items-center justify-between bg-emerald-50 font-bold border-l-4 border-emerald-500">
+                        <span class="mono text-emerald-800"><i class="bi bi-link-45deg text-emerald-600 mr-1"></i>user_id</span>
+                        <span class="mono text-[10px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ users.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">role</span>
+                        <span class="mono text-[10px] text-slate-400">enum('owner','admin','team','intern'...)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">assigned_by</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(50) [FK ➔ users.id]</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">assigned_at / is_active</span>
+                        <span class="mono text-[10px] text-slate-400">timestamp / boolean</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">notes</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(255)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 2: user_employment_profiles -->
+                  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardUsersManagementEmployment">
+                    <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i class="bi bi-briefcase-fill text-blue-400 text-xs"></i>
+                        <span class="font-bold text-xs tracking-wide">user_employment_profiles</span>
+                      </div>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        1 : N via user_id
+                      </span>
+                    </div>
+                    <div class="divide-y divide-slate-100 text-xs">
+                      <div class="px-3.5 py-1.5 flex items-center justify-between bg-slate-50/80">
+                        <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                        <span class="mono text-[10px] text-slate-400">int(11) [PK, AI]</span>
+                      </div>
+                      <!-- TARGET ANCHOR 2 -->
+                      <div id="erdTargetUsersManagementEmploymentId" class="px-3.5 py-1.5 flex items-center justify-between bg-blue-50 font-bold border-l-4 border-blue-500">
+                        <span class="mono text-blue-800"><i class="bi bi-link-45deg text-blue-600 mr-1"></i>user_id</span>
+                        <span class="mono text-[10px] text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded shadow-sm">
+                          FK (N) ➔ users.id
+                        </span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">employee_code</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(50) [NIP, UQ]</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">position_title</span>
+                        <span class="mono text-[10px] text-slate-400">varchar(100)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">employment_type</span>
+                        <span class="mono text-[10px] text-slate-400">enum('Full-time','Contract','Intern'...)</span>
+                      </div>
+                      <div class="px-3.5 py-1.5 flex items-center justify-between">
+                        <span class="mono text-slate-600">join_date / end_date</span>
+                        <span class="mono text-[10px] text-slate-400">date / date</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Child 3 & 4 Grid: activity_logs & security_settings -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Child 3: user_activity_logs -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardUsersManagementLogs">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <i class="bi bi-activity text-amber-400 text-xs"></i>
+                          <span class="font-bold text-[11px] tracking-wide">user_activity_logs</span>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-500/20 text-amber-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between bg-slate-50/80">
+                          <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                          <span class="mono text-[9px] text-slate-400">int(11) [PK, AI]</span>
+                        </div>
+                        <!-- TARGET ANCHOR 3 -->
+                        <div id="erdTargetUsersManagementLogsId" class="px-3 py-1 flex items-center justify-between bg-amber-50 font-bold border-l-4 border-amber-500">
+                          <span class="mono text-amber-800"><i class="bi bi-link-45deg text-amber-600 mr-1"></i>user_id</span>
+                          <span class="mono text-[9px] text-amber-800 bg-amber-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">action_type</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">target_resource</span>
+                          <span class="mono text-[9px] text-slate-400">varchar(100)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">ip_address / user_agent</span>
+                          <span class="mono text-[9px] text-slate-400">varchar</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">created_at</span>
+                          <span class="mono text-[9px] text-slate-400">timestamp</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Child 4: user_security_settings -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden erd-table-card child-card" id="cardUsersManagementSecurity">
+                      <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <i class="bi bi-key text-purple-400 text-xs"></i>
+                          <span class="font-bold text-[11px] tracking-wide">user_security_settings</span>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-purple-500/20 text-purple-300">1:N</span>
+                      </div>
+                      <div class="divide-y divide-slate-100 text-xs">
+                        <div class="px-3 py-1 flex items-center justify-between bg-slate-50/80">
+                          <span class="mono font-semibold text-slate-700"><i class="bi bi-key-fill text-amber-500 mr-1"></i>id</span>
+                          <span class="mono text-[9px] text-slate-400">int(11) [PK, AI]</span>
+                        </div>
+                        <!-- TARGET ANCHOR 4 -->
+                        <div id="erdTargetUsersManagementSecurityId" class="px-3 py-1 flex items-center justify-between bg-purple-50 font-bold border-l-4 border-purple-500">
+                          <span class="mono text-purple-800"><i class="bi bi-link-45deg text-purple-600 mr-1"></i>user_id</span>
+                          <span class="mono text-[9px] text-purple-800 bg-purple-100 px-1 rounded">FK (N)</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">auth_provider</span>
+                          <span class="mono text-[9px] text-slate-400">enum</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">email_verified</span>
+                          <span class="mono text-[9px] text-slate-400">boolean</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">two_factor_enabled</span>
+                          <span class="mono text-[9px] text-slate-400">boolean</span>
+                        </div>
+                        <div class="px-3 py-1 flex items-center justify-between">
+                          <span class="mono text-slate-600">last_login_at</span>
+                          <span class="mono text-[9px] text-slate-400">timestamp</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matriks Detail Relasi Antar Tabel -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <i class="bi bi-diagram-3 text-indigo-600 text-base"></i>
+                  <h6 class="font-bold text-slate-800 text-xs mb-0">Rincian Relasi Kunci Antar Tabel (Foreign Key Integrity)</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle text-xs mb-0">
+                    <thead class="bg-slate-50 text-slate-600 font-bold text-[10px] uppercase">
+                      <tr>
+                        <th>Tabel Induk (Parent)</th>
+                        <th>Kardinalitas</th>
+                        <th>Tabel Anak (Child)</th>
+                        <th>Kunci Penghubung</th>
+                        <th>Aksi Delete / Update</th>
+                        <th>Deskripsi Hubungan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-emerald-700 font-bold">user_role_assignments</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 akun memiliki riwayat penugasan hak akses dan sinkronisasi role.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-blue-700 font-bold">user_employment_profiles</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 akun terhubung ke data kepegawaian, jabatan, dan masa kontrak.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-amber-700 font-bold">user_activity_logs</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 akun memiliki jejak audit log aktivitas dan aksi sistem.</td>
+                      </tr>
+                      <tr>
+                        <td><code class="text-indigo-700 font-bold">users (id)</code></td>
+                        <td><span class="badge bg-indigo-100 text-indigo-700">1 : N (One to Many)</span></td>
+                        <td><code class="text-purple-700 font-bold">user_security_settings</code></td>
+                        <td><code>user_id ➔ users.id</code></td>
+                        <td><span class="badge bg-emerald-100 text-emerald-800">CASCADE</span></td>
+                        <td class="text-slate-600">1 akun memiliki konfigurasi kredensial keamanan dan autentikasi.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KAMUS DATA (DATA DICTIONARY)       -->
+            <!-- ========================================== -->
+            <div id="usersManagementErdTabDictContent" class="erd-tab-panel" style="display: none;">
+              <!-- Search & Filter Controls -->
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                <div class="relative w-full sm:w-80">
+                  <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                  <input
+                    type="text"
+                    id="usersManagementErdDictSearchInput"
+                    placeholder="Cari kolom atau tipe data..."
+                    class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                  <select
+                    id="usersManagementErdDictTableFilter"
+                    class="w-full sm:w-auto px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                  >
+                    <option value="all">Semua Tabel (5 Tabel)</option>
+                    <option value="users">dialogika.users (Parent)</option>
+                    <option value="user_role_assignments">user_role_assignments (Hak Akses)</option>
+                    <option value="user_employment_profiles">user_employment_profiles (Kepegawaian)</option>
+                    <option value="user_activity_logs">user_activity_logs (Audit Trail)</option>
+                    <option value="user_security_settings">user_security_settings (Keamanan)</option>
+                  </select>
+                  <span id="usersManagementErdDictCountBadge" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 shrink-0">
+                    43 Kolom
+                  </span>
+                </div>
+              </div>
+
+              <!-- Dictionary Table Container -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="max-h-[500px] overflow-y-auto">
+                  <table class="w-full text-left text-xs border-collapse erd-dict-table" id="usersManagementErdDictTable">
+                    <thead class="sticky top-0 z-10 border-b border-slate-200 shadow-sm bg-slate-50">
+                      <tr>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Tabel</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Nama Kolom</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Tipe Data</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Kunci / Atribut</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Nullable</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Default</th>
+                        <th class="px-4 py-3 text-slate-600 font-bold">Deskripsi Bisnis</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="usersManagementErdDictTableBody">
+                      <!-- 1. users -->
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">UID unik Firebase Auth / ID akun personil</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">name</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(150)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama lengkap resmi pengguna</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">nickname</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama panggilan / username akun</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">email</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(100)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">UNIQUE</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Email resmi akun untuk login dan notifikasi</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">phone</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(25)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nomor kontak WhatsApp / telepon aktif</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">role</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('owner','admin'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'member'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Role otorisasi internal sistem</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">position_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kunci rujukan ID jabatan pada tabel positions</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">department</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Unit divisi atau departemen kerja</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">photo_url</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(255)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Alamat URL foto profil avatar pengguna</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">status</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('Active','Inactive'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'Active'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status operasional keaktifan akun pengguna</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">created_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu pertama kali akun didaftarkan</td>
+                      </tr>
+                      <tr data-table="users" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">users</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">updated_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan profil terakhir (auto-update)</td>
+                      </tr>
+
+                      <!-- 2. user_role_assignments -->
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik riwayat penugasan hak akses</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-emerald-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kunci relasi merujuk ke users.id (CASCADE)</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">role</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('owner','admin'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'member'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tingkat hak akses peran yang diberikan</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">assigned_by</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">FK</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">ID akun admin/HR yang memberikan wewenang</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">assigned_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan hak akses berlaku</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">is_active</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">boolean</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">TRUE</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status aktif hak akses penugasan</td>
+                      </tr>
+                      <tr data-table="user_role_assignments" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-emerald-700">user_role_assignments</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">notes</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(255)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Catatan kenaikan tingkat, promosi, atau mutasi</td>
+                      </tr>
+
+                      <!-- 3. user_employment_profiles -->
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik profil kepegawaian personil</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-blue-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">FK (N), UQ</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kunci relasi merujuk ke users.id (CASCADE)</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">employee_code</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">UNIQUE</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nomor Induk Pegawai / Kode Personil resmi</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">position_title</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(100)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Nama jabatan posisi kerja resmi</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">employment_type</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('Full-time'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'Full-time'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status kontrak kerja (Full-time, Intern, dll)</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">join_date</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">date</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal resmi mulai aktif bekerja</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">end_date</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">date</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Tanggal berakhir masa kontrak kerja</td>
+                      </tr>
+                      <tr data-table="user_employment_profiles" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-blue-700">user_employment_profiles</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">updated_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu perubahan data kepegawaian terakhir</td>
+                      </tr>
+
+                      <!-- 4. user_activity_logs -->
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik log jejak audit sistem</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-amber-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">FK (N)</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kunci relasi merujuk ke users.id (CASCADE)</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">action_type</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('login','create_user'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kategori tindakan yang dilakukan</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">target_resource</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(100)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Entitas target data yang terdampak</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">ip_address</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(45)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Alamat IP perangkat saat aksi dieksekusi</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">user_agent</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(255)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Informasi browser dan perangkat klien</td>
+                      </tr>
+                      <tr data-table="user_activity_logs" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-amber-700">user_activity_logs</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">created_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">CURRENT_TIMESTAMP</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu audit terekam otomatis</td>
+                      </tr>
+
+                      <!-- 5. user_security_settings -->
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">PK, AI</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">AUTO</td>
+                        <td class="px-4 py-2.5 text-slate-600">ID unik setelan kredensial keamanan akun</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-purple-800">user_id</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">varchar(50)</td>
+                        <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">FK (N), UQ</span></td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-600">Kunci relasi merujuk ke users.id (CASCADE)</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">auth_provider</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">enum('password','google'...)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">'password'</td>
+                        <td class="px-4 py-2.5 text-slate-600">Metode penyedia autentikasi masuk</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">email_verified</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">boolean</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">FALSE</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status verifikasi email akun pengguna</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">two_factor_enabled</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">boolean</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">FALSE</td>
+                        <td class="px-4 py-2.5 text-slate-600">Status perlindungan autentikasi dua faktor (2FA)</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">last_password_change</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu penggantian kata sandi terakhir kali</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">last_login_at</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">timestamp</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">Yes</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">NULL</td>
+                        <td class="px-4 py-2.5 text-slate-600">Waktu sesi login terakhir pengguna</td>
+                      </tr>
+                      <tr data-table="user_security_settings" class="hover:bg-slate-50/70 transition">
+                        <td class="px-4 py-2.5 font-bold text-purple-700">user_security_settings</td>
+                        <td class="px-4 py-2.5 mono font-semibold text-slate-800">failed_login_attempts</td>
+                        <td class="px-4 py-2.5 mono text-slate-500">int(11)</td>
+                        <td class="px-4 py-2.5 text-slate-400">-</td>
+                        <td class="px-4 py-2.5 text-slate-500">No</td>
+                        <td class="px-4 py-2.5 mono text-slate-400">0</td>
+                        <td class="px-4 py-2.5 text-slate-600">Penghitung kegagalan login untuk mitigasi brute-force</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SQL DDL                            -->
+            <!-- ========================================== -->
+            <div id="usersManagementErdTabSqlContent" class="erd-tab-panel" style="display: none;">
+              <div class="flex items-center justify-between gap-3 bg-slate-900 text-slate-200 px-5 py-3 rounded-t-2xl border-b border-slate-800">
+                <div class="flex items-center gap-2 text-xs">
+                  <i class="bi bi-filetype-sql text-blue-400 text-base"></i>
+                  <span class="font-bold text-white">schema-users-management.sql</span>
+                  <span class="text-slate-400 text-[11px]">(MySQL 8.0+ / MariaDB / PostgreSQL Ready)</span>
+                </div>
+                <button
+                  type="button"
+                  id="btnCopyUsersManagementSqlScript"
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <i class="bi bi-clipboard"></i>
+                  <span id="btnCopyUsersManagementSqlText">Salin Script SQL</span>
+                </button>
+              </div>
+              <div class="bg-slate-950 p-4 rounded-b-2xl overflow-x-auto max-h-[520px] text-xs font-mono border border-slate-900 text-emerald-400">
+                <pre id="usersManagementSqlScriptContent" class="mb-0 leading-relaxed"><code>-- =====================================================================
+-- DIALOGIKA PILOT: USERS MANAGEMENT SCHEMA DDL
+-- 5 Normalisasi Tabel Relasional (3NF) - Engine: InnoDB (MySQL/MariaDB)
+-- =====================================================================
+
+-- 1. TABEL INDUK: users
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` VARCHAR(50) NOT NULL COMMENT 'UID Karyawan / Auth UID',
+  `name` VARCHAR(150) NOT NULL COMMENT 'Nama Lengkap Resmi',
+  `nickname` VARCHAR(50) DEFAULT NULL COMMENT 'Nama Panggilan / Username',
+  `email` VARCHAR(100) NOT NULL COMMENT 'Email Resmi Akun',
+  `phone` VARCHAR(25) DEFAULT NULL COMMENT 'Nomor WhatsApp / Telepon',
+  `role` ENUM('owner', 'admin', 'team', 'staff', 'intern', 'mentor', 'member') NOT NULL DEFAULT 'member' COMMENT 'Role Otorisasi Sistem',
+  `position_id` VARCHAR(50) DEFAULT NULL COMMENT 'ID Jabatan / Relasi ke positions',
+  `department` VARCHAR(50) DEFAULT NULL COMMENT 'Divisi / Departemen Kerja',
+  `photo_url` VARCHAR(255) DEFAULT NULL COMMENT 'Avatar Profil Pengguna',
+  `status` ENUM('Active', 'Inactive', 'Pending') NOT NULL DEFAULT 'Active' COMMENT 'Status Keaktifan Akun',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_users_email` (`email`),
+  KEY `idx_users_role` (`role`),
+  KEY `idx_users_status` (`status`),
+  KEY `idx_users_department` (`department`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Data Induk Pengguna Seluruh Organisasi Dialogika';
+
+-- 2. TABEL RIWAYAT ROLE & AKSES: user_role_assignments
+CREATE TABLE IF NOT EXISTS `user_role_assignments` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `role` ENUM('owner', 'admin', 'team', 'staff', 'intern', 'mentor', 'member') NOT NULL DEFAULT 'member',
+  `assigned_by` VARCHAR(50) DEFAULT NULL COMMENT 'Admin/HR yang menetapkan role',
+  `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `notes` VARCHAR(255) DEFAULT NULL COMMENT 'Catatan Promosi / Mutasi',
+  PRIMARY KEY (`id`),
+  KEY `idx_roles_user_id` (`user_id`),
+  KEY `idx_roles_assigned_by` (`assigned_by`),
+  CONSTRAINT `fk_role_assignments_user` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_role_assignments_assigner` FOREIGN KEY (`assigned_by`) 
+    REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Riwayat Penugasan Role & Hak Akses Pengguna';
+
+-- 3. TABEL DETAIL KEPEGAWAIAN: user_employment_profiles
+CREATE TABLE IF NOT EXISTS `user_employment_profiles` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `employee_code` VARCHAR(50) DEFAULT NULL COMMENT 'Nomor Induk Pegawai / NIP',
+  `position_title` VARCHAR(100) NOT NULL COMMENT 'Nama Jabatan Resmi',
+  `employment_type` ENUM('Full-time', 'Part-time', 'Contract', 'Internship', 'Probation') NOT NULL DEFAULT 'Full-time',
+  `join_date` DATE NOT NULL COMMENT 'Tanggal Mulai Bergabung',
+  `end_date` DATE DEFAULT NULL COMMENT 'Tanggal Akhir Kontrak',
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_employment_user_id` (`user_id`),
+  UNIQUE KEY `uq_employment_code` (`employee_code`),
+  CONSTRAINT `fk_employment_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Detail Profil Kepegawaian & Kontrak Kerja';
+
+-- 4. TABEL AUDIT LOG AKTIVITAS: user_activity_logs
+CREATE TABLE IF NOT EXISTS `user_activity_logs` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id yang bertindak',
+  `action_type` ENUM('login', 'create_user', 'update_user', 'delete_user', 'export_data', 'password_reset') NOT NULL,
+  `target_resource` VARCHAR(100) DEFAULT NULL COMMENT 'Target data / dokumen terdampak',
+  `ip_address` VARCHAR(45) DEFAULT NULL,
+  `user_agent` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_activity_user_id` (`user_id`),
+  KEY `idx_activity_action` (`action_type`),
+  KEY `idx_activity_created` (`created_at`),
+  CONSTRAINT `fk_activity_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Jejak Audit Aktivitas Pengguna pada Sistem';
+
+-- 5. TABEL PENGATURAN KEAMANAN: user_security_settings
+CREATE TABLE IF NOT EXISTS `user_security_settings` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` VARCHAR(50) NOT NULL COMMENT 'Relasi ke users.id',
+  `auth_provider` ENUM('password', 'google', 'github', 'custom') NOT NULL DEFAULT 'password',
+  `email_verified` BOOLEAN NOT NULL DEFAULT FALSE,
+  `two_factor_enabled` BOOLEAN NOT NULL DEFAULT FALSE,
+  `last_password_change` TIMESTAMP NULL DEFAULT NULL,
+  `last_login_at` TIMESTAMP NULL DEFAULT NULL,
+  `failed_login_attempts` INT(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_security_user_id` (`user_id`),
+  CONSTRAINT `fk_security_users` FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pengaturan Kredensial Autentikasi & Keamanan Akun';</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="erd-modal-footer px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
+            <div class="text-[11px] text-slate-500 flex items-center gap-2">
+              <i class="bi bi-shield-check text-emerald-600"></i>
+              <span>Schema Integrity: <strong>1 Parent - 4 Child - Cascade Enabled</strong></span>
+            </div>
+            <button type="button" class="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition" data-bs-dismiss="modal">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- SweetAlert2 + Bootstrap JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

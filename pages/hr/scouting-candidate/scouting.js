@@ -782,6 +782,8 @@ async function init() {
     // 3. Mount Shell Topbar & Sidebar
     renderTopbar({ user, role: role || "member" });
     renderSidebar({ role: role || "member", activePage: "scouting-candidate" });
+    ScoutingUI.mountSidebarScoutingErdButton();
+    ScoutingUI.initScoutingErdModalControls();
 
     // 4. Load Auxiliary Lookups
     const [assignUsers, roles, positions] = await Promise.all([

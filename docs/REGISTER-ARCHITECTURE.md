@@ -14,7 +14,7 @@
 Registration lets a prospective team member submit an application that lands in the
 admin approval queue:
 
-- capture name, position, email, password, photo, birth date, phone, Instagram,
+- capture name, role (Staff vs Intern), position, email, password, photo, birth date, phone, Instagram,
   LinkedIn;
 - live 3D **member card preview** (front/back) that mirrors the inputs;
 - create a **Firebase Auth** account (`email/password`);
@@ -116,12 +116,16 @@ show success  →  redirect /index.html
 {
   name: string,
   email: string,
+  role: "staff" | "intern",
+  role_id: "staff" | "intern",
+  category: "staff" | "intern",
+  internshipStatus?: "Active", // included when role is intern
   birth: string,        // YYYY-MM-DD
   phone: string,
   photo: string,        // download URL ("" if no file)
   employment: { position: string, department: "", joined_at: Date },
   socials: { instagram: string, linkedin: string },
-  access: { role_id: "staff", level_order: 3 },
+  access: { role_id: "staff" | "intern", level_order: 3 | 4 },
   is_approved: false,
   registered_at: Date
 }

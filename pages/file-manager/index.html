@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/webp" href="/assets/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.webp" />
+    <title>File Manager - Team Dialogika</title>
+
+    <!-- Bootstrap 5.3 + Icons + SweetAlert2 + Poppins (CDN) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Dialogika Foundation Styles -->
+    <link href="/assets/css/theme.css" rel="stylesheet" />
+    <link href="/assets/css/layout.css" rel="stylesheet" />
+    <link href="/assets/js/components/quest-modal/quest-modal.css" rel="stylesheet" />
+    <link href="/assets/js/components/report-modal/report-modal.css" rel="stylesheet" />
+
+    <!-- Feature-specific styles -->
+    <link href="/pages/file-manager/file-manager.css" rel="stylesheet" />
+
+    <!-- Shared theme manager -->
+    <script src="/assets/js/theme.js" defer></script>
+  </head>
+
+  <body>
+    <!-- Shared shell mounts (renderTopbar / renderSidebar) -->
+    <div id="dg-topbar-mount"></div>
+    <div id="dg-sidebar-mount"></div>
+
+    <main class="dg-main">
+      <div class="fm-wrap">
+        <!-- 1. Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h4 class="fw-bold mb-1 fm-header-title">
+              <i class="bi bi-folder2-open text-primary me-2"></i>File Manager
+            </h4>
+            <small class="fm-header-desc">
+              Penyimpanan berkas dan arsip bersama tim terintegrasi Google Drive Dialogika.
+            </small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              id="fmBtnOpenConfig"
+              class="btn btn-light border rounded-pill px-3 shadow-sm"
+              title="Pengaturan Google Drive"
+            >
+              <i class="bi bi-gear me-1"></i> Konfigurasi Drive
+            </button>
+            <button
+              type="button"
+              id="fmBtnNewFolder"
+              class="btn btn-light border rounded-pill px-3 shadow-sm"
+            >
+              <i class="bi bi-folder-plus me-1 text-warning"></i> Folder Baru
+            </button>
+            <button
+              type="button"
+              id="fmBtnUpload"
+              class="btn btn-dlg-blue rounded-pill px-4 shadow-sm"
+            >
+              <i class="bi bi-cloud-arrow-up me-1"></i> Upload File
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Connection Status Banner -->
+        <div class="fm-connection-banner">
+          <div class="d-flex align-items-center">
+            <span id="fmStatusDot" class="fm-status-dot disconnected"></span>
+            <div>
+              <div id="fmStatusText" class="fm-connection-text">Memeriksa Koneksi Google Drive...</div>
+              <small id="fmStatusSubText" class="text-muted"></small>
+            </div>
+          </div>
+          <div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+              <i class="bi bi-shield-check me-1"></i> Shared Storage Perusahaan
+            </span>
+          </div>
+        </div>
+
+        <!-- 3. Toolbar (Search, Filter, View Mode) -->
+        <div class="fm-toolbar">
+          <div class="fm-search-wrap">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              id="fmSearchInput"
+              class="form-control rounded-pill fm-search-input"
+              placeholder="Cari file atau folder..."
+            />
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <select id="fmSortSelect" class="form-select rounded-pill" style="width: 170px; font-size: 0.875rem;">
+              <option value="name">Urut: Nama (A-Z)</option>
+              <option value="newest">Urut: Terkini</option>
+              <option value="size">Urut: Ukuran File</option>
+            </select>
+
+            <div class="btn-group border rounded-pill p-1 bg-light">
+              <button
+                type="button"
+                id="fmBtnViewGrid"
+                class="btn btn-sm btn-light rounded-pill active px-3"
+                title="Tampilan Grid"
+              >
+                <i class="bi bi-grid-fill"></i>
+              </button>
+              <button
+                type="button"
+                id="fmBtnViewList"
+                class="btn btn-sm btn-light rounded-pill px-3"
+                title="Tampilan List"
+              >
+                <i class="bi bi-list-ul"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Breadcrumb Navigation -->
+        <div class="fm-breadcrumb-bar" id="fmBreadcrumbContainer">
+          <!-- Diisi dinamis oleh file-manager.ui.js -->
+        </div>
+
+        <!-- 5. Loading State -->
+        <div id="fmLoadingState" class="fm-state-box my-4" style="display: none;">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <div class="fm-state-title">Memuat Berkas Google Drive...</div>
+          <div class="fm-state-desc">Menyinkronkan isi folder dari cloud storage Dialogika.</div>
+        </div>
+
+        <!-- 6. Error State -->
+        <div id="fmErrorState" class="fm-state-box my-4" style="display: none;">
+          <i class="bi bi-exclamation-triangle fm-state-icon text-danger"></i>
+          <div class="fm-state-title text-danger">Gagal Memuat Berkas</div>
+          <div id="fmErrorMessage" class="fm-state-desc mb-3">Terjadi kendala saat menghubungi server Google Drive.</div>
+          <button id="fmRetryBtn" class="btn btn-dlg-blue rounded-pill px-4">
+            <i class="bi bi-arrow-clockwise me-1"></i> Coba Lagi
+          </button>
+        </div>
+
+        <!-- 7. Main Content Area -->
+        <div id="fmContentArea">
+          <!-- Folders Section -->
+          <div id="fmFoldersSection" class="mb-4">
+            <div class="fm-section-title">
+              <i class="bi bi-folder me-1 text-warning"></i>
+              <span>Folder</span>
+              <span id="fmFoldersBadge" class="fm-section-badge">0</span>
+            </div>
+            <div class="row g-3" id="fmFoldersGrid">
+              <!-- Diisi dinamis oleh file-manager.ui.js -->
+            </div>
+          </div>
+
+          <!-- Files Section -->
+          <div id="fmFilesSection" class="mb-4">
+            <div class="fm-section-title">
+              <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+              <span>Berkas / File</span>
+              <span id="fmFilesBadge" class="fm-section-badge">0</span>
+            </div>
+            <div class="row g-3" id="fmFilesGrid">
+              <!-- Diisi dinamis (Grid View) -->
+            </div>
+            <div id="fmFilesList" style="display: none;">
+              <!-- Diisi dinamis (List View) -->
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="fmEmptyState" class="fm-state-box my-4" style="display: none;">
+            <i class="bi bi-folder2-open fm-state-icon"></i>
+            <div class="fm-state-title">Folder Ini Masih Kosong</div>
+            <div class="fm-state-desc mb-3">Belum ada berkas atau sub-folder yang diunggah ke folder Google Drive ini.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- =================================================================== -->
+    <!-- MODALS                                                              -->
+    <!-- =================================================================== -->
+
+    <!-- Modal 1: Upload File -->
+    <div class="modal fade" id="fmUploadModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-cloud-arrow-up text-primary me-2"></i>Upload File ke Google Drive
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="fmUploadForm">
+            <div class="modal-body p-4">
+              <div class="fm-dropzone" id="fmDropzone">
+                <i class="bi bi-cloud-arrow-up-fill"></i>
+                <h6 class="fw-bold mb-1">Pilih atau Drag & Drop Berkas di Sini</h6>
+                <small class="text-muted d-block mb-3">Mendukung Dokumen, Gambar, PDF, Spreadsheet, Zip, dll.</small>
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-3">
+                  Pilih File dari Komputer
+                </button>
+              </div>
+              <input type="file" id="fmFileInput" class="d-none" />
+              <div id="fmSelectedFileName" class="mt-2 small text-primary fw-semibold"></div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+                Batal
+              </button>
+              <button type="submit" id="fmBtnSubmitUpload" class="btn btn-dlg-blue rounded-pill px-4">
+                Unggah Sekarang
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Buat Folder Baru -->
+    <div class="modal fade" id="fmNewFolderModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-folder-plus text-warning me-2"></i>Buat Folder Baru
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="fmNewFolderForm">
+            <div class="modal-body p-4">
+              <label for="newFolderNameInput" class="form-label small fw-semibold">Nama Folder</label>
+              <input
+                type="text"
+                class="form-control rounded-3"
+                id="newFolderNameInput"
+                placeholder="Contoh: Dokumen Kelas Batch 10"
+                required
+              />
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+                Batal
+              </button>
+              <button type="submit" id="fmBtnSubmitNewFolder" class="btn btn-dlg-blue rounded-pill px-4">
+                Buat Folder
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Konfigurasi Drive & Web App Connector -->
+    <div class="modal fade" id="fmConfigModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-gear-fill text-primary me-2"></i>Pengaturan Integrasi Google Drive
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="fmConfigForm">
+            <div class="modal-body p-4">
+              <div class="alert alert-info border-0 rounded-3 mb-3 small">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                <strong>Skenario A (Shared Drive Perusahaan):</strong>
+                Deploy skrip dari <code>pilot/backend/appscript-drive-connector.js</code> di akun Google Dialogika, lalu tempel URL Web App di bawah ini. Akun yang mendeploy skrip akan otomatis menjadi akun penyimpanan bersama.
+              </div>
+
+              <div class="mb-3">
+                <label for="cfgScriptUrl" class="form-label small fw-semibold">
+                  Google Apps Script Web App URL
+                </label>
+                <input
+                  type="url"
+                  class="form-control rounded-3"
+                  id="cfgScriptUrl"
+                  placeholder="https://script.google.com/macros/s/.../exec"
+                />
+                <small class="text-muted">Didapatkan dari Google Apps Script setelah klik Deploy as Web App.</small>
+              </div>
+
+              <div class="mb-3">
+                <label for="cfgFolderId" class="form-label small fw-semibold">
+                  Root Folder ID (Google Drive)
+                </label>
+                <input
+                  type="text"
+                  class="form-control rounded-3"
+                  id="cfgFolderId"
+                  placeholder="1UBAZEr-n3evqA3Npvj7Kl7qvnt-gWLgE"
+                />
+                <small class="text-muted">Kode ID folder utama yang ingin ditampilkan di File Manager.</small>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 mt-2">
+                <button type="button" id="fmBtnTestConnection" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                  <i class="bi bi-arrow-repeat me-1"></i> Tes Koneksi
+                </button>
+              </div>
+              <div id="fmTestResultBox"></div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+                Tutup
+              </button>
+              <button type="submit" id="fmBtnSaveConfig" class="btn btn-dlg-blue rounded-pill px-4">
+                Simpan Konfigurasi
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Preview File -->
+    <div class="modal fade" id="fmPreviewModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="fmPreviewModalTitle">
+              Detail Berkas
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-2" id="fmPreviewModalBody">
+            <!-- Diisi dinamis -->
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light rounded-pill px-4 border" data-bs-dismiss="modal">
+              Tutup
+            </button>
+            <a href="#" id="fmPreviewOpenLink" target="_blank" class="btn btn-dlg-blue rounded-pill px-4">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Buka Asli di Drive
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CDN Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- File Manager Orchestrator Module -->
+    <script type="module" src="/pages/file-manager/file-manager.js"></script>
+  </body>
+</html>
+

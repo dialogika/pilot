@@ -70,37 +70,81 @@ function toDate(value) {
 /**
  * Check if a Firestore users document represents an intern across
  * legacy and current role representations.
+ * Prioritizes modern access hierarchy (level_order <= 3 and official staff/team roles)
+ * over residual legacy fields (e.g. past internshipStatus on promoted staff).
  * @param {Object} data
  * @returns {boolean}
  */
 function isInternUser(data) {
   if (!data) return false;
-  const role = String(data.role || "").toLowerCase().trim();
-  const roleId = String(data.role_id || "").toLowerCase().trim();
-  const accessRole = String((data.access && (data.access.role_id || data.access.role)) || "").toLowerCase().trim();
-  const employmentRole = String((data.employment && (data.employment.role || data.employment.role_id)) || "").toLowerCase().trim();
+  const access = data.access || {};
+  const employment = data.employment || {};
 
-  // Match if any role field indicates internship/intern
+  // 1. Primary Authoritative Override: Level Order & Official Staff/Management Roles
+  const rawLevel = access.level_order !== undefined ? access.level_order : data.level_order;
+  const levelOrder =
+    rawLevel !== undefined && rawLevel !== null && rawLevel !== ""
+      ? Number(rawLevel)
+      : NaN;
+
+  const roleId = String(access.role_id || data.role_id || "").toLowerCase().trim();
+  const rootRole = String(data.role || "").toLowerCase().trim();
+  const accessRole = String(access.role || "").toLowerCase().trim();
+
+  const STAFF_ROLES = [
+    "staff",
+    "team",
+    "sub_team",
+    "management",
+    "admin",
+    "owner",
+    "mentor",
+  ];
+
   if (
-    role === "internship" ||
-    role === "intern" ||
-    roleId === "internship" ||
+    (!isNaN(levelOrder) && levelOrder > 0 && levelOrder <= 3) ||
+    STAFF_ROLES.includes(roleId) ||
+    STAFF_ROLES.includes(accessRole) ||
+    rootRole === "staff" ||
+    rootRole === "team"
+  ) {
+    return false;
+  }
+
+  // 2. Explicit Intern Level Order or Role
+  if (
+    levelOrder === 4 ||
     roleId === "intern" ||
-    accessRole === "internship" ||
+    roleId === "internship" ||
+    roleId === "magang" ||
     accessRole === "intern" ||
-    employmentRole === "internship" ||
-    employmentRole === "intern"
+    accessRole === "internship" ||
+    rootRole === "intern" ||
+    rootRole === "internship"
   ) {
     return true;
   }
 
-  // Match if document contains internship-specific properties
+  // 3. Legacy Fallback (older documents lacking access hierarchy)
+  const employmentRole = String(
+    (employment && (employment.role || employment.role_id)) || ""
+  )
+    .toLowerCase()
+    .trim();
+
+  if (employmentRole === "internship" || employmentRole === "intern") {
+    return true;
+  }
+
   if (
     Boolean(data.internshipStatus) ||
     Boolean(data.internshipStartDate) ||
     Boolean(data.internshipEndDate) ||
     Boolean(data.internship && (data.internship.startDate || data.internship.endDate)) ||
-    Boolean(data.employment && (data.employment.department === "internship" || data.employment.role === "intern"))
+    Boolean(
+      employment &&
+        (employment.department === "internship" || employment.role === "intern")
+    )
   ) {
     return true;
   }

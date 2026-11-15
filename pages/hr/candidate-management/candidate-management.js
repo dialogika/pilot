@@ -1077,6 +1077,8 @@ async function init() {
     // Mount Shell Topbar & Sidebar
     renderTopbar({ user, role: role || "member" });
     renderSidebar({ role: role || "member", activePage: "candidate-management" });
+    CandidateUI.mountSidebarCandidateErdButton();
+    CandidateUI.initCandidateErdModalControls();
 
     CandidateUI.refreshTooltips();
 
