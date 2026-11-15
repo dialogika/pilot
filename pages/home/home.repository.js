@@ -233,12 +233,34 @@ function extractUserIdentifiers(raw) {
   return list;
 }
 
+function extractDepartmentNames(data) {
+  const list = [];
+  if (data.department) {
+    if (typeof data.department === "string") list.push(data.department);
+    else if (typeof data.department === "object" && data.department.name) list.push(data.department.name);
+  }
+  if (Array.isArray(data.departments)) {
+    data.departments.forEach((d) => {
+      if (!d) return;
+      if (typeof d === "string") list.push(d);
+      else if (typeof d === "object") list.push(d.name || d.id || d.label || "");
+    });
+  }
+  if (data.internship_department) list.push(data.internship_department);
+  if (data.team_department) list.push(data.team_department);
+  return list.map((s) => String(s).toLowerCase().trim()).filter(Boolean);
+}
+
 /**
- * Check if a daily report document is targeted to the current user for approval review (report_to).
+ * Check if a daily report document is targeted to the current user for approval review (report_to or department head).
  */
-function isReportTargetedToUser(data, myAliases, userRole, userDept) {
+function isReportTargetedToUser(data, myAliases, userRole, userDept, userPos = "") {
   if (!myAliases || !myAliases.length) return false;
   const myAliasSet = new Set(myAliases.map((a) => String(a).toLowerCase().trim()));
+  const roleNorm = String(userRole || "").toLowerCase().trim();
+  const posList = (Array.isArray(userPos) ? userPos : [userPos])
+    .filter(Boolean)
+    .map((p) => String(p).toLowerCase().trim());
 
   // Extract all report_to identifiers from root doc and its tasks
   const reportList = extractUserIdentifiers(data.report_to || data.reportTo);
@@ -252,11 +274,57 @@ function isReportTargetedToUser(data, myAliases, userRole, userDept) {
 
   const reportSet = new Set(reportList.map((x) => String(x).toLowerCase().trim()).filter(Boolean));
 
+  // 1. If explicit report_to target is specified
   if (reportSet.size > 0) {
     for (const u of reportSet) {
       if (myAliasSet.has(u)) return true;
     }
+    // Admin / Owner can oversee all reports
+    if (roleNorm === "admin" || roleNorm === "owner") return true;
     return false;
+  }
+
+  // 2. Fallback for reports without explicit report_to (e.g. from daily-report.html):
+  // Prevent user from reviewing their own report
+  const authorId = String(data.user_id || data.userId || data.author_id || "").toLowerCase().trim();
+  const authorName = String(data.name || data.author_name || "").toLowerCase().trim();
+  const isSelf = (authorId && myAliasSet.has(authorId)) || (authorName && myAliasSet.has(authorName));
+  if (isSelf && roleNorm !== "admin" && roleNorm !== "owner") {
+    return false;
+  }
+
+  // Check department match
+  const myDept = String(userDept || "").toLowerCase().trim();
+  const reportDepts = extractDepartmentNames(data);
+  const isDeptMatch = Boolean(myDept && reportDepts.includes(myDept));
+
+  if (isDeptMatch) {
+    const isInternOrMember = roleNorm === "intern" || roleNorm === "member";
+    const isHeadOrLead = posList.some((p) =>
+      p.includes("head") ||
+      p.includes("lead") ||
+      p.includes("leader") ||
+      p.includes("manager") ||
+      p.includes("supervisor") ||
+      p.includes("spv") ||
+      p.includes("chief") ||
+      p.includes("director") ||
+      p.includes("kadiv") ||
+      p.includes("ketua") ||
+      p.includes("coordinator") ||
+      p.includes("koordinator") ||
+      p.includes("pj") ||
+      p.includes("pic")
+    );
+    // Allowed if not a basic intern/member, or if position signifies head/lead
+    if (!isInternOrMember || isHeadOrLead) {
+      return true;
+    }
+  }
+
+  // Admin / Owner can oversee all reports
+  if (roleNorm === "admin" || roleNorm === "owner") {
+    return true;
   }
 
   return false;
@@ -268,9 +336,10 @@ function isReportTargetedToUser(data, myAliases, userRole, userDept) {
  * @param {(reports:Array)=>void} onReports  each report: { id, data }
  * @param {string} [userRole]
  * @param {Array<string>} [myAliases]
+ * @param {string} [userPos]
  * @returns {()=>void} unsubscribe
  */
-export function subscribeDailyReports(userDept, onReports, userRole, myAliases = []) {
+export function subscribeDailyReports(userDept, onReports, userRole, myAliases = [], userPos = "") {
   const q = query(
     collection(db, "intern_dailyreport"),
     where("status", "in", [
@@ -290,8 +359,8 @@ export function subscribeDailyReports(userDept, onReports, userRole, myAliases =
       const reports = [];
       snapshot.forEach((ds) => {
         const data = ds.data() || {};
-        // Only include if targeted to the current user (in report_to / author / creator)
-        if (!isReportTargetedToUser(data, myAliases, userRole, userDept)) {
+        // Only include if targeted to the current user (in report_to / department head / admin)
+        if (!isReportTargetedToUser(data, myAliases, userRole, userDept, userPos)) {
           return;
         }
         reports.push({ id: ds.id, data });
