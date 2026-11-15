@@ -56,7 +56,16 @@ async function initializeHome() {
       if (readable) ui.renderWelcome(displayName, role, readable);
     }
 
-    const userDept = userData?.employment?.department || "";
+    const userDept =
+      userData?.employment?.department ||
+      userData?.department ||
+      userData?.division ||
+      (Array.isArray(userData?.departments) && userData.departments.length > 0
+        ? (typeof userData.departments[0] === "object"
+            ? userData.departments[0].name || userData.departments[0].id
+            : userData.departments[0])
+        : "") ||
+      "";
 
     // 4. Presence: write own marker + listen for online users.
     repo.updatePresence({ uid: user.uid, name: displayName, photo: userData?.photo || "" });
@@ -105,6 +114,7 @@ async function initializeHome() {
         },
         role,
         myAliases,
+        position,
       ),
     );
 

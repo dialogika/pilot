@@ -284,6 +284,7 @@ export async function getSidebarCounts() {
     let myAliases = [];
     let roleLower = "";
     let userDept = "";
+    let userPos = "";
 
     const user = auth.currentUser;
     if (user) {
@@ -316,7 +317,18 @@ export async function getSidebarCounts() {
           if (userInfo.full_name) myAliases.push(String(userInfo.full_name).toLowerCase().trim());
           if (userInfo.username) myAliases.push(String(userInfo.username).toLowerCase().trim());
           if (!roleLower && userInfo.role) roleLower = String(userInfo.role).toLowerCase();
-          userDept = String(userInfo.department || "").trim();
+          userDept = String(
+            userInfo.department ||
+            userInfo.employment?.department ||
+            userInfo.division ||
+            ""
+          ).trim();
+          userPos = String(
+            userInfo.position ||
+            userInfo.employment?.position ||
+            userInfo.role_title ||
+            ""
+          ).trim();
         }
       } catch (_) {}
 
@@ -473,6 +485,31 @@ export async function getSidebarCounts() {
           if (reportToList.length > 0) {
             if (reportToList.some((u) => myAliases.includes(u))) {
               pendingCount++;
+            } else if (roleLower === "admin" || roleLower === "owner") {
+              pendingCount++;
+            }
+          } else {
+            // General daily report without explicit report_to
+            const authorId = String(r.authorId || "").toLowerCase().trim();
+            const isSelf = authorId && myAliases.includes(authorId);
+            if (!isSelf || roleLower === "admin" || roleLower === "owner") {
+              const myDept = String(userDept || "").toLowerCase().trim();
+              const rDepts = (Array.isArray(r.departments) ? r.departments : [r.departments])
+                .filter(Boolean)
+                .map((d) => String(d).toLowerCase().trim());
+              const isDeptMatch = Boolean(myDept && rDepts.includes(myDept));
+              const isInternOrMember = roleLower === "intern" || roleLower === "member";
+              const posLower = String(userPos || "").toLowerCase();
+              const isHeadOrLead =
+                posLower.includes("head") ||
+                posLower.includes("lead") ||
+                posLower.includes("manager") ||
+                posLower.includes("supervisor") ||
+                posLower.includes("chief") ||
+                posLower.includes("director");
+              if ((isDeptMatch && (!isInternOrMember || isHeadOrLead)) || roleLower === "admin" || roleLower === "owner") {
+                pendingCount++;
+              }
             }
           }
         }

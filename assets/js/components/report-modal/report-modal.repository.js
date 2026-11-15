@@ -91,6 +91,8 @@ export async function loadUsersMap() {
         email: email,
         photo: String(photo || "").trim(),
         allAliases: allAliases,
+        department: u.department || u.employment?.department || u.division || "",
+        position: u.position || u.employment?.position || "",
       };
 
       allAliases.forEach((alias) => {
