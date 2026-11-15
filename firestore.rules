@@ -378,7 +378,7 @@ service cloud.firestore {
     // CLASS / MENTOR
     // -------------------------------------------------------------------
     match /class_planning/{id} {
-      allow read: if isInternalTeam() || isMember();
+      allow read: if true; // dibuka agar form presensi siswa bisa memuat pilihan kelas
       allow write: if isManagement() || isStaff();
     }
     match /class_availability/{id} {
@@ -399,10 +399,30 @@ service cloud.firestore {
     match /promo_batches/{id} { allow read: if isInternalTeam() || isMember(); allow write: if isManagement(); }
     match /webinars/{id} { allow read: if true; allow write: if isManagement(); } // webinar boleh publik
 
-    // data_member: Diizinkan untuk manajemen dan staff internal
-    match /data_member/{id} {
-      allow read: if isInternalTeam();
+    // products: Master katalog kelas & silabus materi (dibaca publik oleh portal member)
+    match /products/{id} {
+      allow read: if true;
       allow write: if isManagement() || isStaff();
+    }
+
+    // data_member: Diizinkan dibaca publik agar kiosk/web presensi bisa mendeteksi nomor WA siswa
+    match /data_member/{id} {
+      allow read: if true;
+      allow write: if isManagement() || isStaff();
+    }
+
+    // member_attendance: Catatan presensi kelas member / siswa
+    match /member_attendance/{id} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isManagement() || isStaff();
+    }
+
+    // certificate_logs: Catatan log dan riwayat penerbitan sertifikat kelulusan siswa
+    match /certificate_logs/{id} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isManagement() || isStaff();
     }
 
     match /subscription_email/{id} {

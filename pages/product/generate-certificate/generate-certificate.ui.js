@@ -112,7 +112,24 @@ export function parseBatchDateInput(dateText) {
 export function parseBatchLine(line) {
     if (line.includes('\t')) return line.split('\t');
     if (line.includes('|')) return line.split('|');
-    return line.split(',');
+    if (line.includes(',')) return line.split(',');
+    if (line.includes(' - ')) return line.split(' - ');
+
+    // Smart detection: format bebas seperti "(Inv: 13.98891)", "Inv 13.98891", atau "13.07353 Nama"
+    const invPattern = /\(?\b(?:inv|invoice)?[:\s]*([0-9]{2,}\.[0-9]+|[0-9]{5,})\)?/i;
+    const invMatch = line.match(invPattern);
+    if (invMatch) {
+        const invoice = invMatch[1].trim();
+        const remaining = line
+            .replace(invMatch[0], '')
+            .replace(/\(\s*\)/g, '')
+            .replace(/\[\s*\]/g, '')
+            .replace(/^[-–—:\s]+|[-–—:\s]+$/g, '')
+            .trim();
+        return [invoice, remaining];
+    }
+
+    return [line];
 }
 
 export function parseBatchInput(rawText, globalDate) {
@@ -124,11 +141,21 @@ export function parseBatchInput(rawText, globalDate) {
         const trimmed = line.trim();
         if (!trimmed) return;
 
-        const parts = parseBatchLine(trimmed).map((part) => part.trim());
-        const invoice = parts[0] || '';
-        const name = parts[1] || '';
-        const className = parts[2] || '';
-        const rawDate = parts[3] || '';
+        let parts = parseBatchLine(trimmed).map((part) => part.trim());
+        let [col0, col1, col2, col3] = parts;
+        const isInvoice = (val) => /^(?:inv[:\s]*)?([0-9]{2,}\.[0-9]+|[0-9]{5,})/i.test(val);
+
+        // Smart swap jika kolom pertama nama dan kolom kedua invoice (contoh: "Budi Santoso - 13.07354")
+        if (!isInvoice(col0) && isInvoice(col1)) {
+            const temp = col0;
+            col0 = col1.replace(/^(?:inv[:\s]*)/i, '');
+            col1 = temp;
+        }
+
+        const invoice = col0 || '';
+        const name = col1 || '';
+        const className = col2 || '';
+        const rawDate = col3 || '';
         const normalizedDate = rawDate ? parseBatchDateInput(rawDate) : '';
 
         if (!invoice || !name) {
@@ -208,6 +235,24 @@ export function setStatus(statusEl, message, type = 'info') {
     statusEl.textContent = message;
 }
 
+export function setStatusWithAction(statusEl, message, actionLabel, onAction) {
+    if (!statusEl) return;
+    statusEl.className = 'mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex items-center justify-between gap-3 shadow-sm';
+    statusEl.innerHTML = `
+        <div class="flex items-center gap-2 min-w-0">
+            <i class="bi bi-info-circle-fill text-amber-600 text-base shrink-0"></i>
+            <span class="truncate">${escapeHtml(message)}</span>
+        </div>
+        <button type="button" class="btn-undo-action px-3 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer">
+            <i class="bi bi-arrow-counterclockwise text-amber-700"></i> ${escapeHtml(actionLabel)}
+        </button>
+    `;
+    const btn = statusEl.querySelector('.btn-undo-action');
+    btn?.addEventListener('click', () => {
+        if (typeof onAction === 'function') onAction();
+    });
+}
+
 export function renderInvalidEntries(batchErrors, batchErrorsList, invalidEntries) {
     if (!batchErrors || !batchErrorsList) return;
     if (!invalidEntries.length) {
@@ -231,7 +276,7 @@ export function renderBatchStats(elements, rawText, validCount, invalidCount) {
     if (elements.invalidLinesStat) elements.invalidLinesStat.textContent = String(invalidCount);
 }
 
-export function renderBatchEntryList(batchEntryList, batchEntryListEmpty, batchEntries, activeIndex, onSelect) {
+export function renderBatchEntryList(batchEntryList, batchEntryListEmpty, batchEntries, activeIndex, onSelect, onRemove) {
     if (!batchEntryList || !batchEntryListEmpty) return;
 
     if (!batchEntries.length) {
@@ -246,21 +291,44 @@ export function renderBatchEntryList(batchEntryList, batchEntryListEmpty, batchE
     batchEntryList.innerHTML = '';
 
     batchEntries.forEach((entry, index) => {
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = `batch-entry-item w-full text-left rounded-xl border px-3 py-3 ${index === activeIndex ? 'active border-blue-300 bg-blue-50' : 'border-slate-200 bg-white hover:bg-slate-100'}`;
+        const item = document.createElement('div');
+        const isActive = index === activeIndex;
+        item.className = `batch-entry-item w-full rounded-xl border px-3 py-2.5 transition-all ${isActive ? 'active border-blue-400 bg-blue-50/80 shadow-sm ring-1 ring-blue-300' : 'border-slate-200 bg-white hover:bg-slate-50'}`;
         item.innerHTML = `
-            <div class="flex items-start justify-between gap-3">
-                <div>
-                    <div class="text-xs font-bold text-slate-800">${String(index + 1).padStart(2, '0')}. ${escapeHtml(entry.name || '-')}</div>
-                    <div class="text-[11px] text-slate-500 mt-1">${escapeHtml(entry.invoice || '-')} • ${formatDateLabel(resolveEntryDate(entry))}</div>
+            <div class="flex items-center justify-between gap-2.5">
+                <div class="entry-select-area flex-1 min-w-0 cursor-pointer" title="Klik untuk lihat preview">
+                    <div class="text-xs font-bold text-slate-800 truncate">${String(index + 1).padStart(2, '0')}. ${escapeHtml(entry.name || '-')}</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5 truncate">${escapeHtml(entry.invoice || '-')} • ${formatDateLabel(resolveEntryDate(entry))}</div>
                 </div>
-                <span class="text-[10px] font-bold ${index === activeIndex ? 'text-blue-600' : 'text-slate-400'}">Preview</span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" class="btn-preview-entry text-[11px] font-bold px-2 py-0.5 rounded transition-colors ${isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-blue-600 hover:bg-blue-100/70'}" title="Lihat preview sertifikat">
+                        Preview
+                    </button>
+                    <button type="button" class="btn-remove-entry p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Hapus peserta ini dari daftar batch">
+                        <i class="bi bi-trash3 text-xs"></i>
+                    </button>
+                </div>
             </div>
         `;
-        item.addEventListener('click', () => {
+
+        const selectArea = item.querySelector('.entry-select-area');
+        const previewBtn = item.querySelector('.btn-preview-entry');
+        const removeBtn = item.querySelector('.btn-remove-entry');
+
+        selectArea?.addEventListener('click', () => {
             if (typeof onSelect === 'function') onSelect(index);
         });
+
+        previewBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof onSelect === 'function') onSelect(index);
+        });
+
+        removeBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof onRemove === 'function') onRemove(index);
+        });
+
         batchEntryList.appendChild(item);
     });
 }

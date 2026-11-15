@@ -26,6 +26,56 @@ import {
 export const CERT_LOG_STORAGE_KEY = 'dlg_certificate_logs_v1';
 export const CERT_LOG_COLLECTION = 'certificate_logs';
 export const CERT_LOG_FETCH_LIMIT = 2000;
+export const COLLECTION_MEMBERS = 'data_member';
+
+export function getCurrentUserEmail() {
+    return auth?.currentUser?.email || '';
+}
+
+let cachedMembers = null;
+
+/**
+ * Searches members from Firestore collection 'data_member'.
+ * Cached in memory after first fetch for instant typing search.
+ * @param {string} queryTerm 
+ * @returns {Promise<Array<Object>>}
+ */
+export async function searchMembersFromDatabase(queryTerm = '') {
+    if (!cachedMembers) {
+        try {
+            const snap = await getDocs(collection(db, COLLECTION_MEMBERS));
+            const list = [];
+            snap.forEach((d) => {
+                const data = d.data() || {};
+                list.push({
+                    id: d.id,
+                    nama: data.nama || '',
+                    invoice: data.invoice || '',
+                    whatsapp: data.whatsapp || '',
+                    produk_dibeli: data.produk_dibeli || data.program || data.kelas || '',
+                    ...data
+                });
+            });
+            cachedMembers = list;
+        } catch (err) {
+            console.warn('[generate-certificate.repository] Gagal memuat data_member:', err);
+            return [];
+        }
+    }
+
+    const clean = String(queryTerm || '').trim().toLowerCase();
+    if (!clean) {
+        return cachedMembers.slice(0, 8);
+    }
+
+    return cachedMembers.filter((m) => {
+        const name = String(m.nama || '').toLowerCase();
+        const inv = String(m.invoice || '').toLowerCase();
+        const wa = String(m.whatsapp || '').toLowerCase();
+        const prog = String(m.produk_dibeli || '').toLowerCase();
+        return name.includes(clean) || inv.includes(clean) || wa.includes(clean) || prog.includes(clean);
+    }).slice(0, 10);
+}
 
 export function generateLogId() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') {
@@ -45,8 +95,8 @@ export async function persistCertificateLog(payload) {
     const user = auth.currentUser;
     const enriched = {
         ...payload,
-        createdByUid: user?.uid || '',
-        createdByEmail: user?.email || '',
+        createdByUid: user?.uid || payload.createdByUid || '',
+        createdByEmail: user?.email || payload.createdByEmail || '',
         serverCreatedAt: serverTimestamp()
     };
     await setDoc(doc(db, CERT_LOG_COLLECTION, payload.id), enriched, { merge: true });
@@ -216,4 +266,3 @@ export async function exportCertificateData({
 
     return { count: rows.length, filename };
 }
-
