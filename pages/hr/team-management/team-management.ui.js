@@ -80,6 +80,48 @@ export function formatFee(value) {
 }
 
 /**
+ * Format contract start / end date for display.
+ * @param {string|Object|Date} value
+ * @returns {string}
+ */
+export function formatContractDate(value) {
+  if (!value || value === "-") return "-";
+  try {
+    let d = null;
+    if (typeof value === "string") {
+      const parts = value.trim().split("-");
+      if (parts.length === 3 && parts[0].length === 4) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        d = new Date(y, m, day);
+      } else {
+        d = new Date(value);
+      }
+    } else if (value && typeof value.toDate === "function") {
+      d = value.toDate();
+    } else if (value && typeof value.toMillis === "function") {
+      d = new Date(value.toMillis());
+    } else if (value && value.seconds) {
+      d = new Date(value.seconds * 1000);
+    } else if (value instanceof Date) {
+      d = value;
+    }
+    if (!d || isNaN(d.getTime())) return escapeHtml(value);
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  } catch (err) {
+    return escapeHtml(value);
+  }
+}
+
+/**
  * Convert status string to CSS class.
  * @param {string} status
  * @returns {string}
@@ -198,6 +240,8 @@ export function renderDivisionSections(container) {
         "<th>Bank / Wallet</th>" +
         "<th>Nomor Rekening</th>" +
         "<th>Price / Fee</th>" +
+        "<th>Start Contract</th>" +
+        "<th>End Contract</th>" +
         '<th class="text-end">Action</th>';
 
       return (
@@ -313,6 +357,12 @@ export function renderMembers(members) {
       "</td>" +
       "<td>" +
       formatFee(member.fee) +
+      "</td>" +
+      "<td>" +
+      formatContractDate(member.startDate) +
+      "</td>" +
+      "<td>" +
+      formatContractDate(member.endDate) +
       "</td>" +
       '<td class="text-end">' +
       '<button type="button" class="action-btn me-2 team-edit-btn" data-id="' +
