@@ -122,6 +122,66 @@ export function formatContractDate(value) {
 }
 
 /**
+ * Calculate effective status for a team member based on their end contract date.
+ * If contract is ending within 2-3 weeks (<= 21 days), status dynamically becomes "On Leave".
+ * @param {Object} member
+ * @returns {string}
+ */
+export function getMemberEffectiveStatus(member) {
+  if (!member) return "Active";
+  const baseStatus = member.status || "Active";
+  const normBase = String(baseStatus).trim().toLowerCase();
+
+  // If already marked as Ghosted, Resigned, or Inactive manually, keep it
+  if (normBase === "ghosted") return "Ghosted";
+  if (normBase === "resigned") return "Resigned";
+  if (normBase === "inactive") return "Inactive";
+
+  // Check end contract date
+  const endVal = member.endDate;
+  if (!endVal || endVal === "-") return baseStatus;
+
+  try {
+    let endDateObj = null;
+    if (typeof endVal === "string") {
+      const parts = endVal.trim().split("-");
+      if (parts.length === 3 && parts[0].length === 4) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        endDateObj = new Date(y, m, d);
+      } else {
+        endDateObj = new Date(endVal);
+      }
+    } else if (endVal && typeof endVal.toDate === "function") {
+      endDateObj = endVal.toDate();
+    } else if (endVal && typeof endVal.toMillis === "function") {
+      endDateObj = new Date(endVal.toMillis());
+    } else if (endVal && endVal.seconds) {
+      endDateObj = new Date(endVal.seconds * 1000);
+    } else if (endVal instanceof Date) {
+      endDateObj = endVal;
+    }
+
+    if (!endDateObj || isNaN(endDateObj.getTime())) return baseStatus;
+
+    const today = new Date();
+    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endMid = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), endDateObj.getDate());
+    const diffDays = Math.round((endMid.getTime() - todayMid.getTime()) / (1000 * 60 * 60 * 24));
+
+    // If within 2 to 3 weeks before end contract (0 to 21 days)
+    if (diffDays >= 0 && diffDays <= 21) {
+      return "On Leave";
+    }
+
+    return baseStatus;
+  } catch (err) {
+    return baseStatus;
+  }
+}
+
+/**
  * Convert status string to CSS class.
  * @param {string} status
  * @returns {string}
@@ -318,15 +378,18 @@ export function renderMembers(members) {
     const originalDiv =
       member.originalDivision || member.department || member.division || "-";
 
+    const effectiveStatus = getMemberEffectiveStatus(member);
+    member.effectiveStatus = effectiveStatus;
+
     tr.innerHTML =
       '<td><span class="member-name">' +
       escapeHtml(member.name || "-") +
       "</span></td>" +
       (isSpecial ? "<td>" + escapeHtml(originalDiv) + "</td>" : "") +
       '<td><span class="status-pill ' +
-      getStatusClass(member.status) +
+      getStatusClass(effectiveStatus) +
       '">' +
-      escapeHtml(member.status || "-") +
+      escapeHtml(effectiveStatus) +
       "</span></td>" +
       "<td>" +
       getContractBadgeHtml(member) +

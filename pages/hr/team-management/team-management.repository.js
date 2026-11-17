@@ -326,7 +326,7 @@ export async function exportTeamData({
     division: item.division || "-",
     role: item.role || item.position || "-",
     contractType: item.contractType || "-",
-    status: item.status || "Active",
+    status: item.effectiveStatus || item.status || "Active",
     whatsapp: item.whatsapp || "-",
     email: item.email || "-",
     startDate: formatDateIndo(item.startDate || item.createdAt),
