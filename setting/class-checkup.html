@@ -45,6 +45,7 @@
         .cal-card-stall { background:#d1d5db; border-left-color:#4b5563; color:var(--text); border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(31,41,55,.14); }
         .cal-card-graduate { background:#fb923c; border-left-color:#9a3412; color:#7c2d12; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(124,45,18,.16); }
         .cal-card-complete { background:#4ade80; border-left-color:#166534; color:#14532d; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(20,83,45,.18); }
+        .cal-card-reaktif { background:#e0e7ff; border-left-color:#4338ca; color:#312e81; border-left-width:5px; box-shadow:inset 0 0 0 1px rgba(49,46,129,.18); }
         .cal-card-title { font-size:12px; font-weight:700; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
         .cal-card-time { font-size:11px; color:#334155; font-weight:700; margin-top:2px; }
         .cal-card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:5px; }
@@ -130,6 +131,10 @@
         .status-stall { background:#fef2f2; color:#b91c1c; }
         .status-graduate { background:var(--surface-active); color:#1d4ed8; }
         .status-complete { background:#020617; color:#e5e7eb; }
+        .status-reaktif { background:#e0e7ff; color:#3730a3; }
+        .payment-pill { font-size:9px; font-weight:800; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:3px; }
+        .payment-paid { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+        .payment-unpaid { background:#fef3c7; color:#b45309; border:1px solid #fde68a; }
         .modal-backdrop-custom { position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
         .modal-backdrop-custom.open { display:flex; }
         .modal-card { width:100%; max-width:680px; max-height:calc(100vh - 40px); overflow:auto; }
@@ -205,6 +210,7 @@
                             <option value="Stall">Stall</option>
                             <option value="Graduate">Graduate</option>
                             <option value="Complete">Complete</option>
+                            <option value="Re-Aktif">Re-Aktif</option>
                         </select>
                     </div>
                     <div class="text-xs text-slate-500 font-semibold flex items-center md:justify-end">
@@ -297,6 +303,15 @@
                         <option value="Stall">Stall</option>
                         <option value="Graduate">Graduate</option>
                         <option value="Complete">Complete</option>
+                        <option value="Re-Aktif">Re-Aktif</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Status Payment</div>
+                    <select id="editPaymentStatus" class="w-full text-xs rounded-xl border border-slate-200 px-3 py-2 bg-slate-50">
+                        <option value="">- Belum Ditentukan -</option>
+                        <option value="Belum Payment">Belum Payment</option>
+                        <option value="Sudah Payment">Sudah Payment</option>
                     </select>
                 </div>
                 <div>
@@ -398,6 +413,7 @@
                                 <div>
                                     <label class="salary-field-label">Mentor</label>
                                     <input id="salaryMentorName" type="text" class="salary-input" disabled>
+                                    <div id="salaryMentorBankPreview" class="text-[11px] text-slate-500 mt-1"></div>
                                 </div>
                                 <div>
                                     <label class="salary-field-label">Kelas</label>
@@ -577,6 +593,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                 if (lower === "stall") return "Stall";
                 if (lower === "graduate") return "Graduate";
                 if (lower === "complete") return "Complete";
+                if (lower === "re-aktif" || lower === "reaktif") return "Re-Aktif";
             }
             const startRaw = d && (d.date || d.start_date || d.startDate);
             if (!startRaw || startRaw === "Flexible") return "Soon";
@@ -898,6 +915,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                 admins,
                 treasurers,
                 mentors,
+                paymentStatus: d.payment_status || d.paymentStatus || d.payment || "",
                 salaryExpenseId: d.salary_expense_id || "",
                 salaryPublishedAt: d.salary_published_at || null,
                 salaryPublishedBy: d.salary_published_by || ""
@@ -915,7 +933,9 @@ import { app, db } from "../assets/js/firebase-config.js";
                 Reminder: "cal-card-reminder",
                 Stall: "cal-card-stall",
                 Graduate: "cal-card-graduate",
-                Complete: "cal-card-complete"
+                Complete: "cal-card-complete",
+                "Re-Aktif": "cal-card-reaktif",
+                Reaktif: "cal-card-reaktif"
             };
             return map[status] || "cal-card-soon";
         }
@@ -1901,6 +1921,7 @@ import { app, db } from "../assets/js/firebase-config.js";
             const inputIds = [
                 "editClassName",
                 "editStatus",
+                "editPaymentStatus",
                 "editStartDate",
                 "editStartTime",
                 "editLocation",
@@ -1943,6 +1964,7 @@ import { app, db } from "../assets/js/firebase-config.js";
             const subEl = document.getElementById("detailSubtitle");
             const nameEl = document.getElementById("editClassName");
             const statusEl = document.getElementById("editStatus");
+            const paymentStatusEl = document.getElementById("editPaymentStatus");
             const startEl = document.getElementById("editStartDate");
             const startTimeEl = document.getElementById("editStartTime");
             const locationEl = document.getElementById("editLocation");
@@ -1955,6 +1977,7 @@ import { app, db } from "../assets/js/firebase-config.js";
             }
             if (nameEl) nameEl.value = c.name || "";
             if (statusEl) statusEl.value = c.status || "Soon";
+            if (paymentStatusEl) paymentStatusEl.value = c.paymentStatus || "";
             if (startEl) startEl.value = c.startDate || "";
             if (startTimeEl) startTimeEl.value = c.startTime || "";
             if (locationEl) locationEl.value = c.location || "";
@@ -2015,6 +2038,29 @@ import { app, db } from "../assets/js/firebase-config.js";
             if (statusText) statusText.textContent = "Kelas telah " + c.status.toLowerCase() + " (" + c.meetingDone + "/" + c.meetingTotal + " meeting)";
             if (mentorInput) mentorInput.value = mentorFullName;
             if (classInput) classInput.value = c.name || "-";
+
+            const bankPreviewEl = document.getElementById("salaryMentorBankPreview");
+            if (bankPreviewEl) bankPreviewEl.innerHTML = '<span class="text-slate-400">Mencari info rekening mentor...</span>';
+            if (mentorFullName && mentorFullName !== "-") {
+                findMentorDocByName(mentorFullName).then(mentorDoc => {
+                    if (!bankPreviewEl) return;
+                    if (mentorDoc) {
+                        const bInfo = extractBankInfoFromMentor(mentorDoc.data);
+                        if (bInfo.bankName && bInfo.accountNumber) {
+                            bankPreviewEl.innerHTML = `<span class="text-emerald-600 font-medium">✓ Rekening: ${escapeHtml(bInfo.bankName)} - ${escapeHtml(bInfo.accountNumber)} (a.n. ${escapeHtml(bInfo.beneficiaryName || mentorFullName)})</span>`;
+                        } else {
+                            bankPreviewEl.innerHTML = `<span class="text-amber-600">⚠ Rekening mentor belum lengkap di profil (${escapeHtml(mentorDoc.data.fullName || mentorFullName)})</span>`;
+                        }
+                    } else {
+                        bankPreviewEl.innerHTML = `<span class="text-rose-500">⚠ Mentor tidak ditemukan di database mentor</span>`;
+                    }
+                }).catch(() => {
+                    if (bankPreviewEl) bankPreviewEl.textContent = "";
+                });
+            } else if (bankPreviewEl) {
+                bankPreviewEl.textContent = "";
+            }
+
             if (c.salaryExpenseId) {
                 if (formArea) formArea.classList.add("hidden");
                 if (publishedArea) publishedArea.classList.remove("hidden");
@@ -2119,10 +2165,13 @@ import { app, db } from "../assets/js/firebase-config.js";
                 const mentorDoc = await findMentorDocByName(mentorFullName);
                 let bankInfo = { beneficiaryName: mentorFullName, bankName: "", accountNumber: "" };
                 let mentorId = "";
+                let mentorWhatsapp = "";
                 if (mentorDoc) {
                     mentorId = mentorDoc.id;
                     bankInfo = extractBankInfoFromMentor(mentorDoc.data);
                     if (!bankInfo.beneficiaryName) bankInfo.beneficiaryName = mentorFullName;
+                    const d = mentorDoc.data || {};
+                    mentorWhatsapp = d.whatsappNumber || d.whatsapp || d.whatsApp || d.phone || d.no_wa || d.noWa || d.no_hp || "";
                 }
                 const expenseId = "OPS-" + Date.now();
                 const nowMs = Date.now();
@@ -2145,6 +2194,9 @@ import { app, db } from "../assets/js/firebase-config.js";
                     paymentMethod: "Transfer Bank",
                     transferProofUrl: "",
                     transferProofPath: "",
+                    mentorWhatsapp: mentorWhatsapp,
+                    whatsappMessage: "",
+                    whatsappLink: "",
                     notes: notes,
                     paymentNotes: "",
                     vendorName: "",
@@ -2284,6 +2336,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                 return;
             }
             const status = (document.getElementById("editStatus")?.value || "Soon").trim();
+            const paymentStatus = (document.getElementById("editPaymentStatus")?.value || "").trim();
             const startDate = (document.getElementById("editStartDate")?.value || "").trim();
             const startTime = (document.getElementById("editStartTime")?.value || "").trim();
             const location = (document.getElementById("editLocation")?.value || "").trim();
@@ -2315,6 +2368,7 @@ import { app, db } from "../assets/js/firebase-config.js";
             const nextClassData = {
                 name,
                 status: finalStatus,
+                paymentStatus,
                 startDate,
                 startTime,
                 location,
@@ -2332,6 +2386,7 @@ import { app, db } from "../assets/js/firebase-config.js";
             const previousClassData = {
                 name: selected.name,
                 status: selected.status,
+                paymentStatus: selected.paymentStatus || "",
                 startDate: selected.startDate,
                 startTime: selected.startTime,
                 location: selected.location,
@@ -2354,6 +2409,8 @@ import { app, db } from "../assets/js/firebase-config.js";
                     class_name: name,
                     status: finalStatus,
                     class_status: finalStatus,
+                    payment_status: paymentStatus,
+                    paymentStatus: paymentStatus,
                     date: startDate,
                     start_date: startDate,
                     startDate: startDate,
@@ -2395,6 +2452,7 @@ import { app, db } from "../assets/js/firebase-config.js";
                     ...selected,
                     name,
                     status: finalStatus,
+                    paymentStatus,
                     startDate,
                     startTime,
                     location,
@@ -2612,6 +2670,20 @@ import { app, db } from "../assets/js/firebase-config.js";
                 card.appendChild(rowMentor);
                 card.appendChild(rowSupervisor);
                 card.appendChild(rowType);
+                if (c.paymentStatus) {
+                    const rowPayment = document.createElement("div");
+                    rowPayment.className = "cal-card-row";
+                    const paymentLabel = document.createElement("span");
+                    paymentLabel.className = "cal-card-label";
+                    paymentLabel.textContent = "Payment:";
+                    const paymentPill = document.createElement("span");
+                    const isPaid = String(c.paymentStatus).toLowerCase().includes("sudah");
+                    paymentPill.className = isPaid ? "payment-pill payment-paid" : "payment-pill payment-unpaid";
+                    paymentPill.textContent = c.paymentStatus;
+                    rowPayment.appendChild(paymentLabel);
+                    rowPayment.appendChild(paymentPill);
+                    card.appendChild(rowPayment);
+                }
                 cell.appendChild(card);
             }
 
